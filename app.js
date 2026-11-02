@@ -596,7 +596,7 @@ var FORMS={
    fProiect(),
    {k:"descriere",t:"text",l:"f_descr"},
    {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs"},
-   {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1"},
+   {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1",lockIf:function(d){return d.valuta==="MDL"}},
    {k:"suma",t:"number",l:"f_suma",req:1,step:"0.01"},
    {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"}
  ]},calc:function(d){return [{l:T("eq"),v:money(n(d.suma)*n(d.curs))+" MDL"}]}},
@@ -618,7 +618,7 @@ var FORMS={
      {v:"Dat persoanei",l:T("d_pers")},{v:"Depus pe cont",l:T("d_depus")},
      {v:"Salarii",l:T("d_sal")},{v:"Împrumut",l:T("d_impr")},{v:"Alte",l:T("d_alte")}],def:"Dat persoanei"},
    {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs"},
-   {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1"},
+   {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1",lockIf:function(d){return d.valuta==="MDL"}},
    {k:"suma",t:"number",l:"f_suma",req:1,step:"0.01"},
    {k:"persoana",t:"text",l:"f_pers",list:persoane()},
    {k:"luna",t:"month",l:"f_luna",def:curMonth(),showIf:function(d){return d.destinatie==="Salarii"}},
@@ -631,7 +631,7 @@ var FORMS={
    {k:"locatia",t:"text",l:"f_loc",req:1},
    {k:"chirias",t:"text",l:"f_chirias",list:persoane()},
    {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs"},
-   {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1"},
+   {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1",lockIf:function(d){return d.valuta==="MDL"}},
    {k:"chirie",t:"number",l:"f_chirie",half:1,step:"0.01"},
    {k:"gaj",t:"number",l:"f_gaj",half:1,step:"0.01"},
    {k:"comunale",t:"number",l:"f_comun",half:1,step:"0.01"},
@@ -1469,6 +1469,8 @@ function drawSheet(){
 }
 function fieldHtml(f,v){
   var lbl=esc(T(f.l)),id="fl-"+f.k;
+  var locked=!!(f.lockIf&&sheetState&&f.lockIf(sheetState.data));
+  if(locked){v="1";if(sheetState)sheetState.data[f.k]="1";}
   if(f.t==="checkbox"){
     return '<label class="cb" for="'+id+'"><input type="checkbox" id="'+id+'" data-k="'+f.k+'"'+(v?" checked":"")+'><span>'+lbl+(f.hint?'<br><small style="color:var(--muted)">'+esc(T(f.hint))+'</small>':'')+'</span></label>';
   }
@@ -1492,7 +1494,7 @@ function fieldHtml(f,v){
   var type=f.t==="number"?"number":(f.t==="date"?"date":(f.t==="month"?"month":"text"));
   var extra=f.t==="number"?' inputmode="decimal" step="'+(f.step||"0.01")+'"':"";
   var list=f.list&&f.list.length?' list="dl-'+f.k+'" autocomplete="off"':"";
-  return '<label for="'+id+'"><span>'+lbl+(f.req?" *":"")+'</span><input type="'+type+'" id="'+id+'" data-k="'+f.k+'" value="'+esc(v)+'"'+extra+list+'></label>'
+  return '<label for="'+id+'"><span>'+lbl+(f.req?" *":"")+'</span><input type="'+type+'" id="'+id+'" data-k="'+f.k+'" value="'+esc(v)+'"'+extra+list+(locked?' readonly':'')+'></label>'
     +(f.hint?'<p class="hint">'+esc(T(f.hint))+'</p>':"");
 }
 function submitForm(){
@@ -1539,6 +1541,7 @@ function submitForm(){
       if(f.newOnly&&st.id)return;
       b[f.k]=(f.t==="number")?n(d[f.k]):String(d[f.k]==null?"":d[f.k]).trim();
     });
+    if(b.valuta==="MDL"&&("curs" in b))b.curs=1; /* lei never carry a rate */
     p=saveDoc(col,b,st.id);
   }
   p.then(function(){closeSheet();toast(T("saved"))})
@@ -1590,6 +1593,7 @@ document.addEventListener("input",function(ev){
   if(!sheetState||!el.dataset||!el.dataset.k)return;
   var k=el.dataset.k;
   sheetState.data[k]=(el.type==="checkbox")?el.checked:el.value;
+  if(k==="curs"&&sheetState.data.valuta==="MDL"){sheetState.data.curs="1";el.value="1";}
   var def=FORMS[sheetState.col];
   if(def&&def.calc){
     var box=document.querySelectorAll(".calcbox");
