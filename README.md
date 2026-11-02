@@ -10,7 +10,7 @@
 index.html, styles.css, app.js   приложение (без сборки, обычный JS)
 app-config.js                    адрес сервера (пусто = тот же домен)
 vendor/pocketbase.umd.js         клиент PocketBase
-manifest.webmanifest, sw.js, icons/   установка на телефон, офлайн‑кэш
+manifest.json, sw.js, icons/   установка на телефон, офлайн‑кэш
 server/pb_migrations/            схема базы и правила доступа
 server/pb_hooks/                 серверная логика: вход по коду, защита от перебора, автор записи
 server/install.sh                установка на Ubuntu с nginx (один раз)
