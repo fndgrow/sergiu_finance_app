@@ -1479,7 +1479,7 @@ function vWho(){
     +'<p class="hint">'+esc(T("me_h"))+'</p><button class="btn" type="submit">'+esc(T("save"))+'</button></form></div></div>';
 }
 function vAdd(){
-  var h=statusNote()+vWho()+vMyBalance();
+  var h=statusNote()+'<div class="add-layout"><div class="add-main">'+vWho()+vMyBalance();
   var order=["incasari","cheltuieli","iesiri","chirii","imprumuturi","contracte","pontaj","angajati"];
   if(isDir)order=["incasari","cheltuieli","iesiri","proiecte","utilizatori","chirii","imprumuturi","contracte","pontaj","angajati"];
   var desc={incasari:"a_inc_d",cheltuieli:"a_chelt_d",iesiri:"a_ies_d",chirii:"a_chirie_d",
@@ -1490,10 +1490,12 @@ function vAdd(){
       +'<span class="t">'+esc(T(FORMS[k].title))+'</span>'
       +'<span class="d2">'+esc(T(desc[k]))+'</span></button>';
   }).join("")+'</div></div>';
+  h+='</div><aside class="add-side">';
   h+='<div class="sec"><h2>'+esc(T("ord"))+'</h2><div class="card rows">'
     +r2("1",'',T("ord_1"))+r2("2",'',T("ord_2"))+r2("3",'',T("ord_3"))+r2("4",'',T("ord_4"))+'</div></div>';
   h+=installNote();
   if(!isDir)h+='<div class="sec"><button class="btn ghost" id="exitdir" type="button">'+esc(T("logout"))+'</button></div>';
+  h+='</aside></div>';
   return h;
 }
 
@@ -1638,7 +1640,7 @@ function vMine(){
 
 function vSet(){
   if(!isDir)return vPin();
-  var c=cfg(),h=vUsers();
+  var c=cfg(),h='<div class="set-grid">'+vUsers();
   h+='<div class="sec"><h2>'+esc(T("set_val"))+'</h2><div class="card pad"><form id="valf">'
     +valute().map(function(v,i){
       return '<div class="pair"><label><span>'+curBadge(v.cod,false)+' '+esc(T("cod"))+'</span><input name="cod'+i+'" value="'+esc(v.cod)+'"'+(v.cod==="MDL"?' readonly':'')+'></label>'
@@ -1671,6 +1673,7 @@ function vSet(){
     +'<button class="btn" type="submit" id="expsub">'+esc(T("exp_btn"))+'</button></form></div></div>';
   h+='<div class="sec"><button class="btn ghost" id="exitdir" type="button">'+esc(T("logout"))+'</button></div>';
   h+=installNote();
+  h+='</div>';
   return h;
 }
 

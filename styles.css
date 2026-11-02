@@ -218,43 +218,89 @@ label>span .cur-b{width:16px;height:16px;font-size:10px}
 .dp-btn.dp-az{color:var(--accent);font-weight:600}
 .dp-btn:hover{background:var(--surface-2)}
 
-/* ================= wide screens: side navigation, two-column dashboard, forms as windows ================= */
+#installbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.add-layout,.set-grid{display:block}
+
+/* ================= wide screens (>= 900px): tabs in the header, centred content, two-column screens ================= */
 @media (min-width:900px){
   body{font-size:15.5px}
-  .bar{padding-left:calc(232px + 24px);padding-right:32px;padding-block:14px}
-  .bar h1{font-size:18px}
-  main{margin-left:232px;max-width:1180px;padding:24px 32px 48px}
-  nav{top:0;bottom:0;right:auto;width:232px;flex-direction:column;align-items:stretch;gap:4px;
-    padding:88px 12px 16px;border-top:0;border-right:1px solid var(--line)}
-  nav button{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;border-radius:12px;font-size:14px}
+  .bar{height:64px;padding:0 32px;gap:16px;z-index:36}
+  .bar h1{font-size:18px;flex:0 0 auto;min-width:200px}
+  .bar .pill{margin-left:auto}
+  nav{top:0;bottom:auto;left:0;right:0;height:64px;background:transparent;border:0;padding:0;justify-content:center;align-items:center;pointer-events:none;z-index:37}
+  nav button{flex:0 0 auto;pointer-events:auto;flex-direction:row;gap:9px;padding:9px 18px;margin:0 3px;border-radius:999px;font-size:14px;color:var(--muted)}
   nav button .lb{font-size:14px;letter-spacing:0}
-  nav button .ic .ic-svg{width:22px;height:22px}
-  nav button:hover{background:var(--surface-2)}
+  nav button .ic{height:auto}
+  nav button .ic .ic-svg{width:19px;height:19px}
+  nav button:hover{background:var(--surface-2);color:var(--ink)}
   nav button[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
-  .grid2{grid-template-columns:repeat(4,1fr)}
-  .act{min-height:96px}
-  .tiles{grid-template-columns:repeat(5,1fr)}
+  main{max-width:1240px;margin:0 auto;padding:28px 32px 56px}
+  .sec{margin-block:26px}
+  .sec>h2{font-size:12.5px}
+
+  /* add screen: actions left, guidance right */
+  .add-layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:0 32px;align-items:start}
+  .grid2{grid-template-columns:repeat(3,1fr);gap:14px}
+  .act{min-height:132px;padding:18px 18px;gap:6px;border-radius:16px;transition:transform .12s,box-shadow .12s}
+  .act:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(20,30,24,.12)}
+  .act .m{width:42px;height:42px;border-radius:12px;margin-bottom:8px}
+  .act .m .ic-svg{width:24px;height:24px}
+  .act .t{font-size:17px}
+  .act .d2{font-size:13px}
+
+  /* dashboard */
+  .tiles{grid-template-columns:repeat(5,1fr);gap:14px}
   .tile.big{grid-column:span 1}
-  .tile .v{font-size:22px} .tile.big .v{font-size:24px}
-  .dash-ov{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;align-items:start}
-  .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;align-items:start}
+  .tile{padding:16px 18px} .tile .v{font-size:23px} .tile.big .v{font-size:25px}
+  .dash-ov{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;align-items:start}
+  .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;align-items:start}
   .dash-grid .sec-wide{grid-column:1/-1}
-  .donut{max-width:360px}
-  .sheet{display:flex;align-items:flex-start;justify-content:center;padding:36px 24px;background:rgba(8,10,9,.55);backdrop-filter:blur(2px)}
+  .donut{max-width:380px}
+  .row{padding:11px 16px}
+
+  /* settings: two columns, users across */
+  .set-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;align-items:start}
+  .set-grid>.sec:first-child{grid-column:1/-1}
+
+  /* forms as centred windows */
+  .sheet{display:flex;align-items:flex-start;justify-content:center;padding:40px 24px;background:rgba(8,10,9,.55);backdrop-filter:blur(2px)}
   .sheet-in{background:var(--paper);border:1px solid var(--line);border-radius:18px;width:100%;max-width:720px;padding:0 22px 22px;
-    box-shadow:0 24px 64px rgba(0,0,0,.35);max-height:calc(100vh - 72px);overflow-y:auto}
+    box-shadow:0 24px 64px rgba(0,0,0,.35);max-height:calc(100vh - 80px);overflow-y:auto}
   .sheet-head{border-radius:18px 18px 0 0}
   .toast{bottom:32px}
   .chips{flex-wrap:wrap}
+  #installbtn{width:auto;padding:12px 22px}
+
+  /* login */
+  body.locked main{max-width:560px;padding-top:72px}
+  body.locked .bar{padding:0 32px}
 }
-@media (min-width:1280px){
-  main{max-width:1320px}
-  .tiles{grid-template-columns:repeat(5,1fr)}
+/* laptops and 24" monitors */
+@media (min-width:1400px){
+  main{max-width:1400px;padding:32px 40px 64px}
+  .grid2{grid-template-columns:repeat(4,1fr)}
+  .add-layout{grid-template-columns:minmax(0,3fr) minmax(300px,1fr);gap:0 40px}
+}
+/* 27" and larger (2560px wide and up): use the width, scale type up, three dashboard columns */
+@media (min-width:1800px){
+  body{font-size:17px}
+  .bar{height:72px;padding:0 48px} .bar h1{font-size:20px}
+  nav{height:72px} nav button{padding:11px 22px;font-size:15.5px} nav button .lb{font-size:15.5px}
+  main{max-width:1760px;padding:40px 48px 72px}
+  .sec>h2{font-size:13.5px}
+  .grid2{grid-template-columns:repeat(5,1fr);gap:18px}
+  .act{min-height:150px;padding:22px} .act .t{font-size:19px} .act .d2{font-size:14px}
+  .act .m{width:48px;height:48px} .act .m .ic-svg{width:26px;height:26px}
+  .tiles{gap:18px} .tile{padding:20px 22px} .tile .v{font-size:27px} .tile.big .v{font-size:30px} .tile .k{font-size:11.5px}
+  .dash-ov{gap:0 32px}
+  .dash-grid{grid-template-columns:1fr 1fr 1fr;gap:0 32px}
+  .donut{max-width:440px} .flow{max-width:560px}
+  .ov .hero{font-size:36px}
+  .row{padding:13px 18px} .row .s{font-size:13px}
+  .set-grid{grid-template-columns:1fr 1fr 1fr;gap:0 32px}
+  .sheet-in{max-width:800px}
+  input,select,textarea{padding:13px 14px}
+  .btn{padding:16px}
+  body.locked main{max-width:620px}
 }
 
-#installbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%}
-@media (min-width:900px){
-  body.locked main{margin-left:auto;margin-right:auto;max-width:640px;padding-top:56px}
-  body.locked .bar{padding-left:32px}
-  #installbtn{width:auto;padding:12px 22px}
-}
