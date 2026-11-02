@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Casieria EHL</title>
+<meta name="description" content="Casieria EHL — încasări, cheltuieli, casă, cont, salarii, împrumuturi.">
+<meta name="theme-color" content="#0E6A4E" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171B18" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Casieria EHL">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+<div class="bar">
+  <h1 id="ttl">Casieria EHL</h1>
+  <span class="pill" id="role">—</span>
+  <div class="lang" role="group">
+    <button type="button" data-lang="ro" aria-pressed="true">RO</button>
+    <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+  </div>
+</div>
+
+<main id="app"></main>
+<nav id="nav"></nav>
+<div id="sheet"></div>
+<div id="toasts"></div>
+
+<script src="./vendor/pocketbase.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js" defer onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';document.head.appendChild(s)"></script>
+<script src="./app-config.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
