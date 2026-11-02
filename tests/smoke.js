@@ -117,6 +117,7 @@ const ls = (k) => window.localStorage.getItem(k);
   console.log("1. gate shown");
   check($("#pinf") && $("#pinv"), "code form present");
   check(!$("#nav").children.length, "nav hidden while locked");
+  check(/Instalează aplicația pe computer/.test(text()), "install block on the login screen names the computer");
 
   check($("#langbtn") && $("#langbtn").textContent === "RU", "single language button shows RU on the Romanian UI");
   click($("#langbtn")); await tick(); check($("#langbtn").textContent === "RO" && /Код доступа/.test(text()), "tap switches to Russian and the button now shows RO");
@@ -156,6 +157,16 @@ const ls = (k) => window.localStorage.getItem(k);
   check(/propriul cont/.test($("#sheet").textContent || ""), "self-demotion blocked with message");
   click($("#closeSheet")); await tick();
 
+  console.log("4a. desktop date picker");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="incasari"]')); await tick();
+  const real=$('[data-k="data"]'), show=real && real.parentNode.querySelector(".dp-show");
+  check(real && real.type === "date" && show && /^[0-9][0-9][.][0-9][0-9][.][0-9]{4}$/.test(show.value), "date field wrapped: hidden ISO input + dd.mm.yyyy display");
+  click(show); await tick();
+  check($("#dpop") && !$("#dpop").hidden && window.document.querySelectorAll("#dpop .dp-day").length >= 35 && $("#dpop .dp-sel"), "popover shows a month grid with the selected day");
+  click($('#dpop [data-dpnav="-1"]')); await tick();
+  const firstDay=Array.from(window.document.querySelectorAll('#dpop .dp-day:not(.dp-off)'))[0]; click(firstDay); await tick();
+  check($("#dpop").hidden && /-01$/.test(real.value) && show.value.indexOf("01.") === 0, "picking a day in the previous month writes ISO to the real input and closes the popover");
+  click($("#closeSheet")); await tick(60);
   console.log("4b. back button closes an open form instead of leaving");
   click($('[data-view="add"]')); await tick(); click($('[data-form="incasari"]')); await tick();
   check($("#recf") && window.history.state && window.history.state.sheet, "open form pushed a history entry");

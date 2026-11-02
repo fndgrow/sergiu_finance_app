@@ -100,7 +100,11 @@ ro:{
  offline_note:"Fără conexiune. Puteți introduce date, se trimit când revine internetul.",
  pending:"{n} înregistrări așteaptă trimiterea la server.",
  first_pin:"Prima pornire: acest cod a devenit codul directorului. Schimbați-vă numele în Setări → Utilizatori.",
- install:"Instalează pe telefon",cod_bad:"Codul trebuie să aibă 4–8 cifre și să nu fie folosit deja.",
+ install:"Instalează pe telefon",install_phone:"Instalează aplicația pe telefon",install_pc:"Instalează aplicația pe computer",
+ install_ios_h:"Pe iPhone: apăsați butonul Partajare (pătratul cu săgeată) din Safari, apoi „Adaugă pe ecranul principal”.",
+ install_android_h:"Deschideți această adresă în Chrome, apoi meniul ⋮ → „Instalează aplicația” sau „Adaugă pe ecranul principal”.",
+ install_pc_h:"În Chrome sau Edge apăsați pictograma de instalare din bara de adrese (dreapta), apoi „Instalează”. Aplicația apare ca program separat.",
+ cod_bad:"Codul trebuie să aibă 4–8 cifre și să nu fie folosit deja.",
  self_lock:"Nu vă puteți dezactiva sau retrograda propriul cont.",
  pw_t:"Parola directorului",pw_h:"Pe un telefon nou directorul confirmă parola. Apoi se cere din nou o dată pe săptămână.",
  pw_week:"A trecut o săptămână de la ultima confirmare. Introduceți parola ca să continuați.",
@@ -208,7 +212,11 @@ ru:{
  offline_note:"Нет связи. Вносить можно, данные отправятся, когда появится интернет.",
  pending:"{n} записей ждут отправки на сервер.",
  first_pin:"Первый запуск: этот код стал кодом директора. Поменяйте имя в Настройки → Пользователи.",
- install:"Установить на телефон",cod_bad:"Код должен быть из 4–8 цифр и не повторять другой.",
+ install:"Установить на телефон",install_phone:"Установить приложение на телефон",install_pc:"Установить приложение на компьютер",
+ install_ios_h:"На iPhone: кнопка «Поделиться» (квадрат со стрелкой) в Safari, затем «На экран Домой».",
+ install_android_h:"Откройте этот адрес в Chrome, затем меню ⋮ → «Установить приложение» или «Добавить на главный экран».",
+ install_pc_h:"В Chrome или Edge нажмите значок установки в адресной строке (справа), затем «Установить». Приложение появится отдельной программой.",
+ cod_bad:"Код должен быть из 4–8 цифр и не повторять другой.",
  self_lock:"Нельзя отключить или понизить собственную учётную запись.",
  pw_t:"Пароль директора",pw_h:"На новом телефоне директор подтверждает пароль. Дальше он запрашивается раз в неделю.",
  pw_week:"Прошла неделя с последнего подтверждения. Введите пароль, чтобы продолжить.",
@@ -1144,6 +1152,7 @@ function render(){
   var app=$("#app");
   isDir=computeDir();
   if(needGate())view="panou";
+  document.body.classList.toggle("locked",needGate());
   $("#ttl").textContent=T("app");
   $("#role").textContent=!ACCESS?T("oaspete"):(isDir?T("director"):T("angajat"));
   $("#role").className="pill"+(isDir?" on":"");
@@ -1159,6 +1168,7 @@ function render(){
   else if(view==="set")h=vSet();
   app.innerHTML=h;
   app.scrollTop=0;
+  dpClose();enhanceDates(app);
 }
 function renderNav(){
   if(needGate()){$("#nav").innerHTML="";return;}
@@ -1169,9 +1179,16 @@ function renderNav(){
     return '<button type="button" data-view="'+it[0]+'"'+(view===it[0]?' aria-current="page"':'')+'><span class="ic">'+it[1]+'</span><span class="lb">'+esc(it[2])+'</span></button>';
   }).join("");
 }
+/* Install button: the browser's own prompt where it exists (Chrome/Edge on Android and desktop),
+   otherwise the steps for this device (iPhone: Share -> Add to Home Screen). Hidden once installed. */
+function isStandalone(){try{return window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true}catch(e){return false}}
 function installNote(){
-  if(!installEvt||window.matchMedia("(display-mode: standalone)").matches)return "";
-  return '<div class="sec"><button class="btn ghost" id="installbtn" type="button">'+esc(T("install"))+'</button></div>';
+  if(isStandalone())return "";
+  var ua=navigator.userAgent||"",ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  var label=T(COARSE?"install_phone":"install_pc");
+  if(installEvt)return '<div class="sec"><button class="btn" id="installbtn" type="button">'+icon("down")+' '+esc(label)+'</button></div>';
+  var how=ios?T("install_ios_h"):(COARSE?T("install_android_h"):T("install_pc_h"));
+  return '<div class="sec"><div class="card pad"><div class="d" style="font-weight:600;margin-bottom:4px">'+esc(label)+'</div><p class="hint" style="margin:0">'+esc(how)+'</p></div></div>';
 }
 function statusNote(){
   var h=failedNote();
@@ -1271,7 +1288,7 @@ function openColab(name){
   var C=calc(),x=C.colab.filter(function(c){return sameP(c.nume,name)})[0]||{nume:name,primit:0,cheltuit:0,ramas:0,transfer:0,proprii:0};
   var got=S.iesiri.filter(function(r){return r.destinatie==="Dat persoanei"&&sameP(r.persoana,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
   var spent=S.cheltuieli.filter(function(r){return r.mod==="Numerar"&&sameP(r.platitDe,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
-  var h='<div class="sheet"><div class="sheet-head"><h2>'+esc(name)+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">✕</button></div>';
+  var h='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(name)+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">✕</button></div>';
   h+='<div class="tiles"><div class="tile big" style="background:'+(x.ramas<0?"var(--neg)":"var(--accent)")+'"><span class="k">'+esc(x.ramas<0?T("colab_owed"):T("colab_has"))+'</span><span class="v">'+money(Math.abs(x.ramas))+'<span class="u">MDL</span></span></div>'
     +tile(T("l_primit"),money(x.primit),"MDL")+tile(T("l_cheltuit"),money(x.cheltuit),"MDL")+'</div>';
   if(x.proprii)h+='<p class="note" style="margin-top:10px">'+esc(T("colab_proprii_h").replace("{s}",money(x.proprii)))+'</p>';
@@ -1280,7 +1297,7 @@ function openColab(name){
   }).join("")+'</div>':'<div class="card"><div class="empty">'+esc(T("nothing"))+'</div></div>')+'</div>';
   h+='<div class="sec"><h2>'+esc(T("colab_got"))+'</h2>'+(got.length?'<div class="card rows">'+got.map(function(r){
     return '<button type="button" class="tap row" data-edit="iesiri" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.nota||T("d_pers"))+'<span class="s">'+esc(r.data+(r.valuta!=="MDL"?" · "+money(n(r.suma))+" "+r.valuta+" × "+r.curs:""))+'</span></span><span class="r pos">'+money(n(r.suma)*n(r.curs))+'</span></button>';
-  }).join("")+'</div>':'<div class="card"><div class="empty">'+esc(T("nothing"))+'</div></div>')+'</div></div>';
+  }).join("")+'</div>':'<div class="card"><div class="empty">'+esc(T("nothing"))+'</div></div>')+'</div></div></div>';
   sheetState=null;sheetOpened();$("#sheet").innerHTML=h;document.body.style.overflow="hidden";
 }
 function vMyBalance(){
@@ -1295,6 +1312,7 @@ function vOverview(){
   var h='<div class="sec"><div class="chips ov-months">'+months.map(function(m){
     return '<button type="button" class="chip" data-ovluna="'+m+'"'+(OV.luna===m?' aria-pressed="true"':'')+'>'+esc(monthName(m))+'</button>';
   }).join("")+'<button type="button" class="chip" data-ovluna=""'+(OV.luna===""?' aria-pressed="true"':'')+'>'+esc(T("ov_all"))+'</button></div></div>';
+  h+='<div class="dash-ov">';
   /* expenses card */
   var delta="";
   if(OV.luna&&d.prev>0){var p=(d.total-d.prev)/d.prev*100;delta='<span class="delta '+(p>0?"neg":"pos")+'">'+(p>0?"▲":"▼")+' '+fmt(Math.abs(p),0)+'%</span> <span class="hint">'+esc(T("ov_vs"))+'</span>';}
@@ -1319,6 +1337,7 @@ function vOverview(){
     +flowSvg(d.months)
     +'<div class="legend"><span class="lg"><span class="sw" style="background:var(--s3)"></span>'+esc(T("ov_in"))+'</span><span class="lg"><span class="sw" style="background:var(--s2)"></span>'+esc(T("ov_out"))+'</span></div>'
     +'</div></div>';
+  h+='</div>';
   return h;
 }
 
@@ -1326,7 +1345,8 @@ function vPanou(){
   if(!isDir)return vPin();
   var C=calc(),h=statusNote();
   h+=vOverview();
-  h+='<div class="sec"><div class="tiles">'
+  h+='<div class="dash-grid">';
+  h+='<div class="sec sec-wide"><div class="tiles">'
     +tile(T("t_total"),money(C.totalFirma),"MDL","",1)
     +tile(T("t_casa"),money(C.casaMDL),"MDL")
     +tile(T("t_cont"),money(C.contMDL),"MDL",C.contMDL<0?"neg":"")
@@ -1395,6 +1415,7 @@ function vPanou(){
   ])+'</div>';
 
   if(C.chiriiMDL)h+='<div class="sec"><h2>'+esc(T("s_chirii"))+'</h2>'+rowsCard([r2(T("l_total"),money(C.chiriiMDL)+" MDL")])+'</div>';
+  h+='</div>';
   return h;
 }
 
@@ -1649,6 +1670,7 @@ function vSet(){
     +'<p class="hint">'+esc(T("j_exp_h"))+'</p>'
     +'<button class="btn" type="submit" id="expsub">'+esc(T("exp_btn"))+'</button></form></div></div>';
   h+='<div class="sec"><button class="btn ghost" id="exitdir" type="button">'+esc(T("logout"))+'</button></div>';
+  h+=installNote();
   return h;
 }
 
@@ -1701,14 +1723,15 @@ function drawSheet(){
   var dls=Object.keys(lists).map(function(k){
     return '<datalist id="dl-'+k+'">'+lists[k].map(function(v){return '<option value="'+esc(v)+'">'}).join("")+'</datalist>';
   }).join("");
-  $("#sheet").innerHTML='<div class="sheet"><div class="sheet-head"><h2>'+esc(T(def.title))+'</h2>'
+  $("#sheet").innerHTML='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(T(def.title))+'</h2>'
     +'<button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">✕</button></div>'
     +'<form id="recf" novalidate>'+out+calcHtml
     +(st.err?'<p class="err">'+esc(st.err)+'</p>':'')
     +'<button class="btn" type="submit" id="savebtn">'+esc(T("save"))+'</button>'
     +(st.id&&isDir?'<button class="btn danger" type="button" id="delbtn">'+esc(T("del"))+'</button>':'')
-    +'</form>'+dls+'</div>';
+    +'</form>'+dls+'</div></div>';
   document.body.style.overflow="hidden";
+  dpClose();enhanceDates($("#sheet"));
 }
 function fieldHtml(f,v){
   var lbl=esc(T(f.l)),id="fl-"+f.k;
@@ -1793,6 +1816,100 @@ function submitForm(){
   p.then(function(){closeSheet();toast(T("saved"))})
    .catch(function(e){st.err=(e&&e.code==="permission-denied")?T("nowrite"):(T("offline"));drawSheet()});
 }
+
+/* ---------------- date / month picker for mouse-driven screens ----------------
+   Phones keep their native pickers (they are good); on desktop the native ones are ugly,
+   so every <input type="date|month"> is wrapped: the real input stays (hidden) and keeps the
+   ISO value and all handlers, a readonly display shows dd.mm.yyyy and opens our popover. */
+var COARSE=false;try{COARSE=window.matchMedia("(pointer: coarse)").matches}catch(e){}
+function dpFormat(v,type){
+  if(!v)return "";
+  if(type==="month")return monthName(v);
+  var p=String(v).split("-");return p.length===3?p[2]+"."+p[1]+"."+p[0]:v;
+}
+function enhanceDates(root){
+  if(COARSE)return;
+  (root||document).querySelectorAll('input[type="date"]:not([data-dp]),input[type="month"]:not([data-dp])').forEach(function(inp){
+    inp.setAttribute("data-dp","1");
+    var wrap=document.createElement("span");wrap.className="dp-wrap";
+    inp.parentNode.insertBefore(wrap,inp);wrap.appendChild(inp);
+    var show=document.createElement("input");show.type="text";show.readOnly=true;show.className="dp-show";
+    show.placeholder=inp.type==="month"?"—":"—.—.—";show.value=dpFormat(inp.value,inp.type);
+    show.setAttribute("aria-haspopup","dialog");
+    wrap.appendChild(show);
+    inp.classList.add("dp-real");inp.tabIndex=-1;
+    show.addEventListener("click",function(){dpOpen(inp,show)});
+    show.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "||e.key==="ArrowDown"){e.preventDefault();dpOpen(inp,show)}});
+    inp.addEventListener("input",function(){show.value=dpFormat(inp.value,inp.type)});
+  });
+}
+var DP={inp:null,show:null,y:0,m:0};
+function dpEl(){var p=$("#dpop");if(!p){p=document.createElement("div");p.id="dpop";p.className="dpop";p.hidden=true;document.body.appendChild(p)}return p}
+function dpOpen(inp,show){
+  var v=inp.value||today();
+  DP.inp=inp;DP.show=show;DP.y=parseInt(v.slice(0,4),10)||new Date().getFullYear();DP.m=parseInt(v.slice(5,7),10)||(new Date().getMonth()+1);
+  dpRender();
+  var p=dpEl();p.hidden=false;
+  var r=show.getBoundingClientRect(),w=Math.min(300,window.innerWidth-16);
+  p.style.width=w+"px";
+  p.style.left=Math.max(8,Math.min(r.left,window.innerWidth-w-8))+"px";
+  var top=r.bottom+6;if(top+360>window.innerHeight)top=Math.max(8,r.top-6-360);
+  p.style.top=top+"px";
+  var f=p.querySelector(".dp-sel")||p.querySelector(".dp-day");if(f)f.focus();
+}
+function dpClose(){var p=$("#dpop");if(p)p.hidden=true;DP.inp=null;DP.show=null}
+function dpSet(v){
+  if(!DP.inp)return;
+  DP.inp.value=v;
+  DP.inp.dispatchEvent(new Event("input",{bubbles:true}));
+  DP.inp.dispatchEvent(new Event("change",{bubbles:true}));
+  if(DP.show)DP.show.value=dpFormat(v,DP.inp.type);
+  dpClose();
+}
+function dpRender(){
+  var p=dpEl(),isMonth=DP.inp.type==="month",cur=DP.inp.value||"",td=today();
+  var names=lang==="ru"?["Пн","Вт","Ср","Чт","Пт","Сб","Вс"]:["Lu","Ma","Mi","Jo","Vi","Sâ","Du"];
+  var h='<div class="dp-head"><button type="button" class="dp-nav" data-dpnav="-1" aria-label="prev">‹</button>'
+    +'<span class="dp-title">'+esc(isMonth?String(DP.y):monthName(DP.y+"-"+p2(DP.m)))+'</span>'
+    +'<button type="button" class="dp-nav" data-dpnav="1" aria-label="next">›</button></div>';
+  if(isMonth){
+    h+='<div class="dp-months">';
+    for(var mm=1;mm<=12;mm++){var ym=DP.y+"-"+p2(mm);
+      h+='<button type="button" class="dp-day dp-mon'+(ym===cur?" dp-sel":"")+(ym===td.slice(0,7)?" dp-today":"")+'" data-dpv="'+ym+'">'+esc(monthName(ym).split(" ")[0].slice(0,3))+'</button>';}
+    h+='</div>';
+  }else{
+    h+='<div class="dp-grid">'+names.map(function(n){return '<span class="dp-wd">'+n+'</span>'}).join("");
+    var first=new Date(DP.y,DP.m-1,1),lead=(first.getDay()+6)%7,days=new Date(DP.y,DP.m,0).getDate(),prevDays=new Date(DP.y,DP.m-1,0).getDate();
+    var cells=[];
+    for(var i=lead-1;i>=0;i--)cells.push({d:prevDays-i,off:-1});
+    for(var d=1;d<=days;d++)cells.push({d:d,off:0});
+    while(cells.length%7)cells.push({d:cells.length-lead-days+1,off:1});
+    cells.forEach(function(c){
+      var y=DP.y,m=DP.m+c.off;if(m<1){m=12;y--}if(m>12){m=1;y++}
+      var iso=y+"-"+p2(m)+"-"+p2(c.d);
+      h+='<button type="button" class="dp-day'+(c.off?" dp-off":"")+(iso===cur?" dp-sel":"")+(iso===td?" dp-today":"")+'" data-dpv="'+iso+'">'+c.d+'</button>';
+    });
+    h+='</div>';
+  }
+  h+='<div class="dp-foot"><button type="button" class="dp-btn" data-dpv="">'+esc(lang==="ru"?"Очистить":"Șterge")+'</button>'
+    +'<button type="button" class="dp-btn dp-az" data-dpv="'+(isMonth?td.slice(0,7):td)+'">'+esc(lang==="ru"?"Сегодня":"Azi")+'</button></div>';
+  p.innerHTML=h;
+}
+document.addEventListener("click",function(e){
+  var p=$("#dpop");if(!p||p.hidden)return;
+  var t=e.target;
+  if(p.contains(t)){
+    var nav=t.closest("[data-dpnav]");
+    if(nav){var k=parseInt(nav.getAttribute("data-dpnav"),10);if(DP.inp.type==="month")DP.y+=k;else{DP.m+=k;if(DP.m<1){DP.m=12;DP.y--}if(DP.m>12){DP.m=1;DP.y++}}dpRender();return;}
+    var v=t.closest("[data-dpv]");if(v){dpSet(v.getAttribute("data-dpv"));return;}
+    return;
+  }
+  if(DP.show&&(t===DP.show||DP.show.contains(t)))return;
+  dpClose();
+},true);
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){var p=$("#dpop");if(p&&!p.hidden){dpClose();e.stopPropagation()}}},true);
+window.addEventListener("resize",dpClose);
+document.addEventListener("scroll",function(e){var p=$("#dpop");if(p&&!p.hidden&&!(e.target&&e.target.closest&&e.target.closest("#dpop")))dpClose()},true);
 
 /* ---------------- events ---------------- */
 document.addEventListener("click",function(ev){
