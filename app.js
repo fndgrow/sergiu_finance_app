@@ -111,6 +111,11 @@ ro:{
  ov_chelt:"Cheltuieli",ov_vs:"față de luna trecută",ov_flux:"Flux de numerar",ov_all:"Toate lunile",ov_none:"Nicio cheltuială în această perioadă.",
  ov_alte:"Alte categorii",ov_in:"Încasări",ov_out:"Cheltuieli",filt_clear:"Șterge filtrul",
  f_descr_req:"Pe ce s-au cheltuit banii",f_descr_h:"Obligatoriu: scrieți concret ce s-a cumpărat sau plătit.",descr_short:"Descrierea trebuie să aibă cel puțin 3 caractere.",
+ src_t:"Plătit din",src_avans:"Avansul de la firmă",src_proprii:"Banii mei (firma îmi datorează)",src_proprii_short:"din banii proprii",
+ src_h:"Dacă ați plătit din buzunarul dvs. pentru firmă, alegeți „Banii mei”: suma apare la director ca datorie a firmei față de dvs.",
+ colab_owed:"Firma îi datorează",colab_has:"Are în mână bani ai firmei",colab_zero:"Sold zero",colab_proprii:"din banii proprii",
+ colab_proprii_h:"Din această sumă, {s} MDL a plătit din banii proprii pentru firmă.",colab_spent:"Cheltuit pentru firmă",colab_got:"Primit de la firmă",
+ my_sold:"Soldul meu",my_sold_h:"Minus înseamnă că firma vă datorează bani. Apăsați ca să vedeți fiecare sumă.",
  failed_t:"{n} înregistrări respinse de server",failed_h:"Nu s-au pierdut: sunt păstrate pe acest telefon. Verificați motivul și reîncercați.",failed_retry:"Reîncearcă",failed_toast:"Serverul a respins o înregistrare. Vedeți nota de sus."
 },
 ru:{
@@ -214,6 +219,11 @@ ru:{
  ov_chelt:"Расходы",ov_vs:"к прошлому месяцу",ov_flux:"Поток денег",ov_all:"Все месяцы",ov_none:"В этом периоде расходов нет.",
  ov_alte:"Прочие категории",ov_in:"Поступления",ov_out:"Расходы",filt_clear:"Сбросить фильтр",
  f_descr_req:"На что потрачены деньги",f_descr_h:"Обязательно: напишите конкретно, что куплено или оплачено.",descr_short:"Описание должно быть не короче 3 символов.",
+ src_t:"Оплачено из",src_avans:"Аванс от фирмы",src_proprii:"Мои деньги (фирма должна вернуть)",src_proprii_short:"из своих денег",
+ src_h:"Если платили за фирму из своего кармана, выберите «Мои деньги»: директор увидит сумму как долг фирмы перед вами.",
+ colab_owed:"Фирма должна ему",colab_has:"На руках деньги фирмы",colab_zero:"Баланс ноль",colab_proprii:"из своих денег",
+ colab_proprii_h:"Из этой суммы {s} MDL оплачено из своих денег за фирму.",colab_spent:"Потрачено на фирму",colab_got:"Получено от фирмы",
+ my_sold:"Мой баланс",my_sold_h:"Минус означает, что фирма должна вам деньги. Нажмите, чтобы увидеть каждую сумму.",
  failed_t:"{n} записей отклонено сервером",failed_h:"Они не потеряны и хранятся на этом телефоне. Проверьте причину и повторите.",failed_retry:"Повторить",failed_toast:"Сервер отклонил запись. Смотрите заметку вверху."
 }};
 var lang="ro";
@@ -529,7 +539,8 @@ function calc(){
     var primit=sum(S.iesiri,function(r){return r.destinatie==="Dat persoanei"&&sameP(r.persoana,p)?n(r.suma)*n(r.curs):0});
     var chn=sum(S.cheltuieli,function(r){return r.mod==="Numerar"&&sameP(r.platitDe,p)?n(r.suma):0});
     var cht=sum(S.cheltuieli,function(r){return r.mod==="Transfer"&&sameP(r.platitDe,p)?n(r.suma):0});
-    return {nume:p,primit:primit,cheltuit:chn,ramas:primit-chn,transfer:cht};
+    var prop=sum(S.cheltuieli,function(r){return r.mod==="Numerar"&&r.sursa==="Proprii"&&sameP(r.platitDe,p)?n(r.suma):0});
+    return {nume:p,primit:primit,cheltuit:chn,ramas:round2(primit-chn),transfer:cht,proprii:prop};
   }).filter(function(x){return x.primit||x.cheltuit||x.transfer});
   C.colabRamas=sum(C.colab,function(x){return x.ramas});
   C.totalFirma=C.casaMDL+C.contMDL+C.colabRamas;
@@ -690,7 +701,8 @@ var FORMS={
    {k:"client",t:"text",l:"f_client",list:clienti()},
    fProiect(),
    {k:"platitDe",t:"text",l:"f_platit",req:1,list:oameni(),def:meName()||casier()},
-   {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"}
+   {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"},
+   {k:"sursa",t:"select",l:"src_t",req:1,opts:[{v:"Avans",l:T("src_avans")},{v:"Proprii",l:T("src_proprii")}],def:"Avans",hint:"src_h",showIf:function(d){return d.mod!=="Transfer"}}
  ]}},
 
  iesiri:{title:"a_ies",icon:"send",fields:function(){return[
@@ -941,7 +953,7 @@ function wsPanou(wb,C,luna,doar){
   ws.addRow([]);
   if(C.colab.length){
     head(T("s_colab"));
-    cols4(T("f_pers"),T("l_primit"),T("l_cheltuit"),T("l_inmana"),1);
+    cols4(T("f_pers"),T("l_primit"),T("l_cheltuit"),T("l_inmana")+" / "+T("colab_owed"),1);
     C.colab.forEach(function(x){cols4(x.nume,x.primit,x.cheltuit,x.ramas)});
     ws.addRow([]);
   }
@@ -979,9 +991,10 @@ function buildWb(luna,doar){
   wsAdd(wb,T("r_chelt"),[
     {h:T("f_data"),k:"data",w:12,fmt:FMT_D},{h:T("f_categ"),k:"categorie",w:18},
     {h:T("f_descr"),k:"descriere",w:30},{h:T("f_client"),k:"client",w:22},{h:T("f_proiect"),k:"proiect",w:20},
-    {h:T("f_sumamdl"),k:"suma",w:15,fmt:FMT_M},{h:T("f_platit"),k:"platitDe",w:20},{h:T("f_mod"),k:"mod",w:12}],
+    {h:T("f_sumamdl"),k:"suma",w:15,fmt:FMT_M},{h:T("f_platit"),k:"platitDe",w:20},{h:T("f_mod"),k:"mod",w:12},{h:T("src_t"),k:"sursa",w:16}],
     ch.map(function(r){return {data:xd(r.data),categorie:r.categorie,descriere:r.descriere,client:r.client,
-      proiect:r.proiect,suma:n(r.suma),platitDe:r.platitDe,mod:r.mod==="Numerar"?T("numerar"):T("transfer")}}),
+      proiect:r.proiect,suma:n(r.suma),platitDe:r.platitDe,mod:r.mod==="Numerar"?T("numerar"):T("transfer"),
+      sursa:r.mod==="Transfer"?"":(r.sursa==="Proprii"?T("src_proprii_short"):T("src_avans"))}}),
     {data:T("l_total"),suma:ch.reduce(function(a,r){return a+n(r.suma)},0)});
 
   var ie=S.iesiri.filter(inM).sort(function(a,b){return String(a.data).localeCompare(String(b.data))});
@@ -1241,6 +1254,35 @@ function flowSvg(months){
   });
   return '<svg class="flow" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(T("ov_flux"))+'"><line class="base" x1="0" x2="'+W+'" y1="'+base+'" y2="'+base+'"/>'+out+'</svg>';
 }
+function colabRow(x){
+  var state=x.ramas<0?T("colab_owed"):(x.ramas>0?T("colab_has"):T("colab_zero"));
+  var sub=T("l_primit")+" "+money(x.primit)+" · "+T("l_cheltuit")+" "+money(x.cheltuit)+(x.proprii?" · "+T("colab_proprii")+" "+money(x.proprii):"");
+  return '<button type="button" class="tap row" data-colab="'+esc(x.nume)+'"><span class="l">'+esc(x.nume)+'<span class="s">'+esc(state)+'</span><span class="s">'+esc(sub)+'</span></span>'
+    +'<span class="r '+(x.ramas<0?"neg":(x.ramas>0?"warnc":"pos"))+'">'+money(x.ramas)+'</span></button>';
+}
+/* who received what and what they spent for the company, newest first */
+function openColab(name){
+  var C=calc(),x=C.colab.filter(function(c){return sameP(c.nume,name)})[0]||{nume:name,primit:0,cheltuit:0,ramas:0,transfer:0,proprii:0};
+  var got=S.iesiri.filter(function(r){return r.destinatie==="Dat persoanei"&&sameP(r.persoana,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
+  var spent=S.cheltuieli.filter(function(r){return r.mod==="Numerar"&&sameP(r.platitDe,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
+  var h='<div class="sheet"><div class="sheet-head"><h2>'+esc(name)+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">✕</button></div>';
+  h+='<div class="tiles"><div class="tile big" style="background:'+(x.ramas<0?"var(--neg)":"var(--accent)")+'"><span class="k">'+esc(x.ramas<0?T("colab_owed"):T("colab_has"))+'</span><span class="v">'+money(Math.abs(x.ramas))+'<span class="u">MDL</span></span></div>'
+    +tile(T("l_primit"),money(x.primit),"MDL")+tile(T("l_cheltuit"),money(x.cheltuit),"MDL")+'</div>';
+  if(x.proprii)h+='<p class="note" style="margin-top:10px">'+esc(T("colab_proprii_h").replace("{s}",money(x.proprii)))+'</p>';
+  h+='<div class="sec"><h2>'+esc(T("colab_spent"))+'</h2>'+(spent.length?'<div class="card rows">'+spent.map(function(r){
+    return '<button type="button" class="tap row" data-edit="cheltuieli" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.descriere||r.categorie||"—")+'<span class="s">'+esc([r.data,r.categorie,r.proiect,r.sursa==="Proprii"?T("src_proprii_short"):""].filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(n(r.suma))+'</span></button>';
+  }).join("")+'</div>':'<div class="card"><div class="empty">'+esc(T("nothing"))+'</div></div>')+'</div>';
+  h+='<div class="sec"><h2>'+esc(T("colab_got"))+'</h2>'+(got.length?'<div class="card rows">'+got.map(function(r){
+    return '<button type="button" class="tap row" data-edit="iesiri" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.nota||T("d_pers"))+'<span class="s">'+esc(r.data+(r.valuta!=="MDL"?" · "+money(n(r.suma))+" "+r.valuta+" × "+r.curs:""))+'</span></span><span class="r pos">'+money(n(r.suma)*n(r.curs))+'</span></button>';
+  }).join("")+'</div>':'<div class="card"><div class="empty">'+esc(T("nothing"))+'</div></div>')+'</div></div>';
+  sheetState=null;$("#sheet").innerHTML=h;document.body.style.overflow="hidden";
+}
+function vMyBalance(){
+  var me=meName();if(!me)return "";
+  var C=calc(),x=C.colab.filter(function(c){return sameP(c.nume,me)})[0];
+  if(!x)return "";
+  return '<div class="sec"><h2>'+esc(T("my_sold"))+'</h2><div class="card rows">'+colabRow(x)+'</div><p class="hint" style="margin-top:6px">'+esc(T("my_sold_h"))+'</p></div>';
+}
 function vOverview(){
   var d=ovData(OV.luna);
   var months=monthsBack(6);
@@ -1300,9 +1342,7 @@ function vPanou(){
     return r2(v,money(C.ramas[v]),money(C.ramasMDL[v])+" MDL · "+T("l_azi"),C.ramas[v]<0?"neg":"");
   }).concat([r2(T("l_total"),money(C.casaMDL)+" MDL",null,"",1)]))+'</div>';
 
-  if(C.colab.length)h+='<div class="sec"><h2>'+esc(T("s_colab"))+'</h2>'+rowsCard(C.colab.map(function(x){
-    return r2(x.nume,money(x.ramas),T("l_primit")+" "+money(x.primit)+" · "+T("l_cheltuit")+" "+money(x.cheltuit),x.ramas>0?"warnc":"pos");
-  }))+'</div>';
+  if(C.colab.length)h+='<div class="sec"><h2>'+esc(T("s_colab"))+'</h2><div class="card rows">'+C.colab.map(function(x){return colabRow(x)}).join("")+'</div></div>';
 
   if(C.perClient.length)h+='<div class="sec"><h2>'+esc(T("s_client"))+'</h2>'+rowsCard(C.perClient.slice(0,14).map(function(x){
     return r2(x.nume,money(x.sold),T("t_incasari")+" "+money(x.inc)+" · "+T("t_cheltuieli")+" "+money(x.chelt),x.sold<0?"neg":"pos");
@@ -1412,7 +1452,7 @@ function vWho(){
     +'<p class="hint">'+esc(T("me_h"))+'</p><button class="btn" type="submit">'+esc(T("save"))+'</button></form></div></div>';
 }
 function vAdd(){
-  var h=statusNote()+vWho();
+  var h=statusNote()+vWho()+vMyBalance();
   var order=["incasari","cheltuieli","iesiri","chirii","imprumuturi","contracte","pontaj","angajati"];
   if(isDir)order=["incasari","cheltuieli","iesiri","proiecte","utilizatori","chirii","imprumuturi","contracte","pontaj","angajati"];
   var desc={incasari:"a_inc_d",cheltuieli:"a_chelt_d",iesiri:"a_ies_d",chirii:"a_chirie_d",
@@ -1436,7 +1476,7 @@ var REGDEF={
    main:function(r){return r.client||"—"},amt:function(r){return money(n(r.suma))+" "+(r.valuta||"")},
    cls:function(){return "pos"},meta:function(r){return r.data+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
  cheltuieli:{t:"r_chelt",main:function(r){return r.categorie||"—"},
-   sub:function(r){return [r.descriere,r.client,r.proiect].filter(Boolean).join(" · ")},
+   sub:function(r){return [r.descriere,r.client,r.proiect,(r.mod!=="Transfer"&&r.sursa==="Proprii")?T("src_proprii_short"):""].filter(Boolean).join(" · ")},
    amt:function(r){return money(n(r.suma))+" MDL"},cls:function(){return "neg"},
    meta:function(r){return r.data+" · "+(r.platitDe||"")+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
  iesiri:{t:"r_ies",main:function(r){var m={"Depus pe cont":"d_depus","Dat persoanei":"d_pers",Salarii:"d_sal","Împrumut":"d_impr",Alte:"d_alte"};return T(m[r.destinatie]||"d_alte")},
@@ -1741,6 +1781,8 @@ document.addEventListener("click",function(ev){
   if(nv){view=nv.dataset.view;if(view==="panou"&&!isDir){} render();return;}
   var fb=t.closest&&t.closest("[data-form]");
   if(fb){openForm(fb.dataset.form);return;}
+  var cb=t.closest&&t.closest("[data-colab]");
+  if(cb){openColab(cb.getAttribute("data-colab"));return;}
   var eb=t.closest&&t.closest("[data-edit]");
   if(eb){openForm(eb.dataset.edit,eb.dataset.id);return;}
   var tb=t.closest&&t.closest("[data-tab]");
@@ -1800,7 +1842,7 @@ document.addEventListener("change",function(ev){
   var k=el.dataset.k;
   sheetState.data[k]=(el.type==="checkbox")?el.checked:el.value;
   if(k==="valuta"){sheetState.data.curs=String(cursAzi(el.value));drawSheet();return;}
-  if(k==="destinatie"||el.type==="checkbox"){drawSheet();return;}
+  if(k==="destinatie"||k==="mod"||el.type==="checkbox"){drawSheet();return;}
   if(k==="angajat"||k==="luna"){var def=FORMS[sheetState.col];if(def&&def.calc)drawSheet();}
 });
 document.addEventListener("submit",function(ev){

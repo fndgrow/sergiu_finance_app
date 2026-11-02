@@ -34,7 +34,8 @@ const store = {
     o5: { id: "o5", data: D, destinatie: "Alte", valuta: "MDL", curs: 1, suma: 300 }
   },
   cheltuieli: {
-    c1: { id: "c1", data: D, suma: 4000, categorie: "Materiale", descriere: "ciment", platitDe: "Ion", mod: "Numerar" },   /* from Ion's advance */
+    c1: { id: "c1", data: D, suma: 4000, categorie: "Materiale", descriere: "ciment", platitDe: "Ion", mod: "Numerar", sursa: "Avans" },   /* from Ion's advance */
+    c4: { id: "c4", data: D, suma: 7000, categorie: "Materiale", descriere: "placi din buzunar", platitDe: "Ion", mod: "Numerar", sursa: "Proprii" }, /* Ion paid 7 000 of his own: balance 10 000 - 11 000 = -1 000 */
     c2: { id: "c2", data: D, suma: 1500, categorie: "Transport", descriere: "camion", platitDe: "Casier", mod: "Numerar" }, /* from the MDL shelf */
     c3: { id: "c3", data: D, suma: 2500, categorie: "Materiale", descriere: "fier", platitDe: "Casier", mod: "Transfer" }  /* from the bank */
   },
@@ -54,11 +55,11 @@ const store = {
    EUR shelf: 2 000 - 500 (advance) - 400 (rent) = 1 100 EUR -> 22 000 MDL at today's 20
    USD shelf: 0 (the USD income was a transfer)
    till = 93 200; bank = 17 000 + 20 000 - 2 500 - 3 200 = 31 300
-   Ion: received 10 000, spent 4 000 cash -> 6 000 still in hand; company total = 93 200 + 31 300 + 6 000 = 130 500
-   incomes total = 100 000 + 39 000 + 17 000 = 156 000; expenses = 8 000
+   Ion: received 10 000, spent 4 000 + 7 000 cash -> -1 000 (company owes him); company total = 93 200 + 31 300 - 1 000 = 123 500
+   incomes total = 100 000 + 39 000 + 17 000 = 156 000; expenses = 15 000
    contract A: value 200 000, received 139 000 (cash 100 000 + 39 000), left 61 000, 69.5%
    salaries Oct: earned 12 000, paid 7 000, left 5 000; loans: 10 000 given, 2 000 back, 8 000 open, 1 overdue */
-const EXPECT = { till: "93.200,00", bank: "31.300,00", total: "130.500,00", inc: "156.000,00", exp: "8.000,00", ionHand: "6.000,00", eur: "1.100,00", eurMdl: "22.000,00", contrLeft: "61.000,00", pct: "69,5%", salLeft: "5.000,00", loanOpen: "8.000,00" };
+const EXPECT = { till: "93.200,00", bank: "31.300,00", total: "123.500,00", inc: "156.000,00", exp: "15.000,00", ionHand: "-1.000,00", eur: "1.100,00", eurMdl: "22.000,00", contrLeft: "61.000,00", pct: "69,5%", salLeft: "5.000,00", loanOpen: "8.000,00" };
 
 const err = (s, m) => { const e = new Error(m); e.status = s; e.response = { message: m }; return e; };
 let currentUser = null;
@@ -86,10 +87,10 @@ const has = (label, v) => { const ok = txt().includes(v); console.log((ok ? "  o
   console.log("dashboard loaded:", /Banii firmei/.test(t));
   has("till (În casă)", EXPECT.till); has("bank (Pe cont)", EXPECT.bank); has("company total", EXPECT.total);
   has("incomes", EXPECT.inc); has("expenses", EXPECT.exp); has("EUR shelf", EXPECT.eur); has("EUR shelf in MDL", EXPECT.eurMdl);
-  has("Ion still in hand", EXPECT.ionHand); has("contract left", EXPECT.contrLeft); has("contract %", EXPECT.pct);
+  has("Ion balance (company owes)", EXPECT.ionHand); has("Ion own-money total", "din banii proprii 7.000,00"); has("contract left", EXPECT.contrLeft); has("contract %", EXPECT.pct);
   has("salary left Oct", EXPECT.salLeft); has("loans open", EXPECT.loanOpen);
-  /* the overview donut for this month: Materiale 6 500 (81,3%) + Transport 1 500 (18,8%) */
-  has("overview Materiale share", "81,3%"); has("overview Transport share", "18,8%");
+  /* the overview donut for this month: Materiale 13 500 (90,0%) + Transport 1 500 (10,0%) */
+  has("overview Materiale share", "90,0%"); has("overview Transport share", "10,0%");
   console.log(errors.length ? "\nERRORS: " + errors.join("; ") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
 })().catch(e => { console.error("CRASH", e); process.exit(2); });

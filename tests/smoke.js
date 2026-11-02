@@ -173,7 +173,13 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("suma", "10"); setField("categorie", "Diverse"); setField("platitDe", "Sergiu"); submit($("#recf")); await tick(30);
   check($("#recf") && /obligatorii|cel puțin 3/.test($("#sheet").textContent), "expense without description is refused");
   click($("#closeSheet")); await tick();
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  setField("suma", "1200"); setField("descriere", "Vopsea din buzunar"); setField("categorie", "Materiale"); setField("platitDe", "Ion Operator"); setField("sursa", "Proprii"); submit($("#recf")); await tick(60);
   click($('[data-view="panou"]')); await tick(); check(/Ion Operator/.test(text()), "collaborator report lists Ion Operator");
+  check(/Firma îi datorează/.test(text()) && /1[ .]?700,00/.test(text()) && /din banii proprii 1[ .]?200,00/.test(text()), "Ion: company owes 1 700 (500 advance-less + 1 200 own money), own-money total shown");
+  click(window.document.querySelector('[data-colab="Ion Operator"]')); await tick();
+  check(/Vopsea din buzunar/.test($("#sheet").textContent) && /din banii proprii/.test($("#sheet").textContent) && /Cheltuit pentru firmă/.test($("#sheet").textContent), "collaborator detail sheet lists the expense with its source");
+  click($("#closeSheet")); await tick();
 
   console.log("6. registers, salaries, journal, settings render");
   for (const tab of ["incasari", "cheltuieli", "iesiri", "proiecte", "chirii", "contracte", "imprumuturi", "salarii", "jurnal"]) {
@@ -230,6 +236,8 @@ const ls = (k) => window.localStorage.getItem(k);
   check(window.document.querySelector('[data-k="platitDe"]').value === "Ion Operator", "Plătit de defaults to operator name");
   check(!$("#delbtn"), "operator has no delete button");
   click($("#closeSheet")); await tick();
+  click($('[data-view="add"]')); await tick();
+  check(/Soldul meu/.test(text()) && /Firma îi datorează/.test(text()), "operator sees own balance card (company owes)");
   click($('[data-form="pontaj"]')); await tick();
   check(!/MDL/.test($("#sheet").textContent), "operator sees no salary preview in timesheet form");
   click($("#closeSheet")); await tick();
