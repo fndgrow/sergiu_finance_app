@@ -49,6 +49,7 @@ const expenses = {
   Diverse: ["Apă, pâine echipă", "Mănuși, măști", "Prânz echipă", "Detergent"]
 };
 const cats = Object.keys(expenses);
+let till = 0; /* MDL cash on hand, so the story never deposits or pays out money the till does not have */
 
 (async () => {
   const lg = await api("/api/ehl/login", { cod: COD, parola: PAROLA });
@@ -75,15 +76,16 @@ const cats = Object.keys(expenses);
       for (let k = 0; k < n; k++) {
         const eur = rnd() < 0.3;
         const mdl = between(60000, 220000);
-        const cash = rnd() < 0.55;
+        const cash = rnd() < 0.6;
         await add("incasari", eur
           ? { data: day(y, m, between(2, 26)), client: p.client, proiect: p.nume, descriere: "Tranșa " + (k + 1), valuta: "EUR", curs: EUR, suma: Math.round(mdl / EUR / 100) * 100, mod: cash ? "Numerar" : "Transfer" }
           : { data: day(y, m, between(2, 26)), client: p.client, proiect: p.nume, descriere: "Tranșa " + (k + 1), valuta: "MDL", curs: 1, suma: Math.round(mdl / 1000) * 1000, mod: cash ? "Numerar" : "Transfer" });
+        if (!eur && cash) till += Math.round(mdl / 1000) * 1000;
       }
     }
     /* advances to the people on site, then their expenses (mostly from the advance, now and then from their own pocket) */
     for (const who of people) {
-      if (rnd() < 0.85) await add("iesiri", { data: day(y, m, between(1, 8)), destinatie: "Dat persoanei", valuta: "MDL", curs: 1, suma: between(8, 30) * 1000, persoana: who, luna: "", nota: "Avans cheltuieli șantier" });
+      if (rnd() < 0.85 && till > 60000) { const adv = between(8, 30) * 1000; till -= adv; await add("iesiri", { data: day(y, m, between(1, 8)), destinatie: "Dat persoanei", valuta: "MDL", curs: 1, suma: adv, persoana: who, luna: "", nota: "Avans cheltuieli șantier" }); }
       const nExp = between(3, 6);
       for (let k = 0; k < nExp; k++) {
         const cat = pick(cats), pr = active.length ? pick(active) : null;
@@ -92,17 +94,17 @@ const cats = Object.keys(expenses);
       }
     }
     /* the cashier pays some bills from the till and by transfer */
-    await add("cheltuieli", { data: day(y, m, between(3, 12)), suma: between(2000, 9000), categorie: "Combustibil", descriere: pick(expenses.Combustibil), client: "", proiect: "", platitDe: cashier, mod: "Numerar", sursa: "Avans" });
+    { const f = between(2000, 9000); till -= f; await add("cheltuieli", { data: day(y, m, between(3, 12)), suma: f, categorie: "Combustibil", descriere: pick(expenses.Combustibil), client: "", proiect: "", platitDe: cashier, mod: "Numerar", sursa: "Avans" }); }
     await add("cheltuieli", { data: day(y, m, between(5, 20)), suma: between(1500, 12000), categorie: pick(["Taxe", "Birou", "Unelte"]), descriere: "Factură lunară", client: "", proiect: "", platitDe: cashier, mod: "Transfer", sursa: "" });
     /* salaries for last month, timesheets for this month */
     for (const who of people.concat([cashier])) {
       const wd = workdays(y, m), z1 = between(9, 13), z2 = between(10, wd - 13);
       await add("pontaj", { luna: ym(y, m), angajat: who, z1, z2 });
-      await add("iesiri", { data: day(y, m, between(5, 10)), destinatie: "Salarii", valuta: "MDL", curs: 1, suma: who === cashier ? 18000 : between(9, 15) * 1000, persoana: who, luna: ym(i === 0 ? y : months[i - 1][0], i === 0 ? m : months[i - 1][1]), nota: "Salariu" });
+      { const sal = who === cashier ? 18000 : between(9, 15) * 1000; till -= sal; await add("iesiri", { data: day(y, m, between(5, 10)), destinatie: "Salarii", valuta: "MDL", curs: 1, suma: sal, persoana: who, luna: ym(i === 0 ? y : months[i - 1][0], i === 0 ? m : months[i - 1][1]), nota: "Salariu" }); }
     }
     /* rent for the workers' flat, a bank deposit, now and then a USD exchange */
     await add("chirii", { dataInceput: day(y, m, 1), dataSfarsit: day(y, m, dim(y, m)), locatia: "Apartament muncitori, Ciocana", chirias: "Vasile Lungu", valuta: "EUR", curs: EUR, chirie: 350, gaj: i === 0 ? 350 : 0, comunale: between(40, 90), avarii: 0, mod: "Numerar", nota: "" });
-    await add("iesiri", { data: day(y, m, between(20, 27)), destinatie: "Depus pe cont", valuta: "MDL", curs: 1, suma: between(40, 120) * 1000, persoana: "", luna: "", nota: "Depunere " + pick(["MAIB", "Victoriabank"]) });
+    if (till > 150000) { const dep = Math.min(between(40, 120) * 1000, Math.floor((till - 100000) / 1000) * 1000); if (dep > 0) { till -= dep; await add("iesiri", { data: day(y, m, between(20, 27)), destinatie: "Depus pe cont", valuta: "MDL", curs: 1, suma: dep, persoana: "", luna: "", nota: "Depunere " + pick(["MAIB", "Victoriabank"]) }); } }
     if (rnd() < 0.3) await add("iesiri", { data: day(y, m, between(10, 20)), destinatie: "Alte", valuta: "MDL", curs: 1, suma: between(300, 2500), persoana: "", luna: "", nota: pick(["Notar", "Curier", "Donație", "Taxă bancară"]) });
     process.stdout.write(" " + ym(y, m));
   }
