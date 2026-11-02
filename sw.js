@@ -1,6 +1,6 @@
 /* Casieria EHL — service worker.
    Bump CACHE whenever app files change, so phones pick up the new version. */
-var CACHE = "casieria-ehl-v7";
+var CACHE = "casieria-ehl-v8";
 var SHELL = [
   "./", "./index.html", "./styles.css", "./app.js", "./app-config.js", "./vendor/pocketbase.umd.js", "./manifest.json",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png", "./icons/apple-touch-icon.png"

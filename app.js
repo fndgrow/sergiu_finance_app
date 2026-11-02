@@ -1147,7 +1147,8 @@ function render(){
   $("#ttl").textContent=T("app");
   $("#role").textContent=!ACCESS?T("oaspete"):(isDir?T("director"):T("angajat"));
   $("#role").className="pill"+(isDir?" on":"");
-  document.querySelectorAll(".lang button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.lang===lang?"true":"false")});
+  /* one button that names the other language */
+  var lb=$("#langbtn");if(lb){var other=lang==="ru"?"ro":"ru";lb.dataset.lang=other;lb.textContent=other.toUpperCase();lb.setAttribute("aria-label",other==="ru"?"Русский":"Română");}
   renderNav();
   var h="";
   if(needGate())h=vGate();

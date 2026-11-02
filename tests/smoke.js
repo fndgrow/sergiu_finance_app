@@ -118,6 +118,9 @@ const ls = (k) => window.localStorage.getItem(k);
   check($("#pinf") && $("#pinv"), "code form present");
   check(!$("#nav").children.length, "nav hidden while locked");
 
+  check($("#langbtn") && $("#langbtn").textContent === "RU", "single language button shows RU on the Romanian UI");
+  click($("#langbtn")); await tick(); check($("#langbtn").textContent === "RO" && /Код доступа/.test(text()), "tap switches to Russian and the button now shows RO");
+  click($("#langbtn")); await tick();
   console.log("2. first launch: code becomes the director");
   $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
   check($("#spf"), "director is asked to set a password");

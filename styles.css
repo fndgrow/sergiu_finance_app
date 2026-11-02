@@ -29,9 +29,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .bar h1{font-size:16px;margin:0;letter-spacing:-.01em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pill{font-family:var(--d);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
 .pill.on{background:var(--accent-soft);color:var(--accent);border-color:transparent}
-.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
-.lang button{background:transparent;border:0;padding:4px 9px;font-family:var(--d);font-size:11px;letter-spacing:.04em;color:var(--muted);cursor:pointer}
-.lang button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.langbtn{background:transparent;border:1.5px solid var(--ink);border-radius:999px;width:40px;height:30px;padding:0;font-family:var(--d);font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--ink);cursor:pointer;flex:0 0 auto}
+.langbtn:active{background:var(--ink);color:var(--paper)}
 
 /* page */
 main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
