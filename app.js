@@ -675,6 +675,10 @@ var CAT_ICON_RULES=[
  [/energ|электр|curent|lumin|свет|gaz|газ/i,"bolt"],[/apă|apa|вода|canal/i,"water"],[/cump|покуп|магазин|magazin|piaț|piata|рынок/i,"cart"],
  [/asigur|страх|pază|охран|securit/i,"shield"],[/banc|банк|comision|комисс|card|карт/i,"cardIc"]
 ];
+/* currency badge: symbol + fixed colour per currency, code printed beside it */
+var CUR={MDL:{s:"L",c:"var(--accent)"},EUR:{s:"€",c:"var(--s1)"},USD:{s:"$",c:"var(--s7)"},RON:{s:"L",c:"var(--s4)"},GBP:{s:"£",c:"var(--s6)"},UAH:{s:"₴",c:"var(--s5)"},RUB:{s:"₽",c:"var(--s2)"}};
+function curBadge(cod,withCode){var k=String(cod||"").toUpperCase(),d=CUR[k]||{s:k.slice(0,1)||"?",c:"var(--muted)"};
+  return '<span class="cur" title="'+esc(k)+'"><span class="cur-b" style="background:'+d.c+'">'+esc(d.s)+'</span>'+(withCode!==false?'<span class="cur-c">'+esc(k)+'</span>':'')+'</span>'}
 function catIcon(name){var s=String(name||"");for(var i=0;i<CAT_ICON_RULES.length;i++){if(CAT_ICON_RULES[i][0].test(s))return CAT_ICON_RULES[i][1]}return "tag"}
 /* fixed categorical slot per category: by position in the settings list, so a colour follows its category */
 function catSlot(name){var all=categorii();var i=-1;all.forEach(function(c,k){if(sameP(c,name))i=k});return i<0?6:(i%7)}
@@ -1178,7 +1182,8 @@ function statusNote(){
   return h;
 }
 function tile(k,v,u,cls,big){
-  return '<div class="tile'+(big?" big":"")+'"><span class="k">'+esc(k)+'</span><span class="v '+(cls||"")+'">'+v+(u?'<span class="u">'+esc(u)+'</span>':'')+'</span></div>';
+  var unit=u?(CUR[String(u).toUpperCase()]?'<span class="u">'+curBadge(u,false)+'</span>':'<span class="u">'+esc(u)+'</span>'):'';
+  return '<div class="tile'+(big?" big":"")+'"><span class="k">'+esc(k)+'</span><span class="v '+(cls||"")+'">'+v+unit+'</span></div>';
 }
 function rowsCard(rows){
   if(!rows.length)return '<div class="card"><div class="empty">'+esc(T("nothing"))+'</div></div>';
@@ -1339,7 +1344,7 @@ function vPanou(){
 
   var cv=C.vals.filter(function(v){return C.intratNum[v]||C.iesTotal[v]||C.ramas[v]});
   if(cv.length)h+='<div class="sec"><h2>'+esc(T("s_casa"))+'</h2>'+rowsCard(cv.map(function(v){
-    return r2(v,money(C.ramas[v]),money(C.ramasMDL[v])+" MDL · "+T("l_azi"),C.ramas[v]<0?"neg":"");
+    return '<div class="row"><span class="l">'+curBadge(v)+'<span class="s">'+esc(money(C.ramasMDL[v])+" MDL · "+T("l_azi"))+'</span></span><span class="r '+(C.ramas[v]<0?"neg":"")+'">'+money(C.ramas[v])+'</span></div>';
   }).concat([r2(T("l_total"),money(C.casaMDL)+" MDL",null,"",1)]))+'</div>';
 
   if(C.colab.length)h+='<div class="sec"><h2>'+esc(T("s_colab"))+'</h2><div class="card rows">'+C.colab.map(function(x){return colabRow(x)}).join("")+'</div></div>';
@@ -1473,7 +1478,7 @@ function vAdd(){
 var REGDEF={
  incasari:{t:"r_inc",cols:[["data","f_data"],["client","f_client"],["suma","f_suma","n"],["mod","f_mod"]],
    sub:function(r){return [r.proiect,r.descriere].filter(Boolean).join(" · ")},
-   main:function(r){return r.client||"—"},amt:function(r){return money(n(r.suma))+" "+(r.valuta||"")},
+   main:function(r){return r.client||"—"},amt:function(r){return money(n(r.suma))+" "+curBadge(r.valuta||"MDL",false)},
    cls:function(){return "pos"},meta:function(r){return r.data+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
  cheltuieli:{t:"r_chelt",main:function(r){return r.categorie||"—"},
    sub:function(r){return [r.descriere,r.client,r.proiect,(r.mod!=="Transfer"&&r.sursa==="Proprii")?T("src_proprii_short"):""].filter(Boolean).join(" · ")},
@@ -1481,11 +1486,11 @@ var REGDEF={
    meta:function(r){return r.data+" · "+(r.platitDe||"")+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
  iesiri:{t:"r_ies",main:function(r){var m={"Depus pe cont":"d_depus","Dat persoanei":"d_pers",Salarii:"d_sal","Împrumut":"d_impr",Alte:"d_alte"};return T(m[r.destinatie]||"d_alte")},
    sub:function(r){return [r.persoana,r.luna?monthName(r.luna):"",r.nota].filter(Boolean).join(" · ")},
-   amt:function(r){return money(n(r.suma))+" "+(r.valuta||"")},cls:function(){return "warnc"},
+   amt:function(r){return money(n(r.suma))+" "+curBadge(r.valuta||"MDL",false)},cls:function(){return "warnc"},
    meta:function(r){return r.data}},
  chirii:{t:"r_chirii",main:function(r){return r.locatia||"—"},
    sub:function(r){return [r.chirias,r.nota].filter(Boolean).join(" · ")},
-   amt:function(r){return money(chirieTotal(r))+" "+(r.valuta||"")},cls:function(){return "neg"},
+   amt:function(r){return money(chirieTotal(r))+" "+curBadge(r.valuta||"MDL",false)},cls:function(){return "neg"},
    meta:function(r){return r.dataInceput+(r.dataSfarsit?" → "+r.dataSfarsit:"")+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
  contracte:{t:"r_contr",main:function(r){return r.client||"—"},sub:function(r){return r.nota||""},
    amt:function(r){return money(n(r.sumaContract))+" MDL"},cls:function(){return ""},meta:function(){return ""}},
@@ -1614,7 +1619,7 @@ function vSet(){
   var c=cfg(),h=vUsers();
   h+='<div class="sec"><h2>'+esc(T("set_val"))+'</h2><div class="card pad"><form id="valf">'
     +valute().map(function(v,i){
-      return '<div class="pair"><label><span>'+esc(T("cod"))+'</span><input name="cod'+i+'" value="'+esc(v.cod)+'"'+(v.cod==="MDL"?' readonly':'')+'></label>'
+      return '<div class="pair"><label><span>'+curBadge(v.cod,false)+' '+esc(T("cod"))+'</span><input name="cod'+i+'" value="'+esc(v.cod)+'"'+(v.cod==="MDL"?' readonly':'')+'></label>'
         +'<label><span>'+esc(T("f_curs"))+'</span><input name="curs'+i+'" type="number" step="0.0001" value="'+esc(v.curs)+'"'+(v.cod==="MDL"?' readonly':'')+'></label></div>';
     }).join("")
     +'<div class="pair"><label><span>'+esc(T("cod"))+'</span><input name="newcod" placeholder="RON"></label>'
@@ -1707,6 +1712,7 @@ function fieldHtml(f,v){
   }
   if(f.t==="select"){
     var opts=f.opts.slice();
+    if(f.k==="valuta")lbl=curBadge(v||"MDL",false)+' '+lbl;
     if(v&&!opts.some(function(o){return String(o.v)===String(v)}))opts.unshift({v:v,l:v});
     if(f.allowEmpty)opts.unshift({v:"",l:"—"});
     return '<label for="'+id+'"><span>'+lbl+(f.req?" *":"")+'</span><select id="'+id+'" data-k="'+f.k+'">'

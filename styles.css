@@ -186,3 +186,12 @@ nav button .ic .ic-svg{width:22px;height:22px}
 .failed{background:var(--surface);border:1px solid var(--neg);border-radius:12px;padding:11px 13px;font-size:13px;margin-bottom:10px}
 .failed b{color:var(--neg)}
 .failed .btn{padding:8px 12px;font-size:13px;margin-top:8px;margin-right:6px}
+
+/* ---- currency badges ---- */
+.cur{display:inline-flex;align-items:center;gap:6px;vertical-align:middle}
+.cur-b{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;color:#fff;font-family:var(--d);font-weight:700;font-size:12px;line-height:1;flex:0 0 auto}
+.cur-c{font-family:var(--d);font-weight:600;letter-spacing:.04em}
+.row .r .cur-b{width:18px;height:18px;font-size:11px;margin-left:2px}
+.tile .u .cur-b{width:18px;height:18px;font-size:11px}
+.tile.big .u .cur-b{background:rgba(255,255,255,.25)!important}
+label>span .cur-b{width:16px;height:16px;font-size:10px}
