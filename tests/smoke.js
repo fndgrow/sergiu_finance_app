@@ -156,6 +156,13 @@ const ls = (k) => window.localStorage.getItem(k);
   check(/propriul cont/.test($("#sheet").textContent || ""), "self-demotion blocked with message");
   click($("#closeSheet")); await tick();
 
+  console.log("4b. back button closes an open form instead of leaving");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="incasari"]')); await tick();
+  check($("#recf") && window.history.state && window.history.state.sheet, "open form pushed a history entry");
+  window.history.back(); await tick(60);
+  check(!$("#recf") && !/recf/.test($("#sheet").innerHTML), "history back closed the form");
+  click($('[data-view="reg"]')); await tick(); window.history.back(); await tick(60);
+  check($('[data-view="add"][aria-current="page"]'), "history back returns to the previous view");
   console.log("5. add an income and an expense, check calc");
   click($('[data-view="add"]')); await tick();
   click($('[data-form="incasari"]')); await tick();

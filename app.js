@@ -1281,7 +1281,7 @@ function openColab(name){
   h+='<div class="sec"><h2>'+esc(T("colab_got"))+'</h2>'+(got.length?'<div class="card rows">'+got.map(function(r){
     return '<button type="button" class="tap row" data-edit="iesiri" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.nota||T("d_pers"))+'<span class="s">'+esc(r.data+(r.valuta!=="MDL"?" · "+money(n(r.suma))+" "+r.valuta+" × "+r.curs:""))+'</span></span><span class="r pos">'+money(n(r.suma)*n(r.curs))+'</span></button>';
   }).join("")+'</div>':'<div class="card"><div class="empty">'+esc(T("nothing"))+'</div></div>')+'</div></div>';
-  sheetState=null;$("#sheet").innerHTML=h;document.body.style.overflow="hidden";
+  sheetState=null;sheetOpened();$("#sheet").innerHTML=h;document.body.style.overflow="hidden";
 }
 function vMyBalance(){
   var me=meName();if(!me)return "";
@@ -1661,9 +1661,24 @@ function openForm(col,id){
   def.fields().forEach(function(f){data[f.k]=rec?(rec[f.k]!=null?rec[f.k]:""):(f.def!=null?f.def:"")});
   if(rec&&col==="angajati")data.salariu=salariuLa(rec.nume,today());
   sheetState={col:col,id:id||null,data:data,err:""};
+  sheetOpened();
   drawSheet();
 }
-function closeSheet(){sheetState=null;$("#sheet").innerHTML="";document.body.style.overflow="";render()}
+/* The phone's back button / swipe closes the open form first, then steps back through views,
+   and only then leaves the app. Each open sheet and each view change is a history entry. */
+var HIST=typeof history!=="undefined"&&history.pushState?history:null;
+function histPush(st){if(HIST){try{HIST.pushState(st,"")}catch(e){}}}
+function sheetOpened(){if(HIST&&!(HIST.state&&HIST.state.sheet))histPush({v:view,sheet:true})}
+function closeSheetNow(){sheetState=null;$("#sheet").innerHTML="";document.body.style.overflow="";render()}
+function closeSheet(){
+  if(HIST&&HIST.state&&HIST.state.sheet){HIST.back();return;} /* popstate closes it */
+  closeSheetNow();
+}
+window.addEventListener("popstate",function(e){
+  var st=(e&&e.state)||{};
+  if($("#sheet").innerHTML){closeSheetNow();}
+  if(st.v&&st.v!==view&&!needGate()){view=st.v;render();}
+});
 function drawSheet(){
   if(!sheetState)return;
   var st=sheetState,def=FORMS[st.col],fields=def.fields();
@@ -1785,7 +1800,7 @@ document.addEventListener("click",function(ev){
   var lb=t.closest&&t.closest("[data-lang]");
   if(lb){lang=lb.dataset.lang;try{localStorage.setItem("ehl.lang",lang)}catch(e){}render();if(sheetState)drawSheet();return;}
   var nv=t.closest&&t.closest("[data-view]");
-  if(nv){view=nv.dataset.view;if(view==="panou"&&!isDir){} render();return;}
+  if(nv){if(nv.dataset.view!==view){view=nv.dataset.view;histPush({v:view});}render();return;}
   var fb=t.closest&&t.closest("[data-form]");
   if(fb){openForm(fb.dataset.form);return;}
   var cb=t.closest&&t.closest("[data-colab]");
@@ -1817,7 +1832,7 @@ document.addEventListener("click",function(ev){
   var ol=t.closest&&t.closest("[data-ovluna]");
   if(ol){OV.luna=ol.getAttribute("data-ovluna")||"";render();return;}
   var dc=t.closest&&t.closest("[data-cat]");
-  if(dc){regFilter={col:"cheltuieli",categorie:dc.getAttribute("data-cat")||"",luna:OV.luna};regTab="cheltuieli";view="reg";render();return;}
+  if(dc){regFilter={col:"cheltuieli",categorie:dc.getAttribute("data-cat")||"",luna:OV.luna};regTab="cheltuieli";if(view!=="reg"){view="reg";histPush({v:view});}render();return;}
   if(t.closest&&t.closest("[data-clearfilter]")){regFilter=null;render();return;}
   var rf=t.closest&&t.closest("[data-retry]");
   if(rf){retryFailed(parseInt(rf.getAttribute("data-retry"),10));return;}
@@ -1919,6 +1934,7 @@ document.addEventListener("submit",function(ev){
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&sheetState)closeSheet()});
 
 /* ---------------- boot ---------------- */
+if(HIST){try{HIST.replaceState({v:view},"")}catch(e){}}
 render();
 (function boot(){
   if(!window.PocketBase){noCfg=true;render();return;}
