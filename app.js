@@ -1207,22 +1207,23 @@ function ovData(luna){
 }
 function fmtK(v){var a=Math.abs(v);if(a>=1e6)return fmt(v/1e6,1)+"M";if(a>=1e4)return fmt(v/1e3,0)+"k";return fmt(v,0)}
 function donutSvg(cats,total){
-  var cx=150,cy=150,r=66,sw=22,C=2*Math.PI*r,gap=2;
+  var cx=170,cy=150,r=62,sw=22,C=2*Math.PI*r,gap=2;
   var segs="",badges="",acc=0;
   cats.forEach(function(c){
     var f=total>0?c.val/total:0,len=Math.max(0,f*C-gap);
     segs+='<circle class="seg" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke="var(--s'+(c.slot+1)+')" stroke-width="'+sw+'" stroke-dasharray="'+len.toFixed(2)+' '+C.toFixed(2)+'" stroke-dashoffset="'+(-acc*C).toFixed(2)+'" data-cat="'+esc(c.nume)+'"><title>'+esc(c.nume)+' · '+money(c.val)+' MDL · '+fmt(f*100,1)+'%</title></circle>';
-    if(f>=0.045){
-      var a=(acc+f/2)*2*Math.PI,R=108,x=cx+R*Math.sin(a),y=cy-R*Math.cos(a);
-      var lx=cx+140*Math.sin(a),ly=cy-140*Math.cos(a),anchor=Math.sin(a)>0.2?"start":(Math.sin(a)<-0.2?"end":"middle");
-      badges+='<g class="badge" data-cat="'+esc(c.nume)+'" transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+')"><circle r="17" fill="var(--s'+(c.slot+1)+')" opacity=".16"/>'
-        +'<g transform="translate(-10 -10) scale(.83)" style="color:var(--s'+(c.slot+1)+')">'+icon(c.icon)+'</g></g>'
+    /* badge + percent only for slices wide enough to carry them; the rest are read from the list below */
+    if(f>=0.06){
+      var a=(acc+f/2)*2*Math.PI,R=98,x=cx+R*Math.sin(a),y=cy-R*Math.cos(a);
+      var lx=cx+128*Math.sin(a),ly=cy-128*Math.cos(a),anchor=Math.sin(a)>0.25?"start":(Math.sin(a)<-0.25?"end":"middle");
+      badges+='<g class="badge" data-cat="'+esc(c.nume)+'" transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+')"><circle r="16" fill="var(--s'+(c.slot+1)+')" opacity=".16"/>'
+        +'<g transform="translate(-9 -9) scale(.75)" fill="none" stroke="var(--s'+(c.slot+1)+')" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[c.icon]||ICONS.tag)+'</g></g>'
         +'<text class="pct" x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" text-anchor="'+anchor+'">'+fmt(f*100,1)+'%</text>';
     }
     acc+=f;
   });
-  return '<svg class="donut" viewBox="0 0 300 300" role="img" aria-label="'+esc(T("ov_chelt"))+'"><g transform="rotate(-90 150 150)">'+segs+'</g>'
-    +'<text class="mid" x="150" y="146" text-anchor="middle">'+esc(fmtK(total))+'</text><text class="mid2" x="150" y="166" text-anchor="middle">MDL</text>'+badges+'</svg>';
+  return '<svg class="donut" viewBox="0 0 340 300" role="img" aria-label="'+esc(T("ov_chelt"))+'"><g transform="rotate(-90 '+cx+' '+cy+')">'+segs+'</g>'
+    +'<text class="mid" x="'+cx+'" y="'+(cy-4)+'" text-anchor="middle">'+esc(fmtK(total))+'</text><text class="mid2" x="'+cx+'" y="'+(cy+16)+'" text-anchor="middle">MDL</text>'+badges+'</svg>';
 }
 function flowSvg(months){
   var W=320,H=130,base=100,gw=W/months.length,bw=13,mx=0;
