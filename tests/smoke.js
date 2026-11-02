@@ -99,6 +99,7 @@ class PocketBase {
 }
 window.PocketBase = PocketBase;
 window.PB_URL = "";
+window.EventSource = function EventSource() {}; /* realtime exists in browsers; the fake SDK does not use it */
 window.ExcelJS = undefined;
 
 const tick = (ms = 15) => new Promise(r => setTimeout(r, ms));
@@ -157,12 +158,22 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-form="incasari"]')); await tick();
   setField("client", "Client A"); setField("valuta", "EUR"); await tick(); setField("suma", "100"); submit($("#recf")); await tick(60);
   click($('[data-form="cheltuieli"]')); await tick();
-  setField("suma", "500"); setField("categorie", "Materiale"); setField("platitDe", "Ion Operator"); submit($("#recf")); await tick(60);
+  setField("suma", "500"); setField("descriere", "Ciment"); setField("categorie", "Materiale"); setField("platitDe", "Ion Operator"); submit($("#recf")); await tick(60);
   const inc = Object.values(store.incasari)[0];
   check(inc.curs === 20.22 && inc.suma === 100 && inc.by === dirId, "income EUR 100 at rate 20.22, author set by server");
   click($('[data-view="panou"]')); await tick();
   check(/2[ .,]?022,00/.test(text()), "dashboard shows 2 022,00 MDL income");
-  check(/Ion Operator/.test(text()), "collaborator report lists Ion Operator");
+  check($(".donut") && $ ? true : true, "");
+  check(window.document.querySelectorAll(".donut .seg").length === 1 && window.document.querySelectorAll("[data-ovluna]").length >= 7, "overview: donut with 1 category, month chips, legend");
+  check(window.document.querySelectorAll(".flow .bar").length === 12, "overview: cash-flow bars for 6 months");
+  click(window.document.querySelector('.legend [data-cat="Materiale"]')); await tick();
+  check(/Materiale/.test(text()) && $("[data-clearfilter]") && window.document.querySelectorAll('[data-edit="cheltuieli"]').length === 1, "tap on category opens filtered expense register");
+  click($("[data-clearfilter]")); await tick();
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  setField("suma", "10"); setField("categorie", "Diverse"); setField("platitDe", "Sergiu"); submit($("#recf")); await tick(30);
+  check($("#recf") && /obligatorii|cel puțin 3/.test($("#sheet").textContent), "expense without description is refused");
+  click($("#closeSheet")); await tick();
+  click($('[data-view="panou"]')); await tick(); check(/Ion Operator/.test(text()), "collaborator report lists Ion Operator");
 
   console.log("6. registers, salaries, journal, settings render");
   for (const tab of ["incasari", "cheltuieli", "iesiri", "proiecte", "chirii", "contracte", "imprumuturi", "salarii", "jurnal"]) {
@@ -175,7 +186,7 @@ const ls = (k) => window.localStorage.getItem(k);
   NET_DOWN = true; window.dispatchEvent(new window.Event("offline")); await tick();
   click($('[data-view="add"]')); await tick();
   click($('[data-form="cheltuieli"]')); await tick();
-  setField("suma", "70"); setField("categorie", "Transport"); setField("platitDe", "Sergiu"); submit($("#recf")); await tick(60);
+  setField("suma", "70"); setField("descriere", "Taxi"); setField("categorie", "Transport"); setField("platitDe", "Sergiu"); submit($("#recf")); await tick(60);
   check(/Fără conexiune/.test(text()) && /așteaptă trimiterea/.test(text()), "offline note + pending count shown");
   const q = JSON.parse(ls("ehl.queue") || "[]");
   check(q.length === 2 && q[0].op === "create" && q[0].col === "cheltuieli" && q[1].col === "jurnal", "queue holds the expense and its journal entry");

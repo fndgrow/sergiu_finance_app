@@ -135,3 +135,54 @@ th{font-family:var(--d);font-size:11px;letter-spacing:.06em;text-transform:upper
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media (min-width:620px){.tiles{grid-template-columns:repeat(4,1fr)}.tile.big{grid-column:span 2}.grid2{grid-template-columns:repeat(3,1fr)}}
+
+/* ---- series colours (validated categorical palette, light + dark steps) ---- */
+:root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#6250d6;--s7:#008300}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#9085e9;--s7:#008300}}
+:root[data-theme="dark"]{--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#9085e9;--s7:#008300}
+
+/* ---- icons ---- */
+.ic-svg{width:20px;height:20px;display:inline-block;vertical-align:middle;flex:0 0 auto}
+nav button .ic{display:flex;align-items:center;justify-content:center;height:20px}
+nav button .ic .ic-svg{width:22px;height:22px}
+.act .m{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--accent-soft);color:var(--accent);margin-bottom:4px}
+.act.primary .m{background:rgba(255,255,255,.18);color:var(--accent-ink)}
+.act .m .ic-svg{width:20px;height:20px}
+.ic-badge{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--surface-2);flex:0 0 auto;align-self:center}
+.ic-badge .ic-svg{width:18px;height:18px}
+.row .ic-badge+.l{margin-left:2px}
+
+/* ---- overview cards ---- */
+.ov .ov-head{font-family:var(--d);font-weight:600;font-size:15px;background:transparent;border:0;padding:0;color:var(--ink);cursor:pointer;text-align:left}
+.ov .hero{font-family:var(--d);font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-top:6px;font-variant-numeric:tabular-nums}
+.ov .hero .u{font-size:13px;color:var(--muted);font-weight:500}
+.ov .ov-delta{font-size:13px;margin-top:4px;min-height:18px}
+.ov .delta{font-family:var(--d);font-weight:600}
+.donut{display:block;width:100%;max-width:340px;margin:6px auto 0}
+.donut .seg{fill:none;cursor:pointer}
+.donut .seg:hover{opacity:.85}
+.donut .mid{font-family:var(--d);font-weight:700;font-size:22px;fill:var(--ink)}
+.donut .mid2{font-family:var(--d);font-size:11px;fill:var(--muted);letter-spacing:.08em}
+.donut .pct{font-family:var(--d);font-size:12.5px;font-weight:600;fill:var(--muted)}
+.donut .badge{cursor:pointer}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;margin:8px 0 4px;font-size:13px;color:var(--muted)}
+.legend .lg{display:inline-flex;align-items:center;gap:6px;background:transparent;border:0;padding:2px 0;color:var(--muted);cursor:pointer;font:inherit}
+.legend .sw{width:10px;height:10px;border-radius:50%;display:inline-block}
+.ov-list{margin-top:8px;border-top:1px solid var(--line)}
+.ov-list .row{padding-left:0;padding-right:0}
+.ov-list .r .s{display:block;text-align:right;font-weight:500}
+.pills{display:flex;gap:8px;margin:8px 0 2px;flex-wrap:wrap;font-family:var(--d);font-weight:600;font-size:13.5px}
+.pill-in,.pill-out{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 6px;border-radius:999px;background:var(--surface-2)}
+.pill-in b,.pill-out b{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-size:13px}
+.pill-in b{background:var(--s3)} .pill-out b{background:var(--s2)}
+.flow{display:block;width:100%;max-width:420px;margin:6px auto 0}
+.flow .base{stroke:var(--line);stroke-width:1}
+.flow .ax{font-family:var(--d);font-size:11px;fill:var(--muted)}
+.flow .mo{cursor:pointer}
+.flow .mo.on .ax{fill:var(--ink);font-weight:600}
+.flow .mo:not(.on) .bar{opacity:.72}
+.filterbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;color:var(--muted)}
+.filterbar .chip{color:var(--ink)}
+.failed{background:var(--surface);border:1px solid var(--neg);border-radius:12px;padding:11px 13px;font-size:13px;margin-bottom:10px}
+.failed b{color:var(--neg)}
+.failed .btn{padding:8px 12px;font-size:13px;margin-top:8px;margin-right:6px}

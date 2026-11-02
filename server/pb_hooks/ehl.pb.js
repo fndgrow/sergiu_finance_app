@@ -139,3 +139,13 @@ onRecordDeleteRequest((e) => {
   if (e.auth && e.auth.id === e.record.id) throw new BadRequestError("Nu vă puteți șterge propriul cont.");
   e.next();
 }, "utilizatori");
+
+/* ---- an expense must say what the money was spent on ---- */
+onRecordCreateRequest((e) => {
+  if (String(e.record.getString("descriere") || "").trim().length < 3) throw new BadRequestError("Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).");
+  e.next();
+}, "cheltuieli");
+onRecordUpdateRequest((e) => {
+  if (String(e.record.getString("descriere") || "").trim().length < 3) throw new BadRequestError("Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).");
+  e.next();
+}, "cheltuieli");

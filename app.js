@@ -107,7 +107,11 @@ ro:{
  pw_set_t:"Setați parola directorului",pw_set_h:"Codul rămâne pentru intrare. Parola se cere pe fiecare telefon nou și o dată pe săptămână. Minim 8 caractere.",
  f_parola:"Parola",f_parola2:"Repetați parola",f_parola_veche:"Parola actuală",f_parola_noua:"Parola nouă",
  pw_short:"Parola trebuie să aibă cel puțin 8 caractere.",pw_mismatch:"Parolele nu coincid.",pw_bad:"Parolă greșită.",
- pw_saved:"Parola a fost salvată.",pw_other:"Alt cod",set_pw:"Parola directorului",set_pw_h:"Se cere pe fiecare telefon nou și o dată pe săptămână."
+ pw_saved:"Parola a fost salvată.",pw_other:"Alt cod",set_pw:"Parola directorului",set_pw_h:"Se cere pe fiecare telefon nou și o dată pe săptămână.",
+ ov_chelt:"Cheltuieli",ov_vs:"față de luna trecută",ov_flux:"Flux de numerar",ov_all:"Toate lunile",ov_none:"Nicio cheltuială în această perioadă.",
+ ov_alte:"Alte categorii",ov_in:"Încasări",ov_out:"Cheltuieli",filt_clear:"Șterge filtrul",
+ f_descr_req:"Pe ce s-au cheltuit banii",f_descr_h:"Obligatoriu: scrieți concret ce s-a cumpărat sau plătit.",descr_short:"Descrierea trebuie să aibă cel puțin 3 caractere.",
+ failed_t:"{n} înregistrări respinse de server",failed_h:"Nu s-au pierdut: sunt păstrate pe acest telefon. Verificați motivul și reîncercați.",failed_retry:"Reîncearcă",failed_toast:"Serverul a respins o înregistrare. Vedeți nota de sus."
 },
 ru:{
  app:"Касса EHL",director:"Директор",angajat:"Оператор",oaspete:"Гость",
@@ -206,7 +210,11 @@ ru:{
  pw_set_t:"Задайте пароль директора",pw_set_h:"Код остаётся для входа. Пароль спрашивается на каждом новом телефоне и раз в неделю. Минимум 8 символов.",
  f_parola:"Пароль",f_parola2:"Повторите пароль",f_parola_veche:"Текущий пароль",f_parola_noua:"Новый пароль",
  pw_short:"Пароль должен быть не короче 8 символов.",pw_mismatch:"Пароли не совпадают.",pw_bad:"Неверный пароль.",
- pw_saved:"Пароль сохранён.",pw_other:"Другой код",set_pw:"Пароль директора",set_pw_h:"Запрашивается на каждом новом телефоне и раз в неделю."
+ pw_saved:"Пароль сохранён.",pw_other:"Другой код",set_pw:"Пароль директора",set_pw_h:"Запрашивается на каждом новом телефоне и раз в неделю.",
+ ov_chelt:"Расходы",ov_vs:"к прошлому месяцу",ov_flux:"Поток денег",ov_all:"Все месяцы",ov_none:"В этом периоде расходов нет.",
+ ov_alte:"Прочие категории",ov_in:"Поступления",ov_out:"Расходы",filt_clear:"Сбросить фильтр",
+ f_descr_req:"На что потрачены деньги",f_descr_h:"Обязательно: напишите конкретно, что куплено или оплачено.",descr_short:"Описание должно быть не короче 3 символов.",
+ failed_t:"{n} записей отклонено сервером",failed_h:"Они не потеряны и хранятся на этом телефоне. Проверьте причину и повторите.",failed_retry:"Повторить",failed_toast:"Сервер отклонил запись. Смотрите заметку вверху."
 }};
 var lang="ro";
 try{var sl=localStorage.getItem("ehl.lang"); if(sl==="ro"||sl==="ru") lang=sl;}catch(e){}
@@ -347,6 +355,11 @@ function selfCheck(){
 }
 setInterval(selfCheck,3*60*1000);
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")selfCheck()});
+var RT=typeof window.EventSource==="function";
+function sub(col,topic,cb){
+  if(!RT)return;
+  try{PB.collection(col).subscribe(topic,cb,{requestKey:null}).then(function(un){subs.push(un)}).catch(function(){})}catch(e){}
+}
 function subscribe(){
   unsubAll();resetData();
   if(!PB||!ACCESS)return;
@@ -363,18 +376,18 @@ function subscribe(){
       if(netErr(e)){online=false;loaded[col]=!!(S[col]&&S[col].length)}else dbErr=true;
       render();
     });
-    PB.collection(col).subscribe("*",function(ev){applyEvent(col,ev)},{requestKey:null}).then(function(un){subs.push(un)}).catch(function(){});
+    sub(col,"*",function(ev){applyEvent(col,ev)});
   });
   if(isDir){
     PB.collection("utilizatori").getFullList({batch:500,requestKey:null}).then(function(items){S.utilizatori=items.map(norm);saveCache();checkSelf()}).catch(authErrOf);
-    PB.collection("utilizatori").subscribe("*",function(ev){applyEvent("utilizatori",ev);checkSelf()},{requestKey:null}).then(function(un){subs.push(un)}).catch(function(){});
+    sub("utilizatori","*",function(ev){applyEvent("utilizatori",ev);checkSelf()});
   }else{
     PB.collection("utilizatori").getOne(ME,{requestKey:null}).then(function(u){S.utilizatori=[norm(u)];saveCache();checkSelf()})
       .catch(function(e){if(e&&e.status===404){logout(T("gate_bad"));return}authErrOf(e)});
-    PB.collection("utilizatori").subscribe(ME,function(ev){applyEvent("utilizatori",ev);checkSelf()},{requestKey:null}).then(function(un){subs.push(un)}).catch(function(){});
+    sub("utilizatori",ME,function(ev){applyEvent("utilizatori",ev);checkSelf()});
   }
   PB.collection("config").getFullList({requestKey:null}).then(function(items){if(items[0])S.cfg=normCfg(items[0]);saveCache();if(!sheetState)render()}).catch(authErrOf);
-  PB.collection("config").subscribe("*",function(ev){if(ev.action!=="delete")S.cfg=normCfg(ev.record);saveCache();if(!sheetState)render()},{requestKey:null}).then(function(un){subs.push(un)}).catch(function(){});
+  sub("config","*",function(ev){if(ev.action!=="delete")S.cfg=normCfg(ev.record);saveCache();if(!sheetState)render()});
   flushQueue();
 }
 /* our own user record changed: name, role or deactivation */
@@ -398,8 +411,22 @@ function loadCache(){
     if(o&&o.u===ACCESS.user.id){COLS.forEach(function(c){if(o[c])S[c]=o[c]});if(o.cfg)S.cfg=o.cfg;}}catch(e){}
   try{QUEUE=JSON.parse(localStorage.getItem("ehl.queue")||"[]")}catch(e){QUEUE=[]}
   if(!(QUEUE instanceof Array))QUEUE=[];
+  loadFailed();
 }
 function saveQueue(){try{localStorage.setItem("ehl.queue",JSON.stringify(QUEUE))}catch(e){}}
+var FAILED=[];
+function saveFailed(){try{localStorage.setItem("ehl.failed",JSON.stringify(FAILED))}catch(e){}}
+function loadFailed(){try{FAILED=JSON.parse(localStorage.getItem("ehl.failed")||"[]")}catch(e){FAILED=[]}if(!(FAILED instanceof Array))FAILED=[]}
+function retryFailed(i){var op=FAILED[i];if(!op)return;FAILED.splice(i,1);delete op.err;delete op.at;QUEUE.push(op);saveFailed();saveQueue();render();flushQueue()}
+function dropFailed(i){FAILED.splice(i,1);saveFailed();render()}
+function failedNote(){
+  if(!FAILED.length)return "";
+  return '<div class="failed"><b>'+esc(T("failed_t").replace("{n}",String(FAILED.length)))+'</b><br>'+esc(T("failed_h"))+FAILED.map(function(op,i){
+    var d=op.data||{};var what=[FORMS[op.col]?T(FORMS[op.col].title):op.col,d.suma!=null?money(n(d.suma))+" "+(d.valuta||"MDL"):"",d.descriere||d.nota||d.nume||d.client||""].filter(Boolean).join(" · ");
+    return '<div style="margin-top:8px"><span class="num">'+esc(what)+'</span><br><small style="color:var(--muted)">'+esc(op.err||"")+'</small><br>'
+      +'<button type="button" class="btn" data-retry="'+i+'">'+esc(T("failed_retry"))+'</button><button type="button" class="btn danger" data-dropfailed="'+i+'">'+esc(T("del"))+'</button></div>';
+  }).join("")+'</div>';
+}
 function flushQueue(){
   if(flushing||!PB||!ACCESS||!QUEUE.length||!online)return;
   flushing=true;
@@ -416,8 +443,9 @@ function flushQueue(){
      flushing=false;
      if(netErr(e)){online=false;render();return;}
      if(authErrOf(e))return;
-     /* refused by the server (rule or validation): drop it, keep the rest moving */
-     QUEUE.shift();saveQueue();saveCache();toast(T("nowrite"));
+     /* refused by the server (rule or validation): park it where the user can see and retry it; nothing is ever dropped silently */
+     var bad=QUEUE.shift();bad.err=(e&&e.response&&e.response.message)||String(e&&e.message||e);bad.at=new Date().toISOString();
+     FAILED.push(bad);saveFailed();saveQueue();saveCache();toast(T("failed_toast"));
      if(QUEUE.length)flushQueue();else render();
    });
 }
@@ -455,7 +483,7 @@ function angajatiActivi(){return S.angajati.filter(function(a){return a.status!=
 /* ---------------- calculations (mirrors the workbook) ---------------- */
 function calc(){
   var C={},vals=valute().map(function(v){return v.cod});
-  var sum=function(arr,f){var t=0;arr.forEach(function(r){t+=f(r)||0});return t};
+  var sum=function(arr,f){var t=0;arr.forEach(function(r){t+=f(r)||0});return round2(t)};
 
   C.vals=vals;
   C.intratNum={};C.intratTr={};
@@ -587,10 +615,63 @@ function salariuLa(angajat,data){
   return best?n(best.salariu):0;
 }
 
+/* ---------------- icons (inline SVG, 24px grid, stroke) ---------------- */
+var ICONS={
+ bricks:'<path d="M3 7h18v10H3z"/><path d="M3 12h18M8 7v5M14 12v5M11 7v5M16 7v5M6 12v5"/>',
+ truck:'<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/>',
+ fuel:'<path d="M5 20V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v15"/><path d="M3 20h12M7 8h5"/><path d="M14 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-2-2"/>',
+ wrench:'<path d="M14.7 6.3a4 4 0 0 0 5 5L13 18a2 2 0 0 1-3-3l6.7-6.7z"/><path d="M14.7 6.3 18 3"/>',
+ office:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/>',
+ tax:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+ hammer:'<path d="M14 4l6 6-2 2-6-6z"/><path d="M12 8 4 16a2 2 0 0 0 3 3l8-8"/><path d="M15 3l3-1 3 3-1 3"/>',
+ dots:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+ tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/>',
+ food:'<path d="M5 3v8a3 3 0 0 0 3 3v7M11 3v8a3 3 0 0 1-3 3M17 3c-2 2-2 6-2 8h3v10"/>',
+ home:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+ phone:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14a5 5 0 0 1 6 5"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+ cart:'<path d="M3 4h2l2 12h11l2-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/>',
+ shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/>',
+ water:'<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>',
+ cardIc:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
+ down:'<circle cx="12" cy="12" r="9"/><path d="M12 7v10M8 13l4 4 4-4"/>',
+ up:'<circle cx="12" cy="12" r="9"/><path d="M12 17V7M8 11l4-4 4 4"/>',
+ send:'<path d="M21 3 10 14"/><path d="M21 3 14 21l-4-7-7-4z"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ file:'<path d="M6 2h8l5 5v15H6z"/><path d="M14 2v5h5M9 13h6M9 17h6"/>',
+ calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ folder:'<path d="M3 6h6l2 2h10v12H3z"/>',
+ userplus:'<circle cx="10" cy="8" r="4"/><path d="M2 21a8 8 0 0 1 16 0M19 8v6M16 11h6"/>',
+ chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+ lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+ wallet:'<path d="M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7V5a2 2 0 0 1 2-2h12v4M16 14h4"/>',
+ bank:'<path d="M3 10 12 4l9 6H3z"/><path d="M5 10v8M9 10v8M15 10v8M19 10v8M3 21h18"/>'
+};
+function icon(name,cls){return '<svg class="ic-svg'+(cls?" "+cls:"")+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[name]||ICONS.tag)+'</svg>'}
+/* category name -> icon, by keyword in Romanian or Russian; unknown categories get a tag */
+var CAT_ICON_RULES=[
+ [/material|материал|ciment|цемент|nisip|песок|beton|бетон/i,"bricks"],[/transport|транспорт|camion|грузов|taxi|такси|livrar|достав/i,"truck"],
+ [/combust|топлив|benzin|бензин|motorin|дизел|carburant/i,"fuel"],[/unelt|scul|инструм|echipament|оборуд/i,"wrench"],
+ [/birou|офис|papet|канцел|rechizit/i,"office"],[/tax|налог|impozit|amend|штраф|stat|госпошл/i,"tax"],
+ [/repara|ремонт|service|сервис/i,"hammer"],[/divers|прочее|прочие|alte|разное|другое/i,"dots"],
+ [/mâncare|mancare|еда|питан|hran|produs|продукт|masă|masa|обед/i,"food"],[/chiri|аренд|cazare|жиль|locuin/i,"home"],
+ [/telefon|телефон|internet|интернет|comunic|связ/i,"phone"],[/salar|зарплат|angaja|сотрудн|munc|рабоч/i,"users"],
+ [/energ|электр|curent|lumin|свет|gaz|газ/i,"bolt"],[/apă|apa|вода|canal/i,"water"],[/cump|покуп|магазин|magazin|piaț|piata|рынок/i,"cart"],
+ [/asigur|страх|pază|охран|securit/i,"shield"],[/banc|банк|comision|комисс|card|карт/i,"cardIc"]
+];
+function catIcon(name){var s=String(name||"");for(var i=0;i<CAT_ICON_RULES.length;i++){if(CAT_ICON_RULES[i][0].test(s))return CAT_ICON_RULES[i][1]}return "tag"}
+/* fixed categorical slot per category: by position in the settings list, so a colour follows its category */
+function catSlot(name){var all=categorii();var i=-1;all.forEach(function(c,k){if(sameP(c,name))i=k});return i<0?6:(i%7)}
+
 /* ---------------- form definitions ---------------- */
 function opt(list){return list.map(function(v){return typeof v==="string"?{v:v,l:v}:v})}
 var FORMS={
- incasari:{title:"a_inc",icon:"↓",fields:function(){return[
+ incasari:{title:"a_inc",icon:"down",fields:function(){return[
    {k:"data",t:"date",l:"f_data",req:1,def:today()},
    {k:"client",t:"text",l:"f_client",req:1,list:clienti()},
    fProiect(),
@@ -601,18 +682,18 @@ var FORMS={
    {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"}
  ]},calc:function(d){return [{l:T("eq"),v:money(n(d.suma)*n(d.curs))+" MDL"}]}},
 
- cheltuieli:{title:"a_chelt",icon:"↑",fields:function(){return[
+ cheltuieli:{title:"a_chelt",icon:"up",fields:function(){return[
    {k:"data",t:"date",l:"f_data",req:1,def:today()},
    {k:"suma",t:"number",l:"f_sumamdl",req:1,step:"0.01"},
+   {k:"descriere",t:"text",l:"f_descr_req",req:1,hint:"f_descr_h",minlen:3},
    {k:"categorie",t:"text",l:"f_categ",req:1,list:categorii()},
-   {k:"descriere",t:"text",l:"f_descr"},
    {k:"client",t:"text",l:"f_client",list:clienti()},
    fProiect(),
    {k:"platitDe",t:"text",l:"f_platit",req:1,list:oameni(),def:meName()||casier()},
    {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"}
  ]}},
 
- iesiri:{title:"a_ies",icon:"→",fields:function(){return[
+ iesiri:{title:"a_ies",icon:"send",fields:function(){return[
    {k:"data",t:"date",l:"f_data",req:1,def:today()},
    {k:"destinatie",t:"select",l:"f_dest",req:1,opts:[
      {v:"Dat persoanei",l:T("d_pers")},{v:"Depus pe cont",l:T("d_depus")},
@@ -625,7 +706,7 @@ var FORMS={
    {k:"nota",t:"text",l:"f_nota"}
  ]},calc:function(d){return [{l:T("eq"),v:money(n(d.suma)*n(d.curs))+" MDL"}]}},
 
- chirii:{title:"a_chirie",icon:"⌂",fields:function(){return[
+ chirii:{title:"a_chirie",icon:"home",fields:function(){return[
    {k:"dataInceput",t:"date",l:"f_di",req:1,half:1,def:today()},
    {k:"dataSfarsit",t:"date",l:"f_ds",half:1},
    {k:"locatia",t:"text",l:"f_loc",req:1},
@@ -641,7 +722,7 @@ var FORMS={
  ]},calc:function(d){var t=n(d.chirie)+n(d.gaj)+n(d.comunale)+n(d.avarii);
    return [{l:T("tot"),v:money(t)+" "+(d.valuta||"")},{l:T("eq"),v:money(t*n(d.curs))+" MDL"}]}},
 
- imprumuturi:{title:"a_impr",icon:"◷",fields:function(){return[
+ imprumuturi:{title:"a_impr",icon:"clock",fields:function(){return[
    {k:"data",t:"date",l:"f_data",req:1,def:today()},
    {k:"persoana",t:"text",l:"f_pers",req:1,list:persoane()},
    {k:"suma",t:"number",l:"f_sumamdl",req:1,step:"0.01"},
@@ -651,14 +732,14 @@ var FORMS={
    {k:"nota",t:"text",l:"f_nota"}
  ]}},
 
- contracte:{title:"a_contr",icon:"§",fields:function(){return[
+ contracte:{title:"a_contr",icon:"file",fields:function(){return[
    {k:"client",t:"text",l:"f_client",req:1,list:clienti()},
    {k:"sumaContract",t:"number",l:"f_contract",req:1,step:"0.01"},
    {k:"deIncasatCash",t:"number",l:"f_decash",step:"0.01",def:"0"},
    {k:"nota",t:"text",l:"f_nota"}
  ]},calc:function(d){return [{l:T("f_decash"),v:money(n(d.deIncasatCash))},{l:T("transfer"),v:money(n(d.sumaContract)-n(d.deIncasatCash))}]}},
 
- pontaj:{title:"a_pontaj",icon:"▦",fields:function(){return[
+ pontaj:{title:"a_pontaj",icon:"calendar",fields:function(){return[
    {k:"luna",t:"month",l:"f_luna",req:1,def:curMonth()},
    {k:"angajat",t:"text",l:"f_ang",req:1,list:angajatiActivi().length?angajatiActivi():persoane()},
    {k:"z1",t:"number",l:"f_z1",half:1,step:"1",def:"0"},
@@ -668,7 +749,7 @@ var FORMS={
    if(isDir)out.push({l:T("tot"),v:money((n(d.z1)+n(d.z2))*pz)+" MDL"}); /* operators cannot read salaries */
    return out}},
 
- utilizatori:{title:"a_user",icon:"◉",fields:function(){return[
+ utilizatori:{title:"a_user",icon:"userplus",fields:function(){return[
    {k:"nume",t:"text",l:"f_nume",req:1},
    {k:"rol",t:"select",l:"f_rol",req:1,opts:[{v:"Operator",l:T("rol_op")},{v:"Director",l:T("rol_dir")}],def:"Operator"},
    {k:"cod",t:"text",l:"f_cod",req:1,hint:"f_cod_h",def:codNou()},
@@ -677,7 +758,7 @@ var FORMS={
    {k:"salariu",t:"number",l:"f_salariu",step:"0.01",def:"0",showIf:function(d){return !!d.caAngajat}}
  ]}},
 
- proiecte:{title:"a_proj",icon:"◆",fields:function(){return[
+ proiecte:{title:"a_proj",icon:"folder",fields:function(){return[
    {k:"nume",t:"text",l:"f_nume",req:1},
    {k:"client",t:"text",l:"f_client",list:clienti()},
    {k:"responsabili",t:"multi",l:"f_resp",opts:oameni()},
@@ -688,7 +769,7 @@ var FORMS={
    {k:"nota",t:"text",l:"f_nota"}
  ]}},
 
- angajati:{title:"a_ang",icon:"☺",fields:function(){return[
+ angajati:{title:"a_ang",icon:"user",fields:function(){return[
    {k:"nume",t:"text",l:"f_nume",req:1},
    {k:"dataInceput",t:"date",l:"f_start",def:today()},
    {k:"salariu",t:"number",l:"f_salariu",req:1,step:"0.01",newOnly:1},
@@ -1064,8 +1145,8 @@ function render(){
 function renderNav(){
   if(needGate()){$("#nav").innerHTML="";return;}
   var items=isDir
-    ?[["panou","◧",T("nav_panou")],["add","＋",T("nav_add")],["reg","☰",T("nav_reg")],["set","⚙",T("nav_set")]]
-    :[["add","＋",T("nav_add")],["mine","☰",T("nav_mine")],["panou","🔒",T("nav_panou")]];
+    ?[["panou",icon("chart"),T("nav_panou")],["add",icon("plus"),T("nav_add")],["reg",icon("list"),T("nav_reg")],["set",icon("gear"),T("nav_set")]]
+    :[["add",icon("plus"),T("nav_add")],["mine",icon("list"),T("nav_mine")],["panou",icon("lock"),T("nav_panou")]];
   $("#nav").innerHTML=items.map(function(it){
     return '<button type="button" data-view="'+it[0]+'"'+(view===it[0]?' aria-current="page"':'')+'><span class="ic">'+it[1]+'</span><span class="lb">'+esc(it[2])+'</span></button>';
   }).join("");
@@ -1075,7 +1156,7 @@ function installNote(){
   return '<div class="sec"><button class="btn ghost" id="installbtn" type="button">'+esc(T("install"))+'</button></div>';
 }
 function statusNote(){
-  var h="";
+  var h=failedNote();
   if(!online)h+='<div class="note">'+esc(T("offline_note"))+'</div>';
   if(QUEUE.length)h+='<div class="note">'+esc(T("pending").replace("{n}",String(QUEUE.length)))+'</div>';
   if(online&&dbErr)h+='<div class="note">'+esc(T("offline"))+'</div>';
@@ -1098,9 +1179,104 @@ function barRow(l,v,max){
   return '<div class="row"><span class="l">'+esc(l)+'<span class="bar-wrap"><span class="bar-fill" style="width:'+pct+'%"></span></span></span><span class="r">'+money(v)+'</span></div>';
 }
 
+/* ---------------- overview (month picker, expenses by category, cash flow) ---------------- */
+var OV={luna:curMonth()};
+var regFilter=null; /* {col:"cheltuieli",categorie,luna} set by tapping a category in the overview */
+function ymOf(r){return String(dateOf(r)||"").slice(0,7)}
+function addMonths(ym,k){var y=parseInt(ym.slice(0,4),10),m=parseInt(ym.slice(5,7),10)-1+k;var d=new Date(y,m,1);return d.getFullYear()+"-"+p2(d.getMonth()+1)}
+function monthsBack(n){var out=[],cur=curMonth();for(var i=n-1;i>=0;i--)out.push(addMonths(cur,-i));return out}
+function shortMonth(ym){var nm=monthName(ym).split(" ")[0];return nm.slice(0,3)}
+function round2(v){return Math.round((v||0)*100)/100}
+function ovData(luna){
+  var inM=function(r){return !luna||ymOf(r)===luna};
+  var chelt=S.cheltuieli.filter(inM),inc=S.incasari.filter(inM);
+  var byCat={};chelt.forEach(function(r){var k=String(r.categorie||"").trim()||"—";byCat[k]=round2((byCat[k]||0)+n(r.suma))});
+  var cats=Object.keys(byCat).map(function(k){return {nume:k,val:byCat[k],slot:catSlot(k),icon:catIcon(k)}}).sort(function(a,b){return b.val-a.val});
+  var total=round2(cats.reduce(function(a,c){return a+c.val},0));
+  /* at most six named segments; the tail folds into "Alte" */
+  if(cats.length>7){var head=cats.slice(0,6),tail=cats.slice(6);var rest=round2(tail.reduce(function(a,c){return a+c.val},0));
+    head.push({nume:T("ov_alte"),val:rest,slot:6,icon:"dots",folded:tail.map(function(c){return c.nume})});cats=head;}
+  var incTotal=round2(inc.reduce(function(a,r){return a+n(r.suma)*n(r.curs)},0));
+  var prevLuna=luna?addMonths(luna,-1):"";
+  var prev=luna?round2(S.cheltuieli.filter(function(r){return ymOf(r)===prevLuna}).reduce(function(a,r){return a+n(r.suma)},0)):0;
+  var months=monthsBack(6).map(function(m){
+    return {luna:m,inc:round2(S.incasari.filter(function(r){return ymOf(r)===m}).reduce(function(a,r){return a+n(r.suma)*n(r.curs)},0)),
+      out:round2(S.cheltuieli.filter(function(r){return ymOf(r)===m}).reduce(function(a,r){return a+n(r.suma)},0))};
+  });
+  return {cats:cats,total:total,inc:incTotal,prev:prev,months:months};
+}
+function fmtK(v){var a=Math.abs(v);if(a>=1e6)return fmt(v/1e6,1)+"M";if(a>=1e4)return fmt(v/1e3,0)+"k";return fmt(v,0)}
+function donutSvg(cats,total){
+  var cx=150,cy=150,r=66,sw=22,C=2*Math.PI*r,gap=2;
+  var segs="",badges="",acc=0;
+  cats.forEach(function(c){
+    var f=total>0?c.val/total:0,len=Math.max(0,f*C-gap);
+    segs+='<circle class="seg" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke="var(--s'+(c.slot+1)+')" stroke-width="'+sw+'" stroke-dasharray="'+len.toFixed(2)+' '+C.toFixed(2)+'" stroke-dashoffset="'+(-acc*C).toFixed(2)+'" data-cat="'+esc(c.nume)+'"><title>'+esc(c.nume)+' · '+money(c.val)+' MDL · '+fmt(f*100,1)+'%</title></circle>';
+    if(f>=0.045){
+      var a=(acc+f/2)*2*Math.PI,R=108,x=cx+R*Math.sin(a),y=cy-R*Math.cos(a);
+      var lx=cx+140*Math.sin(a),ly=cy-140*Math.cos(a),anchor=Math.sin(a)>0.2?"start":(Math.sin(a)<-0.2?"end":"middle");
+      badges+='<g class="badge" data-cat="'+esc(c.nume)+'" transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+')"><circle r="17" fill="var(--s'+(c.slot+1)+')" opacity=".16"/>'
+        +'<g transform="translate(-10 -10) scale(.83)" style="color:var(--s'+(c.slot+1)+')">'+icon(c.icon)+'</g></g>'
+        +'<text class="pct" x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" text-anchor="'+anchor+'">'+fmt(f*100,1)+'%</text>';
+    }
+    acc+=f;
+  });
+  return '<svg class="donut" viewBox="0 0 300 300" role="img" aria-label="'+esc(T("ov_chelt"))+'"><g transform="rotate(-90 150 150)">'+segs+'</g>'
+    +'<text class="mid" x="150" y="146" text-anchor="middle">'+esc(fmtK(total))+'</text><text class="mid2" x="150" y="166" text-anchor="middle">MDL</text>'+badges+'</svg>';
+}
+function flowSvg(months){
+  var W=320,H=130,base=100,gw=W/months.length,bw=13,mx=0;
+  months.forEach(function(m){mx=Math.max(mx,m.inc,m.out)});
+  var sc=mx>0?80/mx:0,out="";
+  function bar(x,v,s,title){var h=Math.max(v>0?3:0,v*sc),y=base-h,rr=Math.min(4,h);
+    return '<path class="bar" fill="var(--s'+s+')" d="M'+x+' '+base+'V'+(y+rr)+'a'+rr+' '+rr+' 0 0 1 '+rr+' -'+rr+'h'+(bw-2*rr)+'a'+rr+' '+rr+' 0 0 1 '+rr+' '+rr+'V'+base+'z"><title>'+title+'</title></path>'}
+  months.forEach(function(m,i){
+    var x0=i*gw+gw/2;
+    out+='<g class="mo'+(m.luna===OV.luna?" on":"")+'" data-ovluna="'+m.luna+'">'
+      +'<rect class="hit" x="'+(i*gw)+'" y="0" width="'+gw+'" height="'+H+'" fill="transparent"/>'
+      +bar(x0-bw-1,m.inc,3,esc(monthName(m.luna))+' · '+T("ov_in")+' '+money(m.inc))
+      +bar(x0+1,m.out,2,esc(monthName(m.luna))+' · '+T("ov_out")+' '+money(m.out))
+      +'<text class="ax" x="'+x0+'" y="'+(H-10)+'" text-anchor="middle">'+esc(shortMonth(m.luna))+'</text></g>';
+  });
+  return '<svg class="flow" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(T("ov_flux"))+'"><line class="base" x1="0" x2="'+W+'" y1="'+base+'" y2="'+base+'"/>'+out+'</svg>';
+}
+function vOverview(){
+  var d=ovData(OV.luna);
+  var months=monthsBack(6);
+  var h='<div class="sec"><div class="chips ov-months">'+months.map(function(m){
+    return '<button type="button" class="chip" data-ovluna="'+m+'"'+(OV.luna===m?' aria-pressed="true"':'')+'>'+esc(monthName(m))+'</button>';
+  }).join("")+'<button type="button" class="chip" data-ovluna=""'+(OV.luna===""?' aria-pressed="true"':'')+'>'+esc(T("ov_all"))+'</button></div></div>';
+  /* expenses card */
+  var delta="";
+  if(OV.luna&&d.prev>0){var p=(d.total-d.prev)/d.prev*100;delta='<span class="delta '+(p>0?"neg":"pos")+'">'+(p>0?"▲":"▼")+' '+fmt(Math.abs(p),0)+'%</span> <span class="hint">'+esc(T("ov_vs"))+'</span>';}
+  h+='<div class="sec"><div class="card pad ov"><button type="button" class="ov-head" data-cat="">'+esc(T("ov_chelt"))+' ›</button>'
+    +'<div class="hero neg">−'+money(d.total)+' <span class="u">MDL</span></div><div class="ov-delta">'+delta+'</div>';
+  if(!d.cats.length)h+='<div class="empty">'+esc(T("ov_none"))+'</div>';
+  else{
+    h+=donutSvg(d.cats,d.total);
+    h+='<div class="legend">'+d.cats.map(function(c){
+      return '<button type="button" class="lg" data-cat="'+esc(c.nume)+'"><span class="sw" style="background:var(--s'+(c.slot+1)+')"></span>'+esc(c.nume)+'</button>';
+    }).join("")+'</div>';
+    h+='<div class="rows ov-list">'+d.cats.map(function(c){
+      return '<button type="button" class="tap row" data-cat="'+esc(c.nume)+'"><span class="ic-badge" style="color:var(--s'+(c.slot+1)+')">'+icon(c.icon)+'</span><span class="l">'+esc(c.nume)+(c.folded?'<span class="s">'+esc(c.folded.join(", "))+'</span>':'')+'</span><span class="r">'+money(c.val)+'<span class="s">'+fmt(d.total?c.val/d.total*100:0,1)+'%</span></span></button>';
+    }).join("")+'</div>';
+  }
+  h+='</div></div>';
+  /* cash flow card */
+  var net=round2(d.inc-d.total);
+  h+='<div class="sec"><div class="card pad ov"><div class="ov-head">'+esc(T("ov_flux"))+'</div>'
+    +'<div class="hero '+(net<0?"neg":"")+'">'+money(net)+' <span class="u">MDL</span></div>'
+    +'<div class="pills"><span class="pill-in"><b>+</b> '+money(d.inc)+'</span><span class="pill-out"><b>−</b> '+money(d.total)+'</span></div>'
+    +flowSvg(d.months)
+    +'<div class="legend"><span class="lg"><span class="sw" style="background:var(--s3)"></span>'+esc(T("ov_in"))+'</span><span class="lg"><span class="sw" style="background:var(--s2)"></span>'+esc(T("ov_out"))+'</span></div>'
+    +'</div></div>';
+  return h;
+}
+
 function vPanou(){
   if(!isDir)return vPin();
   var C=calc(),h=statusNote();
+  h+=vOverview();
   h+='<div class="sec"><div class="tiles">'
     +tile(T("t_total"),money(C.totalFirma),"MDL","",1)
     +tile(T("t_casa"),money(C.casaMDL),"MDL")
@@ -1242,7 +1418,7 @@ function vAdd(){
     imprumuturi:"a_impr_d",contracte:"a_contr_d",pontaj:"a_pontaj_d",angajati:"a_ang_d",proiecte:"a_proj_d",utilizatori:"a_user_d"};
   h+='<div class="sec"><h2>'+esc(T("add_t"))+'</h2><div class="grid2">'+order.map(function(k,i){
     return '<button type="button" class="act'+(i<2?" primary":"")+'" data-form="'+k+'">'
-      +'<span class="m">'+FORMS[k].icon+'</span>'
+      +'<span class="m">'+icon(FORMS[k].icon)+'</span>'
       +'<span class="t">'+esc(T(FORMS[k].title))+'</span>'
       +'<span class="d2">'+esc(T(desc[k]))+'</span></button>';
   }).join("")+'</div></div>';
@@ -1295,6 +1471,11 @@ function vReg(){
   if(regTab==="jurnal")return h+vJurnal();
   var def=REGDEF[regTab];
   var list=S[regTab].slice().sort(function(a,b){return String(dateOf(b)).localeCompare(String(dateOf(a)))});
+  if(regFilter&&regFilter.col===regTab){
+    list=list.filter(function(r){return (!regFilter.luna||ymOf(r)===regFilter.luna)&&(!regFilter.categorie||sameP(r.categorie,regFilter.categorie))});
+    h+='<div class="sec"><div class="filterbar">'+esc([regFilter.categorie,regFilter.luna?monthName(regFilter.luna):T("ov_all")].filter(Boolean).join(" · "))
+      +' <button type="button" class="chip" data-clearfilter="1">✕ '+esc(T("filt_clear"))+'</button></div></div>';
+  }
   if(!list.length)return h+'<div class="sec"><div class="card"><div class="empty"><b>'+esc(T("nothing"))+'</b>'+esc(T("nothing_d"))+'</div></div></div>';
   if(regTab==="contracte"){
     var C=calc();
@@ -1506,6 +1687,8 @@ function submitForm(){
     return f.req&&!String(st.data[f.k]||"").trim();
   });
   if(miss.length){st.err=T("req");drawSheet();return;}
+  var short=fields.filter(function(f){return f.minlen&&String(st.data[f.k]||"").trim().length<f.minlen});
+  if(short.length){st.err=T("descr_short");drawSheet();return;}
   var btn=$("#savebtn");if(btn){btn.disabled=true;btn.textContent=T("saving")}
   var d=st.data,col=st.col,p;
   if(col==="utilizatori"){
@@ -1581,6 +1764,15 @@ document.addEventListener("click",function(ev){
     }else{b.dataset.armed="1";b.textContent=T("del_yes")}
     return;
   }
+  var ol=t.closest&&t.closest("[data-ovluna]");
+  if(ol){OV.luna=ol.getAttribute("data-ovluna")||"";render();return;}
+  var dc=t.closest&&t.closest("[data-cat]");
+  if(dc){regFilter={col:"cheltuieli",categorie:dc.getAttribute("data-cat")||"",luna:OV.luna};regTab="cheltuieli";view="reg";render();return;}
+  if(t.closest&&t.closest("[data-clearfilter]")){regFilter=null;render();return;}
+  var rf=t.closest&&t.closest("[data-retry]");
+  if(rf){retryFailed(parseInt(rf.getAttribute("data-retry"),10));return;}
+  var df=t.closest&&t.closest("[data-dropfailed]");
+  if(df){if(df.dataset.armed==="1"){dropFailed(parseInt(df.getAttribute("data-dropfailed"),10))}else{df.dataset.armed="1";df.textContent=T("del_yes")}return;}
   if(t.id==="expbtn"){exportRun(JUR.luna,false);return;}
   if(t.id==="exitdir"){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}logout();return;}
   if(t.id==="gateback"){GATE={step:"cod"};gateErr="";render();return;}
