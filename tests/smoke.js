@@ -73,6 +73,7 @@ class PocketBase {
   collection(c) { return collection(c); }
   async send(p, o) {
     if (NET_DOWN) throw err(0, "net");
+    if (p === "/api/ehl/password") { if (!currentUser || currentUser.rol !== "Director") throw err(403, "x"); if (currentUser.parolaSetata && o.body.veche !== currentUser.parola) throw err(400, "Parola actuală este greșită."); currentUser.parola = o.body.noua; currentUser.parolaSetata = true; return { ok: true }; }
     if (p !== "/api/ehl/login") throw err(404, "nf");
     const cod = String(o.body.cod || "");
     store.utilizatori = store.utilizatori || {};
@@ -83,7 +84,17 @@ class PocketBase {
       store.config = { c1: { id: "c1", valute: [{ cod: "MDL", curs: 1 }, { cod: "EUR", curs: 20.22 }, { cod: "USD", curs: 17.5 }], casier: "", categorii: ["Materiale", "Transport"] } };
     }
     if (!u || u.status === "Inactiv") throw err(401, "Cod greșit sau utilizator dezactivat.");
-    return { token: "tok-" + u.id, first, record: { id: u.id, nume: u.nume, rol: u.rol, cod: u.cod, status: u.status } };
+    const pub = { id: u.id, nume: u.nume, rol: u.rol, cod: u.cod, status: u.status, parolaSetata: !!u.parolaSetata };
+    if (u.rol !== "Director") return { token: "tok-" + u.id, first, record: pub };
+    if (!u.parolaSetata) {
+      if (!o.body.parolaNoua) return { needSetPassword: true, first, record: pub };
+      if (o.body.parolaNoua.length < 6) throw err(400, "Parola trebuie să aibă cel puțin 6 caractere.");
+      u.parola = o.body.parolaNoua; u.parolaSetata = true; pub.parolaSetata = true;
+      return { token: "tok-" + u.id, expires: Date.now() + 7 * 86400000, first, record: pub };
+    }
+    if (!o.body.parola) return { needPassword: true, record: pub };
+    if (o.body.parola !== u.parola) throw err(401, "Parolă greșită.");
+    return { token: "tok-" + u.id, expires: Date.now() + 7 * 86400000, record: pub };
   }
 }
 window.PocketBase = PocketBase;
@@ -108,7 +119,12 @@ const ls = (k) => window.localStorage.getItem(k);
 
   console.log("2. first launch: code becomes the director");
   $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
+  check($("#spf"), "director is asked to set a password");
+  $("#spf").elements["p1"].value = "secret12"; $("#spf").elements["p2"].value = "secret21"; submit($("#spf")); await tick(30);
+  check(/nu coincid/.test(text()), "mismatching passwords refused");
+  $("#spf").elements["p1"].value = "secret12"; $("#spf").elements["p2"].value = "secret12"; submit($("#spf")); await tick(60);
   const dirId = Object.values(store.utilizatori)[0].id;
+  check(ls("ehl.cod") === "258000" && Number(ls("ehl.exp")) > Date.now(), "code and weekly expiry remembered for the director");
   check(Object.values(store.utilizatori)[0].rol === "Director", "director user created");
   check($("#role").textContent === "Director", "role pill = Director");
   check($("#nav").children.length === 4, "director nav has 4 tabs");
@@ -180,6 +196,22 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="set"]')); await tick();
   click($("#exitdir")); await tick(30);
   check($("#pinf") && !ls("ehl.cache"), "locked again, cache cleared");
+  $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
+  check($("#pwf"), "director asked for password on re-login");
+  $("#pwf").elements["p"].value = "wrong"; submit($("#pwf")); await tick(40);
+  check(/greșită/.test(text()) && $("#pwf"), "wrong password rejected");
+  $("#pwf").elements["p"].value = "secret12"; submit($("#pwf")); await tick(80);
+  check($("#role").textContent === "Director", "director back in with password");
+  console.log("8b. weekly expiry: password asked again, code remembered");
+  window.localStorage.setItem("ehl.exp", String(Date.now() - 1000)); window.document.dispatchEvent(new window.Event("visibilitychange")); await tick(40);
+  check($("#pwf") && /săptămână/.test(text()), "weekly password prompt with remembered code");
+  $("#pwf").elements["p"].value = "secret12"; submit($("#pwf")); await tick(80);
+  check($("#role").textContent === "Director", "director continues after weekly password");
+  console.log("8c. change password in settings");
+  click($('[data-view="set"]')); await tick();
+  $("#pwchg").elements["veche"].value = "secret12"; $("#pwchg").elements["noua"].value = "secret99"; $("#pwchg").elements["noua2"].value = "secret99"; submit($("#pwchg")); await tick(40);
+  check(store.utilizatori[dirId].parola === "secret99", "password changed");
+  click($("#exitdir")); await tick(30);
   $("#pinv").value = "4141"; submit($("#pinf")); await tick(80);
   check($("#role").textContent === "Operator", "role pill = Operator");
   check($("#nav").children.length === 3, "operator nav has 3 tabs");

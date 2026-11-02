@@ -101,7 +101,13 @@ ro:{
  pending:"{n} înregistrări așteaptă trimiterea la server.",
  first_pin:"Prima pornire: acest cod a devenit codul directorului. Schimbați-vă numele în Setări → Utilizatori.",
  install:"Instalează pe telefon",cod_bad:"Codul trebuie să aibă 4–8 cifre și să nu fie folosit deja.",
- self_lock:"Nu vă puteți dezactiva sau retrograda propriul cont."
+ self_lock:"Nu vă puteți dezactiva sau retrograda propriul cont.",
+ pw_t:"Parola directorului",pw_h:"Pe un telefon nou directorul confirmă parola. Apoi se cere din nou o dată pe săptămână.",
+ pw_week:"A trecut o săptămână de la ultima confirmare. Introduceți parola ca să continuați.",
+ pw_set_t:"Setați parola directorului",pw_set_h:"Codul rămâne pentru intrare. Parola se cere pe fiecare telefon nou și o dată pe săptămână. Minim 8 caractere.",
+ f_parola:"Parola",f_parola2:"Repetați parola",f_parola_veche:"Parola actuală",f_parola_noua:"Parola nouă",
+ pw_short:"Parola trebuie să aibă cel puțin 8 caractere.",pw_mismatch:"Parolele nu coincid.",pw_bad:"Parolă greșită.",
+ pw_saved:"Parola a fost salvată.",pw_other:"Alt cod",set_pw:"Parola directorului",set_pw_h:"Se cere pe fiecare telefon nou și o dată pe săptămână."
 },
 ru:{
  app:"Касса EHL",director:"Директор",angajat:"Оператор",oaspete:"Гость",
@@ -194,7 +200,13 @@ ru:{
  pending:"{n} записей ждут отправки на сервер.",
  first_pin:"Первый запуск: этот код стал кодом директора. Поменяйте имя в Настройки → Пользователи.",
  install:"Установить на телефон",cod_bad:"Код должен быть из 4–8 цифр и не повторять другой.",
- self_lock:"Нельзя отключить или понизить собственную учётную запись."
+ self_lock:"Нельзя отключить или понизить собственную учётную запись.",
+ pw_t:"Пароль директора",pw_h:"На новом телефоне директор подтверждает пароль. Дальше он запрашивается раз в неделю.",
+ pw_week:"Прошла неделя с последнего подтверждения. Введите пароль, чтобы продолжить.",
+ pw_set_t:"Задайте пароль директора",pw_set_h:"Код остаётся для входа. Пароль спрашивается на каждом новом телефоне и раз в неделю. Минимум 8 символов.",
+ f_parola:"Пароль",f_parola2:"Повторите пароль",f_parola_veche:"Текущий пароль",f_parola_noua:"Новый пароль",
+ pw_short:"Пароль должен быть не короче 8 символов.",pw_mismatch:"Пароли не совпадают.",pw_bad:"Неверный пароль.",
+ pw_saved:"Пароль сохранён.",pw_other:"Другой код",set_pw:"Пароль директора",set_pw_h:"Запрашивается на каждом новом телефоне и раз в неделю."
 }};
 var lang="ro";
 try{var sl=localStorage.getItem("ehl.lang"); if(sl==="ro"||sl==="ru") lang=sl;}catch(e){}
@@ -260,22 +272,46 @@ function logout(msg){
   gateErr=msg||"";view="add";render();
 }
 function needGate(){return !ACCESS}
-function userOf(r){return {id:r.id,nume:r.nume||"",rol:r.rol||"Operator",cod:r.cod||"",status:r.status||"Activ"}}
+function userOf(r){return {id:r.id,nume:r.nume||"",rol:r.rol||"Operator",cod:r.cod||"",status:r.status||"Activ",parolaSetata:!!r.parolaSetata}}
 function enter(user){
-  ACCESS={user:userOf(user)};ME=user.id;gateErr="";
+  ACCESS={user:userOf(user)};ME=user.id;gateErr="";GATE={step:"cod"};
   isDir=computeDir();view=isDir?"panou":"add";
   subscribe();
 }
-/* POST /api/ehl/login {cod} -> {token, record, first}; the server counts failed attempts per IP */
-function login(cod){
+/* Gate steps: "cod" (everyone) -> for directors "setparola" (first time) or "parola" (new phone, or weekly). */
+var GATE={step:"cod"};
+function sessionExp(){try{return parseInt(localStorage.getItem("ehl.exp")||"0",10)||0}catch(e){return 0}}
+/* POST /api/ehl/login {cod[,parola|parolaNoua]} -> {token,record,expires} | {needPassword} | {needSetPassword};
+   the server counts failed attempts per IP, and director tokens expire after 7 days */
+function login(cod,parola,parolaNoua){
   cod=String(cod||"").trim();
   if(!PB)return Promise.reject({code:"no_db"});
-  return PB.send("/api/ehl/login",{method:"POST",body:{cod:cod},requestKey:null}).then(function(res){
+  var body={cod:cod};if(parola)body.parola=parola;if(parolaNoua)body.parolaNoua=parolaNoua;
+  return PB.send("/api/ehl/login",{method:"POST",body:body,requestKey:null}).then(function(res){
+    if(res.needSetPassword){GATE={step:"setparola",cod:cod,nume:res.record&&res.record.nume,first:res.first};return res;}
+    if(res.needPassword){GATE={step:"parola",cod:cod,nume:res.record&&res.record.nume};return res;}
     PB.authStore.save(res.token,res.record);
+    try{
+      if(res.record&&res.record.rol==="Director"){localStorage.setItem("ehl.cod",cod);localStorage.setItem("ehl.exp",String(res.expires||0))}
+      else{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}
+    }catch(e){}
     enter(res.record);
-    if(res.first)toast(T("first_pin"));
+    if(res.first||GATE.first)toast(T("first_pin"));
     return res;
   });
+}
+/* a director's week is over: keep the code, ask for the password again */
+function sessionExpired(){
+  var cod="";try{cod=localStorage.getItem("ehl.cod")||""}catch(e){}
+  logout("");
+  GATE=cod?{step:"parola",cod:cod,weekly:true}:{step:"cod"};
+  render();
+}
+function expiryCheck(){
+  if(!ACCESS||!isDir)return false;
+  var exp=sessionExp();
+  if(exp&&Date.now()>exp-60000){sessionExpired();return true;}
+  return false;
 }
 /* ---- loading + live updates ---- */
 function netErr(e){return !e||e.status===0||e.isAbort===true||(!e.status&&!e.code)}
@@ -294,13 +330,17 @@ function applyEvent(col,ev){
   if(!sheetState)render();
 }
 function authErrOf(e){
-  if(e&&(e.status===401||e.status===403)){logout(T("gate_bad"));return true;}
+  if(e&&(e.status===401||e.status===403)){
+    if(isDir&&e.status===401){sessionExpired();return true;}
+    logout(T("gate_bad"));return true;
+  }
   return false;
 }
 /* List rules filter instead of refusing, so a deactivated user just sees empty lists;
    the only reliable signal is our own user record disappearing (404) or the token refresh failing. */
 function selfCheck(){
   if(!PB||!ACCESS||!online)return Promise.resolve();
+  if(expiryCheck())return Promise.resolve();
   return PB.collection("utilizatori").getOne(ACCESS.user.id,{requestKey:null}).then(function(u){
     S.utilizatori=S.utilizatori.filter(function(x){return x.id!==u.id}).concat([norm(u)]);checkSelf();
   }).catch(function(e){if(e&&(e.status===404||e.status===401||e.status===403))logout(T("gate_bad"))});
@@ -717,6 +757,7 @@ function delDoc(col,id){
 }
 function jurnalRows(luna){
   if(!PB)return Promise.resolve([]);
+  if(!/^[0-9]{4}-[0-9]{2}$/.test(String(luna||"")))return Promise.resolve([]);
   var from=luna+"-01 00:00:00",to=monthEnd(luna)+" 23:59:59";
   return PB.collection("jurnal").getFullList({batch:1000,requestKey:null,sort:"-created",
       filter:'created >= "'+from+'" && created <= "'+to+'"'})
@@ -1141,6 +1182,23 @@ function vGate(){
 }
 function vPin(){
   var locked=needGate();
+  if(locked&&GATE.step==="setparola"){
+    return '<div class="sec"><div class="card pad"><h2 style="margin:0 0 6px;font-size:18px">'+esc(T("pw_set_t"))+'</h2>'
+     +'<p class="hint" style="margin:0 0 12px">'+esc(T("pw_set_h"))+'</p>'
+     +'<form id="spf"><label><span>'+esc(T("f_parola"))+'</span><input type="password" name="p1" autocomplete="new-password" minlength="8"></label>'
+     +'<label><span>'+esc(T("f_parola2"))+'</span><input type="password" name="p2" autocomplete="new-password" minlength="8"></label>'
+     +'<p class="err" id="pinerr"'+(gateErr?"":" hidden")+'>'+esc(gateErr)+'</p>'
+     +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("save"))+'</button>'
+     +'<button class="btn ghost" type="button" id="gateback">'+esc(T("pw_other"))+'</button></form></div></div>';
+  }
+  if(locked&&GATE.step==="parola"){
+    return '<div class="sec"><div class="card pad"><h2 style="margin:0 0 6px;font-size:18px">'+esc(T("pw_t"))+(GATE.nume?' · '+esc(GATE.nume):'')+'</h2>'
+     +'<p class="hint" style="margin:0 0 12px">'+esc(T(GATE.weekly?"pw_week":"pw_h"))+'</p>'
+     +'<form id="pwf"><label><span>'+esc(T("f_parola"))+'</span><input type="password" name="p" autocomplete="current-password"'+(gateBusy?" disabled":"")+'></label>'
+     +'<p class="err" id="pinerr"'+(gateErr?"":" hidden")+'>'+esc(gateErr)+'</p>'
+     +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("pin_ok"))+'</button>'
+     +'<button class="btn ghost" type="button" id="gateback">'+esc(T("pw_other"))+'</button></form></div></div>';
+  }
   var h='<div class="sec"><div class="card pad"><h2 style="margin:0 0 6px;font-size:18px">'+esc(T(locked?"gate_t":"pin_t"))+'</h2>'
    +'<p class="hint" style="margin:0 0 12px">'+esc(T(locked?"gate_h":"pin_h"))+'</p>'
    +'<form id="pinf"><label><span>'+esc(T("f_cod"))+'</span><input type="password" inputmode="numeric" id="pinv" autocomplete="off"'+(gateBusy?" disabled":"")+'></label>'
@@ -1346,6 +1404,12 @@ function vSet(){
     +'<p class="hint">'+esc(T("set_cas_h"))+'</p><button class="btn" type="submit">'+esc(T("save"))+'</button></form></div></div>'
     +'<datalist id="dl-pers">'+persoane().map(function(p){return '<option value="'+esc(p)+'">'}).join("")+'</datalist>';
 
+  h+='<div class="sec"><h2>'+esc(T("set_pw"))+'</h2><div class="card pad"><form id="pwchg">'
+    +'<label><span>'+esc(T("f_parola_veche"))+'</span><input type="password" name="veche" autocomplete="current-password"></label>'
+    +'<div class="pair"><label><span>'+esc(T("f_parola_noua"))+'</span><input type="password" name="noua" autocomplete="new-password" minlength="8"></label>'
+    +'<label><span>'+esc(T("f_parola2"))+'</span><input type="password" name="noua2" autocomplete="new-password" minlength="8"></label></div>'
+    +'<p class="hint">'+esc(T("set_pw_h"))+'</p><button class="btn" type="submit">'+esc(T("save"))+'</button></form></div></div>';
+
   h+='<div class="sec"><h2>'+esc(T("set_cat"))+'</h2><div class="card pad"><form id="catf">'
     +'<label><span>'+esc(T("f_categ"))+'</span><textarea name="cat" rows="7">'+esc((c.categorii||[]).join("\n"))+'</textarea></label>'
     +'<p class="hint">'+esc(T("set_cat_h"))+'</p><button class="btn" type="submit">'+esc(T("save"))+'</button></form></div></div>';
@@ -1515,7 +1579,8 @@ document.addEventListener("click",function(ev){
     return;
   }
   if(t.id==="expbtn"){exportRun(JUR.luna,false);return;}
-  if(t.id==="exitdir"){logout();return;}
+  if(t.id==="exitdir"){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}logout();return;}
+  if(t.id==="gateback"){GATE={step:"cod"};gateErr="";render();return;}
   if(t.id==="installbtn"&&installEvt){var ev2=installEvt;installEvt=null;ev2.prompt();render();return;}
 });
 window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();installEvt=e;if(!sheetState)render()});
@@ -1544,17 +1609,45 @@ document.addEventListener("change",function(ev){
 document.addEventListener("submit",function(ev){
   var f=ev.target;ev.preventDefault();
   if(f.id==="recf"){submitForm();return;}
+  var gateFail=function(e,dflt){
+    gateBusy=false;
+    var srv=e&&e.response&&e.response.message;
+    gateErr=netErr(e)?T("offline"):(((e&&e.status===429)||(e&&e.status===400))&&srv?srv:dflt);
+    render();
+  };
   if(f.id==="pinf"){
     var v=$("#pinv").value.trim();
     if(!v||gateBusy){$("#pinerr").hidden=false;return;}
     gateBusy=true;gateErr="";render();
-    login(v).then(function(){gateBusy=false;render()})
-      .catch(function(e){
-        gateBusy=false;
-        var srv=e&&e.response&&e.response.message;
-        gateErr=netErr(e)?T("offline"):((e&&e.status===429&&srv)?srv:T("gate_bad"));
-        render();
-      });
+    login(v).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("gate_bad"))});
+    return;
+  }
+  if(f.id==="pwf"){
+    var pw=f.elements["p"].value;
+    if(!pw||gateBusy)return;
+    gateBusy=true;gateErr="";render();
+    login(GATE.cod,pw).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("pw_bad"))});
+    return;
+  }
+  if(f.id==="spf"){
+    var p1=f.elements["p1"].value,p2=f.elements["p2"].value;
+    if(gateBusy)return;
+    if(p1.length<8){gateErr=T("pw_short");render();return;}
+    if(p1!==p2){gateErr=T("pw_mismatch");render();return;}
+    gateBusy=true;gateErr="";render();
+    login(GATE.cod,"",p1).then(function(){gateBusy=false;toast(T("pw_saved"));render()}).catch(function(e){gateFail(e,T("gate_bad"))});
+    return;
+  }
+  if(f.id==="pwchg"){
+    var ve=f.elements["veche"].value,no=f.elements["noua"].value,no2=f.elements["noua2"].value;
+    if(no.length<8){toast(T("pw_short"));return;}
+    if(no!==no2){toast(T("pw_mismatch"));return;}
+    PB.send("/api/ehl/password",{method:"POST",body:{veche:ve,noua:no},requestKey:null})
+      .then(function(res){
+        if(res&&res.token){PB.authStore.save(res.token,PB.authStore.record||PB.authStore.model);try{localStorage.setItem("ehl.exp",String(res.expires||0))}catch(e){}}
+        f.reset();toast(T("pw_saved"));
+      })
+      .catch(function(e){var srv=e&&e.response&&e.response.message;toast(netErr(e)?T("offline"):(srv||T("pw_bad")))});
     return;
   }
   if(f.id==="valf"){
@@ -1591,11 +1684,13 @@ render();
   var rec=PB.authStore.record||PB.authStore.model;
   if(PB.authStore.isValid&&rec&&rec.id){
     enter(rec);
-    /* confirm the session with the server; a deactivated user or an expired token ends it */
-    PB.collection("utilizatori").authRefresh({requestKey:null}).then(function(res){
-      if(res&&res.record){S.utilizatori=S.utilizatori.filter(function(u){return u.id!==res.record.id}).concat([norm(res.record)]);checkSelf()}
-    }).catch(function(e){if(e&&e.status&&e.status>=400&&e.status<500)logout(T("gate_bad"))});
-  }else render();
+    /* confirm the session with the server: a deactivated user or an expired director week ends it */
+    selfCheck();
+  }else{
+    var sc="";try{sc=localStorage.getItem("ehl.cod")||""}catch(e){}
+    if(sc)GATE={step:"parola",cod:sc,weekly:!!sessionExp()};
+    render();
+  }
   window.addEventListener("online",function(){selfCheck()});
   if(navigator.serviceWorker&&navigator.serviceWorker.register){
     window.addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(){})});

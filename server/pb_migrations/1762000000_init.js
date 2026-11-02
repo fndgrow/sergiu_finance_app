@@ -25,6 +25,7 @@ migrate((app) => {
       { type: "select", name: "rol", values: ["Operator", "Director"], maxSelect: 1, required: true },
       { type: "text", name: "cod", required: true, min: 4, max: 8, pattern: "^[0-9]+$" },
       { type: "select", name: "status", values: ["Activ", "Inactiv"], maxSelect: 1, required: true },
+      { type: "bool", name: "parolaSetata" },
       created(), updated()
     ],
     indexes: ["CREATE UNIQUE INDEX idx_utilizatori_cod ON utilizatori (cod)"],

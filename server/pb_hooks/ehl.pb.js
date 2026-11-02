@@ -40,7 +40,7 @@ routerAdd("POST", "/api/ehl/login", (e) => {
     first = true;
   }
 
-  if (!rec || rec.getString("status") === "Inactiv") {
+  var fail = function (msg) {
     var att = new Record($app.findCollectionByNameOrId("login_attempts"));
     att.set("ip", ip);
     $app.save(att);
@@ -48,16 +48,50 @@ routerAdd("POST", "/api/ehl/login", (e) => {
       var old = new Date(Date.now() - 24 * 3600 * 1000).toISOString().replace("T", " ").slice(0, 19);
       $app.db().newQuery("DELETE FROM login_attempts WHERE created < {:old}").bind({ old: old }).execute();
     } catch (err) {}
-    throw new UnauthorizedError("Cod greșit sau utilizator dezactivat.");
+    throw new UnauthorizedError(msg);
+  };
+  if (!rec || rec.getString("status") === "Inactiv") fail("Cod greșit sau utilizator dezactivat.");
+
+  var pub = { id: rec.id, nume: rec.getString("nume"), rol: rec.getString("rol"), cod: rec.getString("cod"), status: rec.getString("status"), parolaSetata: rec.getBool("parolaSetata") };
+
+  /* operators: the code is enough, token for a year */
+  if (rec.getString("rol") !== "Director") {
+    return e.json(200, { token: rec.newAuthToken(), first: first, record: pub });
   }
 
-  var token = rec.newAuthToken();
-  return e.json(200, {
-    token: token,
-    first: first,
-    record: { id: rec.id, nume: rec.getString("nume"), rol: rec.getString("rol"), cod: rec.getString("cod"), status: rec.getString("status") }
-  });
+  /* directors: a password tied to the phone session, asked again every 7 days (the token simply expires) */
+  var WEEK = 7 * 24 * 3600;
+  var parola = String(body.parola || "");
+  var noua = String(body.parolaNoua || "");
+  if (!rec.getBool("parolaSetata")) {
+    if (!noua) return e.json(200, { needSetPassword: true, first: first, record: pub });
+    if (noua.length < 8) throw new BadRequestError("Parola trebuie să aibă cel puțin 8 caractere.");
+    rec.setPassword(noua);
+    rec.set("parolaSetata", true);
+    $app.save(rec);
+    pub.parolaSetata = true;
+    return e.json(200, { token: rec.newStaticAuthToken(WEEK * 1000000000), expires: Date.now() + WEEK * 1000, first: first, record: pub });
+  }
+  if (!parola) return e.json(200, { needPassword: true, record: pub });
+  if (!rec.validatePassword(parola)) fail("Parolă greșită.");
+  return e.json(200, { token: rec.newStaticAuthToken(WEEK * 1000000000), expires: Date.now() + WEEK * 1000, record: pub });
 });
+
+/* ---- director changes own password: POST /api/ehl/password {veche, noua} ---- */
+routerAdd("POST", "/api/ehl/password", (e) => {
+  var body = e.requestInfo().body || {};
+  var rec = e.auth;
+  if (!rec || rec.getString("rol") !== "Director") throw new ForbiddenError("Doar directorul are parolă.");
+  var veche = String(body.veche || ""), noua = String(body.noua || "");
+  if (noua.length < 8) throw new BadRequestError("Parola nouă trebuie să aibă cel puțin 8 caractere.");
+  if (rec.getBool("parolaSetata") && !rec.validatePassword(veche)) throw new BadRequestError("Parola actuală este greșită.");
+  rec.setPassword(noua);
+  rec.set("parolaSetata", true);
+  $app.save(rec);
+  /* a password change invalidates every token of the user, so hand back a fresh one for this phone */
+  var WEEK = 7 * 24 * 3600;
+  return e.json(200, { ok: true, token: rec.newStaticAuthToken(WEEK * 1000000000), expires: Date.now() + WEEK * 1000 });
+}, $apis.requireAuth("utilizatori"));
 
 /* ---- every register row carries its author, set by the server, never by the client ---- */
 onRecordCreateRequest((e) => {
@@ -80,6 +114,7 @@ onRecordCreateRequest((e) => {
   if (!e.record.getString("rol")) e.record.set("rol", "Operator");
   e.record.set("email", $security.randomStringWithAlphabet(12, "abcdefghijklmnopqrstuvwxyz") + "@casieria.local");
   e.record.setPassword($security.randomString(32));
+  e.record.set("parolaSetata", false);
   e.next();
 }, "utilizatori");
 
@@ -92,9 +127,10 @@ onRecordUpdateRequest((e) => {
       throw new BadRequestError("Nu vă puteți dezactiva sau retrograda propriul cont.");
     }
   }
-  /* credentials stay server-owned */
+  /* credentials stay server-owned; a director demoted to operator loses the password requirement */
   if (e.record.original) {
     e.record.set("email", e.record.original().getString("email"));
+    e.record.set("parolaSetata", e.record.getString("rol") === "Director" ? e.record.original().getBool("parolaSetata") : false);
   }
   e.next();
 }, "utilizatori");
