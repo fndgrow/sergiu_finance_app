@@ -188,7 +188,7 @@ const ls = (k) => window.localStorage.getItem(k);
   check(window.document.querySelectorAll(".donut .seg").length === 1 && window.document.querySelectorAll("[data-ovluna]").length >= 7, "overview: donut with 1 category, month chips, legend");
   check(window.document.querySelectorAll(".flow .bar").length === 12, "overview: cash-flow bars for 6 months");
   click(window.document.querySelector('.legend [data-cat="Materiale"]')); await tick();
-  check(/Materiale/.test(text()) && $("[data-clearfilter]") && window.document.querySelectorAll('[data-edit="cheltuieli"]').length === 1, "tap on category opens filtered expense register");
+  check(/Materiale/.test(text()) && $("[data-clearfilter]") && new Set(Array.from(window.document.querySelectorAll('[data-edit="cheltuieli"]')).map(e => e.dataset.id)).size === 1, "tap on category opens filtered expense register" /* the same record is rendered as a table row (desktop) and a card (phone) */);
   click($("[data-clearfilter]")); await tick();
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
   setField("suma", "10"); setField("categorie", "Diverse"); setField("platitDe", "Sergiu"); submit($("#recf")); await tick(30);
