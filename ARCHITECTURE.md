@@ -1,146 +1,153 @@
-# Casieria EHL — как устроено приложение изнутри
+# Casieria EHL — how the application works inside
 
-Это техническое описание: как написан код, как данные ходят между телефоном и сервером, как считаются цифры, что происходит при каждом действии. Для пользовательского описания (что означает каждая цифра, как вносить операции) смотрите [README.md](README.md). Здесь всё, что нужно разработчику или дизайнеру, чтобы менять приложение, ничего не сломав.
+This is the technical description: how the code is organised, how data travels between the phone and the server, how the figures are computed, what happens on every action. For the user-facing description (what each figure means, how to enter operations) see [README.md](README.md). Everything a developer or designer needs to change the application without breaking it is here.
 
-Содержание
+Contents
 
-1. [Общая картина](#1-общая-картина)
-2. [Файлы и их роли](#2-файлы-и-их-роли)
-3. [Клиент: состояние в памяти](#3-клиент-состояние-в-памяти)
-4. [Клиент: цикл отрисовки](#4-клиент-цикл-отрисовки)
-5. [Вход и сессия, шаг за шагом](#5-вход-и-сессия-шаг-за-шагом)
-6. [Загрузка данных и живые обновления](#6-загрузка-данных-и-живые-обновления)
-7. [Запись данных: онлайн, офлайн, отклонённые](#7-запись-данных-онлайн-офлайн-отклонённые)
-8. [История изменений (jurnal)](#8-история-изменений-jurnal)
-9. [Движок форм](#9-движок-форм)
-10. [Расчёты: функция calc()](#10-расчёты-функция-calc)
-11. [Экраны](#11-экраны)
-12. [Сводный экран: диаграммы](#12-сводный-экран-диаграммы)
-13. [Иконки, значки валют, цвета](#13-иконки-значки-валют-цвета)
-14. [Переводы](#14-переводы)
-15. [История браузера и кнопка «назад»](#15-история-браузера-и-кнопка-назад)
-16. [Календарь для компьютера](#16-календарь-для-компьютера)
-17. [Адаптивная вёрстка](#17-адаптивная-вёрстка)
-18. [PWA: установка и офлайн‑кэш](#18-pwa-установка-и-офлайн-кэш)
-19. [Выгрузка в Excel](#19-выгрузка-в-excel)
-20. [Сервер: PocketBase](#20-сервер-pocketbase)
-21. [Схема базы: коллекции и поля](#21-схема-базы-коллекции-и-поля)
-22. [Правила доступа](#22-правила-доступа)
-23. [Серверные хуки, построчно](#23-серверные-хуки-построчно)
-24. [Развёртывание: что делают скрипты](#24-развёртывание-что-делают-скрипты)
-25. [Тесты: что проверяют и как устроены](#25-тесты-что-проверяют-и-как-устроены)
-26. [Как вносить изменения](#26-как-вносить-изменения)
-27. [Типичные вопросы разработчика](#27-типичные-вопросы-разработчика)
+1. [The big picture](#1-the-big-picture)
+2. [Files and their roles](#2-files-and-their-roles)
+3. [Client: state in memory](#3-client-state-in-memory)
+4. [Client: the render cycle](#4-client-the-render-cycle)
+5. [Sign-in, lock screen and session, step by step](#5-sign-in-lock-screen-and-session-step-by-step)
+6. [Loading data and live updates](#6-loading-data-and-live-updates)
+7. [Writing data: online, offline, rejected](#7-writing-data-online-offline-rejected)
+8. [Change history (jurnal)](#8-change-history-jurnal)
+9. [The form engine](#9-the-form-engine)
+10. [Calculations: calc()](#10-calculations-calc)
+11. [Screens](#11-screens)
+12. [The overview: charts](#12-the-overview-charts)
+13. [Icons, currency badges, colours, category labels](#13-icons-currency-badges-colours-category-labels)
+14. [Translations](#14-translations)
+15. [Browser history and the back button](#15-browser-history-and-the-back-button)
+16. [The desktop date picker](#16-the-desktop-date-picker)
+17. [Responsive layout](#17-responsive-layout)
+18. [PWA: installation and the offline cache](#18-pwa-installation-and-the-offline-cache)
+19. [Excel export](#19-excel-export)
+20. [Server: PocketBase](#20-server-pocketbase)
+21. [Database schema: collections and fields](#21-database-schema-collections-and-fields)
+22. [Access rules](#22-access-rules)
+23. [Server hooks, line by line](#23-server-hooks-line-by-line)
+24. [Deployment: what the scripts do](#24-deployment-what-the-scripts-do)
+25. [Tests: what they check and how they work](#25-tests-what-they-check-and-how-they-work)
+26. [How to make changes](#26-how-to-make-changes)
+27. [Developer FAQ](#27-developer-faq)
 
 ---
 
-## 1. Общая картина
+## 1. The big picture
 
 ```
-┌──────────── телефон / компьютер ────────────┐        ┌──────────── VPS Ubuntu ────────────┐
-│ index.html + styles.css + app.js (без сборки) │ HTTPS  │ nginx :443  ──proxy──►  PocketBase  │
-│ vendor/pocketbase.umd.js  (клиент API)        │◄──────►│ 127.0.0.1:8090                      │
-│ sw.js (офлайн‑кэш файлов)                     │  SSE   │   pb_public/  = файлы приложения    │
-│ localStorage: кэш данных, очередь, сессия     │        │   pb_data/    = SQLite + бэкапы      │
-└───────────────────────────────────────────────┘        │   pb_hooks/   = серверная логика    │
-                                                         │   pb_migrations/ = схема + правила  │
-                                                         └─────────────────────────────────────┘
+┌──────────── phone / computer ────────────────┐        ┌──────────── VPS Ubuntu ─────────────┐
+│ index.html + styles.css + app.js (no build)   │ HTTPS  │ nginx :443  ──proxy──►  PocketBase  │
+│ vendor/pocketbase.umd.js  (API client)        │◄──────►│ 127.0.0.1:8090                      │
+│ sw.js (offline cache of the app files)        │  SSE   │   pb_public/  = the app files        │
+│ localStorage: data cache, queue, session      │        │   pb_data/    = SQLite + backups     │
+└───────────────────────────────────────────────┘        │   pb_hooks/   = server logic         │
+                                                         │   pb_migrations/ = schema + rules    │
+                                                         └──────────────────────────────────────┘
 ```
 
-- **Клиент** — одна HTML‑страница и один файл логики `app.js` (~2 400 строк), без фреймворков и без сборки. Весь интерфейс строится строками HTML из функций `v…()` и вставляется в `<main id="app">`.
-- **Сервер** — PocketBase: готовый бэкенд (Go) с базой SQLite, REST API, правами на коллекции, живыми обновлениями по SSE и админ‑панелью. Наша серверная логика — один файл хуков на JavaScript и три файла миграций.
-- **Связь** — обычные HTTPS‑запросы через SDK PocketBase плюс одно постоянное SSE‑соединение для обновлений. Все запросы идут на тот же домен, с которого открыто приложение (`app-config.js` позволяет указать другой адрес для разработки).
+- **Client** — one HTML page and one logic file `app.js` (~2 400 lines), no framework, no build step. The whole interface is built as HTML strings by the `v…()` functions and inserted into `<main id="app">`.
+- **Server** — PocketBase: a ready-made backend (Go) with a SQLite database, REST API, per-collection access rules, live updates over SSE and an admin UI. Our server logic is one JavaScript hooks file and four migration files.
+- **Transport** — ordinary HTTPS requests through the PocketBase SDK plus one persistent SSE connection for updates. All requests go to the domain the app was opened from (`app-config.js` can point at another address for development).
 
-## 2. Файлы и их роли
+## 2. Files and their roles
 
-| Файл | Строк | Что внутри |
+| File | Lines | What is inside |
 |---|---|---|
-| `index.html` | 45 | каркас: шапка (`.bar`), `<main id="app">`, `<nav id="nav">`, контейнеры `#sheet` и `#toasts`, подключение скриптов |
-| `styles.css` | ~430 | переменные темы (`:root`, тёмная тема), все стили, медиазапросы на 620/900/1400/1800 px |
-| `app.js` | ~2 400 | всё поведение: переводы, состояние, вход, синхронизация, расчёты, формы, экраны, диаграммы, календарь |
-| `app-config.js` | 4 | `window.PB_URL` — адрес сервера; пусто = тот же домен |
-| `vendor/pocketbase.umd.js` | — | официальный JS SDK PocketBase 0.28.2 |
-| `sw.js` | 50 | service worker: кэш файлов приложения и библиотек, версия `CACHE` |
-| `manifest.json` | — | имя, иконки, цвета для установки на телефон |
-| `icons/` | — | PNG‑иконки 192/512, maskable, apple‑touch |
-| `server/pb_migrations/1762000000_init.js` | 100 | создание всех коллекций с полями и правилами |
-| `server/pb_migrations/1762000001_settings.js` | 15 | доверие заголовку X‑Real‑IP, имя приложения |
-| `server/pb_migrations/1762000002_backups.js` | 13 | ежедневный бэкап в 03:00, хранить 14 |
-| `server/pb_migrations/1762000003_sursa.js` | 12 | поле `sursa` у расходов |
-| `server/pb_hooks/ehl.pb.js` | 155 | вход по коду, пароль директора, автор записи, проверки |
-| `server/install.sh` | 95 | установка PocketBase как службы + сайт nginx + сертификат |
-| `server/nginx-site.conf` | 35 | шаблон сайта nginx (прокси на 8090, заголовки безопасности) |
-| `deploy.sh` | 30 | копирование файлов на сервер по scp и перезапуск службы |
-| `tests/smoke.js` | — | сквозной сценарий с имитацией сервера |
-| `tests/calc.js` | — | проверка расчётов по цифрам, посчитанным вручную |
-| `tests/fill.js` | — | прогон живого сервера через все формы |
-| `tests/seed-year.js` | — | генератор года правдоподобной истории |
-| `tools/make-icons.ps1` | — | генератор PNG‑иконок |
+| `index.html` | 43 | the shell: header (`.bar` with logo, title, signed-in user block, burger button, language button), `<main id="app">`, `<nav id="nav">`, containers `#sheet`, `#menu` and `#toasts`, script tags |
+| `styles.css` | ~770 | theme variables (`:root`, dark theme), all styles, media queries for phones (≤ 899 px), 620/900/1200/1400/1800 px tiers and `hover:hover` |
+| `app.js` | ~2 400 | all behaviour: translations, state, sign-in and lock screen, sync, calculations, forms, screens, charts, date picker |
+| `app-config.js` | 3 | `window.PB_URL`, the server address; empty = same origin |
+| `vendor/pocketbase.umd.js` | — | the official PocketBase JS SDK 0.28.2 |
+| `sw.js` | 46 | service worker: caches the app files and libraries; the `CACHE` version |
+| `manifest.json` | — | name, icons, colours for installing on a phone |
+| `icons/` | — | PNG icons 192/512, maskable, apple-touch |
+| `server/pb_migrations/1762000000_init.js` | 97 | creates every collection with its fields and rules |
+| `server/pb_migrations/1762000001_settings.js` | 15 | trusts the X-Real-IP header, sets the app name |
+| `server/pb_migrations/1762000002_backups.js` | 12 | daily backup at 03:00, keep 14 |
+| `server/pb_migrations/1762000003_sursa.js` | 12 | the `sursa` field on expenses |
+| `server/pb_hooks/ehl.pb.js` | 151 | sign-in by code, the director's password, record authorship, validations |
+| `server/install.sh` | 85 | installs PocketBase as a service + nginx site + certificate |
+| `server/nginx-site.conf` | 32 | nginx site template (proxy to 8090, security headers) |
+| `deploy.sh` | 28 | copies the files to the server over scp and restarts the service |
+| `tests/smoke.js` | — | end-to-end scenario against an in-memory fake of the server |
+| `tests/calc.js` | — | the calculations against hand-computed figures |
+| `tests/fill.js` | — | drives the live server through every form |
+| `tests/seed-year.js` | — | the first generator of a year of history (API, from a computer) |
+| `tests/seed-year-server.js` | — | the richer generator of a year of history, run on the server |
+| `tests/verify-server.js` | — | recomputes every dashboard figure from the raw records, on the server |
+| `tests/verify-ui.js` | — | the real app in jsdom against the live server, through an SSH tunnel |
+| `tools/make-icons.ps1` | — | generates the PNG icons |
 
-`app.js` целиком обёрнут в одну функцию `(function(){ … })()`, поэтому ни одна переменная не видна снаружи, и порядок разделов внутри файла такой:
+`app.js` is wrapped in a single function `(function(){ … })()`, so nothing leaks into the global scope, and the sections inside the file come in this order:
 
-1. переводы `I18N`, `T()`
-2. утилиты: `esc`, `n`, `fmt`, `money`, `today`, `monthName`, `workdays`, …
-3. состояние и вход: `S`, `ACCESS`, `login`, `enter`, `logout`, `subscribe`, `checkSelf`, очередь
-4. справочники: `clienti()`, `persoane()`, `categorii()`, …
-5. `calc()` — все расчёты
-6. иконки, значки валют, определения форм `FORMS`
-7. слой данных: `saveDoc`, `delDoc`, `logEntry`, `jurnalRows`
+1. translations `I18N`, `T()`, the server-message map `SRV_MSG` and `srvT()`
+2. helpers: `esc`, `n`, `fmt`, `money`, `today`, `monthName`, `workdays`, …
+3. state and sign-in: `S`, `ACCESS`, `login`, `enter`, `logout`, the lock screen (`lockScreen`, `unlockScreen`), `subscribe`, `checkSelf`, the queue
+4. lookups: `clienti()`, `persoane()`, `categorii()`, `catLabel()`, `catRaw()`, …
+5. `calc()` — every calculation
+6. icons, currency badges, form definitions `FORMS`
+7. the data layer: `saveDoc`, `delDoc`, `logEntry`, `jurnalRows`
 8. Excel: `buildWb`, `exportRun`
-9. экраны: `render`, `vPanou`, `vAdd`, `vReg`, `vSet`, …
-10. формы: `openForm`, `drawSheet`, `fieldHtml`, `submitForm`
-11. календарь: `enhanceDates`, `dpOpen`, …
-12. обработчики событий (`click`, `input`, `change`, `submit`, `keydown`, `popstate`)
-13. запуск (`boot`)
+9. screens: `render`, `vPanou`, `vAdd`, `vReg`, `vSet`, …, the quick-jump menu `openMenu`
+10. forms: `openForm`, `drawSheet`, `fieldHtml`, `submitForm`
+11. the date picker: `enhanceDates`, `dpOpen`, …
+12. event handlers (`click`, `input`, `change`, `submit`, `keydown`, `popstate`, `visibilitychange`)
+13. start-up (`boot`)
 
-## 3. Клиент: состояние в памяти
+## 3. Client: state in memory
 
-Всё состояние — несколько глобальных (внутри замыкания) переменных.
+All state lives in a few variables inside the closure.
 
-| Переменная | Что хранит |
+| Variable | What it holds |
 |---|---|
-| `S` | данные: `S.incasari`, `S.cheltuieli`, `S.iesiri`, `S.chirii`, `S.contracte`, `S.angajati`, `S.istoric`, `S.pontaj`, `S.imprumuturi`, `S.proiecte`, `S.utilizatori` (массивы записей) и `S.cfg` (настройки) |
-| `COLS` / `DATA_COLS` | списки имён коллекций; `DATA_COLS` без `utilizatori` |
-| `PB` | экземпляр SDK PocketBase; `PB.authStore` хранит токен и запись пользователя (SDK сам кладёт их в localStorage под ключом `pocketbase_auth`) |
-| `ACCESS` | `null` (экран входа) или `{user:{id,nume,rol,cod,status,parolaSetata}}` |
-| `ME` | id текущего пользователя (= `ACCESS.user.id`); им помечаются «мои записи» |
-| `isDir` | `true`, если роль Director; пересчитывается в каждом `render()` через `computeDir()` |
-| `view` | текущая вкладка: `panou`, `add`, `reg`, `mine`, `set` |
-| `regTab` | вкладка журналов: `incasari`, …, `salarii`, `jurnal` |
-| `regFilter` | фильтр журнала расходов `{col, categorie, luna}` после нажатия на категорию в сводке |
-| `GATE` | шаг экрана входа: `{step:"cod"}`, `{step:"parola",cod}`, `{step:"setparola",cod}` |
-| `OV` | выбранный месяц сводки `{luna:"2026-11"}` или `""` для всех |
-| `JUR` | состояние вкладки истории: месяц, строки, флаг загрузки |
-| `sheetState` | открытая форма: `{col, id, data, err}`; `null`, когда формы нет |
-| `QUEUE` | очередь неотправленных операций (см. раздел 7) |
-| `FAILED` | операции, отклонённые сервером |
-| `online` | есть ли сеть (по событиям `online/offline` и по ошибкам запросов) |
-| `loaded`, `stale`, `dbErr` | флаги для заметки о состоянии данных |
-| `installEvt` | отложенное событие `beforeinstallprompt` для кнопки установки |
-| `lang` | `"ro"` или `"ru"` |
+| `S` | the data: `S.incasari`, `S.cheltuieli`, `S.iesiri`, `S.chirii`, `S.contracte`, `S.angajati`, `S.istoric`, `S.pontaj`, `S.imprumuturi`, `S.proiecte`, `S.utilizatori` (arrays of records) and `S.cfg` (settings) |
+| `COLS` / `DATA_COLS` | the lists of collection names; `DATA_COLS` without `utilizatori` |
+| `PB` | the PocketBase SDK instance; `PB.authStore` holds the token and the user record (the SDK keeps them in localStorage under `pocketbase_auth`) |
+| `ACCESS` | `null` (signed out) or `{user:{id,nume,rol,cod,status,parolaSetata}}` |
+| `ME` | the id of the current user (= `ACCESS.user.id`); it marks "my records" |
+| `isDir` | `true` when the role is Director; recomputed in every `render()` by `computeDir()` |
+| `LOCKED`, `LOCKVIEW`, `hiddenAt`, `LOCK_AFTER` | the lock screen: whether the screen is covered, which view to return to, when the app went to the background, the 10-minute threshold |
+| `view` | the current tab: `panou`, `add`, `reg`, `mine`, `set` |
+| `regTab` | the register tab: `incasari`, …, `salarii`, `jurnal` |
+| `regFilter` | the expense-register filter `{col, categorie, luna}` after tapping a category on the overview |
+| `REGPAGE`, `REGCLOSED`, `REG_PG` | the current page per register, which month groups are folded, 15 rows per page |
+| `GATE` | the sign-in step: `{step:"cod"}`, `{step:"cod", relock:true, …}`, `{step:"parola", cod}`, `{step:"setparola", cod}` |
+| `OV` | the overview month `{luna:"2026-11"}` or `""` for all, and `OV.more` (the category list unfolded) |
+| `JUR` | the history tab: month, rows, loading flag |
+| `sheetState` | the open form: `{col, id, data, err}`; `null` when no form is open |
+| `QUEUE` | operations waiting for the network (section 7) |
+| `FAILED` | operations the server rejected |
+| `online` | whether there is a network (from `online/offline` events and request errors) |
+| `loaded`, `stale`, `dbErr` | flags for the data-state note |
+| `installEvt` | the deferred `beforeinstallprompt` event for the install button |
+| `lang` | `"ro"` or `"ru"` |
+| `WIDE_MQ` | a media query for ≥ 1400 px; the charts pick their size from it |
 
-В localStorage хранятся только:
+localStorage holds only:
 
-| Ключ | Что |
+| Key | What |
 |---|---|
-| `pocketbase_auth` | токен и запись пользователя (пишет SDK) |
-| `ehl.lang` | язык |
-| `ehl.cod` | код директора, чтобы при недельном запросе пароля не вводить код заново |
-| `ehl.exp` | когда истекает сессия директора (мс) |
-| `ehl.cache` | снимок `S` для работы без сети, привязан к id пользователя |
-| `ehl.queue` | очередь неотправленных операций |
-| `ehl.failed` | отклонённые операции |
+| `pocketbase_auth` | token and user record (written by the SDK) |
+| `ehl.lang` | the language |
+| `ehl.cod` | the director's code, so the weekly password prompt does not need the code typed again as a full sign-in |
+| `ehl.exp` | when the director's session expires (ms) |
+| `ehl.cache` | a snapshot of `S` for offline use, bound to the user id |
+| `ehl.queue` | the queue of unsent operations |
+| `ehl.failed` | the rejected operations |
 
-## 4. Клиент: цикл отрисовки
+## 4. Client: the render cycle
 
-Нет виртуального DOM и нет точечных обновлений: любое изменение состояния заканчивается вызовом `render()`, который строит HTML всего экрана заново.
+There is no virtual DOM and no targeted updates: every state change ends with a call to `render()`, which rebuilds the HTML of the whole screen.
 
 ```
 render():
   isDir = computeDir()
-  если нет ACCESS → view = "panou" (экран входа), body.locked = true
-  обновить шапку: заголовок, бейдж роли, кнопка языка
-  renderNav()                     – нижняя (или верхняя на компьютере) навигация
+  if there is no ACCESS, or the screen is LOCKED → view = "panou" (the gate screen), body.locked = true
+  update the header: title and document.title, <html lang>, role badge, logo (links home), burger button,
+                     the signed-in user block (initials + name + role), the language button (icon + the other language)
+  renderNav()                     – bottom (phone) or header (desktop) navigation
   h = needGate() ? vGate()
     : view==="panou" ? vPanou()
     : view==="add"   ? vAdd()
@@ -148,101 +155,105 @@ render():
     : view==="mine"  ? vMine()
     : view==="set"   ? vSet()
   app.innerHTML = h
-  dpClose(); enhanceDates(app)    – оборачивает поля дат в наш календарь (только на компьютере)
+  dpClose(); enhanceDates(app)    – wraps date inputs in our calendar (desktop only)
 ```
 
-Формы живут отдельно, в `#sheet`, и рисуются функцией `drawSheet()`; `render()` их не трогает. Пока форма открыта, входящие обновления данных **не вызывают** `render()` (проверка `if(!sheetState)`), чтобы не сбить ввод. После закрытия формы `closeSheetNow()` вызывает `render()`.
+Forms live separately in `#sheet` and are drawn by `drawSheet()`; `render()` does not touch them. While a form is open, incoming data updates **do not** call `render()` (the `if(!sheetState)` check), so typing is never disturbed. Closing a form (`closeSheetNow()`) calls `render()`.
 
-Строки HTML всегда проходят через `esc()`, чтобы введённый текст не стал разметкой.
+The quick-jump menu (`#menu`, `openMenu()`) and the register picker on phones (`openRegPick()`) are overlays drawn on demand and removed by `closeMenu()`.
 
-Все клики обрабатываются одним делегированным обработчиком `document.addEventListener("click", …)`, который смотрит на `data-`атрибуты ближайшего элемента: `data-view`, `data-form`, `data-edit`, `data-tab`, `data-ovluna`, `data-cat`, `data-colab`, `data-lang`, `data-retry` и т.д. Это значит, что обработчики не теряются при перерисовке.
+Every HTML string goes through `esc()`, so typed text can never become markup.
 
-## 5. Вход и сессия, шаг за шагом
+All clicks are handled by one delegated handler, `document.addEventListener("click", …)`, which looks at the `data-` attributes of the nearest element: `data-view`, `data-form`, `data-edit`, `data-tab`, `data-ovluna`, `data-cat`, `data-colab`, `data-lang`, `data-retry`, `data-page`, `data-grp`, `data-more`, `data-goto`, `data-menu-close` and so on. Handlers therefore survive every re-render.
 
-**Запуск (`boot`).**
-1. Если `window.PocketBase` не загрузился → `noCfg = true`, экран «приложение не настроено».
-2. `PB = new PocketBase(PB_URL || location.origin)`; `PB.autoCancellation(false)`, чтобы параллельные запросы не отменяли друг друга.
-3. Если в `PB.authStore` есть валидный токен и запись пользователя → `enter(record)` сразу (без ожидания сети), затем `selfCheck()` сверяет с сервером.
-4. Иначе: если в localStorage есть `ehl.cod` (директор) → `GATE = {step:"parola", cod, weekly}` и показывается сразу экран пароля; иначе экран кода.
-5. Регистрируется service worker.
+## 5. Sign-in, lock screen and session, step by step
 
-**Ввод кода (`login(cod)`).** `POST /api/ehl/login {cod}`. Варианты ответа:
-- `{token, record}` — оператор: токен сохраняется, `enter(record)`.
-- `{needSetPassword:true}` — директор без пароля (первый вход): `GATE.step = "setparola"`, форма из двух полей; затем `login(cod, "", parolaNoua)`.
-- `{needPassword:true}` — директор с паролем на новом телефоне: `GATE.step = "parola"`; затем `login(cod, parola)`.
-- `{token, record, expires}` — директор после пароля: токен на 7 дней; в localStorage пишутся `ehl.cod` и `ehl.exp`.
-- ошибка 401 — «неверный код/пароль», 429 — «слишком много попыток» (текст с сервера), сеть — «нет связи».
+**Start-up (`boot`).**
+1. If `window.PocketBase` did not load → `noCfg = true`, the "application is not configured" screen.
+2. `PB = new PocketBase(PB_URL || location.origin)`; `PB.autoCancellation(false)` so parallel requests do not cancel each other.
+3. If `PB.authStore` holds a valid token and a user record → `enter(record)` at once (no network needed), then **`lockScreen()`**: the code screen covers the app, and `selfCheck()` confirms the session with the server in the background.
+4. Otherwise: if localStorage holds `ehl.cod` (a director whose token ran out) → `GATE = {step:"cod", relock:true, cod, weekly}`, the code screen that leads to the password; else the plain code screen.
+5. The service worker is registered.
 
-**`enter(user)`** ставит `ACCESS`, `ME`, `isDir`, начальную вкладку (`panou` директору, `add` оператору) и вызывает `subscribe()`.
+**Typing the code (`login(cod)`).** `POST /api/ehl/login {cod}`. Possible answers:
+- `{token, record}` — an operator: the token is saved, `enter(record)`.
+- `{needSetPassword:true}` — a director without a password (first sign-in): `GATE.step = "setparola"`, a two-field form; then `login(cod, "", parolaNoua)`.
+- `{needPassword:true}` — a director with a password on a new phone: `GATE.step = "parola"`; then `login(cod, parola)`.
+- `{token, record, expires}` — a director after the password: a 7-day token; `ehl.cod` and `ehl.exp` are written to localStorage.
+- error 401 — "wrong code/password", 429 — "too many attempts" (the server's text, translated by `srvT`), network — "no connection".
 
-**Недельное истечение.** `expiryCheck()` сравнивает `ehl.exp` с текущим временем: при каждом `selfCheck()` (каждые 3 минуты, при возврате на вкладку, при появлении сети) и при ошибке 401 от сервера. Если срок вышел → `sessionExpired()`: `logout("")`, `GATE = {step:"parola", cod, weekly:true}`, экран пароля с текстом «прошла неделя». Токен на сервере в этот момент тоже недействителен (он выдан ровно на 7 дней), так что обойти экран нельзя.
+**`enter(user)`** sets `ACCESS`, `ME`, `isDir`, the initial tab (`panou` for a director, `add` for an operator) and calls `subscribe()`.
 
-**Отключение пользователя.** Правила PocketBase для списков **фильтруют**, а не запрещают: отключённый пользователь получил бы пустые списки без ошибки. Поэтому клиент читает **свою** запись (`getOne(ME)`): для отключённого она возвращает 404, и `logout(T("gate_bad"))`. Это делается при `subscribe()`, в `selfCheck()` и по живому обновлению своей записи.
+**The lock screen (`lockScreen` / `unlockScreen`).** The code is asked again on every start of the app and whenever the page comes back after more than `LOCK_AFTER` (10 minutes) in the background (`visibilitychange`: `hiddenAt` is stamped when the page hides). `lockScreen()` keeps the session, data and queue intact: it sets `LOCKED = true`, remembers `LOCKVIEW = view`, closes any open sheet and renders the gate with `GATE = {step:"cod", relock:true, nume}`. `needGate()` is `!ACCESS || LOCKED`, so the navigation disappears and the gate shows the user's name. On submit the typed code is compared **locally** with `ACCESS.user.cod` (no server round trip, no rate-limit cost, works offline); a match calls `unlockScreen()`, which restores `LOCKVIEW`. The gate also offers "Schimbă utilizatorul" (`#gateother`): a full `logout()` that also drops `ehl.cod`/`ehl.exp`, so another person can sign in on the same phone.
 
-**Выход (`logout`).** Отписка от обновлений, очистка `S`, `ACCESS`, `PB.authStore`, кэша `ehl.cache`; при явном нажатии «Schimbă utilizatorul» удаляются и `ehl.cod`/`ehl.exp`.
+**Weekly expiry.** `expiryCheck()` compares `ehl.exp` with the clock: in every `selfCheck()` (every 3 minutes, on returning to the tab, when the network comes back) and on a 401 from the server. When the week is over → `sessionExpired()`: `logout("")`, then `GATE = {step:"cod", relock:true, weekly:true, cod, nume}`. The director types the **code first** (compared with the remembered `ehl.cod`), then the password screen appears with the "a week has passed" note, and `login(cod, parola)` issues a fresh 7-day token. The server token really is dead at that point (it was issued for exactly 7 days), so the screen cannot be bypassed.
 
-## 6. Загрузка данных и живые обновления
+**Deactivating a user.** PocketBase list rules **filter** rather than refuse: a deactivated user would just get empty lists without an error. So the client reads **its own** record (`getOne(ME)`): for a deactivated user that returns 404, and `logout(T("gate_bad"))` follows. This happens in `subscribe()`, in `selfCheck()` and on a live update of the own record.
+
+**Sign-out (`logout`).** Unsubscribes from updates, clears `S`, `ACCESS`, `LOCKED`, `PB.authStore` and the `ehl.cache` snapshot; an explicit "Schimbă utilizatorul" also removes `ehl.cod`/`ehl.exp`.
+
+## 6. Loading data and live updates
 
 `subscribe()`:
-1. `unsubAll()`, `resetData()`, `loadCache()` — сначала показываются данные из `ehl.cache` (мгновенно, даже без сети), затем очередь `ehl.queue` и `ehl.failed`.
-2. Для каждой коллекции из `DATA_COLS` (оператору — без `istoric`): `PB.collection(col).getFullList({batch:1000})` → `S[col] = items.map(norm)`; `saveCache()`; `render()`.
-3. `sub(col, "*", cb)` — подписка на SSE‑события коллекции (`create`/`update`/`delete`); обработчик `applyEvent()` вставляет, заменяет или удаляет запись в `S[col]` по `id`, сохраняет кэш и перерисовывает (если нет открытой формы).
-4. Пользователи: директор грузит и слушает всю коллекцию, оператор — только свою запись по id.
-5. `config`: одна запись; `normCfg()` на всякий случай разбирает JSON‑поля, если они пришли строкой.
-6. `flushQueue()` — отправить то, что накопилось офлайн.
+1. `unsubAll()`, `resetData()`, `loadCache()` — the data from `ehl.cache` is shown first (instantly, even offline), then the `ehl.queue` and `ehl.failed` lists are loaded.
+2. For every collection in `DATA_COLS` (operators skip `istoric`): `PB.collection(col).getFullList({batch:1000})` → `S[col] = items.map(norm)`; `saveCache()`; `render()`.
+3. `sub(col, "*", cb)` — a subscription to the collection's SSE events (`create`/`update`/`delete`); the handler `applyEvent()` inserts, replaces or removes the record in `S[col]` by `id`, saves the cache and re-renders (unless a form is open).
+4. Users: a director loads and listens to the whole collection; an operator only to his own record by id.
+5. `config`: one record; `normCfg()` parses the JSON fields in case they arrive as strings.
+6. `flushQueue()` — sends whatever accumulated offline.
 
-`norm(record)` копирует запись и добавляет `ts = created`, чтобы сортировки по времени работали одинаково для серверных и локальных записей.
+`norm(record)` copies the record and adds `ts = created`, so time sorting works the same for server and local records.
 
-Таймер в 10 секунд: если данные не пришли, ставится `stale = true` и показывается заметка «данные могут быть устаревшими».
+A 10-second timer: if the data has not arrived, `stale = true` and the "data may be out of date" note shows.
 
-Подписки включаются только если в браузере есть `EventSource` (`RT`), иначе приложение работает по перезагрузкам.
+Subscriptions are only used when the browser has `EventSource` (`RT`); otherwise the app works through reloads.
 
-## 7. Запись данных: онлайн, офлайн, отклонённые
+## 7. Writing data: online, offline, rejected
 
-Единая точка записи — `saveDoc(col, data, id)` (создание, если `id` пуст, иначе изменение) и `delDoc(col, id)`.
+The single write entry points are `saveDoc(col, data, id)` (create when `id` is empty, otherwise update) and `delDoc(col, id)`.
 
 ```
 saveDoc:
-  body = clean(data)                 – убрать id, by, ts, created, updated, служебные поля
-  (для utilizatori при создании добавить случайный password/passwordConfirm – их требует PocketBase,
-   сервер всё равно перезапишет)
-  если online и очередь пуста и id не временный:
-      PB.collection(col).create/update → applyEvent(…)  (запись сразу в S)
-      при сетевой ошибке → online=false → localWrite(…)
-  иначе:
+  body = clean(data)                 – strip id, by, ts, created, updated and other system fields
+  (for utilizatori on create add a random password/passwordConfirm – PocketBase requires them,
+   the server overwrites them anyway)
+  if online and the queue is empty and the id is not temporary:
+      PB.collection(col).create/update → applyEvent(…)  (the record lands in S immediately)
+      on a network error → online=false → localWrite(…)
+  else:
       localWrite(…)
-  затем logEntry("add"|"edit", col, id, копия)   – запись в историю
+  then logEntry("add"|"edit", col, id, copy)   – the history entry
 ```
 
-`localWrite(op)` — офлайн‑путь:
-- применяет операцию к `S` немедленно (новая запись получает временный id `tmp…`, автора `ME`, время «сейчас»);
-- если это изменение или удаление записи, которая ещё лежит в очереди как неотправленное создание, то правка **вливается** в тот же элемент очереди (удаление убирает его), сервер увидит только итог;
-- иначе добавляет операцию в `QUEUE`, сохраняет `ehl.queue`, вызывает `flushQueue()`.
+`localWrite(op)` is the offline path:
+- applies the operation to `S` immediately (a new record gets a temporary id `tmp…`, the author `ME`, the time "now");
+- if it edits or deletes a record that is still in the queue as an unsent create, the change is **folded into** that queue item (a delete removes it); the server only ever sees the final state;
+- otherwise it appends the operation to `QUEUE`, saves `ehl.queue` and calls `flushQueue()`.
 
-`flushQueue()` отправляет операции **строго по порядку**, по одной:
-- `create` → после ответа временный id заменяется настоящим везде: в `S`, в последующих операциях очереди (`q.id`, `q.data.ref`, `q.data.data.id`), чтобы записи истории ссылались на верный id;
-- `update` / `delete` → соответствующий вызов; 404 при удалении считается успехом;
-- сетевая ошибка → `online = false`, очередь остаётся, попытка повторится по событию `online`;
-- ошибка 401/403 → выход (сессия недействительна);
-- любая другая ошибка сервера (400: правило доступа или проверка, например пустое описание) → операция **переносится в `FAILED`** с текстом ошибки и временем. Ничего не удаляется молча.
+`flushQueue()` sends operations **strictly in order**, one at a time:
+- `create` → after the answer, the temporary id is replaced with the real one everywhere: in `S`, in later queue operations (`q.id`, `q.data.ref`, `q.data.data.id`), so history entries reference the right id;
+- `update` / `delete` → the matching call; a 404 on delete counts as success;
+- a network error → `online = false`, the queue stays, a retry follows the `online` event;
+- a 401/403 → sign-out (the session is invalid);
+- any other server error (400: an access rule or a validation, such as an empty description) → the operation **moves to `FAILED`** with the error text and time. Nothing is ever dropped silently.
 
-`FAILED` показывается в красной заметке `failedNote()` вверху каждого экрана: что за запись, сумма, причина; «Повторить» возвращает её в очередь, «Удалить» требует двух нажатий.
+`FAILED` is shown by `failedNote()` in a red note at the top of every screen: which record, the amount, the reason (translated by `srvT`); "Retry" puts it back into the queue, "Delete" needs two taps.
 
-Почему онлайн‑запись идёт в обход очереди только при **пустой** очереди: иначе нарушился бы порядок (новая запись могла бы обогнать старую, на которую она ссылается).
+Why an online write bypasses the queue only when the queue is **empty**: otherwise ordering would break (a new record could overtake an older one it refers to).
 
-Кнопка «Сохранить» в форме отключается на время запроса (`btn.disabled`), двойной отправки не бывает.
+The "Save" button is disabled while the request runs (`btn.disabled`), so a double tap never creates two records.
 
-## 8. История изменений (jurnal)
+## 8. Change history (jurnal)
 
-`logEntry(act, col, ref, data)` создаёт запись в коллекции `jurnal`: `{act: add|edit|del, col, ref: id записи, nume: имя автора, data: копия записи на этот момент}`. Автор `by` и время `created` ставит сервер. Для удаления `data` — это запись **до** удаления (её копия берётся из `S`).
+`logEntry(act, col, ref, data)` creates a record in the `jurnal` collection: `{act: add|edit|del, col, ref: the record id, nume: the author's name, data: a copy of the record at that moment}`. The author `by` and the time `created` are set by the server. For a delete, `data` is the record **before** deletion (copied from `S`).
 
-Записи истории тоже проходят через очередь, если нет сети. Правила коллекции запрещают `update` и `delete` всем, кроме суперпользователя.
+History entries also go through the queue when there is no network. The collection rules forbid `update` and `delete` to everyone except the superuser.
 
-Чтение: `jurnalRows(luna)` запрашивает записи с фильтром по `created` в пределах месяца (`luna` проверяется регулярным выражением `^[0-9]{4}-[0-9]{2}$`, чтобы в фильтр не попало ничего постороннего), сортирует по убыванию времени. Экран `vJurnal()` группирует по дням; `jurSum()` формирует подпись строки через `REGDEF` соответствующей коллекции.
+Reading: `jurnalRows(luna)` requests the entries whose `created` falls inside the month (`luna` is checked against `^[0-9]{4}-[0-9]{2}$` so nothing else can reach the filter), sorted by time descending. The `vJurnal()` screen groups them by day; `jurSum()` builds each row's caption through the `REGDEF` of the collection.
 
-## 9. Движок форм
+## 9. The form engine
 
-Все формы описаны **данными**, а не разметкой — объект `FORMS`:
+Every form is described by **data**, not markup — the `FORMS` object:
 
 ```js
 FORMS.cheltuieli = { title:"a_chelt", icon:"up", fields:function(){ return [
@@ -255,214 +266,227 @@ FORMS.cheltuieli = { title:"a_chelt", icon:"up", fields:function(){ return [
 ]}}
 ```
 
-Свойства поля:
+Field properties:
 
-| Свойство | Смысл |
+| Property | Meaning |
 |---|---|
-| `k` | имя поля в записи |
-| `t` | тип: `text`, `number`, `date`, `month`, `select`, `checkbox`, `multi` (набор чипов) |
-| `l` | ключ перевода для подписи |
-| `req` | обязательное |
-| `def` | значение по умолчанию для новой записи |
-| `list` | подсказки (`<datalist>`) из уже введённых значений |
-| `opts` | варианты для `select`/`multi` |
-| `half` | два соседних `half`‑поля встают в одну строку |
-| `showIf(d)` | показывать только при условии (например, `luna` только для зарплаты) |
-| `lockIf(d)` | поле заблокировано и равно 1 (курс при валюте MDL) |
-| `newOnly` | только при создании (галочка «вышли из кассы» у займа) |
-| `hint` | подсказка под полем |
-| `minlen` | минимальная длина текста |
-| `onchg` | служебное |
+| `k` | the field name in the record |
+| `t` | type: `text`, `number`, `date`, `month`, `select`, `checkbox`, `multi` (a set of chips) |
+| `l` | the translation key of the label |
+| `req` | required |
+| `def` | the default for a new record |
+| `list` | suggestions (`<datalist>`) from values already entered |
+| `opts` | options for `select`/`multi` |
+| `half` | two adjacent `half` fields share one row |
+| `showIf(d)` | shown only under a condition (for example `luna` only for salaries) |
+| `lockIf(d)` | the field is locked at 1 (the rate when the currency is MDL) |
+| `newOnly` | only on create (the "left the till now" checkbox of a loan) |
+| `hint` | a hint under the field |
+| `minlen` | minimum text length |
+| `onchg` | internal |
 
-`fields()` — функция, а не массив, потому что списки подсказок и варианты зависят от текущих данных (клиенты, проекты, люди, валюты).
+`fields()` is a function, not an array, because suggestion lists and options depend on the current data (clients, projects, people, currencies).
 
-**Открытие:** `openForm(col, id)` собирает `sheetState.data` из записи (или из `def`), вызывает `sheetOpened()` (запись в историю браузера) и `drawSheet()`.
+**Opening:** `openForm(col, id)` builds `sheetState.data` from the record (or from `def`), calls `sheetOpened()` (a browser-history entry) and `drawSheet()`.
 
-**`drawSheet()`** строит HTML: заголовок, поля через `fieldHtml()` (пары `half` объединяются в `.pair`), блок `calc` (например, «эквивалент в леях» — функция `FORMS[col].calc(d)` возвращает подписи и значения), кнопки «Сохранить» и (директору, при редактировании) «Удалить», `<datalist>`’ы.
+**`drawSheet()`** builds the HTML: the title, the fields through `fieldHtml()` (`half` pairs are wrapped in `.pair`), the `calc` block (for example "equivalent in MDL" — `FORMS[col].calc(d)` returns labels and values), the "Save" and (for a director, on edit) "Delete" buttons, the `<datalist>`s. The category field shows categories through `catLabel()` (translated) and the typed value is mapped back by `catRaw()` to the stored Romanian name, so the data never splits in two.
 
-**Ввод:** обработчик `input` пишет `sheetState.data[k] = значение` и обновляет блок `calc` без перерисовки формы. Обработчик `change` перерисовывает форму, когда меняется что‑то, от чего зависят другие поля: валюта (подставить курс из настроек), назначение выдачи, способ оплаты, галочки, сотрудник/месяц в табеле.
+**Typing:** the `input` handler writes `sheetState.data[k] = value` and refreshes the `calc` block without redrawing the form. The `change` handler redraws the form when something other fields depend on changes: the currency (fill the rate from settings), the outflow destination, the payment mode, checkboxes, the employee/month in a timesheet.
 
-**Сохранение (`submitForm`):**
-1. проверка обязательных (`req`) с учётом `showIf`/`newOnly`, затем `minlen`;
-2. особые ветки: `utilizatori` (уникальность кода, формат 4–8 цифр, запрет понизить/отключить себя, по галочке — создать сотрудника и историю оклада), `angajati` (новый оклад → новая запись в `istoric`), `imprumuturi` (по галочке — создать выдачу из кассы);
-3. общая ветка: собрать `b` по полям (числа через `n()`, строки с `trim`), при `valuta==="MDL"` принудительно `curs=1`, `saveDoc(col, b, id)`;
-4. успех → `closeSheet()` + тост; ошибка → текст в форме (403 → «нет прав», иначе «нет связи»).
+**Saving (`submitForm`):**
+1. required fields (`req`) honouring `showIf`/`newOnly`, then `minlen`;
+2. special branches: `utilizatori` (code uniqueness, the 4–8 digit format, no self-demotion/deactivation, optionally create the employee and salary history), `angajati` (a new salary → a new `istoric` row), `imprumuturi` (optionally create the cash outflow);
+3. the general branch: build `b` from the fields (numbers through `n()`, strings trimmed), force `curs=1` when `valuta==="MDL"`, `saveDoc(col, b, id)`;
+4. success → `closeSheet()` + a toast; error → the text in the form (403 → "no rights", otherwise "no connection").
 
-Удаление: кнопка «Удалить» при первом нажатии превращается в «Да, удалить», при втором — `delDoc`.
+Delete: the "Delete" button turns into "Yes, delete" on the first tap and calls `delDoc` on the second.
 
-## 10. Расчёты: функция calc()
+## 10. Calculations: calc()
 
-`calc()` вызывается при каждой отрисовке панели и возвращает объект `C` со всеми итогами. Она никогда не пишет в `S`. Вспомогательная `sum(arr, f)` суммирует `f(r)` по массиву и округляет до копеек (`round2`).
+`calc()` runs on every dashboard render and returns an object `C` with every total. It never writes to `S`. The helper `sum(arr, f)` adds `f(r)` over the array and rounds to cents (`round2`).
 
-Порядок вычислений:
+Order of computation:
 
-1. **По валютам** (`vals` из настроек): `intratNum[v]`, `intratTr[v]`, `iesDepus[v]`, `iesPers[v]` (без кассира), `iesSal[v]`, `iesImpr[v]`, `iesAlte[v]`, `iesChirii[v]` (аренда наличными в этой валюте), `iesCheltCasier[v]` (только MDL: расходы кассира наличными). `iesTotal[v]` — их сумма; `ramas[v] = intratNum[v] − iesTotal[v]`; `ramasMDL[v] = ramas[v] × cursAzi(v)`; `casaMDL = Σ ramasMDL`.
-2. **В леях по строкам** (курс каждой строки): `incTotal`, `incNumMDL`, `incTrMDL`, `cheltTotal`, `cheltNum`, `cheltTr`, `depusMDL`, `salPlatitMDL`, `avansMDL`, `chiriiMDL`, `chiriiTrMDL`.
-3. **Счёт:** `contMDL = incTrMDL + depusMDL − cheltTr − chiriiTrMDL`.
-4. **Сотрудники:** список имён из выдач «Dat persoanei» и расходов наличными (без кассира); по каждому `primit`, `cheltuit`, `proprii` (из своих денег), `transfer` (справочно), `ramas = primit − cheltuit`. `colabRamas = Σ ramas`.
-5. **Итог фирмы:** `totalFirma = casaMDL + contMDL + colabRamas`.
-6. **По клиентам, проектам, категориям:** `perClient` (поступления − расходы), `proiecte` (бюджет, потрачено, получено, процент), `perProiect` (проекты без карточки), `perCateg`.
-7. **Договоры:** по имени клиента `incCash`, `incTr`, остатки, `contrPct`.
-8. **Зарплаты:** по каждому табелю `wd = workdays(luna)` (пн–сб), `sal = salariuLa(angajat, конец месяца)`, `pretZi = sal / wd`, `total = (z1+z2) × pretZi`; по месяцам `castigat`, `platit` (выдачи Salarii с этим `luna`), `rest`.
-9. **Займы:** `imprTotal`, `imprRestituit` (Achitat), `imprRamas`, `imprRestante` (срок < сегодня и не Achitat), по людям.
+1. **Per currency** (`vals` from settings): `intratNum[v]`, `intratTr[v]`, `iesDepus[v]`, `iesPers[v]` (without the cashier), `iesSal[v]`, `iesImpr[v]`, `iesAlte[v]`, `iesChirii[v]` (rent paid in cash in that currency), `iesCheltCasier[v]` (MDL only: the cashier's cash expenses). `iesTotal[v]` is their sum; `ramas[v] = intratNum[v] − iesTotal[v]`; `ramasMDL[v] = ramas[v] × cursAzi(v)`; `casaMDL = Σ ramasMDL`.
+2. **In MDL by row** (each row's own rate): `incTotal`, `incNumMDL`, `incTrMDL`, `cheltTotal`, `cheltNum`, `cheltTr`, `depusMDL`, `salPlatitMDL`, `avansMDL`, `chiriiMDL`, `chiriiTrMDL`.
+3. **The account:** `contMDL = incTrMDL + depusMDL − cheltTr − chiriiTrMDL`.
+4. **Collaborators:** the names from "Dat persoanei" outflows and cash expenses (without the cashier); for each `primit`, `cheltuit`, `proprii` (own money), `transfer` (informative), `ramas = primit − cheltuit`. `colabRamas = Σ ramas`.
+5. **The firm's total:** `totalFirma = casaMDL + contMDL + colabRamas`.
+6. **By client, project, category:** `perClient` (incomes − expenses), `proiecte` (budget, spent, received, percent), `perProiect` (projects without a card), `perCateg`.
+7. **Contracts:** by client name `incCash`, `incTr`, the remainders, `contrPct`.
+8. **Salaries:** for every timesheet `wd = workdays(luna)` (Mon–Sat), `sal = salariuLa(angajat, month end)`, `pretZi = sal / wd`, `total = (z1+z2) × pretZi`; by month `castigat`, `platit` (Salarii outflows with that `luna`), `rest`.
+9. **Loans:** `imprTotal`, `imprRestituit` (Achitat), `imprRamas`, `imprRestante` (due date < today and not Achitat), by person.
 
-`salariuLa(angajat, data)` ищет в `istoric` запись с максимальной `dinData ≤ data`; если такой нет, берёт самую раннюю.
+`salariuLa(angajat, data)` finds the `istoric` row with the largest `dinData ≤ data`; if there is none, the earliest row.
 
-Сравнение имён — `sameP(a,b)`: `trim` + нижний регистр.
+Name comparison is `sameP(a,b)`: `trim` + lower case.
 
-## 11. Экраны
+## 11. Screens
 
-| Функция | Экран | Кому |
+| Function | Screen | Who |
 |---|---|---|
-| `vGate()` → `vPin()` | вход: код / пароль / задание пароля; блок установки | без сессии |
-| `vPanou()` | сводка: `vOverview()` + плитки + секции | директор (оператору показывает `vPin()` для входа директором) |
-| `vAdd()` | карточки действий (`FORMS`), `vWho()` (кто я), `vMyBalance()` (мой баланс), подсказка «Правильный порядок», установка, выход | все |
-| `vReg()` | журналы по вкладкам (`REGDEF`), фильтр, `vSalarii()`, `vJurnal()` | директор |
-| `vMine()` | последние 60 моих записей (`r.by === ME`) | оператор |
-| `vSet()` | `vUsers()`, валюты, кассир, пароль, категории, экспорт, выход, установка | директор |
-| `openColab(name)` | лист‑расшифровка по сотруднику (не форма) | все, по нажатию |
+| `vGate()` → `vPin()` | sign-in: code / password / set password; the lock screen (with the user's name and "Schimbă utilizatorul"); the install block | signed out or locked |
+| `vPanou()` | the overview: `vOverview()` + tiles + sections built with `statCard()` | director (an operator sees `vPin()`, the director's code prompt) |
+| `vAdd()` | the action cards (`FORMS`), `vWho()` (who I am), `vMyBalance()` (my balance), the "correct order" steps, install, sign-out | everyone |
+| `vReg()` | the registers by tab (`REGDEF`/`REGTBL`), the filter, `vSalarii()`, `vJurnal()` | director |
+| `vMine()` | my last 60 records (`r.by === ME`) | operator |
+| `vSet()` | `vUsers()`, then `setCard()` blocks: currencies, cashier, password, categories, export; sign-out; install | director |
+| `openColab(name)` | the per-collaborator detail sheet (not a form) | everyone, on tap |
+| `openMenu()` | the quick-jump menu: a list of the dashboard blocks in on-screen order, built by `dashBlocks()`; tapping scrolls to the block | director, from the burger |
+| `openRegPick()` | on phones: a dropdown naming every register with its row count | director |
 
-`REGDEF` описывает, как показать строку каждой коллекции в журнале: `main` (заголовок), `sub` (подстрока), `amt` (сумма со значком валюты), `cls` (цвет), `meta` (дата и т.п.). Те же функции используются в истории и в «Мои записи».
+`REGDEF` describes how a record of each collection is shown as a row: `main` (title), `sub` (subtitle), `amt` (amount with its currency badge), `cls` (colour), `meta` (date etc.). The same functions serve the history and "Ale mele".
 
-Набор карточек на экране «Добавить» (`order`) у директора шире: добавлены «Проект» и «Пользователь».
+`REGTBL` adds the desktop table view: for each register the heading of the second column (`th`), the icon and colour of the row (`ic`), the "who and how" column (`how`) and the MDL value used for the month total (`mdl`). `regTable()` renders rows grouped by month (`<tbody class="g">`, a `data-grp` header row that folds the group; folded groups are remembered in `REGCLOSED`), with the month's record count and total. `vReg()` renders **both** the table and the phone cards for the same rows; CSS shows one or the other, so a test must count distinct ids, not elements. Long registers are paged 15 rows at a time (`REG_PG`, `pager()`, `REGPAGE`).
 
-`statusNote()` — заметки состояния вверху: отклонённые записи, нет связи, N записей ждут отправки, ошибка сервера, загрузка, устаревшие данные.
+The set of cards on "Add" (`order`) is wider for a director: "Project" and "User" are added.
 
-## 12. Сводный экран: диаграммы
+`statusNote()` — the state notes at the top: rejected records, no network, N records waiting, server error, loading, stale data.
 
-`vOverview()` строит: чипы месяцев (`monthsBack(6)` + «все»), карточку расходов и карточку потока денег (на широких экранах рядом, контейнер `.dash-ov`).
+## 12. The overview: charts
+
+`vOverview()` builds: the month chips (`monthsBack(6)` + "all"), the expenses card and the cash-flow card (side by side on wide screens, container `.dash-ov`).
 
 `ovData(luna)`:
-- расходы за месяц по категориям (`byCat`), отсортированы по убыванию; если категорий больше 7, с седьмой складываются в «Alte categorii» (слот 7);
-- `total`, `inc` (поступления за месяц в леях), `prev` (расходы прошлого месяца для процента), `months` (6 месяцев: поступления и расходы).
+- the month's expenses by category (`byCat`), sorted descending; with more than 7 categories, the seventh onwards fold into "Alte categorii" (slot 7);
+- `total`, `inc` (the month's incomes in MDL), `prev` (last month's expenses for the percentage), `months` (6 months of incomes and expenses).
 
-`donutSvg(cats, total)` — SVG 340×300, кольцо радиуса 62 со штрихом 22: каждая доля — `<circle>` со `stroke-dasharray = длина доли − 2px` (двухпиксельный зазор между долями) и `stroke-dashoffset`, повёрнутое на −90°, чтобы начинаться сверху. Для долей ≥ 6 % рисуется бейдж (круг с иконкой категории, обычная `<g>` с контурами, **не** вложенный `<svg>`, иначе браузер игнорирует его размер) на радиусе 98 и подпись процента на радиусе 128 с выравниванием по стороне. В центре — сумма в сокращённом виде (`fmtK`: 23k, 1,2M). Доли, бейджи и легенда несут `data-cat` — нажатие открывает журнал расходов с фильтром.
+`donutSvg(cats, total)` — on phones and laptops an SVG 340×300 with a ring of radius 62 and stroke 22, badges and percent labels for slices ≥ 6 %; on wide screens (`WIDE_MQ`, ≥ 1400 px) a "bare" 172×172 ring (radius 74, stroke 24) without labels, because the list beside it carries them. Each slice is a `<circle>` with `stroke-dasharray = slice length − 2px` (a two-pixel gap) and `stroke-dashoffset`, rotated −90° to start at the top. Badges are plain `<g>` groups with the category outline (**not** nested `<svg>`, whose size browsers ignore). The centre shows the total abbreviated (`fmtK`: 23k, 1,2M). Slices, badges, the legend and the list rows carry `data-cat` — a tap opens the expense register filtered. The category list under the ring is folded by default and opens with "Detalii" (`data-more`, remembered in `OV.more`).
 
-`flowSvg(months)` — SVG 320×130: по два столбика на месяц (поступления — слот 3, расходы — слот 2), ширина 13, скруглённый верх 4px, масштаб по максимуму; выбранный месяц подсвечен, остальные приглушены; `<rect class="hit">` на всю ширину группы ловит нажатие (`data-ovluna`).
+`flowSvg(months)` — an SVG 320×130 (640×250 on wide screens): two bars per month (incomes slot 3, expenses slot 2), bar width 13 (22 wide), rounded tops, scaled to the maximum; the selected month is highlighted, the others dimmed; a `<rect class="hit">` across each group catches the tap (`data-ovluna`).
 
-Цвета — слоты `--s1…--s7` (раздел 13). Текст подписей всегда цветом текста темы, а не цветом серии.
+Colours are the slots `--s1…--s7` (section 13). Label text always uses the theme's text colour, never the series colour.
 
-## 13. Иконки, значки валют, цвета
+## 13. Icons, currency badges, colours, category labels
 
-**Иконки** — объект `ICONS`: имя → содержимое SVG (контуры в сетке 24×24, обводка 1.8, скруглённые концы). `icon(name)` оборачивает в `<svg class="ic-svg" … stroke="currentColor">`, поэтому цвет берётся из CSS. Используются в навигации, карточках действий, бейджах категорий.
+**Icons** — the `ICONS` object: name → SVG contents (outlines on a 24×24 grid, stroke 1.8, round caps). `icon(name)` wraps them in `<svg class="ic-svg" … stroke="currentColor">`, so the colour comes from CSS. Used in the navigation, the header (logo, burger, globe), action cards, register rows and category badges. `DEST_IC` maps outflow destinations to icon + colour, `REG_IC` registers to icons.
 
-**Иконка категории** — `catIcon(name)`: таблица `CAT_ICON_RULES` из регулярных выражений по ключевым словам на румынском и русском (`material|материал` → кирпичи, `transport|транспорт|taxi` → грузовик, …); неизвестной категории достаётся ярлык.
+**Category icon** — `catIcon(name)`: the `CAT_ICON_RULES` table of regular expressions over Romanian and Russian keywords (`material|материал` → bricks, `transport|транспорт|taxi` → truck, …); an unknown category gets a tag.
 
-**Цвет категории** — `catSlot(name)`: позиция категории в списке настроек по модулю 7 → слот `--s(N+1)`. Поэтому цвет закреплён за категорией, а не за её местом в рейтинге месяца.
+**Category colour** — `catSlot(name)`: the category's position in the settings list modulo 7 → slot `--s(N+1)`. So a colour sticks to its category, not to its rank in a given month.
 
-**Палитра серий** (`--s1…--s7`) — проверенная категориальная палитра: синий, оранжевый, аквамарин, жёлтый, маджента, фиолетовый, зелёный; для тёмной темы отдельные ступени тех же оттенков. Проверялась валидатором на различимость соседних цветов при дальтонизме и на контраст с фоном карточки.
+**Category labels** — categories are **stored** as typed (the defaults are Romanian). `CAT_RU` maps the common Romanian names to Russian, `CAT_RO` is its inverse; `catLabel()` shows the name in the interface language, `catRaw()` maps what was typed in a form back to the stored name.
 
-**Значки валют** — `CUR`: код → символ и цвет (`MDL` «L» зелёный акцент, `EUR` «€» синий, `USD` «$» зелёный, `RON` «L» жёлтый, заготовлены GBP/UAH/RUB). `curBadge(cod, withCode)` рисует круглый значок и, при необходимости, код рядом. Неизвестная валюта — серый значок с первой буквой.
+**The series palette** (`--s1…--s7`) — a validated categorical palette: blue, orange, teal, yellow, magenta, violet, green; the dark theme has its own steps of the same hues. It was checked for distinguishability under colour-vision deficiency and for contrast on the card background.
 
-**Тема** — переменные в `:root`: `--paper`, `--surface`, `--surface-2`, `--ink`, `--muted`, `--line`, `--accent`, `--pos`, `--neg`, `--warn`, шрифты `--d` (Archivo, заголовки и цифры) и `--b` (Public Sans, текст). Тёмная тема включается автоматически по системной настройке (`prefers-color-scheme`) или атрибутом `data-theme="dark"` на `<html>`.
+**Currency badges** — `CUR`: code → symbol and colour (`MDL` "L" accent green, `EUR` "€" blue, `USD` "$" green, `RON` "L" yellow; GBP/UAH/RUB prepared). `curBadge(cod, withCode)` draws the round badge and, optionally, the code beside it. An unknown currency gets a grey badge with its first letter.
 
-## 14. Переводы
+**Avatars** — `initials(name)` and `toneOf(name)` give the signed-in user block and the collaborator rows a two-letter avatar on a colour derived from the name.
 
-`I18N.ro` и `I18N.ru` — плоские словари ключ → строка. `T(key)` возвращает перевод для текущего языка, при отсутствии — румынский, при отсутствии и там — сам ключ. Все подписи экранов, полей, кнопок, сообщений берутся через `T()`; значения в базе (`Numerar`, `Transfer`, `Dat persoanei`, `Activ`, статусы) хранятся всегда по‑румынски и переводятся только при показе.
+**Theme** — variables on `:root`: `--paper`, `--surface`, `--surface-2`, `--ink`, `--muted`, `--line`, `--accent`, `--pos`, `--neg`, `--warn`, the fonts `--d` (Archivo: headings and figures) and `--b` (Public Sans: text). The dark theme switches on with the system setting (`prefers-color-scheme`) or the `data-theme="dark"` attribute on `<html>`.
 
-Кнопка языка одна (`#langbtn`): показывает код **другого** языка; нажатие меняет `lang`, пишет `ehl.lang`, перерисовывает экран и открытую форму.
+## 14. Translations
 
-Названия месяцев — `monthName("2026-11")` по словарю языка; короткие — первые три буквы.
+`I18N.ro` and `I18N.ru` are flat dictionaries key → string (313 keys each). `T(key)` returns the translation for the current language, falling back to Romanian, then to the key itself. Every label, field, button and message goes through `T()`; values stored in the database (`Numerar`, `Transfer`, `Dat persoanei`, `Activ`, statuses) are always Romanian and are translated only for display.
 
-## 15. История браузера и кнопка «назад»
+**Server messages** come in Romanian; `SRV_MSG` maps every known message text to a translation key and `srvT()` shows it in the interface language (sign-in errors, password errors, rejected records in `FAILED`).
 
-Кнопка «назад» на телефоне (и свайп) по умолчанию закрыла бы приложение. Поэтому:
-- при открытии любой формы или листа `sheetOpened()` делает `history.pushState({v:view, sheet:true})`;
-- при смене вкладки — `histPush({v:view})`;
-- `closeSheet()` не закрывает форму сам, а вызывает `history.back()`, если верхняя запись истории — форма; закрывает обработчик `popstate` (`closeSheetNow()`), так что крестик, Esc и системная кнопка «назад» ведут себя одинаково;
-- `popstate` с состоянием `{v}` переключает вкладку.
+The language button is a single one (`#langbtn`): it shows a globe icon and the code of the **other** language; a tap changes `lang`, writes `ehl.lang`, re-renders the screen and any open form. `render()` also updates `document.title` and `<html lang>`.
 
-При запуске `history.replaceState({v:view})`.
+Month names come from `monthName("2026-11")` through the language's list; short names are the first three letters. A handful of labels (Excel column headers, "working days", the calendar buttons) are inline `lang==="ru" ? … : …` ternaries rather than dictionary keys.
 
-## 16. Календарь для компьютера
+## 15. Browser history and the back button
 
-Системные окна выбора даты на компьютере выглядят чужеродно, на телефонах — хорошо. Поэтому `COARSE = matchMedia("(pointer: coarse)")` определяет сенсорное устройство: на нём ничего не меняется. На компьютере `enhanceDates(root)` после каждой отрисовки находит `input[type=date|month]` без атрибута `data-dp`, оборачивает в `.dp-wrap`, прячет настоящее поле (оно сохраняет `data-k`, имя, ISO‑значение и все обработчики) и добавляет видимое `readonly` поле с датой в формате `дд.мм.гггг` (или «ноябрь 2026» для месяца).
+The phone's back button (and swipe) would otherwise close the app. So:
+- opening any form or sheet, `sheetOpened()` does `history.pushState({v:view, sheet:true})`;
+- changing the tab — `histPush({v:view})`;
+- `closeSheet()` does not close the form itself but calls `history.back()` when the top history entry is a sheet; the `popstate` handler closes it (`closeSheetNow()`), so the ✕, Esc and the system back button behave the same;
+- a `popstate` with a `{v}` state switches the tab.
 
-Клик по видимому полю → `dpOpen()`: единственный всплывающий элемент `#dpop` заполняется `dpRender()` (шапка со стрелками, сетка пн–вс с днями соседних месяцев приглушённо, или сетка 12 месяцев; сегодняшний день обведён, выбранный залит; кнопки «Șterge» и «Azi»), позиционируется под полем с учётом края экрана. Выбор → `dpSet(v)`: записывает ISO в скрытое поле, диспетчит события `input` и `change` (их ловят обычные обработчики формы), обновляет видимое поле, закрывает. Закрытие также по Esc, клику снаружи, прокрутке и изменению окна.
+On start-up `history.replaceState({v:view})`.
 
-## 17. Адаптивная вёрстка
+## 16. The desktop date picker
 
-База — мобильная, одна колонка, нижняя навигация, формы на весь экран (`.sheet` занимает всё окно).
+Native date pickers look foreign on a computer and fine on phones. So `COARSE = matchMedia("(pointer: coarse)")` detects a touch device: nothing changes there. On a computer, `enhanceDates(root)` runs after every render, finds `input[type=date|month]` without `data-dp`, wraps each in `.dp-wrap`, hides the real input (it keeps `data-k`, its name, the ISO value and all handlers) and adds a visible `readonly` field showing `dd.mm.yyyy` (or "noiembrie 2026" for a month).
 
-| Порог | Что меняется |
+A click on the visible field → `dpOpen()`: the single popover `#dpop` is filled by `dpRender()` (a header with arrows, a Mon–Sun grid with the neighbouring months dimmed, or a 12-month grid; today outlined, the selection filled; "Clear" and "Today" buttons) and positioned under the field with the screen edge in mind. Picking → `dpSet(v)`: writes the ISO value into the hidden input, dispatches `input` and `change` (the ordinary form handlers catch them), updates the visible field, closes. It also closes on Esc, an outside click, scrolling and resizing.
+
+## 17. Responsive layout
+
+The base is mobile: one column, a bottom navigation, forms as full-screen sheets (`.sheet` fills the window).
+
+| Threshold | What changes |
 |---|---|
-| ≥ 620 px | плитки 4 в ряд, карточки действий 3 в ряд |
-| ≥ 900 px | навигация переезжает в шапку (`nav` становится строкой вкладок по центру, кнопки‑пилюли), контент — центрированная колонка 1240 px, экран «Добавить» в две колонки (`.add-layout`: действия слева, подсказка и установка справа), сводка: `.dash-ov` две карточки рядом, `.dash-grid` две колонки секций, плитки 5 в ряд; настройки `.set-grid` две колонки; формы — центрированное окно `.sheet-in` на затемнённом фоне, высота ограничена окном, прокрутка внутри |
-| ≥ 1400 px | колонка 1400 px, карточки действий 4 в ряд |
-| ≥ 1800 px (27"+) | шрифт 17 px, колонка 1760 px, карточки 5 в ряд, сводка в три колонки, диаграммы крупнее, настройки в три колонки |
+| ≤ 899 px (phones) | the bottom navigation with pill-shaped active icons; the header shows the burger (quick-jump menu) and hides the name text; registers show cards, the register picker button and the quick-jump menu; the dashboard blocks are reordered for a narrow screen |
+| ≥ 620 px | tiles 4 per row, action cards 3 per row |
+| ≥ 900 px | the navigation moves into the header (`nav` becomes a centred row of pill tabs), content is a centred 1240 px column, "Add" is two columns (`.add-layout`: actions left, guidance right), the overview puts `.dash-ov` cards side by side and `.dash-grid` in two columns, tiles 5 per row; registers switch to the month-grouped table; settings `.set-grid` in two columns; forms become a centred window `.sheet-in` on a dimmed backdrop, limited to the window height, scrolling inside |
+| ≥ 1200 px | the header shows the signed-in user's name and role beside the avatar |
+| ≥ 1400 px | a 1400 px column, action cards 4 per row; the charts take their wide sizes (`WIDE_MQ`) |
+| ≥ 1800 px (27"+) | 17 px type, a 1760 px column, cards 5 per row, the overview in three columns, larger charts, settings in three columns |
+| `hover:hover` | hover states only on devices with a mouse |
 
-Экран входа на широких экранах — узкая колонка по центру (`body.locked`).
+The sign-in and lock screens on wide displays are a narrow centred column (`body.locked`).
 
-Безопасные зоны телефонов (вырез, жест внизу) учтены через `env(safe-area-inset-*)`.
+Phone safe areas (notch, home gesture) are honoured through `env(safe-area-inset-*)`.
 
-## 18. PWA: установка и офлайн‑кэш
+## 18. PWA: installation and the offline cache
 
-`manifest.json` задаёт имя, иконки (включая maskable), цвета, `display: standalone`. `index.html` содержит мета‑теги для iOS.
+`manifest.json` sets the name, icons (including maskable), colours (white theme and background since the redesign), `display: standalone`. `index.html` carries the iOS meta tags.
 
 `sw.js`:
-- при установке кладёт в кэш `CACHE` файлы оболочки (`SHELL`: html, css, js, SDK, манифест, иконки);
-- при активации удаляет кэши других версий (поэтому при каждом изменении файлов нужно поднять номер в `CACHE`, иначе телефоны будут держать старую версию до истечения кэша браузера);
-- запросы к `/api/` и `/_/` не трогает (API, SSE, админ‑панель);
-- свои файлы отдаёт «сначала сеть, при ошибке кэш» (обновления доходят сразу, офлайн работает);
-- библиотеки с cdnjs/jsdelivr/шрифты — «сначала кэш».
+- on install it caches the shell files (`SHELL`: html, css, js, SDK, manifest, icons) under `CACHE`;
+- on activate it deletes caches of other versions (so **every change to the files needs the `CACHE` number bumped**, or phones keep the old version until the browser cache expires);
+- requests to `/api/` and `/_/` are left alone (API, SSE, admin UI);
+- own files are served "network first, cache on failure" (updates arrive at once, offline still works);
+- libraries from cdnjs/jsdelivr and fonts are "cache first".
 
-Кнопка установки (`installNote()`): если пришло событие `beforeinstallprompt` (Chrome/Edge), показывается кнопка, вызывающая `installEvt.prompt()`; иначе инструкция для платформы (iPhone — через Safari «Поделиться», другие — через Chrome, компьютер — значок в адресной строке). В установленном режиме (`display-mode: standalone`) блок скрыт.
+The install button (`installNote()`): if a `beforeinstallprompt` event arrived (Chrome/Edge), a button calls `installEvt.prompt()`; otherwise platform instructions are shown (iPhone through Safari's Share sheet, other phones through Chrome, computers through the address-bar icon). In installed mode (`display-mode: standalone`) the block is hidden.
 
-## 19. Выгрузка в Excel
+## 19. Excel export
 
-Библиотека ExcelJS грузится с CDN (с запасным адресом), `defer`. `exportRun(luna, doar)`:
-1. ждёт загрузки библиотеки (до 4 с), иначе падает на CSV (`exportCSV`);
-2. при необходимости подгружает историю за месяц (`jurnalRows`);
-3. `buildWb()` создаёт книгу: лист «Panou» (`wsPanou`: заголовок, сводка, касса по валютам, сотрудники, клиенты, категории — с заливками и форматами), затем по одному листу на журнал через `wsAdd(wb, имя, колонки, строки, итог)`: закреплённая шапка, автофильтр, чередование строк, форматы дат `dd.mm.yyyy` и сумм `#,##0.00`, итоговая строка;
-4. `wb.xlsx.writeBuffer()` → `downloadBlob()` создаёт ссылку с `download` и кликает по ней.
+The ExcelJS library loads from a CDN (with a fallback address), `defer`. `exportRun(luna, doar)`:
+1. waits for the library (up to 4 s), otherwise falls back to CSV (`exportCSV`);
+2. loads the month's history if needed (`jurnalRows`);
+3. `buildWb()` creates the workbook: the "Panou" sheet (`wsPanou`: title, summary, till by currency, collaborators, clients, categories — with fills and formats), then one sheet per register through `wsAdd(wb, name, columns, rows, totals)`: frozen header, autofilter, zebra rows, date format `dd.mm.yyyy` and amount format `#,##0.00`, a totals row;
+4. `wb.xlsx.writeBuffer()` → `downloadBlob()` creates a link with `download` and clicks it.
 
-Фильтр «только выбранный месяц» применяется функцией `inM(r)` по `dateOf(r)`.
+The "only the chosen month" filter is `inM(r)` over `dateOf(r)`.
 
-## 20. Сервер: PocketBase
+## 20. Server: PocketBase
 
-PocketBase запускается командой (из `casieria.service`):
+PocketBase runs with this command (from `casieria.service`):
 
 ```
 /opt/casieria/pocketbase serve --http=127.0.0.1:8090 --dir=/opt/casieria/pb_data \
    --publicDir=/opt/casieria/pb_public --hooksDir=/opt/casieria/pb_hooks --migrationsDir=/opt/casieria/pb_migrations
 ```
 
-- `pb_public` отдаётся как статика по корню домена — это и есть приложение;
-- REST API под `/api/collections/<имя>/records`, живые обновления `/api/realtime` (SSE), наши маршруты `/api/ehl/…`;
-- админ‑панель `/_/` (суперпользователь из `ADMIN.txt`);
-- при старте применяются новые файлы из `pb_migrations` (по имени, один раз; список применённых хранится в базе);
-- хуки `*.pb.js` загружаются при старте и перезагружаются при изменении файла.
+- `pb_public` is served as static files at the domain root — that is the app;
+- the REST API lives under `/api/collections/<name>/records`, live updates at `/api/realtime` (SSE), our routes under `/api/ehl/…`;
+- the admin UI is `/_/` (the superuser from `ADMIN.txt`);
+- on start-up new files from `pb_migrations` are applied (by name, once; the applied list is kept in the database);
+- `*.pb.js` hooks load at start-up and reload when the file changes.
 
-nginx принимает HTTPS на домене и проксирует всё на 8090 с заголовками `X-Real-IP`, `X-Forwarded-*`, `Upgrade/Connection`; `proxy_buffering off` и `proxy_read_timeout 600s` нужны для SSE. Заголовки безопасности добавляются на уровне nginx.
+nginx accepts HTTPS on the domain and proxies everything to 8090 with the `X-Real-IP`, `X-Forwarded-*`, `Upgrade/Connection` headers; `proxy_buffering off` and `proxy_read_timeout 600s` are needed for SSE. The security headers are added at the nginx level.
 
-Настройки PocketBase, заданные миграциями: `trustedProxy.headers = ["X-Real-IP"]` (чтобы лимит попыток считался по адресу клиента, а не nginx), имя приложения, ежедневный бэкап.
+PocketBase settings made by migrations: `trustedProxy.headers = ["X-Real-IP"]` (so the attempt limit counts the client's address, not nginx's), the app name, the daily backup.
 
-## 21. Схема базы: коллекции и поля
+## 21. Database schema: collections and fields
 
-У всех записей есть системные `id` (15 символов), `created`, `updated`. У всех журналов — `by` (связь с `utilizatori`, ставит сервер).
+Every record has the system fields `id` (15 characters), `created`, `updated`. Every register has `by` (a relation to `utilizatori`, set by the server).
 
-| Коллекция | Поля |
+| Collection | Fields |
 |---|---|
-| `utilizatori` (auth) | `nume` текст; `rol` select Operator/Director; `cod` текст 4–8 цифр, уникальный индекс; `status` select Activ/Inactiv; `parolaSetata` bool; системные `email`, `password`, `verified`, `tokenKey` (email и пароль случайные, напрямую не используются; пароль директора хранится в системном `password`) |
-| `incasari` | `data`, `client`, `proiect`, `descriere`, `valuta` текст; `curs`, `suma` число; `mod` текст (Numerar/Transfer) |
-| `cheltuieli` | `data`, `categorie`, `descriere`, `client`, `proiect`, `platitDe`, `mod`, `sursa` (Avans/Proprii/пусто) текст; `suma` число |
-| `iesiri` | `data`, `destinatie` (Dat persoanei/Depus pe cont/Salarii/Împrumut/Alte), `valuta`, `persoana`, `luna` (ГГГГ‑ММ), `nota`; `curs`, `suma` |
+| `utilizatori` (auth) | `nume` text; `rol` select Operator/Director; `cod` text 4–8 digits, unique index; `status` select Activ/Inactiv; `parolaSetata` bool; system `email`, `password`, `verified`, `tokenKey` (email and password are random and never used directly; the director's password lives in the system `password`) |
+| `incasari` | `data`, `client`, `proiect`, `descriere`, `valuta` text; `curs`, `suma` number; `mod` text (Numerar/Transfer) |
+| `cheltuieli` | `data`, `categorie`, `descriere`, `client`, `proiect`, `platitDe`, `mod`, `sursa` (Avans/Proprii/empty) text; `suma` number |
+| `iesiri` | `data`, `destinatie` (Dat persoanei/Depus pe cont/Salarii/Împrumut/Alte), `valuta`, `persoana`, `luna` (YYYY-MM), `nota`; `curs`, `suma` |
 | `chirii` | `dataInceput`, `dataSfarsit`, `locatia`, `chirias`, `valuta`, `mod`, `nota`; `curs`, `chirie`, `gaj`, `comunale`, `avarii` |
 | `contracte` | `client`, `nota`; `sumaContract`, `deIncasatCash` |
 | `imprumuturi` | `data`, `persoana`, `termen`, `status` (Neachitat/Achitat), `nota`; `suma` |
-| `proiecte` | `nume`, `client`, `responsabili` (имена через запятую), `dataInceput`, `termen`, `status` (Activ/Pauză/Finalizat), `nota`; `buget` |
+| `proiecte` | `nume`, `client`, `responsabili` (names separated by commas), `dataInceput`, `termen`, `status` (Activ/Pauză/Finalizat), `nota`; `buget` |
 | `angajati` | `nume`, `dataInceput`, `status` |
 | `istoric` | `angajat`, `dinData`; `salariu` |
 | `pontaj` | `luna`, `angajat`; `z1`, `z2` |
 | `jurnal` | `act` (add/edit/del), `col`, `ref`, `nume`; `data` JSON |
-| `config` | `valute` JSON `[{cod, curs}]`; `casier` текст; `categorii` JSON `[…]` |
-| `login_attempts` | `ip`; пишет только сервер |
+| `config` | `valute` JSON `[{cod, curs}]`; `casier` text; `categorii` JSON `[…]` |
+| `login_attempts` | `ip`; written only by the server |
 
-Даты хранятся **текстом** в формате ISO (`2026-11-02`), чтобы сравнения и выгрузка не зависели от часовых поясов; суммы — числами.
+Dates are stored as **text** in ISO form (`2026-11-02`) so comparisons and the export do not depend on time zones; amounts are numbers.
 
-## 22. Правила доступа
+## 22. Access rules
 
-Правила — выражения PocketBase на коллекциях (в `1762000000_init.js`). Базовые выражения:
+Rules are PocketBase expressions on the collections (in `1762000000_init.js`). The base expressions:
 
 ```
 MEMBER   = @request.auth.id != "" && @request.auth.status != "Inactiv"
@@ -470,92 +494,100 @@ DIRECTOR = @request.auth.rol = "Director" && @request.auth.status != "Inactiv"
 OWN_OR_DIR = DIRECTOR || (MEMBER && by = @request.auth.id)
 ```
 
-| Коллекция | list/view | create | update | delete |
+| Collection | list/view | create | update | delete |
 |---|---|---|---|---|
-| журналы (`incasari`, `cheltuieli`, `iesiri`, `chirii`, `contracte`, `imprumuturi`, `proiecte`, `angajati`) | MEMBER | MEMBER | OWN_OR_DIR | DIRECTOR |
+| registers (`incasari`, `cheltuieli`, `iesiri`, `chirii`, `contracte`, `imprumuturi`, `proiecte`, `angajati`) | MEMBER | MEMBER | OWN_OR_DIR | DIRECTOR |
 | `istoric` | DIRECTOR | DIRECTOR | DIRECTOR | DIRECTOR |
 | `pontaj` | OWN_OR_DIR | MEMBER | OWN_OR_DIR | DIRECTOR |
-| `utilizatori` | DIRECTOR или `id = @request.auth.id && status != "Inactiv"` | DIRECTOR | DIRECTOR | DIRECTOR |
+| `utilizatori` | DIRECTOR or `id = @request.auth.id && status != "Inactiv"` | DIRECTOR | DIRECTOR | DIRECTOR |
 | `jurnal` | DIRECTOR | MEMBER | null | null |
 | `config` | MEMBER | DIRECTOR | DIRECTOR | null |
 | `login_attempts` | null | null | null | null |
 
-`null` — только суперпользователь. Важная особенность PocketBase: правило `list` работает как фильтр (не подходящие записи просто не попадают в ответ), а `view`/`update`/`delete` при несоответствии дают 404. На этом построено обнаружение отключённого пользователя (раздел 5).
+`null` means superuser only. An important PocketBase trait: a `list` rule acts as a filter (records that do not match are simply left out of the answer), while `view`/`update`/`delete` return 404 on a mismatch. The detection of a deactivated user (section 5) relies on this.
 
-`@request.auth` всегда читается из базы по токену, поэтому смена статуса или роли действует на следующий же запрос.
+`@request.auth` is always read from the database by the token, so a changed status or role takes effect on the very next request.
 
-## 23. Серверные хуки, построчно
+## 23. Server hooks, line by line
 
-Файл `server/pb_hooks/ehl.pb.js`. В JS‑движке PocketBase обработчики не видят функций, объявленных снаружи, поэтому всё нужное написано внутри каждого.
+File `server/pb_hooks/ehl.pb.js`. In the PocketBase JS engine handlers cannot see functions declared outside them, so everything is written inside each handler.
 
 **`POST /api/ehl/login`**
-1. Из тела берётся `cod`; формат `^[0-9]{4,8}$`, иначе 400.
-2. `ip = e.realIP()` (с учётом X‑Real‑IP). Считаются записи `login_attempts` с этим ip за 15 минут; если ≥ 8 → 429 с текстом.
-3. Ищется пользователь по `cod`. Если не найден и пользователей в базе **ноль** → создаётся директор с этим кодом (имя «Director», случайные email/пароль), а также запись `config` с валютами и категориями по умолчанию; `first = true`.
-4. Если пользователь не найден или `Inactiv` → записывается попытка в `login_attempts` (попутно чистятся записи старше суток) и 401.
-5. Оператор → `rec.newAuthToken()` (срок из настроек коллекции, 1 год) и ответ `{token, record, first}`.
-6. Директор без пароля (`parolaSetata = false`): без `parolaNoua` → `{needSetPassword:true}`; с `parolaNoua` (≥ 8 символов) → `setPassword`, `parolaSetata = true`, сохранение, статический токен на 7 дней (`newStaticAuthToken(7 дней в наносекундах)`), ответ с `expires`.
-7. Директор с паролем: без `parola` → `{needPassword:true}`; неверный пароль → попытка + 401; верный → статический токен на 7 дней.
+1. `cod` is taken from the body; the format is `^[0-9]{4,8}$`, otherwise 400.
+2. `ip = e.realIP()` (honouring X-Real-IP). The `login_attempts` rows with that ip in the last 15 minutes are counted; 8 or more → 429 with a message.
+3. The user is looked up by `cod`. If none is found and the collection holds **zero** users → a director is created with that code (name "Director", random email/password), plus a `config` record with default currencies and categories; `first = true`.
+4. If no user is found or the user is `Inactiv` → an attempt is recorded in `login_attempts` (rows older than a day are purged along the way) and 401 follows.
+5. An operator → `rec.newAuthToken()` (the collection's token duration, 1 year) and the answer `{token, record, first}`.
+6. A director without a password (`parolaSetata = false`): without `parolaNoua` → `{needSetPassword:true}`; with `parolaNoua` (≥ 8 characters) → `setPassword`, `parolaSetata = true`, save, a static 7-day token (`newStaticAuthToken(7 days in nanoseconds)`), the answer carries `expires`.
+7. A director with a password: without `parola` → `{needPassword:true}`; a wrong password → an attempt + 401; a right one → a static 7-day token.
 
-**`POST /api/ehl/password`** (требует авторизации коллекции `utilizatori`): только директор; `noua` ≥ 8; если пароль уже был, проверяется `veche`; `setPassword`, сохранение; **возвращается новый токен**, потому что смена пароля в PocketBase аннулирует все прежние токены пользователя (меняется `tokenKey`).
+**`POST /api/ehl/password`** (requires `utilizatori` auth): directors only; `noua` ≥ 8; when a password already exists, `veche` is checked; `setPassword`, save; **a fresh token is returned**, because changing a password in PocketBase invalidates every earlier token of the user (`tokenKey` changes).
 
-**`onRecordCreateRequest` для всех журналов и `jurnal`:** `record.by = e.auth.id`. Клиент не может подставить чужого автора.
+**`onRecordCreateRequest` for every register and `jurnal`:** `record.by = e.auth.id`. A client cannot plant another author.
 
-**`onRecordUpdateRequest` для журналов:** `by` возвращается к исходному значению.
+**`onRecordUpdateRequest` for the registers:** `by` is restored to its original value.
 
-**`utilizatori`, create:** проверка кода, статус/роль по умолчанию, случайный email `…@casieria.local`, случайный пароль, `parolaSetata = false`.
+**`utilizatori`, create:** code validation, default status/role, a random email `…@casieria.local`, a random password, `parolaSetata = false`.
 
-**`utilizatori`, update:** проверка кода; нельзя отключить или понизить **самого себя** (400); email не меняется; `parolaSetata` сохраняется для директора и сбрасывается, если роль стала Operator.
+**`utilizatori`, update:** code validation; you cannot deactivate or demote **yourself** (400); the email never changes; `parolaSetata` is kept for a director and reset when the role becomes Operator.
 
-**`utilizatori`, delete:** нельзя удалить самого себя.
+**`utilizatori`, delete:** you cannot delete yourself.
 
-**`cheltuieli`, create/update:** `descriere` после `trim` не короче 3 символов, иначе 400 с текстом «Scrieți pe ce s-au cheltuit banii».
+**`cheltuieli`, create/update:** `descriere` after `trim` must be at least 3 characters, otherwise 400 with the message "Scrieți pe ce s-au cheltuit banii".
 
-## 24. Развёртывание: что делают скрипты
+## 24. Deployment: what the scripts do
 
-**`deploy.sh user@host`** (с компьютера): создаёт папки на сервере, копирует `index.html styles.css app.js app-config.js sw.js manifest.json`, иконки, SDK в `pb_public`, хуки в `pb_hooks`, миграции в `pb_migrations`, `install.sh` и шаблон nginx в `/opt/casieria`; если служба уже установлена — `systemctl restart casieria`. Перезапуск нужен, чтобы применились новые миграции; хуки подхватываются и без него.
+**`deploy.sh user@host`** (from a computer): creates the folders on the server, copies `index.html styles.css app.js app-config.js sw.js manifest.json`, the icons and the SDK into `pb_public`, the hooks into `pb_hooks`, the migrations into `pb_migrations`, `install.sh` and the nginx template into `/opt/casieria`; if the service is already installed — `systemctl restart casieria`. The restart applies new migrations; hooks reload even without it.
 
-**`install.sh DOMAIN EMAIL [PASSWORD]`** (на сервере, один раз): ставит `unzip`; скачивает PocketBase нужной версии (`PB_VERSION`) с GitHub и распаковывает; `pocketbase migrate up` применяет схему; создаёт/обновляет суперпользователя; пишет unit‑файл `casieria.service` (автозапуск, перезапуск при падении, лог в `std.log`); включает службу и проверяет `/api/health`; если не задан `SKIP_NGINX=1` — копирует шаблон сайта, подставляя домен и порт, включает его, `nginx -t`, перезагружает nginx, получает сертификат `certbot --nginx` с редиректом на HTTPS.
+**`install.sh DOMAIN EMAIL [PASSWORD]`** (on the server, once): installs `unzip`; downloads the required PocketBase version (`PB_VERSION`) from GitHub and unpacks it; `pocketbase migrate up` applies the schema; creates/updates the superuser; writes the `casieria.service` unit (autostart, restart on crash, log in `std.log`); enables the service and checks `/api/health`; unless `SKIP_NGINX=1` — copies the site template with the domain and port filled in, enables it, `nginx -t`, reloads nginx, obtains a certificate with `certbot --nginx` and a redirect to HTTPS.
 
-**`reset.sh`** (на сервере, только для тестов): останавливает службу, удаляет `pb_data`, заново применяет миграции и суперпользователя, запускает. **Удаляет все данные.**
+**`reset.sh`** (on the server, tests only; not in the repository): stops the service, deletes `pb_data`, re-applies the migrations and the superuser, starts. **It deletes all data.**
 
-Обновление версии PocketBase: поменять `PB_VERSION` в `install.sh`, скопировать на сервер, запустить `install.sh` снова (он перекачает бинарник и перезапустит службу, данные не трогает).
+Upgrading PocketBase: change `PB_VERSION` in `install.sh`, copy it to the server, run `install.sh` again (it re-downloads the binary and restarts the service; the data is untouched).
 
-## 25. Тесты: что проверяют и как устроены
+## 25. Tests: what they check and how they work
 
-Все тесты на Node.js, интерфейсные — через jsdom (браузер без окна).
+All tests run on Node.js; the interface tests use jsdom (a browser without a window). `npm install jsdom` is needed once (not saved in the repository).
 
-**`tests/smoke.js`** поднимает `index.html` + `app.js` в jsdom, подменяет `window.PocketBase` **имитацией** сервера в памяти, которая повторяет правила доступа и маршрут входа, и проходит сценарий: экран входа и кнопка языка, первый вход директора и задание пароля, создание пользователей и сотрудников, календарь на компьютере, кнопка «назад», поступление в евро и расход, проверка цифр на панели, сводка с диаграммой и фильтром по категории, отказ расхода без описания, все вкладки журналов, история, офлайн‑очередь (запись без сети, правка в очереди, отправка при появлении сети, замена временного id), выход и вход оператором, баланс сотрудника, недельный запрос пароля, смена пароля, отключение оператора, неверный код. Любая ошибка в консоли окна тоже засчитывается как провал.
+**`tests/smoke.js`** loads `index.html` + `app.js` in jsdom, replaces `window.PocketBase` with an in-memory **fake** of the server that mirrors the access rules and the sign-in route, and walks through: the gate and the language button, the director's first sign-in and password set-up, creating users and employees, the desktop date picker, the back button, an income in euro and an expense, the dashboard figures, the overview with its donut and category filter (counting distinct record ids, because the redesign renders a table row and a card for each record), refusing an expense without a description, every register tab, the history, the offline queue (a record without network, an edit folded into the queue, the flush when the network returns, the temporary id replaced), sign-out and sign-in as an operator, the employee balance, the weekly expiry (code first, then the password), the password change, the lock screen after 10 minutes in the background (wrong code refused, right code returns to the same view), deactivating an operator, a wrong code. Any error in the window console also counts as a failure.
 
-**`tests/calc.js`** — фиксированный набор записей с известными ответами (касса по валютам, счёт, баланс сотрудника с деньгами из своих, итог фирмы, договор, зарплата, займы, доли на диаграмме), посчитанными вручную по правилам таблицы; сравнивает с текстом панели. Это защита от случайного изменения формул.
+**`tests/calc.js`** — a fixed set of records with hand-computed answers (till by currency, the account, an employee balance with own money, the firm's total, a contract, a salary, loans, the donut shares) following the workbook rules; it compares them with the dashboard text. It guards the formulas against accidental change.
 
-**`tests/fill.js`** — тот же jsdom, но с **настоящим** SDK и настоящим сервером (через SSH‑туннель): проходит все формы как пользователь. Оставляет данные. Только для тестовой базы.
+**`tests/fill.js`** — the same jsdom, but with the **real** SDK and the real server (through an SSH tunnel): it goes through every form as a user would. It leaves the data behind. Test databases only.
 
-**`tests/seed-year.js`** — генератор истории за 12 месяцев через API: проекты, договоры, транши, авансы, расходы с описаниями, зарплаты, табели, аренда, внесения, займы; следит за наличностью в кассе, чтобы не уйти в минус; пишет записи истории как приложение. Детерминирован (свой генератор случайных чисел).
+**`tests/seed-year.js`** — the first generator of 12 months of history through the API from a computer (projects, contracts, instalments, advances, expenses, salaries, timesheets, rent, deposits, loans); it watches the cash in the till so it never goes negative; it writes history entries like the app. Deterministic.
 
-Серверные правила дополнительно проверялись сценарием из ~45 curl‑запросов на живом PocketBase (бутстрап, пароли, права операторов, неизменяемость истории, лимит попыток).
+**`tests/seed-year-server.js`** — the richer generator, run **on the server** as root (`node seed-year-server.js [--wipe]`): it reads the superuser from `ADMIN.txt`, impersonates the director, creates operators (who then write their own expenses with their own tokens), employees with salary raises, a cashier, six projects with contracts, incomes in four currencies, salaries paid for the previous month with two tight months, a holiday, a hire and a leaver, rent with a deposit and damage, loans with their outflows and a repayment, edits and a delete in the history. It refuses to run on a non-empty database; `--wipe` empties everything except the director first. It keeps an independent ledger and saves it as `/root/casieria-seed-expected.json`.
 
-## 26. Как вносить изменения
+**`tests/verify-server.js`** — run on the server: fetches every record as the director, recomputes every dashboard figure with the README formulas independently of `app.js`, compares them with the generator's ledger, flags negative shelves, missing descriptions and the like, and saves `/root/casieria-verify.json`.
 
-1. **Внешний вид:** `styles.css`. Цвета и шрифты — переменные в начале файла; мобильная база — верх файла, компьютерные уровни — медиазапросы в конце. Иконки — объект `ICONS` в `app.js` (контуры 24×24).
-2. **Тексты:** словари `I18N.ro` и `I18N.ru`; добавляя ключ, добавьте его в оба.
-3. **Новое поле в форме:** добавить описание в `FORMS.<коллекция>.fields`, поле в миграцию (новый файл `176…_имя.js` с `collection.fields.add(...)`), при необходимости — в `REGDEF` (показ в журнале), в `calc()` и в выгрузку Excel (`buildWb`).
-4. **Новое правило или проверка на сервере:** хук в `ehl.pb.js`; проверить, что клиентская форма даёт ту же проверку заранее (чтобы запись не уходила в `FAILED` без нужды).
-5. **Перед выкладкой:** поднять `CACHE` в `sw.js`; `node tests/smoke.js .` и `node tests/calc.js .` должны вывести `ALL GOOD`; затем `bash deploy.sh user@host`.
-6. **Коммиты:** ветка `main` разворачивается на сервер; работу дизайнера лучше вести в отдельной ветке и сливать через pull request.
+**`tests/verify-ui.js`** — run from a computer with the real SDK against `ssh -N -L 18090:127.0.0.1:8090 <server>` and a director impersonation token (`DIR_TOKEN`): it starts with a stored session (the lock screen appears), unlocks with the code, compares every figure on the dashboard with `verify.json`, opens every register and the history, the collaborator sheet, signs out, signs in as an operator by code and checks his balance, "Ale mele" and his project list, and confirms a deactivated code is refused.
 
-## 27. Типичные вопросы разработчика
+Server rules were additionally checked with a scenario of ~45 curl requests against a live PocketBase (bootstrap, passwords, operator rights, history immutability, the attempt limit).
 
-**Почему нет фреймворка и сборки?** Приложение маленькое, один файл логики, полная перерисовка экрана занимает миллисекунды, а отсутствие сборки означает, что любой может править файлы и выкладывать их без установки инструментов.
+## 26. How to make changes
 
-**Почему расчёты на клиенте, а не на сервере?** Все данные фирмы умещаются в памяти телефона (десятки тысяч строк), и расчёт из полного набора записей на лету гарантирует, что цифры всегда согласованы с журналами. Сервер отвечает за права, авторство и неизменяемость истории. Когда данных станет очень много, появится «закрытие периода» с переносом остатков (см. README, ограничения).
+1. **Looks:** `styles.css`. Colours and fonts are the variables at the top; the mobile base is the upper part of the file, the phone-only rules are `@media (max-width:899px)`, the desktop tiers are the media queries at the end. Icons are the `ICONS` object in `app.js` (24×24 outlines).
+2. **Texts:** the `I18N.ro` and `I18N.ru` dictionaries; when adding a key, add it to both. A new server message also needs a row in `SRV_MSG`.
+3. **A new form field:** add its description to `FORMS.<collection>.fields`, the field to a migration (a new file `176…_name.js` with `collection.fields.add(...)`), and if needed to `REGDEF`/`REGTBL` (register display), `calc()` and the Excel export (`buildWb`).
+4. **A new server rule or validation:** a hook in `ehl.pb.js`; make sure the client form checks the same thing beforehand (so a record does not land in `FAILED` needlessly).
+5. **Before deploying:** bump `CACHE` in `sw.js`; `node tests/smoke.js .` and `node tests/calc.js .` must print `ALL GOOD`; then `bash deploy.sh user@host`.
+6. **Commits:** the `main` branch is what gets deployed; design work is best done on a branch and merged through a pull request.
 
-**Почему списки грузятся целиком?** По той же причине: итоги накопительные. При входе — один запрос на коллекцию, дальше только события изменений по SSE.
+## 27. Developer FAQ
 
-**Что будет, если два человека правят одну запись?** Побеждает последняя запись на сервере; обе правки видны в истории с автором и значениями, так что можно разобраться.
+**Why no framework and no build?** The app is small, one logic file, a full re-render takes milliseconds, and no build means anyone can edit the files and deploy them without installing tools.
 
-**Что будет, если телефон потеряли с открытой сессией?** Директор отключает пользователя (статус Inactiv), и его токен перестаёт работать на следующем же запросе. Для директора — смена пароля аннулирует все его сессии.
+**Why are the calculations on the client, not the server?** All of the firm's data fits in a phone's memory (tens of thousands of rows), and computing from the full set of records on the fly guarantees the figures always agree with the registers. The server is responsible for rights, authorship and the immutability of the history. When the data grows very large, a "period closing" with carried-over balances will be added (see the README's limitations).
 
-**Как добавить валюту?** В настройках: код и курс. Полка появится автоматически. Значок — серый с первой буквой, цветной можно добавить в `CUR`.
+**Why are the lists loaded whole?** For the same reason: the totals are cumulative. On sign-in one request per collection, then only change events over SSE.
 
-**Откуда берётся курс в старых строках?** Из самой строки: курс записывается при вводе и больше не меняется. Курс из настроек влияет только на пересчёт остатков кассы в леи «на сегодня» и на подстановку в новые формы.
+**What if two people edit the same record?** The last write on the server wins; both edits are visible in the history with their authors and values, so it can be sorted out.
+
+**What if a phone with an open session is lost?** The code is asked on every start and after 10 minutes in the background, so a found phone shows only the lock screen. The director also deactivates the user (status Inactiv), and the token stops working on the very next request. For a director, changing the password voids all of their sessions.
+
+**Why is the lock screen checked locally rather than on the server?** The session is already valid; the lock only protects against someone picking up the phone. A local comparison works offline and does not consume the server's attempt limit. The server still verifies the session every 3 minutes and on every write.
+
+**How do I add a currency?** In settings: code and rate. The shelf appears by itself. The badge is grey with the first letter; a coloured one can be added to `CUR`.
+
+**Where does the rate in old rows come from?** From the row itself: the rate is written on entry and never changes. The rate in settings only affects today's conversion of the till balances to MDL and the pre-filled value in new forms.
