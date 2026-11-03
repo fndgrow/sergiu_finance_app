@@ -2,50 +2,80 @@
 :root{
   --paper:#F2F3F1; --surface:#FFFFFF; --surface-2:#E9EBE8; --ink:#161A17; --muted:#5E6760;
   --line:#D6DAD5; --accent:#0E6A4E; --accent-ink:#FFFFFF; --accent-soft:#D9EDE4;
-  --pos:#15803D; --neg:#B42318; --warn:#B45309; --shadow:0 1px 2px rgba(20,30,24,.07),0 8px 24px rgba(20,30,24,.06);
+  --pos:#15803D; --neg:#B42318; --warn:#B45309; --shadow:0 1px 2px rgba(20,30,24,.05),0 4px 12px rgba(20,30,24,.04);
+  --hero-a:#0E6A4E; --hero-b:#0A4A37; --hero-ink:#FFFFFF; --field:#F5F6F4;
   --d:'Archivo',system-ui,sans-serif; --b:'Public Sans',system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --paper:#0E110F; --surface:#171B18; --surface-2:#212622; --ink:#E8EBE7; --muted:#93A09A;
   --line:#2C322E; --accent:#3FBF8F; --accent-ink:#06211A; --accent-soft:#17352B;
-  --pos:#4ADE80; --neg:#F87171; --warn:#FBBF24; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  --pos:#4ADE80; --neg:#F87171; --warn:#FBBF24; --shadow:0 1px 2px rgba(0,0,0,.22),0 4px 12px rgba(0,0,0,.16);
+  --hero-a:#1E8E66; --hero-b:#0D4F3B; --hero-ink:#FFFFFF; --field:#1F2420;
   color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#0E110F; --surface:#171B18; --surface-2:#212622; --ink:#E8EBE7; --muted:#93A09A;
   --line:#2C322E; --accent:#3FBF8F; --accent-ink:#06211A; --accent-soft:#17352B;
-  --pos:#4ADE80; --neg:#F87171; --warn:#FBBF24; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  --pos:#4ADE80; --neg:#F87171; --warn:#FBBF24; --shadow:0 1px 2px rgba(0,0,0,.22),0 4px 12px rgba(0,0,0,.16);
+  --hero-a:#1E8E66; --hero-b:#0D4F3B; --hero-ink:#FFFFFF; --field:#1F2420;
   color-scheme:dark}
-*{box-sizing:border-box}
-body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* no system flash or text selection when a button or list item is pressed */
+button,.tap,nav button{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* the root carries the header colour, so the phone status bar above the page matches the bar; the page itself stays paper */
+/* scrollbar-gutter: room for the scrollbar is kept even when there is nothing to scroll (short pages, an open form),
+   so the layout never shifts sideways */
+html{background:var(--surface);scrollbar-gutter:stable;touch-action:manipulation} /* manipulation: no double-tap zoom (zoom is off by the owner's choice) */
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--paper);color:var(--ink);font-family:var(--b);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--surface)}
 h1,h2,h3,.d{font-family:var(--d);text-wrap:balance}
 button,input,select,textarea{font:inherit;color:inherit}
 .num{font-variant-numeric:tabular-nums}
 
 /* top bar */
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--surface);border-bottom:1px solid var(--line);
+/* translucent, blurred bar: brand mark + name on the left, the signed-in person and the language switch on the right */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;min-height:52px;
+  background:var(--surface);background:color-mix(in srgb,var(--surface) 86%,transparent);
+  -webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;
-  display:flex;align-items:center;gap:10px}
-.bar h1{font-size:16px;margin:0;letter-spacing:-.01em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.logo{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--accent);color:var(--accent-ink);flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.logo .ic-svg{width:18px;height:18px}
+.brand[data-view]{cursor:pointer;border-radius:12px;transition:opacity .15s}
+@media (hover:hover){.brand[data-view]:hover{opacity:.85}}
+.bar h1{font-size:16px;font-weight:700;margin:0;letter-spacing:-.02em;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-end{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.me{display:flex;align-items:center;gap:10px;min-width:0}
+.me[hidden]{display:none}
+.av{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-family:var(--d);font-weight:700;font-size:12.5px;letter-spacing:.02em;flex:0 0 auto}
+.me-t{display:none;flex-direction:column;line-height:1.25;min-width:0}
+.me-t b{font-family:var(--d);font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.role{font-size:12px;color:var(--muted)}
+.role.on{color:var(--accent)}
 .pill{font-family:var(--d);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
 .pill.on{background:var(--accent-soft);color:var(--accent);border-color:transparent}
-.langbtn{background:transparent;border:1.5px solid var(--ink);border-radius:999px;width:40px;height:30px;padding:0;font-family:var(--d);font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--ink);cursor:pointer;flex:0 0 auto}
-.langbtn:active{background:var(--ink);color:var(--paper)}
+.langbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:transparent;border:1px solid var(--line);border-radius:999px;height:32px;padding:0 11px 0 8px;font-family:var(--d);font-size:12.5px;font-weight:600;letter-spacing:.03em;color:var(--ink);cursor:pointer;flex:0 0 auto}
+.langbtn .ic-svg{width:15px;height:15px;color:var(--muted)}
+.langbtn:active{background:var(--surface-2)}
+@media (hover:hover){.langbtn:hover{background:var(--surface-2)}}
+nav:empty{display:none}
 
 /* page */
 main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  padding-block:16px 108px;max-width:900px;margin:0 auto}
+  padding-block:16px 108px}
 .sec{margin-block:22px}
 .sec:first-child{margin-top:4px}
-.sec>h2{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
-.pad{padding:14px}
+.sec>h2,.sec-h>h2{font-size:16px;letter-spacing:-.01em;color:var(--ink);margin:0 0 12px;font-weight:600}
+/* clipping keeps filled rows (e.g. the "Total" row) inside the rounded corners; clip (unlike hidden) does not make the
+   card a scroll container, so a sticky "show less" button can stick to the screen */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;overflow:clip}
+.pad{padding:20px}
 
 /* hero figures */
-.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 13px;min-width:0;box-shadow:var(--shadow)}
-.tile .k{font-family:var(--d);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
-.tile .v{font-family:var(--d);font-size:20px;font-weight:700;letter-spacing:-.02em;display:block;line-height:1.15;word-break:break-word}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 20px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0;box-shadow:var(--shadow)}
+.tile .k{font-family:var(--d);font-size:13px;font-weight:500;color:var(--muted);display:block;margin-bottom:6px}
+.tile .v{font-family:var(--d);font-size:20px;font-weight:700;letter-spacing:-.02em;display:block;line-height:1.15;overflow-wrap:normal;word-break:normal}
 .tile .u{font-size:11px;color:var(--muted);margin-left:3px;font-weight:500}
 .tile.big{grid-column:1/-1;background:var(--accent);border-color:transparent;color:var(--accent-ink)}
 .tile.big .k{color:var(--accent-ink);opacity:.72}
@@ -54,22 +84,22 @@ main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px
 
 /* rows */
 .rows{display:flex;flex-direction:column}
-.row{display:flex;gap:10px;align-items:baseline;padding:9px 13px;border-top:1px solid var(--line);min-width:0}
+.row{display:flex;gap:10px;align-items:baseline;padding:9px 20px;border-top:1px solid var(--line);min-width:0}
 .rows>.row:first-child{border-top:0}
 .row .l{flex:1;min-width:0;overflow-wrap:anywhere}
 .row .r{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 .row .s{display:block;font-size:12px;color:var(--muted);margin-top:1px;overflow-wrap:anywhere}
 .row.tot{background:var(--surface-2);font-family:var(--d);font-weight:700}
-.bar-wrap{height:4px;background:var(--surface-2);border-radius:2px;margin-top:6px;overflow:hidden}
-.bar-fill{height:100%;background:var(--accent);border-radius:2px}
+.bar-wrap{display:block;height:4px;background:color-mix(in srgb,var(--ink) 10%,transparent);border-radius:2px;margin-top:6px;overflow:hidden}
+.bar-fill{display:block;height:100%;background:var(--c,var(--accent));border-radius:2px}
 .tap{cursor:pointer;width:100%;text-align:left;background:transparent;border:0;border-top:1px solid var(--line);font:inherit;color:inherit}
 .tap:first-child{border-top:0}
-.empty{padding:22px 14px;text-align:center;color:var(--muted);font-size:13.5px}
+.empty{padding:22px 20px;text-align:center;color:var(--muted);font-size:13.5px}
 .empty b{display:block;font-family:var(--d);color:var(--ink);font-size:14.5px;margin-bottom:4px}
 
 /* add grid */
-.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.act{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 13px;cursor:pointer;box-shadow:var(--shadow);min-height:84px;justify-content:center}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 20px}
+.act{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;cursor:pointer;box-shadow:var(--shadow);min-height:84px;justify-content:center}
 .act:active{transform:scale(.985)}
 .act .t{font-family:var(--d);font-weight:600;font-size:15px;letter-spacing:-.01em}
 .act .d2{font-size:12px;color:var(--muted);line-height:1.3}
@@ -108,13 +138,27 @@ nav button[aria-current="page"]{color:var(--accent)}
 .x{background:var(--surface-2);border:0;border-radius:9px;width:32px;height:32px;font-size:17px;cursor:pointer;color:var(--muted);flex:0 0 auto}
 form{display:flex;flex-direction:column;gap:13px}
 label{display:flex;flex-direction:column;gap:5px;min-width:0}
-label>span{font-family:var(--d);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-input,select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 12px;width:100%;min-width:0}
+label>span{font-family:var(--d);font-size:12.5px;font-weight:500;color:var(--muted)}
+/* fields stand off the card: a shade lighter in dark, a light grey in light (--field) */
+input,select,textarea{background:var(--field);border:1px solid var(--line);border-radius:11px;padding:11px 12px;width:100%;min-width:0}
 input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 textarea{min-height:70px;resize:vertical}
+/* iOS Safari gives native date/month fields an intrinsic minimum width and centred text, so they overflow their card:
+   drop the native look and the minimum, keep the value left-aligned like other fields */
+input[type="date"],input[type="month"]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:46px}
+input[type="date"]::-webkit-date-and-time-value,input[type="month"]::-webkit-date-and-time-value{text-align:left}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .cb{flex-direction:row;align-items:center;gap:9px}
-.cb input{width:19px;height:19px;flex:0 0 auto}
+/* checkboxes: a rounded square in the card colour; checked = deep green with a white tick (both themes) */
+.cb input[type="checkbox"]{-webkit-appearance:none;appearance:none;width:22px;height:22px;margin:0;flex:0 0 auto;border:1.5px solid var(--line);border-radius:7px;background:var(--field) center/0 no-repeat;cursor:pointer;transition:background-color .18s,border-color .18s,background-size .18s ease}
+@media (hover:hover){.cb input[type="checkbox"]:hover{border-color:color-mix(in srgb,var(--accent) 60%,var(--line))}}
+.cb input[type="checkbox"]:checked{background-color:var(--hero-a);border-color:var(--hero-a);background-size:15px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")}
+.cb input[type="checkbox"]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* export: the month and the 'only this month' box side by side, the box as tall as the field */
+/* export: the month field across the card, the "only this month" checkbox under it without a frame */
+.exp-row{grid-template-columns:1fr;align-items:start}
+.exp-cb{cursor:pointer}
+@media (max-width:619px){.exp-row{grid-template-columns:1fr}.set-card{padding:16px}.set-h{margin-bottom:14px}.set-card .pair{grid-template-columns:1fr}}
 .cb>span{text-transform:none;letter-spacing:0;font-size:14px;font-family:var(--b);color:var(--ink)}
 .hint{font-size:12.5px;color:var(--muted);margin:-4px 0 0}
 .btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;padding:14px;font-family:var(--d);font-weight:600;font-size:15px;cursor:pointer}
@@ -123,6 +167,15 @@ textarea{min-height:70px;resize:vertical}
 .btn[disabled]{opacity:.5;cursor:default}
 .calcbox{background:var(--accent-soft);border-radius:11px;padding:11px 13px;font-family:var(--d);font-weight:600;display:flex;justify-content:space-between;gap:10px;color:var(--accent)}
 .err{color:var(--neg);font-size:13px}
+/* form bottom: totals in one row, Save (wider) and Delete in one row */
+.calc-row{display:flex;gap:11px}
+.calc-row .calcbox{flex:1 1 0;min-width:0;flex-direction:column;justify-content:flex-start;align-items:flex-start;gap:2px} /* the amount always on its own line under the label */
+.form-act{display:flex;gap:11px}
+.form-act .btn{flex:2 1 0}
+/* delete: a square trash button; armed, it widens to ask for the second tap */
+.form-act .btn.danger{flex:0 0 52px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0}
+.form-act .btn.danger .ic-svg{width:20px;height:20px}
+.form-act .btn.danger[data-armed="1"]{flex:0 0 auto;padding:0 16px;background:color-mix(in srgb,var(--neg) 12%,transparent);border-color:var(--neg)}
 
 /* misc */
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-family:var(--d);font-size:13.5px;box-shadow:var(--shadow);max-width:92vw;text-align:center}
@@ -132,8 +185,15 @@ table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{padding:8px 10px;text-align:left;border-top:1px solid var(--line);white-space:nowrap}
 th{font-family:var(--d);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+/* slim scrollbars: 6px rounded thumb, no arrows. Firefox gets the standard thin bar; the standard properties are kept
+   away from Chrome, which would otherwise drop the ::-webkit-scrollbar styling in their favour */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}
+::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--muted) 35%,transparent);border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--muted) 60%,transparent)}
+@supports not selector(::-webkit-scrollbar){*{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--muted) 40%,transparent) transparent}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-@media (min-width:620px){.tiles{grid-template-columns:repeat(4,1fr)}.tile.big{grid-column:span 2}.grid2{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:620px){.grid2{grid-template-columns:repeat(3,1fr)}}
 
 /* ---- series colours (validated categorical palette, light + dark steps) ---- */
 :root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#6250d6;--s7:#008300}
@@ -143,15 +203,52 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 /* ---- icons ---- */
 .ic-svg{width:20px;height:20px;display:inline-block;vertical-align:middle;flex:0 0 auto}
 nav button .ic{display:flex;align-items:center;justify-content:center;height:20px}
+/* phones: the open view gets a soft pill behind its icon and a bold label, so it reads at a glance */
+@media (max-width:899px){
+  nav button .ic{width:56px;height:30px;border-radius:999px;transition:background .2s}
+  nav button[aria-current="page"] .ic{background:var(--accent-soft)}
+  nav button[aria-current="page"] .lb{font-weight:700}
+  nav button{padding-top:7px}
+}
 nav button .ic .ic-svg{width:22px;height:22px}
 .act .m{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--accent-soft);color:var(--accent);margin-bottom:4px}
 .act.primary .m{background:rgba(255,255,255,.18);color:var(--accent-ink)}
 .act .m .ic-svg{width:20px;height:20px}
 .ic-badge{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--surface-2);flex:0 0 auto;align-self:center}
 .ic-badge .ic-svg{width:18px;height:18px}
+/* Lucide icons in place of text glyphs. Pills that start with an icon keep as much room left of it as above and below it */
+.x,.dp-nav{display:inline-flex;align-items:center;justify-content:center}
+.x .ic-svg{width:18px;height:18px}
+.dp-nav .ic-svg{width:16px;height:16px}
+.chip .ic-svg{width:14px;height:14px;vertical-align:-2px;margin:0 4px 0 -4px}
+.ov .ov-head .ic-svg{width:16px;height:16px;vertical-align:-3px;margin-left:2px}
+.delta .ic-svg{width:13px;height:13px;vertical-align:-1px;margin-right:2px;stroke-width:2.5}
+.pill-in b .ic-svg,.pill-out b .ic-svg{width:12px;height:12px;stroke-width:3}
 .row .ic-badge+.l{margin-left:2px}
 
 /* ---- overview cards ---- */
+/* month strip: the months sit in one track like the header tabs; each shows short name, year and a bar for that
+   month's spending (relative to the costliest of the six, in the expenses colour); the chosen one is a raised plate */
+.mbar{display:flex;align-items:stretch;gap:10px}
+.mstrip{position:relative;display:flex;gap:4px;padding:4px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line);overflow-x:auto;flex:0 1 auto;min-width:0;-webkit-overflow-scrolling:touch}
+.mp{flex:0 0 auto;display:grid;grid-template-columns:auto auto;justify-content:start;align-items:baseline;column-gap:5px;row-gap:6px;min-width:78px;padding:7px 11px 8px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--muted);cursor:pointer;text-align:left;font:inherit;transition:background .15s,color .15s}
+.mp-m{font-family:var(--d);font-weight:600;font-size:14px;color:inherit}
+.mp-y{font-size:11.5px;color:var(--muted);opacity:.85}
+.mp-bar{grid-column:1/-1;display:block;height:3px;border-radius:2px;background:color-mix(in srgb,var(--ink) 10%,transparent);overflow:hidden}
+.mp-bar i{display:block;height:100%;border-radius:2px;background:var(--s2);opacity:.7}
+@media (hover:hover){.mp:hover{color:var(--ink);background:color-mix(in srgb,var(--surface) 55%,transparent)}}
+/* the chosen month: a real 1px border (crisper corners than a ring shadow) and a soft drop shadow */
+.mp[aria-pressed="true"]{background:var(--surface);color:var(--ink);border-color:var(--line);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.mp[aria-pressed="true"] .mp-bar i{opacity:1}
+.mp-all{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;padding:0 18px;border-radius:16px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);color:var(--ink);font-family:var(--d);font-weight:600;font-size:13.5px;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.mp-all .ic-svg{width:16px;height:16px}
+/* "all months": a block-coloured button (white in light, card grey in dark); chosen = the deep green of the main tile */
+.mp-all .ic-svg{color:var(--muted)}
+/* wide screens: the strip takes the whole width up to "all months", the months share it equally */
+@media (min-width:900px){.mstrip{flex:1 1 auto}.mp{flex:1 1 0;grid-template-columns:auto 1fr;justify-content:stretch;padding-inline:14px}}
+@media (hover:hover){.mp-all:hover{background:var(--surface-2)}}
+.mp-all[aria-pressed="true"]{background:linear-gradient(135deg,var(--hero-a),var(--hero-b)) border-box;color:var(--hero-ink);border-color:transparent}
+.mp-all[aria-pressed="true"] .ic-svg{color:var(--hero-ink)}
 .ov .ov-head{font-family:var(--d);font-weight:600;font-size:15px;background:transparent;border:0;padding:0;color:var(--ink);cursor:pointer;text-align:left}
 .ov .hero{font-family:var(--d);font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-top:6px;font-variant-numeric:tabular-nums}
 .ov .hero .u{font-size:13px;color:var(--muted);font-weight:500}
@@ -159,9 +256,16 @@ nav button .ic .ic-svg{width:22px;height:22px}
 .ov .delta{font-family:var(--d);font-weight:600}
 .donut{display:block;width:100%;max-width:380px;margin:6px auto 0}
 .donut .seg{fill:none;cursor:pointer}
-.donut .seg:hover{opacity:.85}
+@media (hover:hover){.donut .seg:hover{opacity:.85}}
+/* a pointed-at category: its slice thickens, the others step back (see ovHL) */
+.donut .seg{transition:opacity .15s,stroke-width .15s}
+.donut.hl .seg{opacity:.28}
+.donut.hl .seg.on{opacity:1;stroke-width:30px}
+.donut.bare{overflow:visible}
 .donut .mid{font-family:var(--d);font-weight:700;font-size:22px;fill:var(--ink)}
 .donut .mid2{font-family:var(--d);font-size:11px;fill:var(--muted);letter-spacing:.08em}
+/* the hovered category name: sentence case, no tracking, so longer names fit the hole */
+.donut .mid2.nm{font-size:12px;letter-spacing:0;fill:var(--ink);opacity:.8}
 .donut .pct{font-family:var(--d);font-size:12.5px;font-weight:600;fill:var(--muted)}
 .donut .badge{cursor:pointer}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;margin:8px 0 4px;font-size:13px;color:var(--muted)}
@@ -170,8 +274,9 @@ nav button .ic .ic-svg{width:22px;height:22px}
 .ov-list{margin-top:8px;border-top:1px solid var(--line)}
 .ov-list .row{padding-left:0;padding-right:0}
 .ov-list .r .s{display:block;text-align:right;font-weight:500}
+.ov-list .share{display:none}
 .pills{display:flex;gap:8px;margin:8px 0 2px;flex-wrap:wrap;font-family:var(--d);font-weight:600;font-size:13.5px}
-.pill-in,.pill-out{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 6px;border-radius:999px;background:var(--surface-2)}
+.pill-in,.pill-out{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;border-radius:999px;background:var(--surface-2)}
 .pill-in b,.pill-out b{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-size:13px}
 .pill-in b{background:var(--s3)} .pill-out b{background:var(--s2)}
 .flow{display:block;width:100%;max-width:420px;margin:6px auto 0}
@@ -186,10 +291,314 @@ nav button .ic .ic-svg{width:22px;height:22px}
 .failed b{color:var(--neg)}
 .failed .btn{padding:8px 12px;font-size:13px;margin-top:8px;margin-right:6px}
 
+/* ---- dashboard blocks ---- */
+/* figure tiles: a tinted icon and the label on top, the amount below with its unit as quiet text */
+.tile{display:flex;flex-direction:column;gap:14px}
+.tile .k{display:flex;align-items:center;gap:10px;margin-bottom:0}
+.t-ic{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--surface-2);color:var(--ink);flex:0 0 auto}
+.t-ic .ic-svg{width:18px;height:18px}
+.t-ic.pos{color:var(--pos);background:color-mix(in srgb,var(--pos) 14%,transparent)}
+.t-ic.neg{color:var(--neg);background:color-mix(in srgb,var(--neg) 14%,transparent)}
+.tile .u{font-size:13px;color:var(--muted);margin-left:6px;font-weight:600;letter-spacing:.02em;white-space:nowrap;display:inline-block}
+/* phones: a little tighter, so an amount and its MDL fit one line in a half-width tile; MDL never splits */
+@media (max-width:899px){.tiles{gap:12px}.tile{padding:16px;gap:12px}.tile .v{font-size:19px}.tile.big .v{font-size:25px}.tile .u{margin-left:4px;font-size:12px}}
+/* the main tile: a deep green gradient with white text in both themes, so it stays readable */
+/* border-box origin: otherwise the gradient restarts under the transparent 1px border and shows as a seam on the edges */
+.tile.big{background:linear-gradient(135deg,var(--hero-a),var(--hero-b)) border-box;color:var(--hero-ink)}
+.tile.big .v{color:var(--hero-ink)}
+.tile.big .k{opacity:1;color:color-mix(in srgb,var(--hero-ink) 85%,transparent)}
+.tile.big .t-ic{background:rgba(255,255,255,.16);color:var(--hero-ink)}
+.tile.big .u{color:var(--hero-ink);opacity:.75}
+/* list rows: lighter dividers, a soft accent total, hover on the ones that open something */
+.card.rows>.row,.card.rows>.tap,.more-in>.row,.more-in>.tap{border-top-color:color-mix(in srgb,var(--line) 65%,transparent)}
+.row .s{font-size:12.5px;margin-top:2px}
+.row.tot{background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+.tap.row{transition:background .15s}
+@media (hover:hover){.tap.row:hover{background:color-mix(in srgb,var(--surface-2) 70%,transparent)}}
+/* people: initials, the state as a coloured tag, then the figures */
+/* a person: initials over both lines; name with the state and the amount on top, the figures under them across the row */
+.row.person{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:12px;row-gap:4px;align-items:center}
+.person .av{grid-row:1/3}
+.person .l{grid-column:2}
+.person .r{grid-column:3}
+.person .pm{grid-column:2/4;font-size:12.5px;color:var(--muted);line-height:1.4}
+@media (max-width:899px){.person .av{width:40px;height:40px;font-size:13.5px}}
+/* initials: a soft gradient of the person colour with a thin ring of it, so the circle holds its shape on dark cards */
+.person .av{width:48px;height:48px;font-size:15px;letter-spacing:.03em;color:var(--c);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--c) 34%,transparent),color-mix(in srgb,var(--c) 12%,transparent));
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 40%,transparent)}
+.nm-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
+.nm-row .tagc{margin:0}
+.person .r{align-self:center}
+.tagc{display:inline-block;margin:3px 0 1px;padding:2px 8px;border-radius:999px;font-family:var(--d);font-size:11.5px;font-weight:600;background:color-mix(in srgb,currentColor 14%,transparent)}
+/* bar rows with a category icon in its colour */
+.ic-badge.tint{color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+/* rows that carry an icon are kept compact: the circle sets their height */
+.row.ri{padding-top:10px;padding-bottom:10px;align-items:center}
+.row.ri .ic-badge{width:28px;height:28px}
+.row.ri .ic-badge .ic-svg{width:16px;height:16px}
+/* rows with a progress bar: the bar is its own line across the whole row (under the label when there is an icon) */
+.row.wrap{flex-wrap:wrap}
+.row.wrap>.bar-wrap{flex:0 0 100%;margin-top:8px}
+/* a category bar row: the icon spans both lines, label and amount on top, the bar under them to the right edge */
+.row.ri.wrap{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:12px;row-gap:7px;align-items:center}
+.row.ri.wrap>.ic-badge{grid-row:1/3;width:32px;height:32px}
+.row.ri.wrap>.l{grid-column:2;margin-left:0}
+.row.ri.wrap>.r{grid-column:3}
+.row.ri.wrap>.bar-wrap{grid-column:2/4;margin:0}
+/* figure cards: progress on top, the key figures in a grid, optional rows underneath */
+.stats{padding:20px}
+.st-prog{height:6px;margin-bottom:18px;border-radius:3px;background:color-mix(in srgb,var(--ink) 10%,transparent);overflow:hidden}
+.st-prog i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+/* two columns on a phone; wider, four figures go 2 x 2 and up to three sit in one row (--n set by statCard) */
+.st-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 20px}
+@media (min-width:620px){.st-grid{grid-template-columns:repeat(var(--n),minmax(0,1fr))}}
+.st{display:flex;flex-direction:column;gap:4px;min-width:0}
+.st-k{font-size:12.5px;color:var(--muted)}
+.st-v{font-family:var(--d);font-size:20px;font-weight:700;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--ink);overflow-wrap:anywhere}
+.st-v.pos{color:var(--pos)} .st-v.neg{color:var(--neg)} .st-v.warnc{color:var(--warn)}
+.st-v .u{font-size:12px;color:var(--muted);margin-left:4px;font-weight:600}
+.st-s{font-size:12px;color:var(--muted)}
+.st-more{margin:18px -20px -20px;border-top:1px solid color-mix(in srgb,var(--line) 65%,transparent)}
+.st-more .row:first-child{border-top:0}
+
+/* ---- "Add" screen ---- */
+/* phones: the two main actions side by side, the others as compact full-width rows (icon, title, description) */
+@media (max-width:619px){
+  .grid2{gap:10px}
+  .act.primary{min-height:0;padding:16px}
+  .act:not(.primary){grid-column:1/-1;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:14px;row-gap:2px;align-items:center;min-height:0;padding:12px 14px}
+  .act:not(.primary) .m{grid-row:1/3;margin:0;width:40px;height:40px}
+  .act:not(.primary) .t{font-size:15px}
+}
+/* who is signed in: initials in the person colour, the name with the role, a switch button */
+.who-card{display:flex;align-items:center;gap:14px;padding:16px 20px}
+.who-card .av,.person .av{color:var(--c);background:linear-gradient(135deg,color-mix(in srgb,var(--c) 34%,transparent),color-mix(in srgb,var(--c) 12%,transparent));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 40%,transparent)}
+.who-card .av{width:44px;height:44px;font-size:15px;letter-spacing:.03em}
+.who-t{display:flex;flex-direction:column;flex:1;min-width:0;line-height:1.3}
+.who-k{font-size:12px;color:var(--muted)}
+.who-t b{font-family:var(--d);font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who-btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px 0 10px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font-family:var(--d);font-weight:600;font-size:13px;cursor:pointer;flex:0 0 auto;transition:background .15s}
+.who-btn .ic-svg{width:16px;height:16px;color:var(--muted)}
+@media (hover:hover){.who-btn:hover{background:var(--surface-2)}}
+/* the two main actions: the deep green of the main tile with white text */
+.act.primary{background:linear-gradient(135deg,var(--hero-a),var(--hero-b)) border-box;border-color:transparent}
+.act.primary .t{color:var(--hero-ink)} .act.primary .d2{color:var(--hero-ink);opacity:.8}
+.act.primary .m{background:rgba(255,255,255,.16);color:var(--hero-ink)}
+@media (hover:hover){.act:not(.primary):hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}}
+/* numbered steps */
+.row.step{align-items:center;gap:14px;padding-top:12px;padding-bottom:12px}
+.step .num{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-family:var(--d);font-weight:700;font-size:13px;flex:0 0 auto}
+.step .l{font-size:13.5px;line-height:1.4}
+/* install note with its icon */
+.inst{display:flex;gap:14px;align-items:flex-start}
+.inst .ic-badge{width:36px;height:36px;align-self:flex-start}
+.inst .ic-badge .ic-svg{width:18px;height:18px}
+
+/* ---- settings ---- */
+.sec-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.sec-h>h2{margin:0}
+.sec-act{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.exit-bottom{display:none}
+@media (max-width:899px){.sec-act .btn.exit-top{display:none}.exit-bottom{display:block}}
+/* the form window scrollbar keeps clear of its rounded corners */
+.sheet-in::-webkit-scrollbar-track{margin:18px 0}
+.btn.sm{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:9px 16px;font-size:14px;border-radius:11px}
+.btn.sm .ic-svg{width:16px;height:16px;margin-left:-4px}
+.user-row{align-items:center}
+.user-row .av{width:40px;height:40px;font-size:14px;letter-spacing:.03em;color:var(--c);background:linear-gradient(135deg,color-mix(in srgb,var(--c) 34%,transparent),color-mix(in srgb,var(--c) 12%,transparent));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 40%,transparent)}
+.user-row.off .av,.user-row.off .l{opacity:.55}
+.tagc.acc{color:var(--accent)} .tagc.mut{color:var(--muted)}
+.code{align-self:center;padding:4px 10px;border-radius:8px;background:color-mix(in srgb,var(--ink) 7%,transparent);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;letter-spacing:.12em;color:var(--ink)}
+.set-card{padding:20px}
+.set-card form{gap:14px}
+.set-h{display:flex;gap:14px;align-items:flex-start;margin-bottom:18px}
+.set-h .ic-badge{width:40px;height:40px;border-radius:12px;align-self:flex-start}
+.set-h .ic-badge .ic-svg{width:20px;height:20px}
+.set-h b{display:block;font-family:var(--d);font-size:16px;font-weight:600}
+.set-h p{margin:3px 0 0;font-size:13px;color:var(--muted);line-height:1.4}
+.set-act{display:flex;justify-content:flex-end}
+.cur-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;align-items:center}
+.cg-h{font-size:12.5px;color:var(--muted)}
+.cg-cell{flex-direction:row;align-items:center;position:relative}
+.cg-cell .cg-b{position:absolute;left:12px;display:flex;align-items:center;color:var(--muted);text-transform:none;letter-spacing:0}
+.cg-cell .cg-b .ic-svg{width:16px;height:16px}
+.cg-cell input{padding-left:40px}
+.cg-new input,.cur-grid input[name="newcurs"]{border-style:dashed}
+.cat-prev{display:flex;flex-wrap:wrap;gap:8px}
+.cat-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 7px;border-radius:999px;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);font-family:var(--d);font-size:13px;font-weight:600}
+.cat-chip .ic-svg{width:15px;height:15px}
+.cat-chip.ed{padding-left:10px;padding-right:4px;transition:background .15s,color .15s}
+.cat-x{display:inline-grid;place-items:center;width:20px;height:20px;margin-left:2px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit;opacity:.55;cursor:pointer}
+.cat-x .ic-svg{width:12px;height:12px}
+@media (hover:hover){.cat-x:hover{opacity:1;background:color-mix(in srgb,currentColor 18%,transparent)}}
+.cat-chip.arm{--c:var(--neg)}
+.cat-chip.arm .cat-x{opacity:1}
+.cat-form{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+/* iOS zooms into fields with text under 16px; on phones fields use 16px instead of disabling zoom */
+@media (max-width:899px){input,select,textarea{font-size:16px}.set-act .btn{width:100%}}
+.btn.logout{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.btn.logout .ic-svg{width:16px;height:16px}
+
+/* ---- registers ---- */
+/* tabs: one track like the header tabs, each with its icon and the number of records */
+.segbar{display:inline-flex;max-width:100%;vertical-align:top;gap:4px;padding:4px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.seg-b{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;height:36px;padding:0 10px;border:0;border-radius:12px;background:transparent;color:var(--muted);font-family:var(--d);font-weight:600;font-size:13.5px;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.seg-b .ic-svg{width:16px;height:16px}
+.seg-b .cnt{font-size:11.5px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--ink) 8%,transparent)}
+@media (hover:hover){.seg-b:hover{color:var(--ink);background:color-mix(in srgb,var(--surface) 55%,transparent)}}
+.seg-b[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.14),0 0 0 1px var(--line)}
+.seg-b[aria-pressed="true"] .ic-svg{color:var(--accent)}
+/* phones: the register tabs as compact wrapping pills (all in view, no sideways scroll), the chosen one raised */
+@media (max-width:899px){
+  .segbar{display:flex;flex-wrap:wrap;gap:6px;max-width:none;padding:0;background:transparent;border:0;border-radius:0;overflow:visible}
+  .seg-b{height:32px;gap:6px;padding:0 10px 0 8px;border:1px solid var(--line);border-radius:10px;font-size:12.5px}
+  .seg-b .ic-svg{width:15px;height:15px}
+  .seg-b .cnt{font-size:11px;padding:0 6px}
+  .seg-b[aria-pressed="true"]{border-color:var(--line);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+}
+/* table view (wide screens): months as group rows with their count and total; rows open the record */
+.tbl-card{display:none}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{padding:12px 16px;text-align:left;font-family:var(--d);font-size:12.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);border-top:0;border-bottom:1px solid var(--line)}
+.tbl th.n{text-align:right}
+.tbl td{padding:10px 16px;border-top:1px solid color-mix(in srgb,var(--line) 65%,transparent);vertical-align:middle;white-space:nowrap}
+.tbl tr.grp td{padding:9px 16px;background:color-mix(in srgb,var(--surface-2) 60%,transparent);font-family:var(--d);font-weight:600;font-size:13px;color:var(--ink);border-top:1px solid var(--line)}
+.tbl tbody.g:first-of-type tr.grp td{border-top:0}
+.tbl tr.grp{cursor:pointer}
+.tbl tr.grp .ic-svg{width:14px;height:14px;margin:-2px 8px 0 0;vertical-align:middle;color:var(--muted);transform:rotate(90deg);transition:transform .2s}
+.tbl tbody.closed tr.grp .ic-svg{transform:rotate(0)}
+/* folding: the cells collapse to nothing (content height, padding, opacity), so the rows slide away */
+.tbl tr.tr .cell{max-height:80px;overflow:hidden;transition:max-height .25s ease,opacity .2s ease}
+.tbl tr.tr td{transition:padding .25s ease}
+.tbl tbody.closed tr.tr .cell{max-height:0;opacity:0}
+.tbl tbody.closed tr.tr td{padding-top:0;padding-bottom:0;border-top-width:0}
+.grp-n{margin-left:8px;font-weight:500;color:var(--muted);font-size:12px}
+.tbl .u{font-size:11px;color:var(--muted);font-weight:600}
+.tbl tr.tr{cursor:pointer;transition:background .15s}
+@media (hover:hover){.tbl tr.tr:hover{background:color-mix(in srgb,var(--surface-2) 70%,transparent)}}
+.t-date{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.t-main{display:inline-flex;align-items:center;gap:10px;font-weight:500}
+.t-main .ic-badge{width:28px;height:28px} .t-main .ic-badge .ic-svg{width:16px;height:16px}
+.tbl td.t-sub{white-space:normal;color:var(--muted);font-size:13px;min-width:180px}
+.t-how{color:var(--muted);font-size:13px}
+.pill-m{display:inline-block;margin-right:8px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--ink) 8%,transparent);font-family:var(--d);font-size:11.5px;font-weight:600;color:var(--muted)}
+.tbl td.amt{font-family:var(--d);font-weight:700;font-variant-numeric:tabular-nums}
+/* the amount and its currency badge on one centred line (table on wide screens, list on phones) */
+.tbl td.amt .cell,.reg-rows .row .r{display:flex;align-items:center;justify-content:flex-end;gap:5px}
+@media (min-width:900px){.tbl-card{display:block}.reg-rows{display:none}}
+
+/* ---- phones ---- */
+/* 1. the expenses list waits behind "Details" below 1400px (beside the ring it is always shown) */
+/* folds open and shut by animating the row track from 0fr to 1fr (height), fading the content with it */
+.ov-fold,.more-rows{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s ease}
+.ov-fold-in,.more-in{min-height:0;overflow:hidden;opacity:0;transition:opacity .25s ease}
+.ov-exp.open .ov-fold,.card.open .more-rows{grid-template-rows:1fr}
+.ov-exp.open .ov-fold-in,.card.open .more-in{opacity:1}
+.more-in{display:flex;flex-direction:column}
+.more-in>.row:first-child,.more-in>.tap:first-child{border-top:1px solid color-mix(in srgb,var(--line) 65%,transparent)}
+.more-btn.ov-more{margin:12px -20px -20px;width:calc(100% + 40px)}
+/* 5. the month strip: short names and a compact "all" on phones, a line with the chosen period and its totals */
+.mp-ms,.mpa-s{display:none}
+.mcap{display:none}
+@media (max-width:899px){
+  .mp-m,.mpa-l{display:none}
+  .mp-ms,.mpa-s{display:inline}
+  .mp{min-width:62px;padding:7px 9px 8px}
+  /* months in a bare row (no track, no visible scrollbar), "all months" as a full-width button under them */
+  .mbar{flex-direction:column;gap:10px}
+  /* the row runs to the screen edges, so months are not cut at the content edge; the first and last keep the page gutter */
+  .mstrip{background:transparent;border:0;border-radius:0;scrollbar-width:none;
+    margin:-4px calc(-1 * max(16px,env(safe-area-inset-right,0px))) 0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));
+    padding:4px max(16px,env(safe-area-inset-right,0px)) 6px max(16px,env(safe-area-inset-left,0px))}
+  /* vertical room inside the scrolling row so the chosen month border and shadow are not cut off */
+  .mstrip::-webkit-scrollbar{display:none}
+  .mp-all{justify-content:center;height:40px;width:100%;padding:0 14px}
+  .mp-all .mpa-l{display:inline} .mp-all .mpa-s{display:none}
+  .mcap{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-top:10px;font-size:13px;color:var(--muted)}
+  .mcap b{color:var(--ink);font-family:var(--d);font-weight:600}
+  .mcap-p{flex:1 1 100%}
+  .mcap-v b{font-family:var(--d);font-weight:700;font-variant-numeric:tabular-nums}
+  .mcap-v b.pos{color:var(--pos)} .mcap-v b.neg{color:var(--neg)}
+  /* 3. cash by currency right after the tiles */
+  .dash-grid{display:flex;flex-direction:column}
+  .dash-grid>.sec{order:2;margin:0 0 22px}
+  .dash-grid>.sec-wide{order:0}
+  .dash-grid>.sec-casa{order:1}
+}
+/* 4. quick-jump menu */
+.burger{display:none;place-items:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;flex:0 0 auto}
+.burger .ic-svg{width:18px;height:18px}
+/* phones: language, then the signed-in person, then the menu */
+@media (max-width:899px){.burger:not([hidden]){display:grid}.bar-end .langbtn{order:1}.bar-end .me{order:2}.bar-end .burger{order:3}}
+#menu{position:fixed;inset:0;z-index:70}
+#menu[hidden]{display:none}
+.menu-bg{position:absolute;inset:0;background:rgba(8,10,9,.45)}
+.menu-p{position:absolute;left:0;right:0;top:0;max-height:85vh;overflow-y:auto;background:var(--paper);border-bottom:1px solid var(--line);border-radius:0 0 20px 20px;box-shadow:0 12px 32px rgba(0,0,0,.2);
+  padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 18px max(16px,env(safe-area-inset-left,0px));animation:menuIn .2s ease}
+@keyframes menuIn{from{transform:translateY(-12px);opacity:0}to{transform:none;opacity:1}}
+.menu-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.menu-h b{font-family:var(--d);font-size:17px}
+.menu-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.menu-i{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:13.5px;text-align:left;cursor:pointer;min-width:0}
+.menu-i .ic-badge{width:30px;height:30px;flex:0 0 auto} .menu-i .ic-badge .ic-svg{width:16px;height:16px}
+body.menu-open{overflow:hidden}
+/* the sticky header must not cover a block we scroll to */
+#app .sec{scroll-margin-top:70px}
+
+/* ---- phone register switcher ---- */
+.regsw{display:none}
+@media (max-width:899px){
+  .segbar{display:none}
+  .regsw{display:block}
+  .rs-sel{display:flex;align-items:center;gap:10px;width:100%;height:48px;padding:0 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);color:var(--ink);font-family:var(--d);font-weight:600;font-size:15px;cursor:pointer}
+  .rs-sel>.ic-svg{width:20px;height:20px;color:var(--accent)}
+  .rs-sel .cnt{font-size:11.5px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--muted)}
+  .rs-ch{margin-left:auto;display:flex;color:var(--muted)}
+  .rs-ch .ic-svg{width:18px;height:18px;transform:rotate(90deg);transition:transform .2s}
+}
+/* the journals dropdown: hangs from its button (position set inline), one column, over everything */
+.menu-bg.lite{background:transparent;backdrop-filter:none} /* the dropdown leaves the page as it is; a tap outside still closes it */
+.pick-p{position:fixed;overflow-y:auto;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.22);transform-origin:top center;animation:pickIn .16s ease}
+@keyframes pickIn{from{transform:translateY(-6px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.pick-g{display:flex;flex-direction:column;gap:2px}
+.pick-i{display:flex;align-items:center;gap:12px;min-width:0;padding:11px 12px;border:0;border-radius:10px;background:transparent;color:var(--ink);font:inherit;font-size:15px;text-align:left;cursor:pointer}
+@media (hover:hover){.pick-i:hover{background:var(--surface-2)}}
+.pick-i .ic-svg{width:18px;height:18px;color:var(--muted);flex:0 0 auto}
+.pick-i span:not(.cnt){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick-i .cnt{margin-left:auto;font-size:11.5px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--muted)}
+.pick-i[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.pick-i[aria-pressed="true"] .ic-svg{color:var(--accent)}
+.rs-sel.open .rs-ch .ic-svg{transform:rotate(-90deg)}
+.rs-sel{position:relative;z-index:71}
+
+/* register pager */
+.pager{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px}
+.pg-b{display:inline-grid;place-items:center;min-width:36px;height:36px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-family:var(--d);font-weight:600;font-size:14px;cursor:pointer;font-variant-numeric:tabular-nums}
+.pg-b .ic-svg{width:16px;height:16px}
+.pg-b.on{background:linear-gradient(135deg,var(--hero-a),var(--hero-b)) border-box;border-color:transparent;color:var(--hero-ink)}
+.pg-b[disabled]{opacity:.4;cursor:default}
+@media (hover:hover){.pg-b:not(.on):not([disabled]):hover{background:var(--surface-2)}}
+.pg-gap{color:var(--muted);padding:0 2px}
+.pg-of{flex:1 1 100%;text-align:center;font-size:12.5px;color:var(--muted)}
+
+/* folded long lists */
+.more-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px 20px;border:0;border-top:1px solid color-mix(in srgb,var(--line) 65%,transparent);background:transparent;color:var(--accent);font-family:var(--d);font-weight:600;font-size:13.5px;cursor:pointer;transition:background .15s}
+@media (hover:hover){.more-btn:hover{background:color-mix(in srgb,var(--surface-2) 70%,transparent)}}
+.more-btn .ic-svg{width:16px;height:16px;transform:rotate(90deg);transition:transform .2s}
+.card.open .more-btn .ic-svg{transform:rotate(-90deg)}
+.mb-c,.card.open .mb-o{display:none}
+.card.open .mb-c{display:inline}
+/* an opened list keeps its "show less" button on screen (above the phone tab bar) until the list ends */
+.card.open .more-btn{position:sticky;bottom:0;z-index:2;background:var(--surface);box-shadow:0 -6px 12px -10px rgba(0,0,0,.18)}
+@media (max-width:899px){.card.open .more-btn{bottom:calc(67px + env(safe-area-inset-bottom,0px))}}
+
 /* ---- currency badges ---- */
 .cur{display:inline-flex;align-items:center;gap:6px;vertical-align:middle}
 .cur-b{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;color:#fff;font-family:var(--d);font-weight:700;font-size:12px;line-height:1;flex:0 0 auto}
-.cur-c{font-family:var(--d);font-weight:600;letter-spacing:.04em}
+.cur-c{font-family:var(--d);font-weight:600;letter-spacing:.04em;line-height:1}
+/* in a list row the badge and the code form their own flex line, so the code sits on the middle of the circle */
+.row .l>.cur{display:flex;width:fit-content}
 .row .r .cur-b{width:18px;height:18px;font-size:11px;margin-left:2px}
 .tile .u .cur-b{width:18px;height:18px;font-size:11px}
 .tile.big .u .cur-b{background:rgba(255,255,255,.25)!important}
@@ -198,7 +607,7 @@ label>span .cur-b{width:16px;height:16px;font-size:10px}
 /* ---- date picker (desktop) ---- */
 .dp-wrap{position:relative;display:block;min-width:0}
 .dp-wrap .dp-real{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;left:0;top:0}
-.dp-show{cursor:pointer;padding-right:36px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E6760' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;background-size:18px}
+.dp-show{cursor:pointer;padding-right:36px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E6760' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;background-size:18px}
 .dpop{position:fixed;z-index:80;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:10px;color:var(--ink)}
 .dp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .dp-title{font-family:var(--d);font-weight:600;font-size:14px;text-transform:capitalize}
@@ -208,7 +617,7 @@ label>span .cur-b{width:16px;height:16px;font-size:10px}
 .dp-wd{font-family:var(--d);font-size:11px;color:var(--muted);text-align:center;padding:4px 0 6px;letter-spacing:.04em}
 .dp-day{background:transparent;border:0;border-radius:9px;height:34px;font-family:var(--d);font-size:13.5px;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
 .dp-mon{height:38px;text-transform:capitalize}
-.dp-day:hover{background:var(--surface-2)}
+@media (hover:hover){.dp-day:hover{background:var(--surface-2)}}
 .dp-day.dp-off{color:var(--muted);opacity:.55}
 .dp-day.dp-today{box-shadow:inset 0 0 0 1.5px var(--accent)}
 .dp-day.dp-sel{background:var(--accent);color:var(--accent-ink)}
@@ -216,7 +625,7 @@ label>span .cur-b{width:16px;height:16px;font-size:10px}
 .dp-foot{display:flex;justify-content:space-between;margin-top:8px;gap:8px}
 .dp-btn{background:transparent;border:0;color:var(--muted);font-family:var(--d);font-size:13px;padding:6px 8px;border-radius:8px;cursor:pointer}
 .dp-btn.dp-az{color:var(--accent);font-weight:600}
-.dp-btn:hover{background:var(--surface-2)}
+@media (hover:hover){.dp-btn:hover{background:var(--surface-2)}}
 
 #installbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%}
 .add-layout,.set-grid{display:block}
@@ -224,80 +633,139 @@ label>span .cur-b{width:16px;height:16px;font-size:10px}
 /* ================= wide screens (>= 900px): tabs in the header, centred content, two-column screens ================= */
 @media (min-width:900px){
   body{font-size:15.5px}
-  .bar{height:64px;padding:0 32px;gap:16px;z-index:36}
-  .bar h1{font-size:18px;flex:0 0 auto;min-width:200px}
-  .bar .pill{margin-left:auto}
-  nav{top:0;bottom:auto;left:0;right:0;height:64px;background:transparent;border:0;padding:0;justify-content:center;align-items:center;pointer-events:none;z-index:37}
-  nav button{flex:0 0 auto;pointer-events:auto;flex-direction:row;gap:9px;padding:9px 18px;margin:0 3px;border-radius:999px;font-size:14px;color:var(--muted)}
-  nav button .lb{font-size:14px;letter-spacing:0}
+  .bar{height:56px;padding:0 max(32px,calc((100% - 1440px) / 2));gap:16px;z-index:36}
+  .bar h1{font-size:17px}
+  /* the views as a segmented control centred in the bar */
+  nav{position:fixed;top:8px;bottom:auto;left:50%;right:auto;transform:translateX(-50%);height:40px;padding:4px;gap:2px;align-items:center;
+    border-radius:999px;background:var(--surface-2);border:1px solid var(--line);z-index:37}
+  nav button{flex:0 0 auto;flex-direction:row;gap:8px;height:30px;padding:0 10px 0 7px;margin:0;border-radius:999px;color:var(--muted);transition:background .15s,color .15s}
+  nav button .lb{font-size:13.5px;font-weight:500;letter-spacing:0}
   nav button .ic{height:auto}
-  nav button .ic .ic-svg{width:19px;height:19px}
-  nav button:hover{background:var(--surface-2);color:var(--ink)}
-  nav button[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
-  main{max-width:1240px;margin:0 auto;padding:28px 32px 56px}
+  nav button .ic .ic-svg{width:16px;height:16px}
+  /* hover: the same plate as the current view, only lighter */
+  @media (hover:hover){nav button:hover{color:var(--ink);background:color-mix(in srgb,var(--surface) 55%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 60%,transparent)}}
+  nav button[aria-current="page"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.14),0 0 0 1px var(--line)}
+  nav button[aria-current="page"] .ic{color:var(--accent)}
+  /* 20px between the header and the first block */
+  /* content at most 1440px wide, centred; the header lines up with it */
+  main{padding:20px 32px 56px;max-width:1440px;box-sizing:content-box;margin:0 auto}
+  main>.sec:first-child,main>:first-child>.sec:first-child,.add-main>.sec:first-child,.add-side>.sec:first-child{margin-top:0}
   .sec{margin-block:26px}
-  .sec>h2{font-size:12.5px}
+  .sec>h2,.sec-h>h2{font-size:17px}
 
   /* add screen: actions left, guidance right */
-  .add-layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:0 32px;align-items:start}
-  .grid2{grid-template-columns:repeat(3,1fr);gap:14px}
-  .act{min-height:132px;padding:18px 18px;gap:6px;border-radius:16px;transition:transform .12s,box-shadow .12s}
-  .act:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(20,30,24,.12)}
+  .add-layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:0 20px;align-items:start}
+  .grid2{grid-template-columns:repeat(3,1fr);gap:14px 20px}
+  .act{min-height:132px;padding:20px;gap:6px;border-radius:16px;transition:transform .12s,box-shadow .12s}
+  @media (hover:hover){.act:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(20,30,24,.08)}}
   .act .m{width:42px;height:42px;border-radius:12px;margin-bottom:8px}
   .act .m .ic-svg{width:24px;height:24px}
   .act .t{font-size:17px}
   .act .d2{font-size:13px}
 
   /* dashboard */
-  .tiles{grid-template-columns:repeat(5,1fr);gap:14px}
+  .tiles{grid-template-columns:repeat(5,1fr);gap:14px 20px}
   .tile.big{grid-column:span 1}
-  .tile{padding:16px 18px} .tile .v{font-size:23px} .tile.big .v{font-size:25px}
-  .dash-ov{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;align-items:start}
-  .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;align-items:start}
-  .dash-grid .sec-wide{grid-column:1/-1}
+  .tile .v{font-size:23px} .tile.big .v{font-size:25px}
+  /* the two overview cards share one height; the cash-flow chart and its legend sit together in the middle of the spare room */
+  /* same five-column grid as the tiles below, so the expenses card ends exactly at the third tile */
+  .dash-ov{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0 20px;align-items:stretch}
+  .dash-ov>.sec:first-child{grid-column:span 3}
+  .dash-ov>.sec:last-child{grid-column:span 2}
+  .dash-ov>.sec{display:flex;flex-direction:column}
+  .dash-ov .ov{flex:1;display:flex;flex-direction:column}
+  .dash-ov .flow{margin:auto auto 0}
+  .dash-ov .flow+.legend{margin-bottom:auto}
+  /* the blocks are laid in balanced columns, each one straight under the previous: no holes under short blocks.
+     The tiles span all columns on top; a block never splits across columns */
+  .dash-grid{display:block;columns:2;column-gap:20px}
+  .dash-grid .sec-wide{column-span:all}
+  .dash-grid>.sec{break-inside:avoid;margin-bottom:26px}
+  /* grid items do not collapse margins: drop the top one so cards in a row line up and rows stay 26px apart */
+  .dash-ov>.sec,.dash-grid>.sec,.set-grid>.sec{margin-top:0}
   .donut{max-width:380px}
-  .row{padding:11px 16px}
+  .row{padding:11px 20px}
 
   /* settings: two columns, users across */
-  .set-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;align-items:start}
-  .set-grid>.sec:first-child{grid-column:1/-1}
+  /* settings in balanced columns like the dashboard; the users list spans all of them */
+  .set-grid{display:block;columns:2;column-gap:20px}
+  .set-grid>.sec:first-child,.set-grid>.sec-full{column-span:all}
+  .set-grid>.sec-full{padding-top:26px} /* the column above ends without its bottom margin */
+  .set-grid>.sec{break-inside:avoid;margin-bottom:26px}
 
   /* forms as centred windows */
-  .sheet{display:flex;align-items:flex-start;justify-content:center;padding:40px 24px;background:rgba(8,10,9,.55);backdrop-filter:blur(2px)}
+  .sheet{display:flex;align-items:flex-start;justify-content:center;padding:40px 24px;background:rgba(8,10,9,.45)}
   .sheet-in{background:var(--paper);border:1px solid var(--line);border-radius:18px;width:100%;max-width:720px;padding:0 22px 22px;
-    box-shadow:0 24px 64px rgba(0,0,0,.35);max-height:calc(100vh - 80px);overflow-y:auto}
-  .sheet-head{border-radius:18px 18px 0 0}
+    box-shadow:0 12px 32px rgba(0,0,0,.2);max-height:calc(100vh - 80px);overflow-y:auto}
+  .sheet-head{border-radius:0} /* the window clips its own corners; rounded head corners let scrolled fields show through */
   .toast{bottom:32px}
   .chips{flex-wrap:wrap}
   #installbtn{width:auto;padding:12px 22px}
 
   /* login */
-  body.locked main{max-width:560px;padding-top:72px}
+  body.locked main{max-width:560px;margin:0 auto;padding-top:72px}
   body.locked .bar{padding:0 32px}
 }
+/* the name next to the initials only once the centred tabs leave room for it */
+@media (min-width:1200px){.me-t{display:flex}}
 /* laptops and 24" monitors */
 @media (min-width:1400px){
-  main{max-width:1400px;padding:32px 40px 64px}
+  .bar{padding:0 max(40px,calc((100% - 1440px) / 2))}
+  main{padding:20px 40px 64px}
   .grid2{grid-template-columns:repeat(4,1fr)}
-  .add-layout{grid-template-columns:minmax(0,3fr) minmax(300px,1fr);gap:0 40px}
+  .add-layout{grid-template-columns:minmax(0,3fr) minmax(300px,1fr);gap:0 20px}
+  /* expenses card: title, amount and the categories (two columns) on the left; the bare donut on the right runs the
+     card's full height, top padding to bottom padding. Each category entry is a tinted icon, the name, the amount with
+     its share, and a bar in the slice colour (--c, set per row) that ties it to the ring. */
+  .ov-exp{position:relative;padding-right:calc(20px + var(--ring) + 24px);min-height:calc(var(--ring) + 40px);--ring:304px}
+  .ov-body{flex:1;display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;margin-top:12px}
+  .ov-body .legend{display:none}
+  /* the ring is taken out of the flow and pinned to the card's right side, so the text decides the height;
+     the min-height above keeps the card at least as tall as the ring, and the viewBox keeps it round */
+  .ov-exp .ov-chart{position:absolute;top:20px;right:20px;bottom:20px;width:var(--ring)}
+  .ov-body .donut{position:absolute;inset:0;width:100%;height:100%;max-width:none;margin:0}
+  .ov-exp .ov-more{display:none}
+  /* beside the ring the list is always open and sits at the bottom of its column */
+  .ov-exp .ov-fold{display:flex;flex-direction:column;justify-content:flex-end}
+  .ov-exp .ov-fold-in{overflow:visible;opacity:1}
+  .ov-exp .ov-body .ov-list{display:grid}
+  .ov-body .ov-list{margin-top:0;border-top:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 20px;align-content:end}
+  .ov-body .ov-list .row{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;row-gap:0;align-items:center;padding:8px 10px;border:0;border-radius:12px}
+  @media (hover:hover){.ov-body .ov-list .row:hover{background:var(--surface-2)}}
+  /* the icon circle is as tall as the entry: name + amount + share bar */
+  .ov-body .ov-list .ic-badge{grid-row:1/4;width:44px;height:44px;background:color-mix(in srgb,var(--c) 16%,transparent)}
+  .ov-body .ov-list .ic-badge .ic-svg{width:20px;height:20px}
+  .ov-body .ov-list .row .ic-badge+.l{margin-left:0}
+  /* one line for the name; the categories folded into "other" are in the row tooltip here */
+  .ov-body .ov-list .l{font-size:13.5px;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ov-body .ov-list .l .s{display:none}
+  /* amount on the left, its share pushed to the right edge, above the end of the bar */
+  .ov-body .ov-list .r{display:flex;align-items:baseline;justify-content:space-between;gap:8px;text-align:left;line-height:1.2;margin-top:2px}
+  .ov-body .ov-list .r .s{display:inline;margin:0}
+  /* the track is a tint of the text colour, not --surface-2, so it stays visible on the hovered row too */
+  .ov-body .ov-list .share{display:block;height:4px;margin-top:3px;border-radius:2px;background:color-mix(in srgb,var(--ink) 10%,transparent);overflow:hidden}
+  .ov-body .ov-list .share i{display:block;height:100%;border-radius:2px;background:var(--c)}
+  /* flowSvg draws a wide canvas here; let it use the whole card width */
+  .dash-ov .flow{max-width:none}
 }
 /* 27" and larger (2560px wide and up): use the width, scale type up, three dashboard columns */
 @media (min-width:1800px){
   body{font-size:17px}
-  .bar{height:72px;padding:0 48px} .bar h1{font-size:20px}
-  nav{height:72px} nav button{padding:11px 22px;font-size:15.5px} nav button .lb{font-size:15.5px}
-  main{max-width:1760px;padding:40px 48px 72px}
-  .sec>h2{font-size:13.5px}
-  .grid2{grid-template-columns:repeat(5,1fr);gap:18px}
-  .act{min-height:150px;padding:22px} .act .t{font-size:19px} .act .d2{font-size:14px}
+  .bar{height:60px;padding:0 max(48px,calc((100% - 1440px) / 2))} .bar h1{font-size:20px}
+  nav{top:8px;height:44px} nav button{height:34px;padding:0 11px 0 9px} nav button .lb{font-size:14.5px}
+  main{padding:20px 48px 72px}
+  .sec>h2,.sec-h>h2{font-size:18px}
+  .grid2{grid-template-columns:repeat(5,1fr);gap:18px 20px}
+  .act{min-height:150px}.act .t{font-size:19px} .act .d2{font-size:14px}
   .act .m{width:48px;height:48px} .act .m .ic-svg{width:26px;height:26px}
-  .tiles{gap:18px} .tile{padding:20px 22px} .tile .v{font-size:27px} .tile.big .v{font-size:30px} .tile .k{font-size:11.5px}
-  .dash-ov{gap:0 32px}
-  .dash-grid{grid-template-columns:1fr 1fr 1fr;gap:0 32px}
+  .tiles{gap:18px 20px} .tile .v{font-size:27px} .tile.big .v{font-size:30px} .tile .k{font-size:14px}
+  .dash-ov{gap:0 20px}
+  .dash-grid{columns:3}
   .donut{max-width:440px} .flow{max-width:560px}
+  .ov-exp{--ring:380px} .ov-body .ov-list .ic-badge{width:46px;height:46px}
   .ov .hero{font-size:36px}
-  .row{padding:13px 18px} .row .s{font-size:13px}
-  .set-grid{grid-template-columns:1fr 1fr 1fr;gap:0 32px}
+  .row{padding:13px 20px} .row .s{font-size:13px}
+  .set-grid{columns:3}
   .sheet-in{max-width:800px}
   input,select,textarea{padding:13px 14px}
   .btn{padding:16px}

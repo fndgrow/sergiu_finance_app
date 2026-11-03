@@ -55,7 +55,7 @@ ro:{
  // settings
  set_val:"Valute și cursuri",set_val_h:"Cursul de azi. Se folosește pentru soldul casei, nu pentru rândurile deja introduse.",
  set_cas:"Casierul",set_cas_h:"Banii dați casierului nu sunt socotiți ieșire din casă.",
- set_cat:"Categorii de cheltuieli",set_cat_h:"Câte una pe rând.",
+ set_cat:"Categorii de cheltuieli",set_cat_h:"Scrieți una nouă în câmpul de jos; × o șterge (de două ori). Înregistrările vechi își păstrează categoria.",cat_add:"Adaugă categorie",cat_ph:"Denumire",
  set_pin:"Cod de acces director",set_pin_h:"Cine îl știe vede panoul și registrele. Schimbați-l dacă a ajuns la cineva din afară.",
  set_add:"Adaugă valută",cod:"Cod",
  pin_t:"Cod director",pin_h:"Introduceți codul ca să vedeți panoul, registrele și setările.",pin_bad:"Cod greșit.",pin_ok:"Intră",
@@ -79,7 +79,7 @@ ro:{
  p_buget:"Buget",p_cheltuit:"Cheltuit",p_incasat:"Încasat",p_rest:"Rest buget",
  p_resp:"Responsabili",p_niciunul:"Fără responsabil",p_depasit:"Buget depășit",
  p_alte:"Alte proiecte (fără fișă)",
- me_t:"Eu sunt",me_h:"Alegeți-vă numele. Proiectele dvs. și câmpul „Plătit de” se completează singure.",
+ me_t:"Ați intrat ca",me_h:"Alegeți-vă numele. Proiectele dvs. și câmpul „Plătit de” se completează singure.",
  me_ch:"Schimbă",me_pick:"Alegeți numele",me_none:"Nicio persoană în listă. Directorul adaugă angajații.",
  proj_none:"Niciun proiect încă",proj_none_d:"Directorul creează proiectele și le dă responsabili.",
  r_jur:"Istoric",j_h:"Fiecare adăugare, modificare și ștergere rămâne aici, cu autorul, ora și valorile de atunci.",
@@ -120,7 +120,13 @@ ro:{
  colab_owed:"Firma îi datorează",colab_has:"Are în mână bani ai firmei",colab_zero:"Sold zero",colab_proprii:"din banii proprii",
  colab_proprii_h:"Din această sumă, {s} MDL a plătit din banii proprii pentru firmă.",colab_spent:"Cheltuit pentru firmă",colab_got:"Primit de la firmă",
  my_sold:"Soldul meu",my_sold_h:"Minus înseamnă că firma vă datorează bani. Apăsați ca să vedeți fiecare sumă.",
- failed_t:"{n} înregistrări respinse de server",failed_h:"Nu s-au pierdut: sunt păstrate pe acest telefon. Verificați motivul și reîncercați.",failed_retry:"Reîncearcă",failed_toast:"Serverul a respins o înregistrare. Vedeți nota de sus."
+ failed_t:"{n} înregistrări respinse de server",failed_h:"Nu s-au pierdut: sunt păstrate pe acest telefon. Verificați motivul și reîncercați.",failed_retry:"Reîncearcă",failed_toast:"Serverul a respins o înregistrare. Vedeți nota de sus.",
+ // server messages (texts sent by server/pb_hooks/ehl.pb.js, shown through srvT)
+ srv_cod:"Cod invalid.",srv_many:"Prea multe încercări. Așteptați 15 minute.",srv_bad_user:"Cod greșit sau utilizator dezactivat.",srv_pw8:"Parola trebuie să aibă cel puțin 8 caractere.",srv_pw_bad:"Parolă greșită.",srv_pw_dir:"Doar directorul are parolă.",srv_pw_new8:"Parola nouă trebuie să aibă cel puțin 8 caractere.",srv_pw_cur:"Parola actuală este greșită.",srv_cod48:"Codul trebuie să aibă 4–8 cifre.",srv_self_lock:"Nu vă puteți dezactiva sau retrograda propriul cont.",srv_self_del:"Nu vă puteți șterge propriul cont.",srv_descr:"Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).",
+ show_more:"Arată încă {n}",show_less:"Arată mai puțin",
+ th_det:"Detalii",th_how:"Cine și cum",n_rec:"Înregistrări: {n}",
+ pg_of:"{a}–{b} din {n}",pg_prev:"Pagina anterioară",pg_next:"Pagina următoare",
+ ov_more:"Detalii",ov_all_s:"Toate",per_lbl:"Perioada",menu_t:"Salt rapid",menu_a:"Meniu",s_totals:"Totaluri"
 },
 ru:{
  app:"Касса EHL",director:"Директор",angajat:"Оператор",oaspete:"Гость",
@@ -168,7 +174,7 @@ ru:{
  nothing:"Пока пусто",nothing_d:"Нажмите «Добавить», чтобы начать.",
  set_val:"Валюты и курсы",set_val_h:"Курс на сегодня. Используется для остатка кассы, но не для уже внесённых строк.",
  set_cas:"Кассир",set_cas_h:"Деньги, выданные кассиру, не считаются выходом из кассы.",
- set_cat:"Категории расходов",set_cat_h:"По одной в строке.",
+ set_cat:"Категории расходов",set_cat_h:"Новую впишите в поле ниже; «×» — удалить (два нажатия). Старые записи сохраняют свою категорию.",cat_add:"Добавить категорию",cat_ph:"Название",
  set_pin:"Код доступа директора",set_pin_h:"Кто знает код, видит сводку и журналы. Смените, если код ушёл наружу.",
  set_add:"Добавить валюту",cod:"Код",
  pin_t:"Код директора",pin_h:"Введите код, чтобы увидеть сводку, журналы и настройки.",pin_bad:"Неверный код.",pin_ok:"Войти",
@@ -191,7 +197,7 @@ ru:{
  p_buget:"Бюджет",p_cheltuit:"Потрачено",p_incasat:"Получено",p_rest:"Остаток бюджета",
  p_resp:"Ответственные",p_niciunul:"Без ответственного",p_depasit:"Бюджет превышен",
  p_alte:"Прочие проекты (без карточки)",
- me_t:"Я —",me_h:"Выберите своё имя. Ваши проекты и поле «Кто платил» подставятся сами.",
+ me_t:"Вы вошли как",me_h:"Выберите своё имя. Ваши проекты и поле «Кто платил» подставятся сами.",
  me_ch:"Сменить",me_pick:"Выберите имя",me_none:"В списке никого нет. Директор добавляет сотрудников.",
  proj_none:"Проектов пока нет",proj_none_d:"Директор создаёт проекты и назначает ответственных.",
  r_jur:"История",j_h:"Каждое добавление, изменение и удаление остаётся здесь — с автором, временем и значениями на тот момент.",
@@ -232,11 +238,20 @@ ru:{
  colab_owed:"Фирма должна ему",colab_has:"На руках деньги фирмы",colab_zero:"Баланс ноль",colab_proprii:"из своих денег",
  colab_proprii_h:"Из этой суммы {s} MDL оплачено из своих денег за фирму.",colab_spent:"Потрачено на фирму",colab_got:"Получено от фирмы",
  my_sold:"Мой баланс",my_sold_h:"Минус означает, что фирма должна вам деньги. Нажмите, чтобы увидеть каждую сумму.",
- failed_t:"{n} записей отклонено сервером",failed_h:"Они не потеряны и хранятся на этом телефоне. Проверьте причину и повторите.",failed_retry:"Повторить",failed_toast:"Сервер отклонил запись. Смотрите заметку вверху."
+ failed_t:"{n} записей отклонено сервером",failed_h:"Они не потеряны и хранятся на этом телефоне. Проверьте причину и повторите.",failed_retry:"Повторить",failed_toast:"Сервер отклонил запись. Смотрите заметку вверху.",
+ // server messages
+ srv_cod:"Неверный код.",srv_many:"Слишком много попыток. Подождите 15 минут.",srv_bad_user:"Неверный код или пользователь отключён.",srv_pw8:"Пароль должен быть не короче 8 символов.",srv_pw_bad:"Неверный пароль.",srv_pw_dir:"Пароль есть только у директора.",srv_pw_new8:"Новый пароль должен быть не короче 8 символов.",srv_pw_cur:"Текущий пароль неверен.",srv_cod48:"Код должен состоять из 4–8 цифр.",srv_self_lock:"Нельзя отключить или понизить собственную учётную запись.",srv_self_del:"Нельзя удалить собственную учётную запись.",srv_descr:"Напишите, на что потрачены деньги (описание обязательно).",
+ show_more:"Показать ещё {n}",show_less:"Свернуть",
+ th_det:"Детали",th_how:"Кто и как",n_rec:"Записей: {n}",
+ pg_of:"{a}–{b} из {n}",pg_prev:"Предыдущая страница",pg_next:"Следующая страница",
+ ov_more:"Подробнее",ov_all_s:"Все",per_lbl:"Период",menu_t:"Быстрый переход",menu_a:"Меню",s_totals:"Итоги"
 }};
 var lang="ro";
 try{var sl=localStorage.getItem("ehl.lang"); if(sl==="ro"||sl==="ru") lang=sl;}catch(e){}
 function T(k){var d=I18N[lang];return (d&&d[k])||I18N.ro[k]||k;}
+/* the server answers in Romanian; known messages are shown in the interface language */
+var SRV_MSG={"Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr"};
+function srvT(m){var k=SRV_MSG[String(m||"").trim()];return k?T(k):m}
 
 /* ---------------- helpers ---------------- */
 var $=function(s,r){return (r||document).querySelector(s)};
@@ -441,7 +456,7 @@ function failedNote(){
   if(!FAILED.length)return "";
   return '<div class="failed"><b>'+esc(T("failed_t").replace("{n}",String(FAILED.length)))+'</b><br>'+esc(T("failed_h"))+FAILED.map(function(op,i){
     var d=op.data||{};var what=[FORMS[op.col]?T(FORMS[op.col].title):op.col,d.suma!=null?money(n(d.suma))+" "+(d.valuta||"MDL"):"",d.descriere||d.nota||d.nume||d.client||""].filter(Boolean).join(" · ");
-    return '<div style="margin-top:8px"><span class="num">'+esc(what)+'</span><br><small style="color:var(--muted)">'+esc(op.err||"")+'</small><br>'
+    return '<div style="margin-top:8px"><span class="num">'+esc(what)+'</span><br><small style="color:var(--muted)">'+esc(srvT(op.err||""))+'</small><br>'
       +'<button type="button" class="btn" data-retry="'+i+'">'+esc(T("failed_retry"))+'</button><button type="button" class="btn danger" data-dropfailed="'+i+'">'+esc(T("del"))+'</button></div>';
   }).join("")+'</div>';
 }
@@ -495,6 +510,16 @@ function oameni(){
   return base.length?uniq(base.concat(persoane())):persoane();
 }
 function persoane(){return uniq(S.iesiri.map(function(r){return r.persoana}).concat(S.cheltuieli.map(function(r){return r.platitDe}),S.angajati.map(function(r){return r.nume}),S.imprumuturi.map(function(r){return r.persoana})))}
+/* Expense categories are stored as typed (the defaults are Romanian). The common ones are shown in the interface
+   language; catRaw maps what was typed in a form back to the stored name, so the data never splits in two. */
+var CAT_RU={materiale:"Материалы",transport:"Транспорт",combustibil:"Топливо",unelte:"Инструменты",birou:"Офис",taxe:"Налоги",
+ "reparații":"Ремонт",reparatii:"Ремонт",diverse:"Разное",salarii:"Зарплаты",chirie:"Аренда",chirii:"Аренда",
+ comunale:"Коммунальные услуги","mâncare":"Питание",mancare:"Питание",telefon:"Связь",alte:"Прочее"};
+var CAT_RO={};Object.keys(CAT_RU).forEach(function(k){var r=CAT_RU[k].toLowerCase();if(!CAT_RO[r])CAT_RO[r]=k.charAt(0).toUpperCase()+k.slice(1)});
+function catLabel(c){var s=String(c==null?"":c),k=s.trim().toLowerCase();return (lang==="ru"?CAT_RU[k]:CAT_RO[k])||s}
+function catRaw(v){var s=String(v||"").trim(),k=s.toLowerCase();if(!s)return s;
+  var hit=categorii().filter(function(c){return String(c).trim().toLowerCase()===k})[0]||categorii().filter(function(c){return catLabel(c).toLowerCase()===k})[0];
+  return hit||s}
 function categorii(){var c=cfg().categorii;return uniq((c&&c.length?c:DEF_CFG.categorii).concat(S.cheltuieli.map(function(r){return r.categorie})))}
 function angajatiActivi(){return S.angajati.filter(function(a){return a.status!=="Inactiv"}).map(function(a){return a.nume})}
 
@@ -635,43 +660,56 @@ function salariuLa(angajat,data){
 }
 
 /* ---------------- icons (inline SVG, 24px grid, stroke) ---------------- */
+/* Lucide icons (https://lucide.dev, ISC licence), 24px grid, drawn with stroke by icon() */
 var ICONS={
- bricks:'<path d="M3 7h18v10H3z"/><path d="M3 12h18M8 7v5M14 12v5M11 7v5M16 7v5M6 12v5"/>',
- truck:'<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/>',
- fuel:'<path d="M5 20V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v15"/><path d="M3 20h12M7 8h5"/><path d="M14 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-2-2"/>',
- wrench:'<path d="M14.7 6.3a4 4 0 0 0 5 5L13 18a2 2 0 0 1-3-3l6.7-6.7z"/><path d="M14.7 6.3 18 3"/>',
- office:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/>',
- tax:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
- hammer:'<path d="M14 4l6 6-2 2-6-6z"/><path d="M12 8 4 16a2 2 0 0 0 3 3l8-8"/><path d="M15 3l3-1 3 3-1 3"/>',
- dots:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
- tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/>',
- food:'<path d="M5 3v8a3 3 0 0 0 3 3v7M11 3v8a3 3 0 0 1-3 3M17 3c-2 2-2 6-2 8h3v10"/>',
- home:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
- phone:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
- users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14a5 5 0 0 1 6 5"/>',
- user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
- bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
- cart:'<path d="M3 4h2l2 12h11l2-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/>',
- shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/>',
- water:'<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>',
- cardIc:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
- down:'<circle cx="12" cy="12" r="9"/><path d="M12 7v10M8 13l4 4 4-4"/>',
- up:'<circle cx="12" cy="12" r="9"/><path d="M12 17V7M8 11l4-4 4 4"/>',
- send:'<path d="M21 3 10 14"/><path d="M21 3 14 21l-4-7-7-4z"/>',
- clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
- file:'<path d="M6 2h8l5 5v15H6z"/><path d="M14 2v5h5M9 13h6M9 17h6"/>',
- calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
- folder:'<path d="M3 6h6l2 2h10v12H3z"/>',
- userplus:'<circle cx="10" cy="8" r="4"/><path d="M2 21a8 8 0 0 1 16 0M19 8v6M16 11h6"/>',
- chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
- plus:'<path d="M12 5v14M5 12h14"/>',
- list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
- gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
- lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
- wallet:'<path d="M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7V5a2 2 0 0 1 2-2h12v4M16 14h4"/>',
- bank:'<path d="M3 10 12 4l9 6H3z"/><path d="M5 10v8M9 10v8M15 10v8M19 10v8M3 21h18"/>'
+ bricks:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 9v6"/><path d="M16 15v6"/><path d="M16 3v6"/><path d="M3 15h18"/><path d="M3 9h18"/><path d="M8 15v6"/><path d="M8 3v6"/>',
+ truck:'<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+ fuel:'<line x1="3" x2="15" y1="22" y2="22"/><line x1="4" x2="14" y1="9" y2="9"/><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"/>',
+ wrench:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+ office:'<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
+ tax:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M14 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/>',
+ hammer:'<path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/>',
+ dots:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+ tag:'<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+ food:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+ home:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+ phone:'<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
+ users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+ user:'<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+ bolt:'<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+ cart:'<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+ shield:'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+ water:'<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
+ cardIc:'<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>',
+ down:'<circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/>',
+ up:'<circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/>',
+ send:'<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+ file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+ calendar:'<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+ folder:'<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
+ userplus:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+ chart:'<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+ plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
+ list:'<path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/>',
+ gear:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+ lock:'<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+ wallet:'<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+ bank:'<line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>',
+ x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+ chevL:'<path d="m15 18-6-6 6-6"/>',
+ chevR:'<path d="m9 18 6-6-6-6"/>',
+ arrowUp:'<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
+ arrowDown:'<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
+ minus:'<path d="M5 12h14"/>',
+ globe:'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+ cash:'<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+ inArrow:'<path d="M17 7 7 17"/><path d="M17 17H7V7"/>',
+ outArrow:'<path d="M7 7h10v10"/><path d="M7 17 17 7"/>',
+ menu:'<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+ trash:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>'
 };
-function icon(name,cls){return '<svg class="ic-svg'+(cls?" "+cls:"")+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[name]||ICONS.tag)+'</svg>'}
+function icon(name,cls){return '<svg class="ic-svg'+(cls?" "+cls:"")+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[name]||ICONS.tag)+'</svg>'}
 /* category name -> icon, by keyword in Romanian or Russian; unknown categories get a tag */
 var CAT_ICON_RULES=[
  [/material|материал|ciment|цемент|nisip|песок|beton|бетон/i,"bricks"],[/transport|транспорт|camion|грузов|taxi|такси|livrar|достав/i,"truck"],
@@ -977,7 +1015,7 @@ function wsPanou(wb,C,luna,doar){
   }
   if(C.perCateg.length){
     head(T("s_categ"));
-    C.perCateg.forEach(function(x){kv(x.nume,x.val)});
+    C.perCateg.forEach(function(x){kv(catLabel(x.nume),x.val)});
   }
   return ws;
 }
@@ -1004,7 +1042,7 @@ function buildWb(luna,doar){
     {h:T("f_data"),k:"data",w:12,fmt:FMT_D},{h:T("f_categ"),k:"categorie",w:18},
     {h:T("f_descr"),k:"descriere",w:30},{h:T("f_client"),k:"client",w:22},{h:T("f_proiect"),k:"proiect",w:20},
     {h:T("f_sumamdl"),k:"suma",w:15,fmt:FMT_M},{h:T("f_platit"),k:"platitDe",w:20},{h:T("f_mod"),k:"mod",w:12},{h:T("src_t"),k:"sursa",w:16}],
-    ch.map(function(r){return {data:xd(r.data),categorie:r.categorie,descriere:r.descriere,client:r.client,
+    ch.map(function(r){return {data:xd(r.data),categorie:catLabel(r.categorie),descriere:r.descriere,client:r.client,
       proiect:r.proiect,suma:n(r.suma),platitDe:r.platitDe,mod:r.mod==="Numerar"?T("numerar"):T("transfer"),
       sursa:r.mod==="Transfer"?"":(r.sursa==="Proprii"?T("src_proprii_short"):T("src_avans"))}}),
     {data:T("l_total"),suma:ch.reduce(function(a,r){return a+n(r.suma)},0)});
@@ -1153,11 +1191,18 @@ function render(){
   isDir=computeDir();
   if(needGate())view="panou";
   document.body.classList.toggle("locked",needGate());
-  $("#ttl").textContent=T("app");
+  $("#ttl").textContent=T("app");document.title=T("app");document.documentElement.lang=lang;
   $("#role").textContent=!ACCESS?T("oaspete"):(isDir?T("director"):T("angajat"));
-  $("#role").className="pill"+(isDir?" on":"");
+  $("#role").className="role"+(isDir?" on":"");
+  /* header: brand mark, and who is signed in (initials, name, role) */
+  var lg=$("#logo");if(lg&&!lg.firstChild)lg.innerHTML=icon("wallet");
+  var bgi=$("#burger");if(bgi&&!bgi.firstChild){bgi.innerHTML=icon("menu");bgi.setAttribute("aria-label",T("menu_a"));}
+  /* the brand leads home: the dashboard for a director, "Add" for an operator; nothing while signed out */
+  var br=$(".brand");if(br){if(ACCESS&&!needGate()){br.dataset.view=isDir?"panou":"add";br.setAttribute("role","link");br.tabIndex=0;}else{delete br.dataset.view;br.removeAttribute("role");br.removeAttribute("tabindex");}}
+  var meBox=$("#me"),nm=meName();
+  if(meBox){meBox.hidden=!ACCESS;$("#uname").textContent=nm;$("#av").textContent=initials(nm);}
   /* one button that names the other language */
-  var lb=$("#langbtn");if(lb){var other=lang==="ru"?"ro":"ru";lb.dataset.lang=other;lb.textContent=other.toUpperCase();lb.setAttribute("aria-label",other==="ru"?"Русский":"Română");}
+  var lb=$("#langbtn");if(lb){var other=lang==="ru"?"ro":"ru";lb.dataset.lang=other;lb.innerHTML=icon("globe")+'<span>'+other.toUpperCase()+'</span>';lb.setAttribute("aria-label",other==="ru"?"Русский":"Română");}
   renderNav();
   var h="";
   if(needGate())h=vGate();
@@ -1166,10 +1211,50 @@ function render(){
   else if(view==="reg")h=vReg();
   else if(view==="mine")h=vMine();
   else if(view==="set")h=vSet();
+  var oldMs=$(".mstrip",app),oldSl=oldMs?oldMs.scrollLeft:0;
   app.innerHTML=h;
   app.scrollTop=0;
   dpClose();enhanceDates(app);
+  /* on a narrow screen the month strip scrolls; bring the chosen month into view */
+  var ms=$(".mstrip",app),mp=ms&&$(".mp[aria-pressed]",ms);
+  if(mp&&ms.scrollWidth>ms.clientWidth)ms.scrollLeft=Math.max(0,mp.offsetLeft+mp.offsetWidth-ms.clientWidth+16);
+  else if(ms)ms.scrollLeft=oldSl;
+  var bg=$("#burger");if(bg)bg.hidden=!(isDir&&ACCESS&&!needGate());
+  fitRing();
 }
+/* The expenses ring is as tall as its card allows, so the gap on its right equals the gaps above and below.
+   The card's height comes from its row (the cash-flow card or the list), measured with the CSS base size in place;
+   the ring then takes that height minus the card padding, never less than the base. */
+/* quick jump (phones): every block of the dashboard, named by its title; a tap closes the menu and scrolls to it */
+var MENU_IC=null;
+function dashBlocks(){
+  return Array.prototype.slice.call(document.querySelectorAll("#app .dash-ov>.sec,#app .dash-grid>.sec")).map(function(sec){
+    var t=sec.querySelector("h2,.ov-head"),lbl=t?t.textContent.replace(/\s+$/,""):T("s_totals");
+    return {el:sec,lbl:lbl,y:sec.getBoundingClientRect().top};
+  }).sort(function(p,q){return p.y-q.y}); /* in the order they appear on screen (phones reorder the blocks) */
+}
+function openMenu(){
+  if(view!=="panou"){view="panou";histPush({v:view});render();}
+  if(!MENU_IC){MENU_IC={};[["ov_chelt","outArrow"],["ov_flux","chart"],["s_totals","wallet"],["s_bani","wallet"],["s_casa","cash"],["s_colab","users"],["s_client","user"],["s_categ","tag"],["s_proiecte","folder"],["p_alte","folder"],["s_contr","file"],["s_sal","users"],["s_impr","clock"],["s_chirii","home"]].forEach(function(p){MENU_IC[p[0]]=p[1]})}
+  var byLbl={};Object.keys(MENU_IC).forEach(function(k){byLbl[T(k)]=MENU_IC[k]});
+  var m=$("#menu");if(!m)return;
+  m.innerHTML='<div class="menu-bg" data-menu-close="1"></div><div class="menu-p" role="dialog" aria-label="'+esc(T("menu_t"))+'"><div class="menu-h"><b>'+esc(T("menu_t"))+'</b><button type="button" class="x" data-menu-close="1" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div><div class="menu-g">'
+    +dashBlocks().map(function(b,i){return '<button type="button" class="menu-i" data-goto="'+i+'"><span class="ic-badge tint" style="--c:var(--accent)">'+icon(byLbl[b.lbl]||"list")+'</span>'+esc(b.lbl)+'</button>'}).join("")+'</div></div>';
+  m.hidden=false;document.body.classList.add("menu-open");
+}
+function closeMenu(){var rb=$("#regmore");if(rb)rb.classList.remove("open");var m=$("#menu");if(m){m.hidden=true;m.innerHTML="";}document.body.classList.remove("menu-open")}
+function fitRing(){
+  var c=$(".ov-exp");if(!c)return;
+  c.style.removeProperty("--ring");
+  if(!(WIDE_MQ&&WIDE_MQ.matches))return;
+  var base=parseFloat(getComputedStyle(c).getPropertyValue("--ring"))||0;
+  /* the list beside it keeps at least 460px; the ring never takes that room */
+  var room=c.clientWidth-40-24-460;
+  var ring=Math.max(200,Math.min(560,Math.max(base,c.offsetHeight-40),room));
+  if(ring!==base)c.style.setProperty("--ring",ring+"px");
+}
+var fitRingRaf=0;
+window.addEventListener("resize",function(){cancelAnimationFrame(fitRingRaf);fitRingRaf=requestAnimationFrame(fitRing)});
 function renderNav(){
   if(needGate()){$("#nav").innerHTML="";return;}
   var items=isDir
@@ -1188,7 +1273,7 @@ function installNote(){
   var label=T(COARSE?"install_phone":"install_pc");
   if(installEvt)return '<div class="sec"><button class="btn" id="installbtn" type="button">'+icon("down")+' '+esc(label)+'</button></div>';
   var how=ios?T("install_ios_h"):(COARSE?T("install_android_h"):T("install_pc_h"));
-  return '<div class="sec"><div class="card pad"><div class="d" style="font-weight:600;margin-bottom:4px">'+esc(label)+'</div><p class="hint" style="margin:0">'+esc(how)+'</p></div></div>';
+  return '<div class="sec"><div class="card pad inst"><span class="ic-badge tint" style="--c:var(--accent)">'+icon("down")+'</span><div><div class="d" style="font-weight:600;margin-bottom:4px">'+esc(label)+'</div><p class="hint" style="margin:0">'+esc(how)+'</p></div></div></div>';
 }
 function statusNote(){
   var h=failedNote();
@@ -1199,20 +1284,42 @@ function statusNote(){
   else if(online&&stale)h+='<div class="note">'+esc(T("stale"))+'</div>';
   return h;
 }
-function tile(k,v,u,cls,big){
-  var unit=u?(CUR[String(u).toUpperCase()]?'<span class="u">'+curBadge(u,false)+'</span>':'<span class="u">'+esc(u)+'</span>'):'';
-  return '<div class="tile'+(big?" big":"")+'"><span class="k">'+esc(k)+'</span><span class="v '+(cls||"")+'">'+v+unit+'</span></div>';
+/* a figure tile: icon and label on top, the amount below with its unit as quiet text */
+function tile(k,v,u,cls,big,ic){
+  var unit=u?'<span class="u">'+esc(u)+'</span>':'';
+  return '<div class="tile'+(big?" big":"")+'"><span class="k">'+(ic?'<span class="t-ic '+(cls||"")+'">'+icon(ic)+'</span>':'')+esc(k)+'</span><span class="v '+(cls||"")+'">'+v+unit+'</span></div>';
+}
+/* key figures of one subject in a grid, optionally under a progress bar (share done, 0-100) and above extra rows */
+function statCard(items,pct,more){
+  return '<div class="card stats">'+(pct!=null?'<div class="st-prog"><i style="width:'+Math.max(0,Math.min(100,pct)).toFixed(1)+'%"></i></div>':'')
+    +'<div class="st-grid" style="--n:'+(items.length===4?2:items.length)+'">'+items.map(function(it){return '<div class="st"><span class="st-k">'+esc(it[0])+'</span><span class="st-v '+(it[2]||"")+'">'+it[1]+'</span>'+(it[3]?'<span class="st-s">'+esc(it[3])+'</span>':'')+'</div>'}).join("")+'</div>'
+    +(more?'<div class="rows st-more">'+more+'</div>':'')+'</div>';
+}
+function toneOf(nm){var h=0;String(nm||"").split("").forEach(function(ch){h=(h*31+ch.charCodeAt(0))%997});return "var(--s"+(h%6+1)+")"} /* --s7 is too dark for initials on dark cards */
+function initials(nm){return String(nm||"").split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w.charAt(0)}).join("").toUpperCase()||"·"}
+/* long lists show their first rows; the rest open with a button under them (the card gets .open) */
+/* strict: fold even a single extra row (otherwise one extra row is simply shown) */
+function moreRows(rows,limit,strict){
+  limit=limit||6;if(rows.length<=limit+(strict?0:1))return rows.join("");
+  return rows.slice(0,limit).join("")+'<div class="more-rows"><div class="more-in">'+rows.slice(limit).join("")+'</div></div>'
+    +'<button type="button" class="more-btn" data-more="1"><span class="mb-o">'+esc(T("show_more").replace("{n}",rows.length-limit))+'</span><span class="mb-c">'+esc(T("show_less"))+'</span>'+icon("chevR")+'</button>';
+}
+function rowsCardMore(rows,limit,strict){
+  if(!rows.length)return rowsCard(rows);
+  return '<div class="card rows">'+moreRows(rows,limit,strict)+'</div>';
 }
 function rowsCard(rows){
   if(!rows.length)return '<div class="card"><div class="empty">'+esc(T("nothing"))+'</div></div>';
   return '<div class="card rows">'+rows.join("")+'</div>';
 }
-function r2(l,v,sub,cls,tot){
-  return '<div class="row'+(tot?" tot":"")+'"><span class="l">'+esc(l)+(sub?'<span class="s">'+esc(sub)+'</span>':'')+'</span><span class="r '+(cls||"")+'">'+v+'</span></div>';
+/* a labelled value row; ic/col add an icon in a tinted circle */
+function r2(l,v,sub,cls,tot,ic,col){
+  return '<div class="row'+(tot?" tot":"")+(ic?" ri":"")+'"'+(ic?' style="--c:'+(col||"var(--muted)")+'"':'')+'>'+(ic?'<span class="ic-badge tint">'+icon(ic)+'</span>':'')+'<span class="l">'+esc(l)+(sub?'<span class="s">'+esc(sub)+'</span>':'')+'</span><span class="r '+(cls||"")+'">'+v+'</span></div>';
 }
-function barRow(l,v,max){
+/* a value with a bar against the largest; categories pass their colour and icon, as in the expenses card */
+function barRow(l,v,max,col,ic){
   var pct=max>0?Math.max(2,Math.round(v/max*100)):0;
-  return '<div class="row"><span class="l">'+esc(l)+'<span class="bar-wrap"><span class="bar-fill" style="width:'+pct+'%"></span></span></span><span class="r">'+money(v)+'</span></div>';
+  return '<div class="row wrap'+(ic?" ri":"")+'"'+(col?' style="--c:'+col+'"':'')+'>'+(ic?'<span class="ic-badge tint">'+icon(ic)+'</span>':'')+'<span class="l">'+esc(l)+'</span><span class="r">'+money(v)+'</span><span class="bar-wrap"><span class="bar-fill" style="width:'+pct+'%"></span></span></div>';
 }
 
 /* ---------------- overview (month picker, expenses by category, cash flow) ---------------- */
@@ -1231,7 +1338,7 @@ function ovData(luna){
   var total=round2(cats.reduce(function(a,c){return a+c.val},0));
   /* at most six named segments; the tail folds into "Alte" */
   if(cats.length>7){var head=cats.slice(0,6),tail=cats.slice(6);var rest=round2(tail.reduce(function(a,c){return a+c.val},0));
-    head.push({nume:T("ov_alte"),val:rest,slot:6,icon:"dots",folded:tail.map(function(c){return c.nume})});cats=head;}
+    head.push({nume:T("ov_alte"),val:rest,slot:6,icon:"dots",folded:tail.map(function(c){return catLabel(c.nume)})});cats=head;}
   var incTotal=round2(inc.reduce(function(a,r){return a+n(r.suma)*n(r.curs)},0));
   var prevLuna=luna?addMonths(luna,-1):"";
   var prev=luna?round2(S.cheltuieli.filter(function(r){return ymOf(r)===prevLuna}).reduce(function(a,r){return a+n(r.suma)},0)):0;
@@ -1242,14 +1349,19 @@ function ovData(luna){
   return {cats:cats,total:total,inc:incTotal,prev:prev,months:months};
 }
 function fmtK(v){var a=Math.abs(v);if(a>=1e6)return fmt(v/1e6,1)+"M";if(a>=1e4)return fmt(v/1e3,0)+"k";return fmt(v,0)}
+/* On wide screens the category list sits beside the donut and already shows icons and percentages,
+   so the ring is drawn bare and tight; elsewhere it carries its own badges and labels. */
 function donutSvg(cats,total){
-  var cx=170,cy=150,r=62,sw=22,C=2*Math.PI*r,gap=2;
+  var bare=!!(WIDE_MQ&&WIDE_MQ.matches);
+  /* the bare ring fills its box edge to edge (outer radius 86); the hover thickening may spill past it */
+  var W=bare?172:340,H=bare?172:300;
+  var cx=bare?86:170,cy=bare?86:150,r=bare?74:62,sw=bare?24:22,C=2*Math.PI*r,gap=2;
   var segs="",badges="",acc=0;
   cats.forEach(function(c){
     var f=total>0?c.val/total:0,len=Math.max(0,f*C-gap);
-    segs+='<circle class="seg" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke="var(--s'+(c.slot+1)+')" stroke-width="'+sw+'" stroke-dasharray="'+len.toFixed(2)+' '+C.toFixed(2)+'" stroke-dashoffset="'+(-acc*C).toFixed(2)+'" data-cat="'+esc(c.nume)+'"><title>'+esc(c.nume)+' · '+money(c.val)+' MDL · '+fmt(f*100,1)+'%</title></circle>';
+    segs+='<circle class="seg" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke="var(--s'+(c.slot+1)+')" stroke-width="'+sw+'" stroke-dasharray="'+len.toFixed(2)+' '+C.toFixed(2)+'" stroke-dashoffset="'+(-acc*C).toFixed(2)+'" data-cat="'+esc(c.nume)+'" data-label="'+esc(catLabel(c.nume))+'" data-pct="'+fmt(f*100,1)+'%"><title>'+esc(catLabel(c.nume))+' · '+money(c.val)+' MDL · '+fmt(f*100,1)+'%</title></circle>';
     /* badge + percent only for slices wide enough to carry them; the rest are read from the list below */
-    if(f>=0.06){
+    if(!bare&&f>=0.06){
       var a=(acc+f/2)*2*Math.PI,R=98,x=cx+R*Math.sin(a),y=cy-R*Math.cos(a);
       var lx=cx+128*Math.sin(a),ly=cy-128*Math.cos(a),anchor=Math.sin(a)>0.25?"start":(Math.sin(a)<-0.25?"end":"middle");
       badges+='<g class="badge" data-cat="'+esc(c.nume)+'" transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+')"><circle r="16" fill="var(--s'+(c.slot+1)+')" opacity=".16"/>'
@@ -1258,13 +1370,16 @@ function donutSvg(cats,total){
     }
     acc+=f;
   });
-  return '<svg class="donut" viewBox="0 0 340 300" role="img" aria-label="'+esc(T("ov_chelt"))+'"><g transform="rotate(-90 '+cx+' '+cy+')">'+segs+'</g>'
+  return '<svg class="donut'+(bare?' bare':'')+'" viewBox="0 0 '+W+' '+H+'"'+(bare?' preserveAspectRatio="xMaxYMid meet"':'')+' role="img" aria-label="'+esc(T("ov_chelt"))+'"><g transform="rotate(-90 '+cx+' '+cy+')">'+segs+'</g>'
     +'<text class="mid" x="'+cx+'" y="'+(cy-4)+'" text-anchor="middle">'+esc(fmtK(total))+'</text><text class="mid2" x="'+cx+'" y="'+(cy+16)+'" text-anchor="middle">MDL</text>'+badges+'</svg>';
 }
+/* Wide screens get a wider canvas instead of a scaled-up one, so the chart fills its card while the labels keep their size. */
+var WIDE_MQ=null;try{WIDE_MQ=window.matchMedia("(min-width:1400px)")}catch(e){}
 function flowSvg(months){
-  var W=320,H=130,base=100,gw=W/months.length,bw=13,mx=0;
+  var wide=!!(WIDE_MQ&&WIDE_MQ.matches);
+  var W=wide?640:320,H=wide?250:130,base=H-30,gw=W/months.length,bw=wide?22:13,mx=0;
   months.forEach(function(m){mx=Math.max(mx,m.inc,m.out)});
-  var sc=mx>0?80/mx:0,out="";
+  var sc=mx>0?(base-20)/mx:0,out="";
   function bar(x,v,s,title){var h=Math.max(v>0?3:0,v*sc),y=base-h,rr=Math.min(4,h);
     return '<path class="bar" fill="var(--s'+s+')" d="M'+x+' '+base+'V'+(y+rr)+'a'+rr+' '+rr+' 0 0 1 '+rr+' -'+rr+'h'+(bw-2*rr)+'a'+rr+' '+rr+' 0 0 1 '+rr+' '+rr+'V'+base+'z"><title>'+title+'</title></path>'}
   months.forEach(function(m,i){
@@ -1280,20 +1395,22 @@ function flowSvg(months){
 function colabRow(x){
   var state=x.ramas<0?T("colab_owed"):(x.ramas>0?T("colab_has"):T("colab_zero"));
   var sub=T("l_primit")+" "+money(x.primit)+" · "+T("l_cheltuit")+" "+money(x.cheltuit)+(x.proprii?" · "+T("colab_proprii")+" "+money(x.proprii):"");
-  return '<button type="button" class="tap row" data-colab="'+esc(x.nume)+'"><span class="l">'+esc(x.nume)+'<span class="s">'+esc(state)+'</span><span class="s">'+esc(sub)+'</span></span>'
-    +'<span class="r '+(x.ramas<0?"neg":(x.ramas>0?"warnc":"pos"))+'">'+money(x.ramas)+'</span></button>';
+  var tone=x.ramas<0?"neg":(x.ramas>0?"warnc":"pos");
+  /* initials on a tint picked from the name, so a person keeps the same colour; the state sits right of the name */
+  return '<button type="button" class="tap row person" data-colab="'+esc(x.nume)+'"><span class="av" style="--c:'+toneOf(x.nume)+'">'+esc(initials(x.nume))+'</span><span class="l"><span class="nm-row">'+esc(x.nume)+'<span class="tagc '+tone+'">'+esc(state)+'</span></span></span>'
+    +'<span class="r '+tone+'">'+money(x.ramas)+'</span><span class="pm">'+esc(sub)+'</span></button>';
 }
 /* who received what and what they spent for the company, newest first */
 function openColab(name){
   var C=calc(),x=C.colab.filter(function(c){return sameP(c.nume,name)})[0]||{nume:name,primit:0,cheltuit:0,ramas:0,transfer:0,proprii:0};
   var got=S.iesiri.filter(function(r){return r.destinatie==="Dat persoanei"&&sameP(r.persoana,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
   var spent=S.cheltuieli.filter(function(r){return r.mod==="Numerar"&&sameP(r.platitDe,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
-  var h='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(name)+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">✕</button></div>';
+  var h='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(name)+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div>';
   h+='<div class="tiles"><div class="tile big" style="background:'+(x.ramas<0?"var(--neg)":"var(--accent)")+'"><span class="k">'+esc(x.ramas<0?T("colab_owed"):T("colab_has"))+'</span><span class="v">'+money(Math.abs(x.ramas))+'<span class="u">MDL</span></span></div>'
     +tile(T("l_primit"),money(x.primit),"MDL")+tile(T("l_cheltuit"),money(x.cheltuit),"MDL")+'</div>';
   if(x.proprii)h+='<p class="note" style="margin-top:10px">'+esc(T("colab_proprii_h").replace("{s}",money(x.proprii)))+'</p>';
   h+='<div class="sec"><h2>'+esc(T("colab_spent"))+'</h2>'+(spent.length?'<div class="card rows">'+spent.map(function(r){
-    return '<button type="button" class="tap row" data-edit="cheltuieli" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.descriere||r.categorie||"—")+'<span class="s">'+esc([r.data,r.categorie,r.proiect,r.sursa==="Proprii"?T("src_proprii_short"):""].filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(n(r.suma))+'</span></button>';
+    return '<button type="button" class="tap row" data-edit="cheltuieli" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.descriere||catLabel(r.categorie)||"—")+'<span class="s">'+esc([r.data,catLabel(r.categorie),r.proiect,r.sursa==="Proprii"?T("src_proprii_short"):""].filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(n(r.suma))+'</span></button>';
   }).join("")+'</div>':'<div class="card"><div class="empty">'+esc(T("nothing"))+'</div></div>')+'</div>';
   h+='<div class="sec"><h2>'+esc(T("colab_got"))+'</h2>'+(got.length?'<div class="card rows">'+got.map(function(r){
     return '<button type="button" class="tap row" data-edit="iesiri" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.nota||T("d_pers"))+'<span class="s">'+esc(r.data+(r.valuta!=="MDL"?" · "+money(n(r.suma))+" "+r.valuta+" × "+r.curs:""))+'</span></span><span class="r pos">'+money(n(r.suma)*n(r.curs))+'</span></button>';
@@ -1306,34 +1423,45 @@ function vMyBalance(){
   if(!x)return "";
   return '<div class="sec"><h2>'+esc(T("my_sold"))+'</h2><div class="card rows">'+colabRow(x)+'</div><p class="hint" style="margin-top:6px">'+esc(T("my_sold_h"))+'</p></div>';
 }
+function cap(s){s=String(s||"");return s.charAt(0).toUpperCase()+s.slice(1)}
 function vOverview(){
   var d=ovData(OV.luna);
   var months=monthsBack(6);
-  var h='<div class="sec"><div class="chips ov-months">'+months.map(function(m){
-    return '<button type="button" class="chip" data-ovluna="'+m+'"'+(OV.luna===m?' aria-pressed="true"':'')+'>'+esc(monthName(m))+'</button>';
-  }).join("")+'<button type="button" class="chip" data-ovluna=""'+(OV.luna===""?' aria-pressed="true"':'')+'>'+esc(T("ov_all"))+'</button></div></div>';
+  /* month strip: short name, year, and a bar for that month's spending against the costliest of the six */
+  var outMax=0;d.months.forEach(function(x){outMax=Math.max(outMax,x.out)});
+  var h='<div class="sec"><div class="mbar"><div class="mstrip">'+d.months.map(function(x){
+    var sm=monthName(x.luna).split(" ")[0],pct=outMax>0?Math.max(x.out>0?6:0,x.out/outMax*100):0;
+    return '<button type="button" class="mp" data-ovluna="'+x.luna+'" title="'+esc(monthName(x.luna))+' · '+money(x.out)+' MDL"'+(OV.luna===x.luna?' aria-pressed="true"':'')+'>'
+      +'<span class="mp-m">'+esc(sm.charAt(0).toUpperCase()+sm.slice(1))+'</span><span class="mp-ms">'+esc(cap(shortMonth(x.luna)))+'</span><span class="mp-y">'+x.luna.slice(0,4)+'</span>'
+      +'<span class="mp-bar"><i style="width:'+pct.toFixed(1)+'%"></i></span></button>';
+  }).join("")+'</div><button type="button" class="mp-all" data-ovluna=""'+(OV.luna===""?' aria-pressed="true"':'')+'>'+icon("calendar")+'<span class="mpa-l">'+esc(T("ov_all"))+'</span><span class="mpa-s">'+esc(T("ov_all_s"))+'</span></button></div>'
+    +'<div class="mcap"><span class="mcap-p">'+esc(T("per_lbl"))+': <b>'+esc(OV.luna?cap(monthName(OV.luna)):T("ov_all"))+'</b></span>'
+    +'<span class="mcap-v">'+esc(T("t_incasari"))+' <b class="pos">+'+money(d.inc)+'</b></span><span class="mcap-v">'+esc(T("t_cheltuieli"))+' <b class="neg">−'+money(d.total)+'</b></span></div></div>';
   h+='<div class="dash-ov">';
   /* expenses card */
   var delta="";
-  if(OV.luna&&d.prev>0){var p=(d.total-d.prev)/d.prev*100;delta='<span class="delta '+(p>0?"neg":"pos")+'">'+(p>0?"▲":"▼")+' '+fmt(Math.abs(p),0)+'%</span> <span class="hint">'+esc(T("ov_vs"))+'</span>';}
-  h+='<div class="sec"><div class="card pad ov"><button type="button" class="ov-head" data-cat="">'+esc(T("ov_chelt"))+' ›</button>'
+  if(OV.luna&&d.prev>0){var p=(d.total-d.prev)/d.prev*100;delta='<span class="delta '+(p>0?"neg":"pos")+'">'+icon(p>0?"arrowUp":"arrowDown")+fmt(Math.abs(p),0)+'%</span> <span class="hint">'+esc(T("ov_vs"))+'</span>';}
+  h+='<div class="sec"><div class="card pad ov ov-exp'+(OV.more?" open":"")+'"><button type="button" class="ov-head" data-cat="">'+esc(T("ov_chelt"))+icon("chevR")+'</button>'
     +'<div class="hero neg">−'+money(d.total)+' <span class="u">MDL</span></div><div class="ov-delta">'+delta+'</div>';
   if(!d.cats.length)h+='<div class="empty">'+esc(T("ov_none"))+'</div>';
   else{
-    h+=donutSvg(d.cats,d.total);
+    h+='<div class="ov-body"><div class="ov-chart">'+donutSvg(d.cats,d.total);
     h+='<div class="legend">'+d.cats.map(function(c){
-      return '<button type="button" class="lg" data-cat="'+esc(c.nume)+'"><span class="sw" style="background:var(--s'+(c.slot+1)+')"></span>'+esc(c.nume)+'</button>';
-    }).join("")+'</div>';
-    h+='<div class="rows ov-list">'+d.cats.map(function(c){
-      return '<button type="button" class="tap row" data-cat="'+esc(c.nume)+'"><span class="ic-badge" style="color:var(--s'+(c.slot+1)+')">'+icon(c.icon)+'</span><span class="l">'+esc(c.nume)+(c.folded?'<span class="s">'+esc(c.folded.join(", "))+'</span>':'')+'</span><span class="r">'+money(c.val)+'<span class="s">'+fmt(d.total?c.val/d.total*100:0,1)+'%</span></span></button>';
-    }).join("")+'</div>';
+      return '<button type="button" class="lg" data-cat="'+esc(c.nume)+'"><span class="sw" style="background:var(--s'+(c.slot+1)+')"></span>'+esc(catLabel(c.nume))+'</button>';
+    }).join("")+'</div></div>';
+    h+='<div class="ov-fold"><div class="ov-fold-in"><div class="rows ov-list">'+d.cats.map(function(c){
+      var pct=d.total?c.val/d.total*100:0;
+      /* .share is the slice's share as a bar in its own colour; shown only where the list sits beside the donut */
+      return '<button type="button" class="tap row" data-cat="'+esc(c.nume)+'" style="--c:var(--s'+(c.slot+1)+')"'+(c.folded?' title="'+esc(catLabel(c.nume)+": "+c.folded.join(", "))+'"':'')+'><span class="ic-badge" style="color:var(--s'+(c.slot+1)+')">'+icon(c.icon)+'</span><span class="l">'+esc(catLabel(c.nume))+(c.folded?'<span class="s">'+esc(c.folded.join(", "))+'</span>':'')+'</span><span class="r">'+money(c.val)+'<span class="s">'+fmt(pct,1)+'%</span></span><span class="share"><i style="width:'+Math.max(2,pct).toFixed(1)+'%"></i></span></button>';
+    }).join("")+'</div></div></div>'
+      +'<button type="button" class="more-btn ov-more" data-more="1"><span class="mb-o">'+esc(T("ov_more"))+'</span><span class="mb-c">'+esc(T("show_less"))+'</span>'+icon("chevR")+'</button></div>';
   }
   h+='</div></div>';
   /* cash flow card */
   var net=round2(d.inc-d.total);
   h+='<div class="sec"><div class="card pad ov"><div class="ov-head">'+esc(T("ov_flux"))+'</div>'
     +'<div class="hero '+(net<0?"neg":"")+'">'+money(net)+' <span class="u">MDL</span></div>'
-    +'<div class="pills"><span class="pill-in"><b>+</b> '+money(d.inc)+'</span><span class="pill-out"><b>−</b> '+money(d.total)+'</span></div>'
+    +'<div class="pills"><span class="pill-in"><b>'+icon("plus")+'</b> '+money(d.inc)+'</span><span class="pill-out"><b>'+icon("minus")+'</b> '+money(d.total)+'</span></div>'
     +flowSvg(d.months)
     +'<div class="legend"><span class="lg"><span class="sw" style="background:var(--s3)"></span>'+esc(T("ov_in"))+'</span><span class="lg"><span class="sw" style="background:var(--s2)"></span>'+esc(T("ov_out"))+'</span></div>'
     +'</div></div>';
@@ -1347,74 +1475,72 @@ function vPanou(){
   h+=vOverview();
   h+='<div class="dash-grid">';
   h+='<div class="sec sec-wide"><div class="tiles">'
-    +tile(T("t_total"),money(C.totalFirma),"MDL","",1)
-    +tile(T("t_casa"),money(C.casaMDL),"MDL")
-    +tile(T("t_cont"),money(C.contMDL),"MDL",C.contMDL<0?"neg":"")
-    +tile(T("t_incasari"),money(C.incTotal),"MDL","pos")
-    +tile(T("t_cheltuieli"),money(C.cheltTotal),"MDL","neg")
+    +tile(T("t_total"),money(C.totalFirma),"MDL","",1,"wallet")
+    +tile(T("t_casa"),money(C.casaMDL),"MDL","",0,"cash")
+    +tile(T("t_cont"),money(C.contMDL),"MDL",C.contMDL<0?"neg":"",0,"bank")
+    +tile(T("t_incasari"),money(C.incTotal),"MDL","pos",0,"inArrow")
+    +tile(T("t_cheltuieli"),money(C.cheltTotal),"MDL","neg",0,"outArrow")
     +'</div></div>';
 
   h+='<div class="sec"><h2>'+esc(T("s_bani"))+'</h2>'+rowsCard([
-    r2(T("l_num"),money(C.incNumMDL)),r2(T("l_tr"),money(C.incTrMDL)),
-    r2(T("l_chnum"),money(C.cheltNum)),r2(T("l_chtr"),money(C.cheltTr)),
-    r2(T("l_salplatit"),money(C.salPlatitMDL)),r2(T("l_avans"),money(C.avansMDL)),
-    r2(T("l_depus"),money(C.depusMDL)),r2(T("l_chirii"),money(C.chiriiMDL)),
-    r2(T("l_justif"),money(C.colabRamas),null,C.colabRamas>0?"warnc":""),
-    r2(T("t_total"),money(C.totalFirma),null,"",1)
+    r2(T("l_num"),money(C.incNumMDL),null,"",0,"cash","var(--pos)"),r2(T("l_tr"),money(C.incTrMDL),null,"",0,"cardIc","var(--pos)"),
+    r2(T("l_chnum"),money(C.cheltNum),null,"",0,"cash","var(--neg)"),r2(T("l_chtr"),money(C.cheltTr),null,"",0,"cardIc","var(--neg)"),
+    r2(T("l_salplatit"),money(C.salPlatitMDL),null,"",0,"users","var(--s1)"),r2(T("l_avans"),money(C.avansMDL),null,"",0,"send","var(--s6)"),
+    r2(T("l_depus"),money(C.depusMDL),null,"",0,"bank","var(--s3)"),r2(T("l_chirii"),money(C.chiriiMDL),null,"",0,"home","var(--s4)"),
+    r2(T("l_justif"),money(C.colabRamas),null,C.colabRamas>0?"warnc":"",0,"clock","var(--warn)"),
+    r2(T("t_total"),money(C.totalFirma),null,"",1,"wallet","var(--accent)")
   ])+'</div>';
 
   var cv=C.vals.filter(function(v){return C.intratNum[v]||C.iesTotal[v]||C.ramas[v]});
-  if(cv.length)h+='<div class="sec"><h2>'+esc(T("s_casa"))+'</h2>'+rowsCard(cv.map(function(v){
+  if(cv.length)h+='<div class="sec sec-casa"><h2>'+esc(T("s_casa"))+'</h2>'+rowsCard(cv.map(function(v){
     return '<div class="row"><span class="l">'+curBadge(v)+'<span class="s">'+esc(money(C.ramasMDL[v])+" MDL · "+T("l_azi"))+'</span></span><span class="r '+(C.ramas[v]<0?"neg":"")+'">'+money(C.ramas[v])+'</span></div>';
   }).concat([r2(T("l_total"),money(C.casaMDL)+" MDL",null,"",1)]))+'</div>';
 
   if(C.colab.length)h+='<div class="sec"><h2>'+esc(T("s_colab"))+'</h2><div class="card rows">'+C.colab.map(function(x){return colabRow(x)}).join("")+'</div></div>';
 
-  if(C.perClient.length)h+='<div class="sec"><h2>'+esc(T("s_client"))+'</h2>'+rowsCard(C.perClient.slice(0,14).map(function(x){
+  if(C.perClient.length)h+='<div class="sec"><h2>'+esc(T("s_client"))+'</h2>'+rowsCardMore(C.perClient.map(function(x){
     return r2(x.nume,money(x.sold),T("t_incasari")+" "+money(x.inc)+" · "+T("t_cheltuieli")+" "+money(x.chelt),x.sold<0?"neg":"pos");
-  }))+'</div>';
+  }),5,true)+'</div>';
 
   if(C.perCateg.length){var mx=C.perCateg[0].val;
-    h+='<div class="sec"><h2>'+esc(T("s_categ"))+'</h2>'+rowsCard(C.perCateg.slice(0,12).map(function(x){return barRow(x.nume,x.val,mx)}))+'</div>';}
+    h+='<div class="sec"><h2>'+esc(T("s_categ"))+'</h2>'+rowsCardMore(C.perCateg.map(function(x){return barRow(catLabel(x.nume),x.val,mx,"var(--s"+(catSlot(x.nume)+1)+")",catIcon(x.nume))}),5,true)+'</div>';}
   h+='<div class="sec"><h2>'+esc(T("s_proiecte"))+'</h2>';
   if(!C.proiecte.length){
     h+='<div class="card"><div class="empty"><b>'+esc(T("proj_none"))+'</b>'+esc(T("proj_none_d"))+'</div></div>';
   }else{
-    h+='<div class="card rows">'+C.proiecte.map(function(p){
+    h+='<div class="card rows">'+moreRows(C.proiecte.map(function(p){
       var over=p.buget>0&&p.chelt>p.buget;
       var sub=[p.client,p.resp.length?p.resp.join(", "):T("p_niciunul"),p.status!=="Activ"?(p.status==="Pauză"?T("st_pauza"):T("st_final")):""].filter(Boolean).join(" · ");
       var bar=p.buget>0?'<span class="bar-wrap"><span class="bar-fill" style="width:'+Math.max(2,Math.round(p.pct))+'%;background:'+(over?"var(--neg)":"var(--accent)")+'"></span></span>':"";
       var right=p.buget>0?money(p.rest):money(p.chelt);
       var note=p.buget>0?(T("p_cheltuit")+" "+money(p.chelt)+" / "+money(p.buget)):(T("p_cheltuit")+" "+money(p.chelt)+" · "+T("p_incasat")+" "+money(p.inc));
-      return '<button type="button" class="tap row" data-edit="proiecte" data-id="'+esc(p.id)+'">'
-        +'<span class="l">'+esc(p.nume)+'<span class="s">'+esc(sub)+'</span><span class="s">'+esc(note)+'</span>'+bar+'</span>'
-        +'<span class="r '+(over?"neg":(p.buget>0?"pos":""))+'">'+right+'</span></button>';
-    }).join("")+'</div>';
+      return '<button type="button" class="tap row wrap" data-edit="proiecte" data-id="'+esc(p.id)+'">'
+        +'<span class="l">'+esc(p.nume)+'<span class="s">'+esc(sub)+'</span><span class="s">'+esc(note)+'</span></span>'
+        +'<span class="r '+(over?"neg":(p.buget>0?"pos":""))+'">'+right+'</span>'+bar+'</button>';
+    }),5,true)+'</div>';
   }
   h+='</div>';
   if(C.perProiect.length){var mp=C.perProiect[0].val;
-    h+='<div class="sec"><h2>'+esc(T("p_alte"))+'</h2>'+rowsCard(C.perProiect.slice(0,12).map(function(x){return barRow(x.nume,x.val,mp)}))+'</div>';}
+    h+='<div class="sec"><h2>'+esc(T("p_alte"))+'</h2>'+rowsCardMore(C.perProiect.map(function(x){return barRow(x.nume,x.val,mp)}))+'</div>';}
 
-  if(C.contracte.length)h+='<div class="sec"><h2>'+esc(T("s_contr"))+'</h2>'+rowsCard([
-    r2(T("l_valcontr"),money(C.contrVal)),r2(T("l_incas"),money(C.contrInc),null,"pos"),
-    r2(T("l_ramas"),money(C.contrRamas),null,C.contrRamas>0?"warnc":""),
-    r2(T("l_procent"),fmt(C.contrPct,1)+"%",null,"",1)
-  ])+'</div>';
+  if(C.contracte.length)h+='<div class="sec"><h2>'+esc(T("s_contr"))+'</h2>'+statCard([
+    [T("l_valcontr"),money(C.contrVal)],[T("l_incas"),money(C.contrInc),"pos"],
+    [T("l_ramas"),money(C.contrRamas),C.contrRamas>0?"warnc":""],[T("l_procent"),fmt(C.contrPct,1)+"%"]
+  ],C.contrPct)+'</div>';
 
-  if(C.salLuni.length)h+='<div class="sec"><h2>'+esc(T("s_sal"))+'</h2>'+rowsCard([
-    r2(T("l_castigat"),money(C.salCastigat)),r2(T("l_plata"),money(C.salPlatit)),
-    r2(T("l_rest"),money(C.salRest),null,C.salRest>0?"warnc":"pos",1)
-  ].concat(C.salLuni.slice(0,4).map(function(m){
+  if(C.salLuni.length)h+='<div class="sec"><h2>'+esc(T("s_sal"))+'</h2>'+statCard([
+    [T("l_castigat"),money(C.salCastigat)],[T("l_plata"),money(C.salPlatit)],
+    [T("l_rest"),money(C.salRest),C.salRest>0?"warnc":"pos"]
+  ],C.salCastigat>0?C.salPlatit/C.salCastigat*100:null,C.salLuni.slice(0,4).map(function(m){
     return r2(monthName(m.luna),money(m.rest),T("l_castigat")+" "+money(m.castigat)+" · "+T("l_plata")+" "+money(m.platit),m.rest>0?"warnc":"");
-  })))+'</div>';
+  }).join(""))+'</div>';
 
-  if(S.imprumuturi.length)h+='<div class="sec"><h2>'+esc(T("s_impr"))+'</h2>'+rowsCard([
-    r2(T("l_imprtot"),money(C.imprTotal)),r2(T("l_restituit"),money(C.imprRestituit),null,"pos"),
-    r2(T("l_derecup"),money(C.imprRamas),C.imprNeachitate+" ×",C.imprRamas>0?"warnc":""),
-    r2(T("l_restante"),String(C.imprRestante),null,C.imprRestante?"neg":"pos")
-  ])+'</div>';
+  if(S.imprumuturi.length)h+='<div class="sec"><h2>'+esc(T("s_impr"))+'</h2>'+statCard([
+    [T("l_imprtot"),money(C.imprTotal)],[T("l_restituit"),money(C.imprRestituit),"pos"],
+    [T("l_derecup"),money(C.imprRamas),C.imprRamas>0?"warnc":"",C.imprNeachitate+" ×"],[T("l_restante"),String(C.imprRestante),C.imprRestante?"neg":"pos"]
+  ],C.imprTotal>0?C.imprRestituit/C.imprTotal*100:null)+'</div>';
 
-  if(C.chiriiMDL)h+='<div class="sec"><h2>'+esc(T("s_chirii"))+'</h2>'+rowsCard([r2(T("l_total"),money(C.chiriiMDL)+" MDL")])+'</div>';
+  if(C.chiriiMDL)h+='<div class="sec"><h2>'+esc(T("s_chirii"))+'</h2>'+statCard([[T("l_total"),money(C.chiriiMDL)+' <span class="u">MDL</span>']])+'</div>';
   h+='</div>';
   return h;
 }
@@ -1452,26 +1578,27 @@ function vPin(){
   return h;
 }
 function vUsers(){
-  var h='<div class="sec"><h2>'+esc(T("r_user"))+'</h2>';
+  var h='<div class="sec"><div class="sec-h"><h2>'+esc(T("r_user"))+'</h2><div class="sec-act"><button class="btn sm ghost exit-top" id="exitdir" type="button">'+icon("users")+esc(T("logout"))+'</button><button class="btn sm" type="button" data-form="utilizatori">'+icon("userplus")+esc(T("a_user"))+'</button></div></div>';
   if(!S.utilizatori.length){
     h+='<div class="card"><div class="empty"><b>'+esc(T("u_none"))+'</b>'+esc(T("u_none_d"))+'</div></div>';
   }else{
+    /* a person per row: initials in their colour, the role as a tag, the access code in a mono chip */
     h+='<div class="card rows">'+S.utilizatori.slice().sort(function(a,b){return String(a.nume).localeCompare(String(b.nume))}).map(function(u){
-      var off=u.status==="Inactiv";
-      return '<button type="button" class="tap row" data-edit="utilizatori" data-id="'+esc(u.id)+'">'
-        +'<span class="l">'+esc(u.nume)+'<span class="s">'+esc((u.rol==="Director"?T("rol_dir"):T("rol_op"))+(off?" · "+T("u_inactiv"):""))+'</span></span>'
-        +'<span class="r '+(off?"":"pos")+'" style="letter-spacing:.14em">'+esc(off?"—":u.cod)+'</span></button>';
+      var off=u.status==="Inactiv",dir=u.rol==="Director";
+      return '<button type="button" class="tap row user-row'+(off?" off":"")+'" data-edit="utilizatori" data-id="'+esc(u.id)+'">'
+        +'<span class="av" style="--c:'+toneOf(u.nume)+'">'+esc(initials(u.nume))+'</span>'
+        +'<span class="l"><span class="nm-row">'+esc(u.nume)+'<span class="tagc '+(dir?"acc":"mut")+'">'+esc(dir?T("rol_dir"):T("rol_op"))+'</span>'+(off?'<span class="tagc neg">'+esc(T("u_inactiv"))+'</span>':'')+'</span></span>'
+        +'<span class="code">'+esc(off?"—":u.cod)+'</span></button>';
     }).join("")+'</div>';
   }
-  h+='<button class="btn ghost" style="margin-top:10px" type="button" data-form="utilizatori">+ '+esc(T("a_user"))+'</button></div>';
-  return h;
+  return h+'</div>';
 }
 
 function vWho(){
   var me=meName(),list=oameni(),u=myUser();
-  if(me)return '<div class="sec"><div class="card pad who"><span class="k" style="font-family:var(--d);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">'+esc(T("me_t"))+'</span>'
-    +'<span class="nm">'+esc(me)+(u?'<span class="s" style="display:block;font-size:12px;color:var(--muted);font-family:var(--b);font-weight:400">'+esc(u.rol==="Director"?T("rol_dir"):T("rol_op"))+'</span>':'')+'</span>'
-    +'<button type="button" id="mechg">'+esc(T("me_ch"))+'</button></div></div>';
+  if(me)return '<div class="sec"><div class="card who-card"><span class="av" style="--c:'+toneOf(me)+'">'+esc(initials(me))+'</span>'
+    +'<span class="who-t"><span class="who-k">'+esc(T("me_t"))+'</span><b>'+esc(me)+'</b>'+(u?'<span class="role'+(u.rol==="Director"?" on":"")+'">'+esc(u.rol==="Director"?T("rol_dir"):T("rol_op"))+'</span>':'')+'</span>'
+    +'<button type="button" class="who-btn" id="mechg">'+icon("users")+esc(T("me_ch"))+'</button></div></div>';
   return "";
   if(!list.length)return '<div class="sec"><div class="note">'+esc(T("me_none"))+'</div></div>';
   return '<div class="sec"><div class="card pad"><form id="mef"><label><span>'+esc(T("me_pick"))+'</span>'
@@ -1492,7 +1619,7 @@ function vAdd(){
   }).join("")+'</div></div>';
   h+='</div><aside class="add-side">';
   h+='<div class="sec"><h2>'+esc(T("ord"))+'</h2><div class="card rows">'
-    +r2("1",'',T("ord_1"))+r2("2",'',T("ord_2"))+r2("3",'',T("ord_3"))+r2("4",'',T("ord_4"))+'</div></div>';
+    +[1,2,3,4].map(function(i){return '<div class="row step"><span class="num">'+i+'</span><span class="l">'+esc(T("ord_"+i))+'</span></div>'}).join("")+'</div></div>';
   h+=installNote();
   if(!isDir)h+='<div class="sec"><button class="btn ghost" id="exitdir" type="button">'+esc(T("logout"))+'</button></div>';
   h+='</aside></div>';
@@ -1504,7 +1631,7 @@ var REGDEF={
    sub:function(r){return [r.proiect,r.descriere].filter(Boolean).join(" · ")},
    main:function(r){return r.client||"—"},amt:function(r){return money(n(r.suma))+" "+curBadge(r.valuta||"MDL",false)},
    cls:function(){return "pos"},meta:function(r){return r.data+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
- cheltuieli:{t:"r_chelt",main:function(r){return r.categorie||"—"},
+ cheltuieli:{t:"r_chelt",main:function(r){return catLabel(r.categorie)||"—"},
    sub:function(r){return [r.descriere,r.client,r.proiect,(r.mod!=="Transfer"&&r.sursa==="Proprii")?T("src_proprii_short"):""].filter(Boolean).join(" · ")},
    amt:function(r){return money(n(r.suma))+" MDL"},cls:function(){return "neg"},
    meta:function(r){return r.data+" · "+(r.platitDe||"")+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
@@ -1528,14 +1655,63 @@ var REGDEF={
    amt:function(r){return money(n(r.suma))+" MDL"},cls:function(r){return r.status==="Achitat"?"pos":"warnc"},
    meta:function(r){return r.data}}
 };
+/* table view of the registers: the title of the main column, an icon per record, the "who and how" cell and the amount in lei */
+var DEST_IC={"Depus pe cont":["bank","var(--s3)"],"Dat persoanei":["send","var(--s6)"],Salarii:["users","var(--s1)"],"Împrumut":["clock","var(--s4)"],Alte:["dots","var(--muted)"]};
+var REGTBL={
+ incasari:{th:"f_client",ic:function(){return ["inArrow","var(--pos)"]},how:function(r){return [r.mod==="Numerar"?T("numerar"):T("transfer"),""]},mdl:function(r){return n(r.suma)*n(r.curs)}},
+ cheltuieli:{th:"f_categ",ic:function(r){return [catIcon(r.categorie),"var(--s"+(catSlot(r.categorie)+1)+")"]},how:function(r){return [r.mod==="Numerar"?T("numerar"):T("transfer"),r.platitDe||""]},mdl:function(r){return n(r.suma)}},
+ iesiri:{th:"f_dest",ic:function(r){return DEST_IC[r.destinatie]||DEST_IC.Alte},how:function(r){return ["",r.persoana||""]},mdl:function(r){return n(r.suma)*n(r.curs)}},
+ chirii:{th:"f_loc",ic:function(){return ["home","var(--s4)"]},how:function(r){return [r.mod==="Numerar"?T("numerar"):T("transfer"),r.chirias||""]},mdl:function(r){return chirieTotal(r)*n(r.curs)}},
+ proiecte:{th:"f_proiect",ic:function(){return ["folder","var(--s1)"]},how:function(r){return [REGDEF.proiecte.meta(r),""]},mdl:null},
+ imprumuturi:{th:"f_pers",ic:function(r){return ["clock",r.status==="Achitat"?"var(--pos)":"var(--warn)"]},how:function(r){return [r.status==="Achitat"?T("achitat"):T("neachitat"),""]},mdl:function(r){return n(r.suma)}}
+};
+var REG_IC={incasari:"inArrow",cheltuieli:"outArrow",iesiri:"send",proiecte:"folder",chirii:"home",contracte:"file",imprumuturi:"clock",salarii:"users",jurnal:"list"};
+function regLabel(k){return k==="salarii"?T("r_sal"):(k==="jurnal"?T("r_jur"):T(REGDEF[k].t))}
+var REG_TABS=["incasari","cheltuieli","iesiri","proiecte","chirii","contracte","imprumuturi","salarii","jurnal"];
+function openRegPick(){
+  var m=$("#menu");if(!m)return;
+  /* a dropdown that opens straight from the button, its width, over everything */
+  var btn=$("#regmore"),r=btn?btn.getBoundingClientRect():{left:16,bottom:120,width:300};
+  var st='left:'+Math.round(r.left)+'px;top:'+Math.round(r.bottom+6)+'px;width:'+Math.round(r.width)+'px;max-height:calc(100vh - '+Math.round(r.bottom+6)+'px - 84px)';
+  if(btn)btn.classList.add("open");
+  m.innerHTML='<div class="menu-bg lite" data-menu-close="1"></div><div class="pick-p" role="dialog" aria-label="'+esc(T("nav_reg"))+'" style="'+st+'"><div class="pick-g">'
+    +REG_TABS.map(function(k){var n=REGDEF[k]&&S[k]?S[k].length:0;return '<button type="button" class="pick-i" data-tab="'+k+'"'+(regTab===k?' aria-pressed="true"':'')+'>'+icon(REG_IC[k])+'<span>'+esc(regLabel(k))+'</span>'+(n?'<span class="cnt">'+n+'</span>':'')+'</button>'}).join("")+'</div></div>';
+  m.hidden=false;document.body.classList.add("menu-open");
+}
+function shortDate(d){var p=String(d||"").split("-");return p.length===3?p[2]+"."+p[1]+"."+p[0]:String(d||"")}
+/* months of the register as groups; a click on the month row folds its records smoothly (remembered per tab and month) */
+var REGCLOSED={};
+function regTable(tab,list,all){
+  all=all||list;
+  var t=REGTBL[tab],def=REGDEF[tab],h='<div class="card tbl-card"><table class="tbl"><thead><tr><th>'+esc(T("f_data"))+'</th><th>'+esc(T(t.th))+'</th><th>'+esc(T("th_det"))+'</th><th>'+esc(T("th_how"))+'</th><th class="n">'+esc(T("f_suma"))+'</th></tr></thead>';
+  var groups=[],cur=null;
+  list.forEach(function(r){var m=ymOf(r)||"—";if(!cur||cur.m!==m){cur={m:m,rows:[]};groups.push(cur)}cur.rows.push(r)});
+  groups.forEach(function(g){
+    var inM=all.filter(function(r){return (ymOf(r)||"—")===g.m}),tot=t.mdl?round2(inM.reduce(function(a,r){return a+t.mdl(r)},0)):null,key=tab+":"+g.m;
+    h+='<tbody class="g'+(REGCLOSED[key]?" closed":"")+'"><tr class="grp" data-grp="'+esc(key)+'"><td colspan="4">'+icon("chevR")+esc(g.m==="—"?"—":monthName(g.m))+' <span class="grp-n">'+esc(T("n_rec").replace("{n}",inM.length))+'</span></td><td class="n">'+(tot!=null?money(tot)+' <span class="u">MDL</span>':'')+'</td></tr>';
+    g.rows.forEach(function(r){
+      var ic=t.ic(r),how=t.how(r);
+      h+='<tr class="tr" data-edit="'+tab+'" data-id="'+esc(r.id)+'"><td class="t-date"><div class="cell">'+esc(shortDate(dateOf(r)))+'</div></td>'
+        +'<td><div class="cell"><span class="t-main" style="--c:'+ic[1]+'"><span class="ic-badge tint">'+icon(ic[0])+'</span>'+esc(def.main(r))+'</span></div></td>'
+        +'<td class="t-sub"><div class="cell">'+esc(def.sub(r))+'</div></td>'
+        +'<td class="t-how"><div class="cell">'+(how[0]?'<span class="pill-m">'+esc(how[0])+'</span>':'')+esc(how[1])+'</div></td>'
+        +'<td class="n amt '+def.cls(r)+'"><div class="cell">'+def.amt(r)+'</div></td></tr>';
+    });
+    h+='</tbody>';
+  });
+  return h+'</table></div>';
+}
 function dateOf(r){return r.data||r.dataInceput||r.luna||r.ts||""}
 function vReg(){
   if(!isDir)return vPin();
   var tabs=["incasari","cheltuieli","iesiri","proiecte","chirii","contracte","imprumuturi","salarii","jurnal"];
   var h=statusNote();
-  h+='<div class="sec"><div class="chips">'+tabs.map(function(k){
-    var lbl=k==="salarii"?T("r_sal"):(k==="jurnal"?T("r_jur"):T(REGDEF[k].t));
-    return '<button type="button" class="chip" data-tab="'+k+'"'+(regTab===k?' aria-pressed="true"':'')+'>'+esc(lbl)+'</button>';
+  /* phones: one button naming the open journal; it pops up the list of all journals */
+  var rsN=REGDEF[regTab]&&S[regTab]?S[regTab].length:0;
+  h+='<div class="sec regsw"><button type="button" class="rs-sel" id="regmore" aria-haspopup="dialog">'+icon(REG_IC[regTab])+'<span class="rs-l">'+esc(regLabel(regTab))+'</span>'+(rsN?'<span class="cnt">'+rsN+'</span>':'')+'<span class="rs-ch">'+icon("chevR")+'</span></button></div>';
+  h+='<div class="sec"><div class="segbar">'+tabs.map(function(k){
+    var lbl=k==="salarii"?T("r_sal"):(k==="jurnal"?T("r_jur"):T(REGDEF[k].t)),cnt=REGDEF[k]&&S[k]?S[k].length:null;
+    return '<button type="button" class="seg-b" data-tab="'+k+'"'+(regTab===k?' aria-pressed="true"':'')+'>'+icon(REG_IC[k])+esc(lbl)+(cnt?'<span class="cnt">'+cnt+'</span>':'')+'</button>';
   }).join("")+'</div></div>';
   if(regTab==="salarii")return h+vSalarii();
   if(regTab==="jurnal")return h+vJurnal();
@@ -1543,8 +1719,8 @@ function vReg(){
   var list=S[regTab].slice().sort(function(a,b){return String(dateOf(b)).localeCompare(String(dateOf(a)))});
   if(regFilter&&regFilter.col===regTab){
     list=list.filter(function(r){return (!regFilter.luna||ymOf(r)===regFilter.luna)&&(!regFilter.categorie||sameP(r.categorie,regFilter.categorie))});
-    h+='<div class="sec"><div class="filterbar">'+esc([regFilter.categorie,regFilter.luna?monthName(regFilter.luna):T("ov_all")].filter(Boolean).join(" · "))
-      +' <button type="button" class="chip" data-clearfilter="1">✕ '+esc(T("filt_clear"))+'</button></div></div>';
+    h+='<div class="sec"><div class="filterbar">'+esc([catLabel(regFilter.categorie),regFilter.luna?monthName(regFilter.luna):T("ov_all")].filter(Boolean).join(" · "))
+      +' <button type="button" class="chip" data-clearfilter="1">'+icon("x")+esc(T("filt_clear"))+'</button></div></div>';
   }
   if(!list.length)return h+'<div class="sec"><div class="card"><div class="empty"><b>'+esc(T("nothing"))+'</b>'+esc(T("nothing_d"))+'</div></div></div>';
   if(regTab==="contracte"){
@@ -1556,12 +1732,26 @@ function vReg(){
     }).join("")+'</div></div>';
     return h;
   }
-  h+='<div class="sec"><div class="card rows">'+list.map(function(r){
+  /* 15 records a page */
+  var full=list,pages=Math.max(1,Math.ceil(full.length/REG_PG)),pg=Math.min(Math.max(0,REGPAGE[regTab]||0),pages-1);
+  REGPAGE[regTab]=pg;list=full.slice(pg*REG_PG,pg*REG_PG+REG_PG);
+  if(REGTBL[regTab])h+='<div class="sec">'+regTable(regTab,list,full)+'</div>';
+  h+='<div class="sec reg-rows"><div class="card rows">'+list.map(function(r){
     return '<button type="button" class="tap row" data-edit="'+regTab+'" data-id="'+esc(r.id)+'">'
       +'<span class="l">'+esc(def.main(r))+'<span class="s">'+esc([def.meta(r),def.sub(r)].filter(Boolean).join(" · "))+'</span></span>'
       +'<span class="r '+def.cls(r)+'">'+def.amt(r)+'</span></button>';
   }).join("")+'</div></div>';
+  if(pages>1)h+=pager(pg,pages,full.length);
   return h;
+}
+var REG_PG=15,REGPAGE={};
+/* prev, page numbers (first, last and those around the current one; the rest fold into "…"), next, and "16–30 of 68" */
+function pager(pg,pages,n){
+  var nums=[],i;for(i=0;i<pages;i++){if(i===0||i===pages-1||Math.abs(i-pg)<=1)nums.push(i);else if(nums[nums.length-1]!=="…")nums.push("…")}
+  return '<div class="sec pager"><button type="button" class="pg-b" data-page="'+(pg-1)+'"'+(pg?'':' disabled')+' aria-label="'+esc(T("pg_prev"))+'">'+icon("chevL")+'</button>'
+    +nums.map(function(x){return x==="…"?'<span class="pg-gap">…</span>':'<button type="button" class="pg-b'+(x===pg?' on':'')+'" data-page="'+x+'"'+(x===pg?' aria-current="page"':'')+'>'+(x+1)+'</button>'}).join("")
+    +'<button type="button" class="pg-b" data-page="'+(pg+1)+'"'+(pg<pages-1?'':' disabled')+' aria-label="'+esc(T("pg_next"))+'">'+icon("chevR")+'</button>'
+    +'<span class="pg-of">'+esc(T("pg_of").replace("{a}",pg*REG_PG+1).replace("{b}",Math.min(n,pg*REG_PG+REG_PG)).replace("{n}",n))+'</span></div>';
 }
 function vSalarii(){
   var C=calc(),h="";
@@ -1638,41 +1828,51 @@ function vMine(){
   return h;
 }
 
+/* categories as chips: x deletes on a second tap (saved at once); a new one is added through the field under them */
+function catBase(){var c=cfg().categorii;return (c&&c.length?c:DEF_CFG.categorii).slice()}
+function catChips(){
+  return '<div class="cat-prev" id="catlist">'+catBase().map(function(k,i){
+    return '<span class="cat-chip ed" style="--c:var(--s'+(catSlot(k)+1)+')">'+icon(catIcon(k))+esc(catLabel(k))
+      +'<button type="button" class="cat-x" data-catdel="'+i+'" aria-label="'+esc(T("del"))+'">'+icon("x")+'</button></span>';
+  }).join("")+'</div>'
+    /* a new one is added like a currency: a dashed field with a plus, then Save */
+    +'<form id="catadd" class="cat-form"><label class="cg-cell cg-new"><span class="cg-b">'+icon("plus")+'</span><input name="nc" autocomplete="off" aria-label="'+esc(T("cat_add"))+'" placeholder="'+esc(T("cat_add"))+'"></label>'+setSave()+'</form>';
+}
+function catSave(list){saveCfg({categorii:list}).then(function(){toast(T("saved"));render()}).catch(function(){toast(T("offline"))})}
+/* a setting card: icon, title and explanation on top, then the form */
+function setCard(ic,title,hint,body){
+  return '<div class="sec"><div class="card set-card"><div class="set-h"><span class="ic-badge tint" style="--c:var(--accent)">'+icon(ic)+'</span><div><b>'+esc(title)+'</b>'+(hint?'<p>'+esc(hint)+'</p>':'')+'</div></div>'+body+'</div></div>';
+}
+function setSave(id,label,ic){return '<div class="set-act"><button class="btn sm" type="submit"'+(id?' id="'+id+'"':'')+'>'+(ic?icon(ic):'')+esc(label||T("save"))+'</button></div>'}
 function vSet(){
   if(!isDir)return vPin();
   var c=cfg(),h='<div class="set-grid">'+vUsers();
-  h+='<div class="sec"><h2>'+esc(T("set_val"))+'</h2><div class="card pad"><form id="valf">'
+  /* currencies: badge inside the code field, the rate beside it, a last row to add one */
+  h+=setCard("cash",T("set_val"),T("set_val_h"),'<form id="valf"><div class="cur-grid"><span class="cg-h">'+esc(T("cod"))+'</span><span class="cg-h">'+esc(T("f_curs"))+'</span>'
     +valute().map(function(v,i){
-      return '<div class="pair"><label><span>'+curBadge(v.cod,false)+' '+esc(T("cod"))+'</span><input name="cod'+i+'" value="'+esc(v.cod)+'"'+(v.cod==="MDL"?' readonly':'')+'></label>'
-        +'<label><span>'+esc(T("f_curs"))+'</span><input name="curs'+i+'" type="number" step="0.0001" value="'+esc(v.curs)+'"'+(v.cod==="MDL"?' readonly':'')+'></label></div>';
+      return '<label class="cg-cell"><span class="cg-b">'+curBadge(v.cod,false)+'</span><input name="cod'+i+'" aria-label="'+esc(T("cod"))+'" value="'+esc(v.cod)+'"'+(v.cod==="MDL"?' readonly':'')+'></label>'
+        +'<input name="curs'+i+'" aria-label="'+esc(T("f_curs"))+'" type="number" step="0.0001" value="'+esc(v.curs)+'"'+(v.cod==="MDL"?' readonly':'')+'>';
     }).join("")
-    +'<div class="pair"><label><span>'+esc(T("cod"))+'</span><input name="newcod" placeholder="RON"></label>'
-    +'<label><span>'+esc(T("f_curs"))+'</span><input name="newcurs" type="number" step="0.0001" placeholder="4.05"></label></div>'
-    +'<p class="hint">'+esc(T("set_val_h"))+'</p><button class="btn" type="submit">'+esc(T("save"))+'</button></form></div></div>';
+    +'<label class="cg-cell cg-new"><span class="cg-b">'+icon("plus")+'</span><input name="newcod" aria-label="'+esc(T("cod"))+'" placeholder="RON"></label>'
+    +'<input name="newcurs" aria-label="'+esc(T("f_curs"))+'" type="number" step="0.0001" placeholder="4.05"></div>'+setSave()+'</form>');
 
-  h+='<div class="sec"><h2>'+esc(T("set_cas"))+'</h2><div class="card pad"><form id="casf">'
-    +'<label><span>'+esc(T("f_pers"))+'</span><input name="casier" value="'+esc(c.casier||"")+'" list="dl-pers"></label>'
-    +'<p class="hint">'+esc(T("set_cas_h"))+'</p><button class="btn" type="submit">'+esc(T("save"))+'</button></form></div></div>'
+  h+=setCard("wallet",T("set_cas"),T("set_cas_h"),'<form id="casf"><label><span>'+esc(T("f_pers"))+'</span><input name="casier" value="'+esc(c.casier||"")+'" list="dl-pers"></label>'+setSave()+'</form>')
     +'<datalist id="dl-pers">'+persoane().map(function(p){return '<option value="'+esc(p)+'">'}).join("")+'</datalist>';
 
-  h+='<div class="sec"><h2>'+esc(T("set_pw"))+'</h2><div class="card pad"><form id="pwchg">'
+  h+=setCard("lock",T("set_pw"),T("set_pw_h"),'<form id="pwchg">'
     +'<label><span>'+esc(T("f_parola_veche"))+'</span><input type="password" name="veche" autocomplete="current-password"></label>'
     +'<div class="pair"><label><span>'+esc(T("f_parola_noua"))+'</span><input type="password" name="noua" autocomplete="new-password" minlength="8"></label>'
-    +'<label><span>'+esc(T("f_parola2"))+'</span><input type="password" name="noua2" autocomplete="new-password" minlength="8"></label></div>'
-    +'<p class="hint">'+esc(T("set_pw_h"))+'</p><button class="btn" type="submit">'+esc(T("save"))+'</button></form></div></div>';
+    +'<label><span>'+esc(T("f_parola2"))+'</span><input type="password" name="noua2" autocomplete="new-password" minlength="8"></label></div>'+setSave()+'</form>');
 
-  h+='<div class="sec"><h2>'+esc(T("set_cat"))+'</h2><div class="card pad"><form id="catf">'
-    +'<label><span>'+esc(T("f_categ"))+'</span><textarea name="cat" rows="7">'+esc((c.categorii||[]).join("\n"))+'</textarea></label>'
-    +'<p class="hint">'+esc(T("set_cat_h"))+'</p><button class="btn" type="submit">'+esc(T("save"))+'</button></form></div></div>';
+  /* categories: how they look on the dashboard, then the list to edit (in the interface language; saved under the stored names) */
+  h+=setCard("tag",T("set_cat"),T("set_cat_h"),catChips());
 
-
-  h+='<div class="sec"><h2>'+esc(T("exp_t"))+'</h2><div class="card pad"><form id="expf">'
-    +'<label><span>'+esc(T("f_luna"))+'</span><input type="month" name="luna" value="'+esc(JUR.luna)+'"></label>'
-    +'<label class="cb"><input type="checkbox" name="doar"><span>'+esc(T("exp_luna"))+'</span></label>'
-    +'<p class="hint">'+esc(T("j_exp_h"))+'</p>'
-    +'<button class="btn" type="submit" id="expsub">'+esc(T("exp_btn"))+'</button></form></div></div>';
-  h+='<div class="sec"><button class="btn ghost" id="exitdir" type="button">'+esc(T("logout"))+'</button></div>';
+  h+=setCard("file",T("exp_t"),T("j_exp_h"),'<form id="expf">'
+    +'<div class="pair exp-row"><label><span>'+esc(T("f_luna"))+'</span><input type="month" name="luna" value="'+esc(JUR.luna)+'"></label>'
+    +'<label class="cb exp-cb"><input type="checkbox" name="doar"><span>'+esc(T("exp_luna"))+'</span></label></div>'+setSave("expsub",T("exp_btn"),"down")+'</form>');
   h+=installNote();
+  /* switching user: in the users header on wide screens, full width at the very bottom on phones */
+  h+='<div class="sec sec-full exit-bottom"><button class="btn ghost logout" id="exitdir" type="button">'+icon("users")+esc(T("logout"))+'</button></div>';
   h+='</div>';
   return h;
 }
@@ -1720,19 +1920,20 @@ function drawSheet(){
     else{out+=fieldHtml(vis[i],st.data[vis[i].k]);i++;}
   }
   var calcHtml="";
-  if(def.calc){calcHtml=def.calc(st.data).map(function(c){return '<div class="calcbox"><span>'+esc(c.l)+'</span><span class="num">'+esc(c.v)+'</span></div>'}).join("")}
+  /* totals side by side in one row */
+  if(def.calc){calcHtml='<div class="calc-row">'+def.calc(st.data).map(function(c){return '<div class="calcbox"><span>'+esc(c.l)+'</span><span class="num">'+esc(c.v)+'</span></div>'}).join("")+'</div>'}
   var lists={};
-  fields.forEach(function(f){if(f.list&&f.list.length)lists[f.k]=f.list});
+  fields.forEach(function(f){if(f.list&&f.list.length)lists[f.k]=f.k==="categorie"?uniq(f.list.map(catLabel)):f.list});
   var dls=Object.keys(lists).map(function(k){
     return '<datalist id="dl-'+k+'">'+lists[k].map(function(v){return '<option value="'+esc(v)+'">'}).join("")+'</datalist>';
   }).join("");
   $("#sheet").innerHTML='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(T(def.title))+'</h2>'
-    +'<button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">✕</button></div>'
+    +'<button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div>'
     +'<form id="recf" novalidate>'+out+calcHtml
     +(st.err?'<p class="err">'+esc(st.err)+'</p>':'')
-    +'<button class="btn" type="submit" id="savebtn">'+esc(T("save"))+'</button>'
-    +(st.id&&isDir?'<button class="btn danger" type="button" id="delbtn">'+esc(T("del"))+'</button>':'')
-    +'</form>'+dls+'</div></div>';
+    +'<div class="form-act"><button class="btn" type="submit" id="savebtn">'+esc(T("save"))+'</button>'
+    +(st.id&&isDir?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
+    +'</div></form>'+dls+'</div></div>';
   document.body.style.overflow="hidden";
   dpClose();enhanceDates($("#sheet"));
 }
@@ -1761,6 +1962,7 @@ function fieldHtml(f,v){
       +opts.map(function(o){return '<option value="'+esc(o.v)+'"'+(String(v)===String(o.v)?" selected":"")+'>'+esc(o.l)+'</option>'}).join("")
       +'</select></label>';
   }
+  if(f.k==="categorie")v=catLabel(v);
   var type=f.t==="number"?"number":(f.t==="date"?"date":(f.t==="month"?"month":"text"));
   var extra=f.t==="number"?' inputmode="decimal" step="'+(f.step||"0.01")+'"':"";
   var list=f.list&&f.list.length?' list="dl-'+f.k+'" autocomplete="off"':"";
@@ -1780,6 +1982,7 @@ function submitForm(){
   if(short.length){st.err=T("descr_short");drawSheet();return;}
   var btn=$("#savebtn");if(btn){btn.disabled=true;btn.textContent=T("saving")}
   var d=st.data,col=st.col,p;
+  if(col==="cheltuieli"&&d.categorie)d.categorie=catRaw(d.categorie);
   if(col==="utilizatori"){
     var ub={nume:String(d.nume).trim(),rol:d.rol,cod:String(d.cod).trim(),status:d.status};
     var dup=S.utilizatori.filter(function(u){return u.id!==st.id&&String(u.cod)===ub.cod})[0];
@@ -1872,9 +2075,9 @@ function dpSet(v){
 function dpRender(){
   var p=dpEl(),isMonth=DP.inp.type==="month",cur=DP.inp.value||"",td=today();
   var names=lang==="ru"?["Пн","Вт","Ср","Чт","Пт","Сб","Вс"]:["Lu","Ma","Mi","Jo","Vi","Sâ","Du"];
-  var h='<div class="dp-head"><button type="button" class="dp-nav" data-dpnav="-1" aria-label="prev">‹</button>'
+  var h='<div class="dp-head"><button type="button" class="dp-nav" data-dpnav="-1" aria-label="prev">'+icon("chevL")+'</button>'
     +'<span class="dp-title">'+esc(isMonth?String(DP.y):monthName(DP.y+"-"+p2(DP.m)))+'</span>'
-    +'<button type="button" class="dp-nav" data-dpnav="1" aria-label="next">›</button></div>';
+    +'<button type="button" class="dp-nav" data-dpnav="1" aria-label="next">'+icon("chevR")+'</button></div>';
   if(isMonth){
     h+='<div class="dp-months">';
     for(var mm=1;mm<=12;mm++){var ym=DP.y+"-"+p2(mm);
@@ -1910,8 +2113,44 @@ document.addEventListener("click",function(e){
   if(DP.show&&(t===DP.show||DP.show.contains(t)))return;
   dpClose();
 },true);
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&document.body.classList.contains("menu-open")){closeMenu();return;}});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){var p=$("#dpop");if(p&&!p.hidden){dpClose();e.stopPropagation()}}},true);
 window.addEventListener("resize",dpClose);
+/* the cash-flow chart is drawn for the current width class; redraw when the window crosses it */
+if(WIDE_MQ){if(WIDE_MQ.addEventListener)WIDE_MQ.addEventListener("change",render);else if(WIDE_MQ.addListener)WIDE_MQ.addListener(render);}
+/* Pointing at a category (list row, legend, slice) lights its slice and puts its share and name in the middle of the ring. */
+var ovHot=null,ovSvg=null;
+function ovHL(cat){
+  var svg=$(".ov .donut");if(!svg)return;
+  if(cat===ovHot&&svg===ovSvg)return;ovHot=cat;ovSvg=svg;
+  var hit=null;
+  Array.prototype.forEach.call(svg.querySelectorAll(".seg"),function(s){var on=cat!==null&&s.getAttribute("data-cat")===cat;s.classList.toggle("on",on);if(on)hit=s});  svg.classList.toggle("hl",!!hit);
+  var m=$(".mid",svg),m2=$(".mid2",svg);if(!m||!m2)return;
+  if(m.dataset.t==null){m.dataset.t=m.textContent;m2.dataset.t=m2.textContent;m.dataset.y=m.getAttribute("y");m2.dataset.y=m2.getAttribute("y")}
+  m.textContent=hit?hit.getAttribute("data-pct"):m.dataset.t;
+  m2.classList.toggle("nm",!!hit);
+  /* the name in sentence case, wrapped at spaces onto two lines when long; the figure moves up to make room */
+  var lines=hit?ovWrap(hit.getAttribute("data-label")||hit.getAttribute("data-cat"),15):[m2.dataset.t];
+  while(m2.firstChild)m2.removeChild(m2.firstChild);
+  lines.forEach(function(t,i){var ts=document.createElementNS("http://www.w3.org/2000/svg","tspan");ts.setAttribute("x",m2.getAttribute("x"));if(i)ts.setAttribute("dy","1.25em");ts.textContent=t;m2.appendChild(ts)});
+  var two=lines.length>1;
+  m.setAttribute("y",two?+m.dataset.y-8:m.dataset.y);m2.setAttribute("y",two?+m2.dataset.y-6:m2.dataset.y);
+}
+/* at most two lines of up to max characters, split at spaces; whatever does not fit ends in an ellipsis */
+function ovWrap(s,max){
+  var words=String(s||"").split(/\s+/).filter(Boolean),out=[""];
+  words.forEach(function(w){var cur=out[out.length-1];if(!cur||(cur+" "+w).length<=max)out[out.length-1]=cur?cur+" "+w:w;else out.push(w)});
+  if(out.length>2)out=[out[0],out.slice(1).join(" ")];
+  return out.map(function(l){return l.length>max?l.slice(0,max-1)+"…":l});
+}
+function ovCatOf(t){var el=t&&t.closest?t.closest(".ov [data-cat]"):null;var c=el?el.getAttribute("data-cat"):"";return c?c:null}
+document.addEventListener("mouseover",function(e){ovHL(ovCatOf(e.target))});
+document.addEventListener("focusin",function(e){ovHL(ovCatOf(e.target))});
+/* zoom is off on phones by the owner's choice: iOS Safari ignores user-scalable=no, so pinch gestures are cancelled here */
+document.addEventListener("gesturestart",function(e){e.preventDefault()});
+document.addEventListener("touchmove",function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
+/* the brand is a div acting as a link: Enter or Space opens it too */
+document.addEventListener("keydown",function(e){if((e.key==="Enter"||e.key===" ")&&e.target&&e.target.matches&&e.target.matches(".brand[data-view]")){e.preventDefault();e.target.click()}});
 document.addEventListener("scroll",function(e){var p=$("#dpop");if(p&&!p.hidden&&!(e.target&&e.target.closest&&e.target.closest("#dpop")))dpClose()},true);
 
 /* ---------------- events ---------------- */
@@ -1920,15 +2159,18 @@ document.addEventListener("click",function(ev){
   var lb=t.closest&&t.closest("[data-lang]");
   if(lb){lang=lb.dataset.lang;try{localStorage.setItem("ehl.lang",lang)}catch(e){}render();if(sheetState)drawSheet();return;}
   var nv=t.closest&&t.closest("[data-view]");
-  if(nv){if(nv.dataset.view!==view){view=nv.dataset.view;histPush({v:view});}render();return;}
+  /* another view starts at the top of the page */
+  if(nv){var nvNew=nv.dataset.view!==view;if(nvNew){view=nv.dataset.view;histPush({v:view});}render();if(nvNew)window.scrollTo(0,0);return;}
   var fb=t.closest&&t.closest("[data-form]");
   if(fb){openForm(fb.dataset.form);return;}
   var cb=t.closest&&t.closest("[data-colab]");
   if(cb){openColab(cb.getAttribute("data-colab"));return;}
   var eb=t.closest&&t.closest("[data-edit]");
   if(eb){openForm(eb.dataset.edit,eb.dataset.id);return;}
+  if(t.closest&&t.closest("#regmore")){if(document.body.classList.contains("menu-open"))closeMenu();else openRegPick();return;}
+  if(t.closest&&t.closest(".pick-i"))closeMenu();
   var tb=t.closest&&t.closest("[data-tab]");
-  if(tb){regTab=tb.dataset.tab;render();return;}
+  if(tb){var tbNew=tb.dataset.tab!==regTab;regTab=tb.dataset.tab;render();if(tbNew)window.scrollTo(0,0);return;}
   var pk=t.closest&&t.closest("[data-pick]");
   if(pk&&sheetState){
     var wrap=pk.parentNode,key=wrap.dataset.multi;
@@ -1939,29 +2181,44 @@ document.addEventListener("click",function(ev){
     sheetState.data[key]=picked.join(", ");
     return;
   }
-  if(t.id==="mechg"){logout();return;}
-  if(t.id==="closeSheet"){closeSheet();return;}
-  if(t.id==="delbtn"){
-    var b=t;
+  if(t.closest&&t.closest("#mechg")){logout();return;}
+  if(t.closest&&t.closest("#closeSheet")){closeSheet();return;}
+  /* a click on the dimmed backdrop around a form window closes it */
+  if(t.classList&&t.classList.contains("sheet")){closeSheet();return;}
+  if(t.closest&&t.closest("#delbtn")){
+    var b=t.closest("#delbtn");
     if(b.dataset.armed==="1"){
       delDoc(sheetState.col,sheetState.id).then(function(){closeSheet();toast(T("deleted"))})
         .catch(function(){sheetState.err=T("offline");drawSheet()});
-    }else{b.dataset.armed="1";b.textContent=T("del_yes")}
+    }else{b.dataset.armed="1";b.innerHTML=icon("trash")+'<span>'+esc(T("del_yes"))+'</span>';}
     return;
   }
+  if(t.closest&&t.closest("#burger")){openMenu();return;}
+  if(t.closest&&t.closest("[data-menu-close]")){closeMenu();return;}
+  var gt=t.closest&&t.closest("[data-goto]");
+  if(gt){var bl=dashBlocks()[+gt.getAttribute("data-goto")];closeMenu();if(bl)bl.el.scrollIntoView({behavior:"smooth",block:"start"});return;}
+  var cd=t.closest&&t.closest("[data-catdel]");
+  if(cd){var chip=cd.closest(".cat-chip");if(!chip.classList.contains("arm")){Array.prototype.forEach.call(document.querySelectorAll(".cat-chip.arm"),function(x){x.classList.remove("arm")});chip.classList.add("arm");setTimeout(function(){chip.classList.remove("arm")},3000);return;}
+    var cl=catBase();cl.splice(+cd.getAttribute("data-catdel"),1);catSave(cl);return;}
+  var pb=t.closest&&t.closest("[data-page]");
+  if(pb){if(!pb.disabled){REGPAGE[regTab]=+pb.getAttribute("data-page");render();var sc=$(".tbl-card")||$(".reg-rows");if(sc)window.scrollTo(0,Math.max(0,sc.getBoundingClientRect().top+window.scrollY-90));}return;}
+  var gr=t.closest&&t.closest("[data-grp]");
+  if(gr){var tb=gr.closest("tbody"),gk=gr.getAttribute("data-grp");if(tb){if(tb.classList.toggle("closed"))REGCLOSED[gk]=1;else delete REGCLOSED[gk];}return;}
+  var mb=t.closest&&t.closest("[data-more]");
+  if(mb){var mc=mb.closest(".card");if(mc){var mo=mc.classList.toggle("open");if(mc.classList.contains("ov-exp"))OV.more=mo;}return;}
   var ol=t.closest&&t.closest("[data-ovluna]");
   if(ol){OV.luna=ol.getAttribute("data-ovluna")||"";render();return;}
   var dc=t.closest&&t.closest("[data-cat]");
-  if(dc){regFilter={col:"cheltuieli",categorie:dc.getAttribute("data-cat")||"",luna:OV.luna};regTab="cheltuieli";if(view!=="reg"){view="reg";histPush({v:view});}render();return;}
-  if(t.closest&&t.closest("[data-clearfilter]")){regFilter=null;render();return;}
+  if(dc){regFilter={col:"cheltuieli",categorie:dc.getAttribute("data-cat")||"",luna:OV.luna};REGPAGE.cheltuieli=0;regTab="cheltuieli";if(view!=="reg"){view="reg";histPush({v:view});}render();return;}
+  if(t.closest&&t.closest("[data-clearfilter]")){regFilter=null;REGPAGE[regTab]=0;render();return;}
   var rf=t.closest&&t.closest("[data-retry]");
   if(rf){retryFailed(parseInt(rf.getAttribute("data-retry"),10));return;}
   var df=t.closest&&t.closest("[data-dropfailed]");
   if(df){if(df.dataset.armed==="1"){dropFailed(parseInt(df.getAttribute("data-dropfailed"),10))}else{df.dataset.armed="1";df.textContent=T("del_yes")}return;}
-  if(t.id==="expbtn"){exportRun(JUR.luna,false);return;}
-  if(t.id==="exitdir"){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}logout();return;}
-  if(t.id==="gateback"){GATE={step:"cod"};gateErr="";render();return;}
-  if(t.id==="installbtn"&&installEvt){var ev2=installEvt;installEvt=null;ev2.prompt();render();return;}
+  if(t.closest&&t.closest("#expbtn")){exportRun(JUR.luna,false);return;}
+  if(t.closest&&t.closest("#exitdir")){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}logout();return;}
+  if(t.closest&&t.closest("#gateback")){GATE={step:"cod"};gateErr="";render();return;}
+  if(t.closest&&t.closest("#installbtn")&&installEvt){var ev2=installEvt;installEvt=null;ev2.prompt();render();return;}
 });
 window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();installEvt=e;if(!sheetState)render()});
 window.addEventListener("appinstalled",function(){installEvt=null;if(!sheetState)render()});
@@ -1993,7 +2250,7 @@ document.addEventListener("submit",function(ev){
   var gateFail=function(e,dflt){
     gateBusy=false;
     var srv=e&&e.response&&e.response.message;
-    gateErr=netErr(e)?T("offline"):(((e&&e.status===429)||(e&&e.status===400))&&srv?srv:dflt);
+    gateErr=netErr(e)?T("offline"):(((e&&e.status===429)||(e&&e.status===400))&&srv?srvT(srv):dflt);
     render();
   };
   if(f.id==="pinf"){
@@ -2028,7 +2285,7 @@ document.addEventListener("submit",function(ev){
         if(res&&res.token){PB.authStore.save(res.token,PB.authStore.record||PB.authStore.model);try{localStorage.setItem("ehl.exp",String(res.expires||0))}catch(e){}}
         f.reset();toast(T("pw_saved"));
       })
-      .catch(function(e){var srv=e&&e.response&&e.response.message;toast(netErr(e)?T("offline"):(srv||T("pw_bad")))});
+      .catch(function(e){var srv=e&&e.response&&e.response.message;toast(netErr(e)?T("offline"):(srv?srvT(srv):T("pw_bad")))});
     return;
   }
   if(f.id==="valf"){
@@ -2048,7 +2305,8 @@ document.addEventListener("submit",function(ev){
     render();toast(T("saved"));return;
   }
   if(f.id==="casf"){saveCfg({casier:f.elements["casier"].value.trim()}).then(function(){toast(T("saved"));render()}).catch(function(){toast(T("offline"))});return;}
-  if(f.id==="catf"){var list=f.elements["cat"].value.split("\n").map(function(s){return s.trim()}).filter(Boolean);
+  if(f.id==="catadd"){var nv2=catRaw(f.elements["nc"].value.trim());if(!nv2){render();return;}var cl2=catBase();if(!cl2.some(function(x){return sameP(x,nv2)}))cl2.push(nv2);catSave(cl2);return;}
+  if(f.id==="catf"){var list=uniq(f.elements["cat"].value.split("\n").map(function(s){return catRaw(s.trim())}).filter(Boolean));
     saveCfg({categorii:list}).then(function(){toast(T("saved"));render()}).catch(function(){toast(T("offline"))});return;}
 });
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&sheetState)closeSheet()});

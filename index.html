@@ -2,10 +2,10 @@
 <html lang="ro">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Casieria EHL</title>
 <meta name="description" content="Casieria EHL — încasări, cheltuieli, casă, cont, salarii, împrumuturi.">
-<meta name="theme-color" content="#0E6A4E" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#171B18" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,15 +20,19 @@
 </head>
 <body>
 
-<div class="bar">
-  <h1 id="ttl">Casieria EHL</h1>
-  <span class="pill" id="role">—</span>
-  <button type="button" class="langbtn" id="langbtn" data-lang="ru" aria-label="Русский">RU</button>
-</div>
+<header class="bar">
+  <div class="brand"><span class="logo" id="logo" aria-hidden="true"></span><h1 id="ttl">Casieria EHL</h1></div>
+  <div class="bar-end">
+    <button type="button" class="burger" id="burger" hidden></button>
+    <div class="me" id="me" hidden><span class="av" id="av" aria-hidden="true"></span><span class="me-t"><b id="uname"></b><span class="role" id="role">—</span></span></div>
+    <button type="button" class="langbtn" id="langbtn" data-lang="ru" aria-label="Русский">RU</button>
+  </div>
+</header>
 
 <main id="app"></main>
 <nav id="nav"></nav>
 <div id="sheet"></div>
+<div id="menu" hidden></div>
 <div id="toasts"></div>
 
 <script src="./vendor/pocketbase.umd.js"></script>
