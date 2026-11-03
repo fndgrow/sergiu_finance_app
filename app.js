@@ -120,6 +120,7 @@ ro:{
  colab_owed:"Firma îi datorează",colab_has:"Are în mână bani ai firmei",colab_zero:"Sold zero",colab_proprii:"din banii proprii",
  colab_proprii_h:"Din această sumă, {s} MDL a plătit din banii proprii pentru firmă.",colab_spent:"Cheltuit pentru firmă",colab_got:"Primit de la firmă",
  my_sold:"Soldul meu",my_sold_h:"Minus înseamnă că firma vă datorează bani. Apăsați ca să vedeți fiecare sumă.",
+ relock_t:"Cod de acces",relock_h:"Introduceți din nou codul ca să continuați. Se cere la fiecare deschidere a aplicației.",relock_week:"A trecut o săptămână: introduceți codul, apoi parola directorului.",
  failed_t:"{n} înregistrări respinse de server",failed_h:"Nu s-au pierdut: sunt păstrate pe acest telefon. Verificați motivul și reîncercați.",failed_retry:"Reîncearcă",failed_toast:"Serverul a respins o înregistrare. Vedeți nota de sus.",
  // server messages (texts sent by server/pb_hooks/ehl.pb.js, shown through srvT)
  srv_cod:"Cod invalid.",srv_many:"Prea multe încercări. Așteptați 15 minute.",srv_bad_user:"Cod greșit sau utilizator dezactivat.",srv_pw8:"Parola trebuie să aibă cel puțin 8 caractere.",srv_pw_bad:"Parolă greșită.",srv_pw_dir:"Doar directorul are parolă.",srv_pw_new8:"Parola nouă trebuie să aibă cel puțin 8 caractere.",srv_pw_cur:"Parola actuală este greșită.",srv_cod48:"Codul trebuie să aibă 4–8 cifre.",srv_self_lock:"Nu vă puteți dezactiva sau retrograda propriul cont.",srv_self_del:"Nu vă puteți șterge propriul cont.",srv_descr:"Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).",
@@ -238,6 +239,7 @@ ru:{
  colab_owed:"Фирма должна",colab_has:"На руках деньги фирмы",colab_zero:"Баланс ноль",colab_proprii:"из своих денег",
  colab_proprii_h:"Из этой суммы {s} MDL оплачено из своих денег за фирму.",colab_spent:"Потрачено на фирму",colab_got:"Получено от фирмы",
  my_sold:"Мой баланс",my_sold_h:"Минус означает, что фирма должна вам деньги. Нажмите, чтобы увидеть каждую сумму.",
+ relock_t:"Код доступа",relock_h:"Введите код ещё раз, чтобы продолжить. Он запрашивается при каждом открытии приложения.",relock_week:"Прошла неделя: введите код, затем пароль директора.",
  failed_t:"{n} записей отклонено сервером",failed_h:"Они не потеряны и хранятся на этом телефоне. Проверьте причину и повторите.",failed_retry:"Повторить",failed_toast:"Сервер отклонил запись. Смотрите заметку вверху.",
  // server messages
  srv_cod:"Неверный код.",srv_many:"Слишком много попыток. Подождите 15 минут.",srv_bad_user:"Неверный код или пользователь отключён.",srv_pw8:"Пароль должен быть не короче 8 символов.",srv_pw_bad:"Неверный пароль.",srv_pw_dir:"Пароль есть только у директора.",srv_pw_new8:"Новый пароль должен быть не короче 8 символов.",srv_pw_cur:"Текущий пароль неверен.",srv_cod48:"Код должен состоять из 4–8 цифр.",srv_self_lock:"Нельзя отключить или понизить собственную учётную запись.",srv_self_del:"Нельзя удалить собственную учётную запись.",srv_descr:"Напишите, на что потрачены деньги (описание обязательно).",
@@ -307,12 +309,12 @@ function unsubAll(){subs.forEach(function(u){try{u()}catch(e){}});subs=[];if(PB)
 function resetData(){COLS.forEach(function(c){S[c]=[]});S.cfg=null;loaded={};stale=false;dbErr=false;if(loadTimer){clearTimeout(loadTimer);loadTimer=null}}
 function logout(msg){
   unsubAll();resetData();
-  ACCESS=null;ME=null;isDir=false;sheetState=null;$("#sheet").innerHTML="";document.body.style.overflow="";
+  ACCESS=null;ME=null;isDir=false;LOCKED=false;sheetState=null;$("#sheet").innerHTML="";document.body.style.overflow="";
   if(PB)PB.authStore.clear();
   try{localStorage.removeItem("ehl.cache")}catch(e){}
   gateErr=msg||"";view="add";render();
 }
-function needGate(){return !ACCESS}
+function needGate(){return !ACCESS||LOCKED}
 function userOf(r){return {id:r.id,nume:r.nume||"",rol:r.rol||"Operator",cod:r.cod||"",status:r.status||"Activ",parolaSetata:!!r.parolaSetata}}
 function enter(user){
   ACCESS={user:userOf(user)};ME=user.id;gateErr="";GATE={step:"cod"};
@@ -321,6 +323,21 @@ function enter(user){
 }
 /* Gate steps: "cod" (everyone) -> for directors "setparola" (first time) or "parola" (new phone, or weekly). */
 var GATE={step:"cod"};
+/* Lock screen: the access code is asked again on every start of the app and after it sat in the background
+   for LOCK_AFTER; the session itself (token, data, offline queue) stays, only the screen is covered. */
+var LOCKED=false,LOCKVIEW="",hiddenAt=0,LOCK_AFTER=10*60*1000;
+function lockScreen(){
+  if(!ACCESS||LOCKED)return;
+  LOCKED=true;LOCKVIEW=view;gateErr="";
+  if(sheetState||$("#sheet").innerHTML){sheetState=null;$("#sheet").innerHTML="";document.body.style.overflow="";}
+  GATE={step:"cod",relock:true,nume:ACCESS.user.nume};
+  render();
+}
+function unlockScreen(){
+  LOCKED=false;gateErr="";GATE={step:"cod"};
+  view=LOCKVIEW||(isDir?"panou":"add");
+  render();
+}
 function sessionExp(){try{return parseInt(localStorage.getItem("ehl.exp")||"0",10)||0}catch(e){return 0}}
 /* POST /api/ehl/login {cod[,parola|parolaNoua]} -> {token,record,expires} | {needPassword} | {needSetPassword};
    the server counts failed attempts per IP, and director tokens expire after 7 days */
@@ -343,9 +360,9 @@ function login(cod,parola,parolaNoua){
 }
 /* a director's week is over: keep the code, ask for the password again */
 function sessionExpired(){
-  var cod="";try{cod=localStorage.getItem("ehl.cod")||""}catch(e){}
+  var cod="",nume=ACCESS&&ACCESS.user?ACCESS.user.nume:"";try{cod=localStorage.getItem("ehl.cod")||""}catch(e){}
   logout("");
-  GATE=cod?{step:"parola",cod:cod,weekly:true}:{step:"cod"};
+  GATE=cod?{step:"cod",relock:true,weekly:true,cod:cod,nume:nume}:{step:"cod"};
   render();
 }
 function expiryCheck(){
@@ -387,7 +404,11 @@ function selfCheck(){
   }).catch(function(e){if(e&&(e.status===404||e.status===401||e.status===403))logout(T("gate_bad"))});
 }
 setInterval(selfCheck,3*60*1000);
-document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")selfCheck()});
+document.addEventListener("visibilitychange",function(){
+  if(document.visibilityState==="hidden"){hiddenAt=Date.now();return;}
+  if(ACCESS&&!LOCKED&&hiddenAt&&Date.now()-hiddenAt>LOCK_AFTER)lockScreen();
+  selfCheck();
+});
 var RT=typeof window.EventSource==="function";
 function sub(col,topic,cb){
   if(!RT)return;
@@ -1569,11 +1590,15 @@ function vPin(){
      +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("pin_ok"))+'</button>'
      +'<button class="btn ghost" type="button" id="gateback">'+esc(T("pw_other"))+'</button></form></div></div>';
   }
-  var h='<div class="sec"><div class="card pad"><h2 style="margin:0 0 6px;font-size:18px">'+esc(T(locked?"gate_t":"pin_t"))+'</h2>'
-   +'<p class="hint" style="margin:0 0 12px">'+esc(T(locked?"gate_h":"pin_h"))+'</p>'
+  var relock=locked&&!!GATE.relock;
+  var ttl=relock?T("relock_t")+(GATE.nume?" · "+GATE.nume:""):T(locked?"gate_t":"pin_t");
+  var hint=relock?T(GATE.weekly?"relock_week":"relock_h"):T(locked?"gate_h":"pin_h");
+  var h='<div class="sec"><div class="card pad"><h2 style="margin:0 0 6px;font-size:18px">'+esc(ttl)+'</h2>'
+   +'<p class="hint" style="margin:0 0 12px">'+esc(hint)+'</p>'
    +'<form id="pinf"><label><span>'+esc(T("f_cod"))+'</span><input type="password" inputmode="numeric" id="pinv" autocomplete="off"'+(gateBusy?" disabled":"")+'></label>'
    +'<p class="err" id="pinerr"'+(gateErr?"":" hidden")+'>'+esc(gateErr||T("gate_bad"))+'</p>'
-   +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("pin_ok"))+'</button></form></div></div>';
+   +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("pin_ok"))+'</button>'
+   +(relock?'<button class="btn ghost" type="button" id="gateother">'+esc(T("logout"))+'</button>':'')+'</form></div></div>';
   if(!locked)h+='<div class="sec"><div class="note">'+esc(T("pin_as"))+'</div></div>';
   return h;
 }
@@ -2218,6 +2243,7 @@ document.addEventListener("click",function(ev){
   if(t.closest&&t.closest("#expbtn")){exportRun(JUR.luna,false);return;}
   if(t.closest&&t.closest("#exitdir")){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}logout();return;}
   if(t.closest&&t.closest("#gateback")){GATE={step:"cod"};gateErr="";render();return;}
+  if(t.closest&&t.closest("#gateother")){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}GATE={step:"cod"};logout();return;}
   if(t.closest&&t.closest("#installbtn")&&installEvt){var ev2=installEvt;installEvt=null;ev2.prompt();render();return;}
 });
 window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();installEvt=e;if(!sheetState)render()});
@@ -2256,6 +2282,15 @@ document.addEventListener("submit",function(ev){
   if(f.id==="pinf"){
     var v=$("#pinv").value.trim();
     if(!v||gateBusy){$("#pinerr").hidden=false;return;}
+    if(GATE.relock){
+      /* lock screen: compared with the code of the signed-in user (or the remembered director code), no server round trip */
+      var want=LOCKED&&ACCESS?String(ACCESS.user.cod||""):String(GATE.cod||"");
+      if(want&&v===want){
+        if(LOCKED){unlockScreen();return;}
+        GATE={step:"parola",cod:v,weekly:!!GATE.weekly,nume:GATE.nume};gateErr="";render();return;
+      }
+      gateErr=T("gate_bad");render();return;
+    }
     gateBusy=true;gateErr="";render();
     login(v).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("gate_bad"))});
     return;
@@ -2324,11 +2359,12 @@ render();
   var rec=PB.authStore.record||PB.authStore.model;
   if(PB.authStore.isValid&&rec&&rec.id){
     enter(rec);
+    lockScreen(); /* the code is asked again on every start */
     /* confirm the session with the server: a deactivated user or an expired director week ends it */
     selfCheck();
   }else{
     var sc="";try{sc=localStorage.getItem("ehl.cod")||""}catch(e){}
-    if(sc)GATE={step:"parola",cod:sc,weekly:!!sessionExp()};
+    if(sc)GATE={step:"cod",relock:true,weekly:!!sessionExp(),cod:sc};
     render();
   }
   window.addEventListener("online",function(){selfCheck()});
