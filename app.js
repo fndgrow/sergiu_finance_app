@@ -46,7 +46,7 @@ ro:{
  saved:"Salvat",deleted:"Șters",edit:"Editare",
  eq:"Echivalent MDL",tot:"Total",
  impr_cash:"Banii au ieșit din casă acum",impr_cash_h:"Creează automat și o ieșire din casă, ca să nu rămână casa umflată.",
- req:"Completați câmpurile obligatorii.",
+ req:"Completați câmpurile obligatorii.",date_future:"Data nu poate fi în viitor.",
  // registers
  r_inc:"Încasări",r_chelt:"Cheltuieli",r_ies:"Ieșiri din casă",r_chirii:"Chirii",
  r_contr:"Contracte",r_sal:"Salarii",r_impr:"Împrumuturi",
@@ -168,7 +168,7 @@ ru:{
  saved:"Сохранено",deleted:"Удалено",edit:"Изменить",
  eq:"Эквивалент MDL",tot:"Итого",
  impr_cash:"Деньги вышли из кассы сейчас",impr_cash_h:"Автоматически создаст и выдачу из кассы, чтобы касса не была завышена.",
- req:"Заполните обязательные поля.",
+ req:"Заполните обязательные поля.",date_future:"Дата не может быть в будущем.",
  r_inc:"Поступления",r_chelt:"Расходы",r_ies:"Выдачи из кассы",r_chirii:"Аренда",
  r_contr:"Договоры",r_sal:"Зарплаты",r_impr:"Займы",
  mine_t:"Мои записи",mine_e:"Вы ещё ничего не вносили.",
@@ -294,7 +294,14 @@ function cursAzi(cod){var v=valute().filter(function(x){return x.cod===cod})[0];
 function casier(){return (cfg().casier||"").trim()}
 function sameP(a,b){return String(a||"").trim().toLowerCase()===String(b||"").trim().toLowerCase()}
 function uniq(a){var o=[],seen={};a.forEach(function(x){var k=String(x||"").trim();if(k&&!seen[k.toLowerCase()]){seen[k.toLowerCase()]=1;o.push(k)}});return o.sort(function(x,y){return x.localeCompare(y)})}
-function clienti(){return uniq(S.incasari.map(function(r){return r.client}).concat(S.cheltuieli.map(function(r){return r.client}),S.contracte.map(function(r){return r.client})))}
+function clienti(){return uniq(S.incasari.map(function(r){return r.client}).concat(S.cheltuieli.map(function(r){return r.client}),S.contracte.map(function(r){return r.client}),S.proiecte.map(function(p){return p.client})))}
+/* incomes and expenses pick the client from the ones already known (projects, contracts, earlier rows); only when
+   none exists yet is the field free text. Choosing a project fills the client in (see the change handler). */
+function fClient(req){
+  var lst=clienti();
+  if(!lst.length)return {k:"client",t:"text",l:"f_client",req:req};
+  return {k:"client",t:"select",l:"f_client",req:req,allowEmpty:1,opts:opt(lst)};
+}
 function proiecteNume(){return uniq(S.incasari.map(function(r){return r.proiect}).concat(S.cheltuieli.map(function(r){return r.proiect}),S.proiecte.map(function(p){return p.nume})))}
 function respList(p){return String(p&&p.responsabili||"").split(",").map(function(s){return s.trim()}).filter(Boolean)}
 function myUser(){
@@ -769,8 +776,8 @@ function catSlot(name){var m=catMain(name),i=-1;catMains().forEach(function(c,k)
 function opt(list){return list.map(function(v){return typeof v==="string"?{v:v,l:v}:v})}
 var FORMS={
  incasari:{title:"a_inc",icon:"down",fields:function(){return[
-   {k:"data",t:"date",l:"f_data",req:1,def:today()},
-   {k:"client",t:"text",l:"f_client",req:1,list:clienti()},
+   {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
+   fClient(1),
    fProiect(),
    {k:"descriere",t:"text",l:"f_descr"},
    {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs"},
@@ -780,13 +787,13 @@ var FORMS={
  ]},calc:function(d){return [{l:T("eq"),v:money(n(d.suma)*n(d.curs))+" MDL"}]}},
 
  cheltuieli:{title:"a_chelt",icon:"up",fields:function(){return[
-   {k:"data",t:"date",l:"f_data",req:1,def:today()},
+   {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
    {k:"suma",t:"number",l:"f_sumamdl",req:1,step:"0.01"},
    {k:"descriere",t:"text",l:"f_descr_req",req:1,hint:"f_descr_h",minlen:3},
    {k:"categorie",t:"text",l:"f_categ",req:1,list:catMains()},
    {k:"subcat",t:"text",l:"f_subcat",list:catSubs(sheetState&&sheetState.col==="cheltuieli"?catMain(catRaw(sheetState.data.categorie)):""),
     showIf:function(d){return !!d.subcat||catSubs(catMain(catRaw(d.categorie))).length>0}},
-   {k:"client",t:"text",l:"f_client",list:clienti()},
+   fClient(0),
    fProiect(),
    {k:"platitDe",t:"text",l:"f_platit",req:1,list:oameni(),def:meName()||casier()},
    {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"},
@@ -794,7 +801,7 @@ var FORMS={
  ]}},
 
  iesiri:{title:"a_ies",icon:"send",fields:function(){return[
-   {k:"data",t:"date",l:"f_data",req:1,def:today()},
+   {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
    {k:"destinatie",t:"select",l:"f_dest",req:1,opts:[
      {v:"Dat persoanei",l:T("d_pers")},{v:"Depus pe cont",l:T("d_depus")},
      {v:"Salarii",l:T("d_sal")},{v:"Împrumut",l:T("d_impr")},{v:"Alte",l:T("d_alte")}],def:"Dat persoanei"},
@@ -823,7 +830,7 @@ var FORMS={
    return [{l:T("tot"),v:money(t)+" "+(d.valuta||"")},{l:T("eq"),v:money(t*n(d.curs))+" MDL"}]}},
 
  imprumuturi:{title:"a_impr",icon:"clock",fields:function(){return[
-   {k:"data",t:"date",l:"f_data",req:1,def:today()},
+   {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
    {k:"persoana",t:"text",l:"f_pers",req:1,list:persoane()},
    {k:"suma",t:"number",l:"f_sumamdl",req:1,step:"0.01"},
    {k:"termen",t:"date",l:"f_termen"},
@@ -2010,6 +2017,7 @@ function fieldHtml(f,v){
   var type=f.t==="number"?"number":(f.t==="date"?"date":(f.t==="month"?"month":"text"));
   var extra=f.t==="number"?' inputmode="decimal" step="'+(f.step||"0.01")+'"':"";
   var list=f.list&&f.list.length?' list="dl-'+f.k+'" autocomplete="off"':"";
+  if(f.noFuture)extra+=' max="'+today()+'"';
   return '<label for="'+id+'"><span>'+lbl+(f.req?" *":"")+'</span><input type="'+type+'" id="'+id+'" data-k="'+f.k+'" value="'+esc(v)+'"'+extra+list+(locked?' readonly':'')+'></label>'
     +(f.hint?'<p class="hint">'+esc(T(f.hint))+'</p>':"");
 }
@@ -2024,6 +2032,8 @@ function submitForm(){
   if(miss.length){st.err=T("req");drawSheet();return;}
   var short=fields.filter(function(f){return f.minlen&&String(st.data[f.k]||"").trim().length<f.minlen});
   if(short.length){st.err=T("descr_short");drawSheet();return;}
+  var fut=fields.filter(function(f){return f.noFuture&&String(st.data[f.k]||"")>today()});
+  if(fut.length){st.err=T("date_future");drawSheet();return;}
   var btn=$("#savebtn");if(btn){btn.disabled=true;btn.textContent=T("saving")}
   var d=st.data,col=st.col,p;
   if(col==="cheltuieli"&&d.categorie)d.categorie=catRaw(d.categorie);
@@ -2137,8 +2147,8 @@ function dpRender(){
     while(cells.length%7)cells.push({d:cells.length-lead-days+1,off:1});
     cells.forEach(function(c){
       var y=DP.y,m=DP.m+c.off;if(m<1){m=12;y--}if(m>12){m=1;y++}
-      var iso=y+"-"+p2(m)+"-"+p2(c.d);
-      h+='<button type="button" class="dp-day'+(c.off?" dp-off":"")+(iso===cur?" dp-sel":"")+(iso===td?" dp-today":"")+'" data-dpv="'+iso+'">'+c.d+'</button>';
+      var iso=y+"-"+p2(m)+"-"+p2(c.d),dis=!!(DP.inp.max&&iso>DP.inp.max);
+      h+='<button type="button" class="dp-day'+(c.off?" dp-off":"")+(iso===cur?" dp-sel":"")+(iso===td?" dp-today":"")+'" data-dpv="'+iso+'"'+(dis?' disabled':'')+'>'+c.d+'</button>';
     });
     h+='</div>';
   }
@@ -2287,6 +2297,7 @@ document.addEventListener("change",function(ev){
   var k=el.dataset.k;
   sheetState.data[k]=(el.type==="checkbox")?el.checked:el.value;
   if(k==="valuta"){sheetState.data.curs=String(cursAzi(el.value));drawSheet();return;}
+  if(k==="proiect"){var pj=S.proiecte.filter(function(p){return sameP(p.nume,el.value)})[0];if(pj&&pj.client){sheetState.data.client=pj.client;drawSheet();}return;}
   if(k==="destinatie"||k==="mod"||k==="categorie"||el.type==="checkbox"){drawSheet();return;}
   if(k==="angajat"||k==="luna"){var def=FORMS[sheetState.col];if(def&&def.calc)drawSheet();}
 });
