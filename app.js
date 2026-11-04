@@ -55,7 +55,7 @@ ro:{
  // settings
  set_val:"Valute și cursuri",set_val_h:"Cursul de azi. Se folosește pentru soldul casei, nu pentru rândurile deja introduse.",
  set_cas:"Casierul",set_cas_h:"Banii dați casierului nu sunt socotiți ieșire din casă.",
- set_cat:"Categorii de cheltuieli",set_cat_h:"Scrieți una nouă în câmpul de jos; × o șterge (de două ori). Înregistrările vechi își păstrează categoria.",cat_add:"Adaugă categorie",cat_ph:"Denumire",
+ set_cat:"Categorii de cheltuieli",set_cat_h:"Scrieți una nouă în câmpul de jos; × o șterge (de două ori). O subcategorie se scrie cu bară: „Materiale / Acoperiș”. Înregistrările vechi își păstrează categoria.",f_subcat:"Subcategorie",cat_add:"Adaugă categorie",cat_ph:"Denumire",
  set_pin:"Cod de acces director",set_pin_h:"Cine îl știe vede panoul și registrele. Schimbați-l dacă a ajuns la cineva din afară.",
  set_add:"Adaugă valută",cod:"Cod",
  pin_t:"Cod director",pin_h:"Introduceți codul ca să vedeți panoul, registrele și setările.",pin_bad:"Cod greșit.",pin_ok:"Intră",
@@ -175,7 +175,7 @@ ru:{
  nothing:"Пока пусто",nothing_d:"Нажмите «Добавить», чтобы начать.",
  set_val:"Валюты и курсы",set_val_h:"Курс на сегодня. Используется для остатка кассы, но не для уже внесённых строк.",
  set_cas:"Кассир",set_cas_h:"Деньги, выданные кассиру, не считаются выходом из кассы.",
- set_cat:"Категории расходов",set_cat_h:"Новую впишите в поле ниже; «×» — удалить (два нажатия). Старые записи сохраняют свою категорию.",cat_add:"Добавить категорию",cat_ph:"Название",
+ set_cat:"Категории расходов",set_cat_h:"Новую впишите в поле ниже; «×» — удалить (два нажатия). Подкатегория пишется через косую черту: «Materiale / Acoperiș». Старые записи сохраняют свою категорию.",f_subcat:"Подкатегория",cat_add:"Добавить категорию",cat_ph:"Название",
  set_pin:"Код доступа директора",set_pin_h:"Кто знает код, видит сводку и журналы. Смените, если код ушёл наружу.",
  set_add:"Добавить валюту",cod:"Код",
  pin_t:"Код директора",pin_h:"Введите код, чтобы увидеть сводку, журналы и настройки.",pin_bad:"Неверный код.",pin_ok:"Войти",
@@ -537,11 +537,22 @@ var CAT_RU={materiale:"Материалы",transport:"Транспорт",combus
  "reparații":"Ремонт",reparatii:"Ремонт",diverse:"Разное",salarii:"Зарплаты",chirie:"Аренда",chirii:"Аренда",
  comunale:"Коммунальные услуги","mâncare":"Питание",mancare:"Питание",telefon:"Связь",alte:"Прочее"};
 var CAT_RO={};Object.keys(CAT_RU).forEach(function(k){var r=CAT_RU[k].toLowerCase();if(!CAT_RO[r])CAT_RO[r]=k.charAt(0).toUpperCase()+k.slice(1)});
-function catLabel(c){var s=String(c==null?"":c),k=s.trim().toLowerCase();return (lang==="ru"?CAT_RU[k]:CAT_RO[k])||s}
-function catRaw(v){var s=String(v||"").trim(),k=s.toLowerCase();if(!s)return s;
-  var hit=categorii().filter(function(c){return String(c).trim().toLowerCase()===k})[0]||categorii().filter(function(c){return catLabel(c).toLowerCase()===k})[0];
-  return hit||s}
+/* A category may have a subcategory: stored as one string "Materiale / Acoperiș" (CAT_SEP). The main part is translated
+   for display, the subcategory is shown as typed. Colours, the donut and the category totals group by the main part. */
+var CAT_SEP=" / ";
+function catMain(c){var s=String(c==null?"":c),i=s.indexOf(CAT_SEP);return (i<0?s:s.slice(0,i)).trim()}
+function catSub(c){var s=String(c==null?"":c),i=s.indexOf(CAT_SEP);return i<0?"":s.slice(i+CAT_SEP.length).trim()}
+function catJoin(m,sub){m=String(m||"").trim();sub=String(sub||"").trim();return sub?m+CAT_SEP+sub:m}
+function uniqKeep(a){var o=[],seen={};a.forEach(function(x){var k=String(x||"").trim();if(k&&!seen[k.toLowerCase()]){seen[k.toLowerCase()]=1;o.push(k)}});return o}
+function catLabel(c){var m=catMain(c),sub=catSub(c),k=m.toLowerCase();var ml=(lang==="ru"?CAT_RU[k]:CAT_RO[k])||m;return sub?ml+CAT_SEP+sub:ml}
+function catRaw(v){var s=String(v||"").trim();if(!s)return s;
+  var m=catMain(s),sub=catSub(s),k=m.toLowerCase(),mains=catMains();
+  var hit=mains.filter(function(c){return c.toLowerCase()===k})[0]||mains.filter(function(c){return catLabel(c).toLowerCase()===k})[0]||m;
+  return catJoin(hit,sub)}
 function categorii(){var c=cfg().categorii;return uniq((c&&c.length?c:DEF_CFG.categorii).concat(S.cheltuieli.map(function(r){return r.categorie})))}
+/* main categories in the order of the settings list (then the ones only found in records), and the subcategories of one main */
+function catMains(){var c=cfg().categorii;return uniqKeep((c&&c.length?c:DEF_CFG.categorii).map(catMain).concat(S.cheltuieli.map(function(r){return catMain(r.categorie)})))}
+function catSubs(main){if(!main)return [];return uniqKeep(categorii().filter(function(c){return catSub(c)&&sameP(catMain(c),main)}).map(catSub))}
 function angajatiActivi(){return S.angajati.filter(function(a){return a.status!=="Inactiv"}).map(function(a){return a.nume})}
 
 /* ---------------- calculations (mirrors the workbook) ---------------- */
@@ -616,8 +627,10 @@ function calc(){
   C.perProiect=proiecteNume().map(function(p){
     return {nume:p,val:sum(S.cheltuieli,function(r){return sameP(r.proiect,p)?n(r.suma):0})};
   }).filter(function(x){return x.val>0&&defNames.indexOf(x.nume.toLowerCase())<0}).sort(function(a,b){return b.val-a.val});
-  C.perCateg=categorii().map(function(c){
-    return {nume:c,val:sum(S.cheltuieli,function(r){return sameP(r.categorie,c)?n(r.suma):0})};
+  C.perCateg=catMains().map(function(c){
+    var subs={};
+    var val=sum(S.cheltuieli,function(r){if(!sameP(catMain(r.categorie),c))return 0;var sk=catSub(r.categorie);if(sk)subs[sk]=round2((subs[sk]||0)+n(r.suma));return n(r.suma)});
+    return {nume:c,val:val,subs:Object.keys(subs).map(function(k){return {nume:k,val:subs[k]}}).sort(function(a,b){return b.val-a.val})};
   }).filter(function(x){return x.val>0}).sort(function(a,b){return b.val-a.val});
 
   // contracts
@@ -740,15 +753,17 @@ var CAT_ICON_RULES=[
  [/mâncare|mancare|еда|питан|hran|produs|продукт|masă|masa|обед/i,"food"],[/chiri|аренд|cazare|жиль|locuin/i,"home"],
  [/telefon|телефон|internet|интернет|comunic|связ/i,"phone"],[/salar|зарплат|angaja|сотрудн|munc|рабоч/i,"users"],
  [/energ|электр|curent|lumin|свет|gaz|газ/i,"bolt"],[/apă|apa|вода|canal/i,"water"],[/cump|покуп|магазин|magazin|piaț|piata|рынок/i,"cart"],
- [/asigur|страх|pază|охран|securit/i,"shield"],[/banc|банк|comision|комисс|card|карт/i,"cardIc"]
+ [/asigur|страх|pază|охран|securit/i,"shield"],[/banc|банк|comision|комисс|card|карт/i,"cardIc"],
+ [/acoperi|крыш|кровл/i,"home"],[/tâmplar|tamplar|lemn|столяр|плотн/i,"hammer"],[/instala|sanitar|electric|сантех|электр|монтаж/i,"bolt"]
 ];
 /* currency badge: symbol + fixed colour per currency, code printed beside it */
 var CUR={MDL:{s:"L",c:"var(--accent)"},EUR:{s:"€",c:"var(--s1)"},USD:{s:"$",c:"var(--s7)"},RON:{s:"L",c:"var(--s4)"},GBP:{s:"£",c:"var(--s6)"},UAH:{s:"₴",c:"var(--s5)"},RUB:{s:"₽",c:"var(--s2)"}};
 function curBadge(cod,withCode){var k=String(cod||"").toUpperCase(),d=CUR[k]||{s:k.slice(0,1)||"?",c:"var(--muted)"};
   return '<span class="cur" title="'+esc(k)+'"><span class="cur-b" style="background:'+d.c+'">'+esc(d.s)+'</span>'+(withCode!==false?'<span class="cur-c">'+esc(k)+'</span>':'')+'</span>'}
-function catIcon(name){var s=String(name||"");for(var i=0;i<CAT_ICON_RULES.length;i++){if(CAT_ICON_RULES[i][0].test(s))return CAT_ICON_RULES[i][1]}return "tag"}
+function catIconOf(s){for(var i=0;i<CAT_ICON_RULES.length;i++){if(CAT_ICON_RULES[i][0].test(s))return CAT_ICON_RULES[i][1]}return "tag"}
+function catIcon(name){var sub=catSub(name);if(sub){var si=catIconOf(sub);if(si!=="tag")return si}return catIconOf(catMain(name)||String(name||""))}
 /* fixed categorical slot per category: by position in the settings list, so a colour follows its category */
-function catSlot(name){var all=categorii();var i=-1;all.forEach(function(c,k){if(sameP(c,name))i=k});return i<0?6:(i%7)}
+function catSlot(name){var m=catMain(name),i=-1;catMains().forEach(function(c,k){if(sameP(c,m))i=k});return i<0?6:(i%7)}
 
 /* ---------------- form definitions ---------------- */
 function opt(list){return list.map(function(v){return typeof v==="string"?{v:v,l:v}:v})}
@@ -768,7 +783,9 @@ var FORMS={
    {k:"data",t:"date",l:"f_data",req:1,def:today()},
    {k:"suma",t:"number",l:"f_sumamdl",req:1,step:"0.01"},
    {k:"descriere",t:"text",l:"f_descr_req",req:1,hint:"f_descr_h",minlen:3},
-   {k:"categorie",t:"text",l:"f_categ",req:1,list:categorii()},
+   {k:"categorie",t:"text",l:"f_categ",req:1,list:catMains()},
+   {k:"subcat",t:"text",l:"f_subcat",list:catSubs(sheetState&&sheetState.col==="cheltuieli"?catMain(catRaw(sheetState.data.categorie)):""),
+    showIf:function(d){return !!d.subcat||catSubs(catMain(catRaw(d.categorie))).length>0}},
    {k:"client",t:"text",l:"f_client",list:clienti()},
    fProiect(),
    {k:"platitDe",t:"text",l:"f_platit",req:1,list:oameni(),def:meName()||casier()},
@@ -1060,10 +1077,10 @@ function buildWb(luna,doar){
 
   var ch=S.cheltuieli.filter(inM).sort(function(a,b){return String(a.data).localeCompare(String(b.data))});
   wsAdd(wb,T("r_chelt"),[
-    {h:T("f_data"),k:"data",w:12,fmt:FMT_D},{h:T("f_categ"),k:"categorie",w:18},
+    {h:T("f_data"),k:"data",w:12,fmt:FMT_D},{h:T("f_categ"),k:"categorie",w:16},{h:T("f_subcat"),k:"subcat",w:16},
     {h:T("f_descr"),k:"descriere",w:30},{h:T("f_client"),k:"client",w:22},{h:T("f_proiect"),k:"proiect",w:20},
     {h:T("f_sumamdl"),k:"suma",w:15,fmt:FMT_M},{h:T("f_platit"),k:"platitDe",w:20},{h:T("f_mod"),k:"mod",w:12},{h:T("src_t"),k:"sursa",w:16}],
-    ch.map(function(r){return {data:xd(r.data),categorie:catLabel(r.categorie),descriere:r.descriere,client:r.client,
+    ch.map(function(r){return {data:xd(r.data),categorie:catLabel(catMain(r.categorie)),subcat:catSub(r.categorie),descriere:r.descriere,client:r.client,
       proiect:r.proiect,suma:n(r.suma),platitDe:r.platitDe,mod:r.mod==="Numerar"?T("numerar"):T("transfer"),
       sursa:r.mod==="Transfer"?"":(r.sursa==="Proprii"?T("src_proprii_short"):T("src_avans"))}}),
     {data:T("l_total"),suma:ch.reduce(function(a,r){return a+n(r.suma)},0)});
@@ -1338,9 +1355,9 @@ function r2(l,v,sub,cls,tot,ic,col){
   return '<div class="row'+(tot?" tot":"")+(ic?" ri":"")+'"'+(ic?' style="--c:'+(col||"var(--muted)")+'"':'')+'>'+(ic?'<span class="ic-badge tint">'+icon(ic)+'</span>':'')+'<span class="l">'+esc(l)+(sub?'<span class="s">'+esc(sub)+'</span>':'')+'</span><span class="r '+(cls||"")+'">'+v+'</span></div>';
 }
 /* a value with a bar against the largest; categories pass their colour and icon, as in the expenses card */
-function barRow(l,v,max,col,ic){
+function barRow(l,v,max,col,ic,sub){
   var pct=max>0?Math.max(2,Math.round(v/max*100)):0;
-  return '<div class="row wrap'+(ic?" ri":"")+'"'+(col?' style="--c:'+col+'"':'')+'>'+(ic?'<span class="ic-badge tint">'+icon(ic)+'</span>':'')+'<span class="l">'+esc(l)+'</span><span class="r">'+money(v)+'</span><span class="bar-wrap"><span class="bar-fill" style="width:'+pct+'%"></span></span></div>';
+  return '<div class="row wrap'+(ic?" ri":"")+'"'+(col?' style="--c:'+col+'"':'')+'>'+(ic?'<span class="ic-badge tint">'+icon(ic)+'</span>':'')+'<span class="l">'+esc(l)+(sub?'<span class="s">'+esc(sub)+'</span>':'')+'</span><span class="r">'+money(v)+'</span><span class="bar-wrap"><span class="bar-fill" style="width:'+pct+'%"></span></span></div>';
 }
 
 /* ---------------- overview (month picker, expenses by category, cash flow) ---------------- */
@@ -1354,8 +1371,9 @@ function round2(v){return Math.round((v||0)*100)/100}
 function ovData(luna){
   var inM=function(r){return !luna||ymOf(r)===luna};
   var chelt=S.cheltuieli.filter(inM),inc=S.incasari.filter(inM);
-  var byCat={};chelt.forEach(function(r){var k=String(r.categorie||"").trim()||"—";byCat[k]=round2((byCat[k]||0)+n(r.suma))});
-  var cats=Object.keys(byCat).map(function(k){return {nume:k,val:byCat[k],slot:catSlot(k),icon:catIcon(k)}}).sort(function(a,b){return b.val-a.val});
+  var byCat={},bySub={};chelt.forEach(function(r){var k=catMain(r.categorie)||"—",sk=catSub(r.categorie);byCat[k]=round2((byCat[k]||0)+n(r.suma));if(sk){bySub[k]=bySub[k]||{};bySub[k][sk]=round2((bySub[k][sk]||0)+n(r.suma))}});
+  var cats=Object.keys(byCat).map(function(k){var sb=bySub[k]||{};return {nume:k,val:byCat[k],slot:catSlot(k),icon:catIcon(k),
+    subs:Object.keys(sb).sort(function(a,b){return sb[b]-sb[a]}).map(function(x){return x+" "+money(sb[x])})}}).sort(function(a,b){return b.val-a.val});
   var total=round2(cats.reduce(function(a,c){return a+c.val},0));
   /* at most six named segments; the tail folds into "Alte" */
   if(cats.length>7){var head=cats.slice(0,6),tail=cats.slice(6);var rest=round2(tail.reduce(function(a,c){return a+c.val},0));
@@ -1473,7 +1491,7 @@ function vOverview(){
     h+='<div class="ov-fold"><div class="ov-fold-in"><div class="rows ov-list">'+d.cats.map(function(c){
       var pct=d.total?c.val/d.total*100:0;
       /* .share is the slice's share as a bar in its own colour; shown only where the list sits beside the donut */
-      return '<button type="button" class="tap row" data-cat="'+esc(c.nume)+'" style="--c:var(--s'+(c.slot+1)+')"'+(c.folded?' title="'+esc(catLabel(c.nume)+": "+c.folded.join(", "))+'"':'')+'><span class="ic-badge" style="color:var(--s'+(c.slot+1)+')">'+icon(c.icon)+'</span><span class="l">'+esc(catLabel(c.nume))+(c.folded?'<span class="s">'+esc(c.folded.join(", "))+'</span>':'')+'</span><span class="r">'+money(c.val)+'<span class="s">'+fmt(pct,1)+'%</span></span><span class="share"><i style="width:'+Math.max(2,pct).toFixed(1)+'%"></i></span></button>';
+      return '<button type="button" class="tap row" data-cat="'+esc(c.nume)+'" style="--c:var(--s'+(c.slot+1)+')"'+(c.folded?' title="'+esc(catLabel(c.nume)+": "+c.folded.join(", "))+'"':'')+'><span class="ic-badge" style="color:var(--s'+(c.slot+1)+')">'+icon(c.icon)+'</span><span class="l">'+esc(catLabel(c.nume))+(c.folded?'<span class="s">'+esc(c.folded.join(", "))+'</span>':(c.subs&&c.subs.length?'<span class="s">'+esc(c.subs.join(" · "))+'</span>':''))+'</span><span class="r">'+money(c.val)+'<span class="s">'+fmt(pct,1)+'%</span></span><span class="share"><i style="width:'+Math.max(2,pct).toFixed(1)+'%"></i></span></button>';
     }).join("")+'</div></div></div>'
       +'<button type="button" class="more-btn ov-more" data-more="1"><span class="mb-o">'+esc(T("ov_more"))+'</span><span class="mb-c">'+esc(T("show_less"))+'</span>'+icon("chevR")+'</button></div>';
   }
@@ -1524,7 +1542,7 @@ function vPanou(){
   }),5,true)+'</div>';
 
   if(C.perCateg.length){var mx=C.perCateg[0].val;
-    h+='<div class="sec"><h2>'+esc(T("s_categ"))+'</h2>'+rowsCardMore(C.perCateg.map(function(x){return barRow(catLabel(x.nume),x.val,mx,"var(--s"+(catSlot(x.nume)+1)+")",catIcon(x.nume))}),5,true)+'</div>';}
+    h+='<div class="sec"><h2>'+esc(T("s_categ"))+'</h2>'+rowsCardMore(C.perCateg.map(function(x){return barRow(catLabel(x.nume),x.val,mx,"var(--s"+(catSlot(x.nume)+1)+")",catIcon(x.nume),x.subs.map(function(y){return y.nume+" "+money(y.val)}).join(" · "))}),5,true)+'</div>';}
   h+='<div class="sec"><h2>'+esc(T("s_proiecte"))+'</h2>';
   if(!C.proiecte.length){
     h+='<div class="card"><div class="empty"><b>'+esc(T("proj_none"))+'</b>'+esc(T("proj_none_d"))+'</div></div>';
@@ -1743,7 +1761,7 @@ function vReg(){
   var def=REGDEF[regTab];
   var list=S[regTab].slice().sort(function(a,b){return String(dateOf(b)).localeCompare(String(dateOf(a)))});
   if(regFilter&&regFilter.col===regTab){
-    list=list.filter(function(r){return (!regFilter.luna||ymOf(r)===regFilter.luna)&&(!regFilter.categorie||sameP(r.categorie,regFilter.categorie))});
+    list=list.filter(function(r){return (!regFilter.luna||ymOf(r)===regFilter.luna)&&(!regFilter.categorie||sameP(r.categorie,regFilter.categorie)||sameP(catMain(r.categorie),regFilter.categorie))});
     h+='<div class="sec"><div class="filterbar">'+esc([catLabel(regFilter.categorie),regFilter.luna?monthName(regFilter.luna):T("ov_all")].filter(Boolean).join(" · "))
       +' <button type="button" class="chip" data-clearfilter="1">'+icon("x")+esc(T("filt_clear"))+'</button></div></div>';
   }
@@ -1910,6 +1928,7 @@ function openForm(col,id){
   var data={};
   def.fields().forEach(function(f){data[f.k]=rec?(rec[f.k]!=null?rec[f.k]:""):(f.def!=null?f.def:"")});
   if(rec&&col==="angajati")data.salariu=salariuLa(rec.nume,today());
+  if(col==="cheltuieli"){var full=data.categorie;data.categorie=catMain(full);data.subcat=catSub(full);}
   sheetState={col:col,id:id||null,data:data,err:""};
   sheetOpened();
   drawSheet();
@@ -2041,6 +2060,7 @@ function submitForm(){
       if(f.newOnly&&st.id)return;
       b[f.k]=(f.t==="number")?n(d[f.k]):String(d[f.k]==null?"":d[f.k]).trim();
     });
+    if(col==="cheltuieli"){b.categorie=catJoin(catRaw(b.categorie),b.subcat);delete b.subcat;}
     if(b.valuta==="MDL"&&("curs" in b))b.curs=1; /* lei never carry a rate */
     p=saveDoc(col,b,st.id);
   }
@@ -2267,7 +2287,7 @@ document.addEventListener("change",function(ev){
   var k=el.dataset.k;
   sheetState.data[k]=(el.type==="checkbox")?el.checked:el.value;
   if(k==="valuta"){sheetState.data.curs=String(cursAzi(el.value));drawSheet();return;}
-  if(k==="destinatie"||k==="mod"||el.type==="checkbox"){drawSheet();return;}
+  if(k==="destinatie"||k==="mod"||k==="categorie"||el.type==="checkbox"){drawSheet();return;}
   if(k==="angajat"||k==="luna"){var def=FORMS[sheetState.col];if(def&&def.calc)drawSheet();}
 });
 document.addEventListener("submit",function(ev){
