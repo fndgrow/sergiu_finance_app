@@ -299,7 +299,8 @@ function clienti(){return uniq(S.incasari.map(function(r){return r.client}).conc
    none exists yet is the field free text. Choosing a project fills the client in (see the change handler). */
 function fClient(req){
   var lst=clienti();
-  if(!lst.length)return {k:"client",t:"text",l:"f_client",req:req};
+  /* only the director creates clients (on a project or a contract); an operator always picks from the list */
+  if(!lst.length&&isDir)return {k:"client",t:"text",l:"f_client",req:req};
   return {k:"client",t:"select",l:"f_client",req:req,allowEmpty:1,opts:opt(lst)};
 }
 function proiecteNume(){return uniq(S.incasari.map(function(r){return r.proiect}).concat(S.cheltuieli.map(function(r){return r.proiect}),S.proiecte.map(function(p){return p.nume})))}
@@ -1657,7 +1658,7 @@ function vWho(){
 }
 function vAdd(){
   var h=statusNote()+'<div class="add-layout"><div class="add-main">'+vWho()+vMyBalance();
-  var order=["incasari","cheltuieli","iesiri","chirii","imprumuturi","contracte","pontaj","angajati"];
+  var order=["incasari","cheltuieli","iesiri","chirii","imprumuturi","pontaj","angajati"]; /* contracts (and so clients) are the director's */
   if(isDir)order=["incasari","cheltuieli","iesiri","proiecte","utilizatori","chirii","imprumuturi","contracte","pontaj","angajati"];
   var desc={incasari:"a_inc_d",cheltuieli:"a_chelt_d",iesiri:"a_ies_d",chirii:"a_chirie_d",
     imprumuturi:"a_impr_d",contracte:"a_contr_d",pontaj:"a_pontaj_d",angajati:"a_ang_d",proiecte:"a_proj_d",utilizatori:"a_user_d"};

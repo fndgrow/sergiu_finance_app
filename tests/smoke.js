@@ -299,6 +299,8 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-form="cheltuieli"]')); await tick();
   check(window.document.querySelector('[data-k="platitDe"]').value === "Ion Operator", "Plătit de defaults to operator name");
   check(!$("#delbtn"), "operator has no delete button");
+  check($('[data-k="client"]').tagName === "SELECT", "operator picks the client from a list, cannot type a new one");
+  check(!$('[data-form="contracte"]'), "operator has no Contract card (clients are created by the director)");
   click($("#closeSheet")); await tick();
   click($('[data-view="add"]')); await tick();
   check(/Soldul meu/.test(text()) && /Firma îi datorează/.test(text()), "operator sees own balance card (company owes)");
