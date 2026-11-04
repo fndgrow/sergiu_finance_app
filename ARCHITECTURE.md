@@ -67,6 +67,7 @@ Contents
 | `server/pb_migrations/1762000001_settings.js` | 15 | trusts the X-Real-IP header, sets the app name |
 | `server/pb_migrations/1762000002_backups.js` | 12 | daily backup at 03:00, keep 14 |
 | `server/pb_migrations/1762000003_sursa.js` | 12 | the `sursa` field on expenses |
+| `server/pb_migrations/1762000004_incasari_director.js` | 12 | client incomes are created by directors only |
 | `server/pb_hooks/ehl.pb.js` | 151 | sign-in by code, the director's password, record authorship, validations |
 | `server/install.sh` | 85 | installs PocketBase as a service + nginx site + certificate |
 | `server/nginx-site.conf` | 32 | nginx site template (proxy to 8090, security headers) |
@@ -496,7 +497,8 @@ OWN_OR_DIR = DIRECTOR || (MEMBER && by = @request.auth.id)
 
 | Collection | list/view | create | update | delete |
 |---|---|---|---|---|
-| registers (`incasari`, `cheltuieli`, `iesiri`, `chirii`, `contracte`, `imprumuturi`, `proiecte`, `angajati`) | MEMBER | MEMBER | OWN_OR_DIR | DIRECTOR |
+| registers (`cheltuieli`, `iesiri`, `chirii`, `contracte`, `imprumuturi`, `proiecte`, `angajati`) | MEMBER | MEMBER | OWN_OR_DIR (+ the 15-day hook) | DIRECTOR |
+| `incasari` | MEMBER | DIRECTOR (migration `1762000004`) | OWN_OR_DIR (+ the 15-day hook) | DIRECTOR |
 | `istoric` | DIRECTOR | DIRECTOR | DIRECTOR | DIRECTOR |
 | `pontaj` | OWN_OR_DIR | MEMBER | OWN_OR_DIR | DIRECTOR |
 | `utilizatori` | DIRECTOR or `id = @request.auth.id && status != "Inactiv"` | DIRECTOR | DIRECTOR | DIRECTOR |
@@ -525,7 +527,7 @@ File `server/pb_hooks/ehl.pb.js`. In the PocketBase JS engine handlers cannot se
 
 **`onRecordCreateRequest` for every register and `jurnal`:** `record.by = e.auth.id`. A client cannot plant another author.
 
-**`onRecordUpdateRequest` for the registers:** `by` is restored to its original value.
+**`onRecordUpdateRequest` for the registers:** `by` is restored to its original value, and a non-director editing a row created more than 15 days ago gets a 400 ("Înregistrarea are mai mult de 15 zile…"). The client mirrors this: `drawSheet()` opens such a row, or a row by someone else, read-only with a note (`EDIT_DAYS`).
 
 **`utilizatori`, create:** code validation, default status/role, a random email `…@casieria.local`, a random password, `parolaSetata = false`.
 

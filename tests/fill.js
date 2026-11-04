@@ -159,7 +159,6 @@ async function login(cod, parola, parolaNoua) {
   ok(projOpts.includes("Casa Durlești") && projOpts.includes("Depozit Stăuceni") && !projOpts.includes("Gard Ialoveni"), "Ion sees only his active projects: " + projOpts.join(", "));
   click($("#closeSheet")); await tick(50);
   await form("cheltuieli", [["suma", "700"], ["categorie", "Materiale"], ["descriere", "Cuie, șuruburi"], ["client", "Vasile"], ["proiect", "Casa Durlești"], ["mod", "Numerar"]], "Ion adds expense 700");
-  await form("incasari", [["client", "Vasile"], ["proiect", "Casa Durlești"], ["valuta", "MDL"], ["suma", "15000"], ["mod", "Numerar"]], "Ion records income 15000 cash");
   await form("pontaj", [["luna", "2026-11"], ["angajat", "Ion Popescu"], ["z1", "2"], ["z2", "0"]], "Ion adds his own timesheet");
   click($('[data-view="mine"]')); await tick(150);
   ok(/Cuie/.test(text()) && /15[ .]?000/.test(text()), "Ale mele lists Ion's entries");

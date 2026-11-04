@@ -46,7 +46,7 @@ ro:{
  saved:"Salvat",deleted:"Șters",edit:"Editare",
  eq:"Echivalent MDL",tot:"Total",
  impr_cash:"Banii au ieșit din casă acum",impr_cash_h:"Creează automat și o ieșire din casă, ca să nu rămână casa umflată.",
- req:"Completați câmpurile obligatorii.",date_future:"Data nu poate fi în viitor.",
+ req:"Completați câmpurile obligatorii.",date_future:"Data nu poate fi în viitor.",lock_old:"Înregistrarea are mai mult de 15 zile sau a fost introdusă de altcineva: o poate modifica doar directorul. Dumneavoastră o puteți doar vedea.",srv_old:"Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.",
  // registers
  r_inc:"Încasări",r_chelt:"Cheltuieli",r_ies:"Ieșiri din casă",r_chirii:"Chirii",
  r_contr:"Contracte",r_sal:"Salarii",r_impr:"Împrumuturi",
@@ -168,7 +168,7 @@ ru:{
  saved:"Сохранено",deleted:"Удалено",edit:"Изменить",
  eq:"Эквивалент MDL",tot:"Итого",
  impr_cash:"Деньги вышли из кассы сейчас",impr_cash_h:"Автоматически создаст и выдачу из кассы, чтобы касса не была завышена.",
- req:"Заполните обязательные поля.",date_future:"Дата не может быть в будущем.",
+ req:"Заполните обязательные поля.",date_future:"Дата не может быть в будущем.",lock_old:"Записи больше 15 дней или её внёс другой человек: изменить может только директор. Вы можете только смотреть.",srv_old:"Записи больше 15 дней, изменить её может только директор.",
  r_inc:"Поступления",r_chelt:"Расходы",r_ies:"Выдачи из кассы",r_chirii:"Аренда",
  r_contr:"Договоры",r_sal:"Зарплаты",r_impr:"Займы",
  mine_t:"Мои записи",mine_e:"Вы ещё ничего не вносили.",
@@ -252,7 +252,7 @@ var lang="ro";
 try{var sl=localStorage.getItem("ehl.lang"); if(sl==="ro"||sl==="ru") lang=sl;}catch(e){}
 function T(k){var d=I18N[lang];return (d&&d[k])||I18N.ro[k]||k;}
 /* the server answers in Romanian; known messages are shown in the interface language */
-var SRV_MSG={"Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr"};
+var SRV_MSG={"Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old"};
 function srvT(m){var k=SRV_MSG[String(m||"").trim()];return k?T(k):m}
 
 /* ---------------- helpers ---------------- */
@@ -330,6 +330,7 @@ var GATE={step:"cod"};
 /* Lock screen: the access code is asked again on every start of the app and after it sat in the background
    for LOCK_AFTER; the session itself (token, data, offline queue) stays, only the screen is covered. */
 var LOCKED=false,LOCKVIEW="",hiddenAt=0,LOCK_AFTER=10*60*1000;
+var EDIT_DAYS=15; /* an operator may correct his own rows for this many days; afterwards only the director */
 function lockScreen(){
   if(!ACCESS||LOCKED)return;
   LOCKED=true;LOCKVIEW=view;gateErr="";
@@ -1659,7 +1660,7 @@ function vWho(){
 }
 function vAdd(){
   var h=statusNote()+'<div class="add-layout"><div class="add-main">'+vWho()+vMyBalance();
-  var order=["incasari","cheltuieli","iesiri","chirii","imprumuturi","pontaj","angajati"]; /* contracts (and so clients) are the director's */
+  var order=["cheltuieli","iesiri","chirii","imprumuturi","pontaj","angajati"]; /* client incomes, contracts and clients are the director's */
   if(isDir)order=["incasari","cheltuieli","iesiri","proiecte","utilizatori","chirii","imprumuturi","contracte","pontaj","angajati"];
   var desc={incasari:"a_inc_d",cheltuieli:"a_chelt_d",iesiri:"a_ies_d",chirii:"a_chirie_d",
     imprumuturi:"a_impr_d",contracte:"a_contr_d",pontaj:"a_pontaj_d",angajati:"a_ang_d",proiecte:"a_proj_d",utilizatori:"a_user_d"};
@@ -1960,6 +1961,8 @@ window.addEventListener("popstate",function(e){
 function drawSheet(){
   if(!sheetState)return;
   var st=sheetState,def=FORMS[st.col],fields=def.fields();
+  var rec0=st.id?(S[st.col]||[]).filter(function(r){return r.id===st.id})[0]:null;
+  var lockedOld=!!(rec0&&!isDir&&(rec0.by!==ME||(rec0.created&&Date.now()-Date.parse(String(rec0.created).replace(" ","T"))>EDIT_DAYS*86400000)));
   var body=fields.filter(function(f){
     if(f.showIf&&!f.showIf(st.data))return false;
     if(f.newOnly&&st.id&&st.col!=="angajati")return false;
@@ -1988,6 +1991,8 @@ function drawSheet(){
     +(st.id&&isDir?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
     +'</div></form>'+dls+'</div></div>';
   document.body.style.overflow="hidden";
+  if(lockedOld){var sb=$("#savebtn");if(sb){var nt=document.createElement("p");nt.className="note";nt.textContent=T("lock_old");sb.parentNode.replaceChild(nt,sb);}
+    Array.prototype.forEach.call($("#recf").querySelectorAll("input,select,textarea,button[data-pick]"),function(el){el.disabled=true});}
   dpClose();enhanceDates($("#sheet"));
 }
 function fieldHtml(f,v){

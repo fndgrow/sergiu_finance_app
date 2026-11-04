@@ -42,6 +42,7 @@ function collection(col) {
       if (NET_DOWN) throw err(0, "net");
       if (!currentUser) throw err(403, "forbidden");
       if (col === "utilizatori" && !isDir()) throw err(403, "forbidden");
+      if (col === "incasari" && !isDir()) throw err(403, "forbidden"); /* client incomes: director only */
       const now = new Date().toISOString().replace("T", " ");
       const r = { ...data, id: newId(), created: now, updated: now, by: currentUser.id };
       delete r.password; delete r.passwordConfirm;
@@ -52,6 +53,7 @@ function collection(col) {
       const r = store[col] && store[col][id]; if (!r) throw err(404, "nf");
       if (col === "utilizatori" && !isDir()) throw err(403, "forbidden");
       if (col !== "utilizatori" && col !== "config" && !isDir() && r.by !== currentUser.id) throw err(403, "forbidden");
+      if (col !== "utilizatori" && col !== "config" && !isDir() && Date.now() - Date.parse(r.created.replace(" ", "T")) > 15 * 86400000) throw err(400, "Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.");
       Object.assign(r, data, { updated: new Date().toISOString().replace("T", " ") }); emit(col, "update", r); return { ...r };
     },
     async delete(id) {
@@ -301,6 +303,21 @@ const ls = (k) => window.localStorage.getItem(k);
   check(!$("#delbtn"), "operator has no delete button");
   check($('[data-k="client"]').tagName === "SELECT", "operator picks the client from a list, cannot type a new one");
   check(!$('[data-form="contracte"]'), "operator has no Contract card (clients are created by the director)");
+  check(!$('[data-form="incasari"]'), "operator has no Income card (client money is recorded by the director)");
+  console.log("8e. an operator edits his own row for 15 days, then it opens read-only");
+  click($("#closeSheet")); await tick(); click($('[data-view="add"]')); await tick();
+  click($('[data-form="cheltuieli"]')); await tick();
+  setField("suma", "40"); setField("descriere", "Cuie"); setField("categorie", "Diverse"); submit($("#recf")); await tick(60);
+  const own = Object.values(store.cheltuieli).find(r => r.descriere === "Cuie");
+  check(own && own.by === op.id, "operator's expense saved under his name");
+  click($('[data-view="mine"]')); await tick(); click($('[data-edit="cheltuieli"][data-id="' + own.id + '"]')); await tick();
+  check($("#savebtn") && !$('[data-k="suma"]').disabled, "a fresh own row is editable");
+  click($("#closeSheet")); await tick();
+  own.created = "2020-01-01 00:00:00.000Z"; emit("cheltuieli", "update", own); await tick();
+  click($('[data-view="mine"]')); await tick(); click($('[data-edit="cheltuieli"][data-id="' + own.id + '"]')); await tick();
+  check(!$("#savebtn") && /15 zile/.test($("#sheet").textContent) && $('[data-k="suma"]').disabled, "an own row older than 15 days opens read-only with the note");
+  click($("#closeSheet")); await tick(); click($('[data-view="add"]')); await tick();
+  click($('[data-form="cheltuieli"]')); await tick();
   click($("#closeSheet")); await tick();
   click($('[data-view="add"]')); await tick();
   check(/Soldul meu/.test(text()) && /Firma îi datorează/.test(text()), "operator sees own balance card (company owes)");

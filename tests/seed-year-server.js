@@ -181,7 +181,7 @@ const person = n => (L.person[n] = L.person[n] || { primit: 0, cheltuit: 0, prop
       const p = PROJECTS.find(x => x.nume === pn), rt = rate(cur, i);
       const suma = cur === "MDL" ? mdl : Math.round(mdl / rt / 50) * 50;
       const client = (i === 8 && pn === "Hală Bubuieci") ? p.client.toLowerCase() : p.client;
-      await add("incasari", { data: day(i, between(2, Math.min(26, last))), client, proiect: pn, descriere: descr, valuta: cur, curs: rt, suma, mod: mode }, MARIA);
+      await add("incasari", { data: day(i, between(2, Math.min(26, last))), client, proiect: pn, descriere: descr, valuta: cur, curs: rt, suma, mod: mode }, DIR); /* client money: director only */
       const v = r2(suma * rt); L.incomeMDL = r2(L.incomeMDL + v);
       if (mode === "Numerar") { L.till[cur] = r2(L.till[cur] + suma); L.contracts[pn].cash = r2(L.contracts[pn].cash + v); } else { L.bank = r2(L.bank + v); L.contracts[pn].tr = r2(L.contracts[pn].tr + v); }
     }
