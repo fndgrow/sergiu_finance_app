@@ -22,7 +22,7 @@ const MONTHS = []; { let y = 2025, m = 11; for (let i = 0; i < 13; i++) { MONTHS
 const ym = i => MONTHS[i][0] + "-" + p2(MONTHS[i][1]);
 const dim = i => new Date(MONTHS[i][0], MONTHS[i][1], 0).getDate();
 const day = (i, d) => ym(i) + "-" + p2(Math.min(d, i === 12 ? 3 : dim(i)));
-const workdays = i => { let c = 0; for (let d = 1; d <= dim(i); d++) if (new Date(MONTHS[i][0], MONTHS[i][1] - 1, d).getDay() !== 0) c++; return c; };
+const workdays = () => 24; /* the firm's rule: 24 working days in every month */
 const TODAY = "2026-11-03";
 const EUR = [19.45, 19.5, 19.6, 19.55, 19.7, 19.8, 19.9, 19.85, 20.0, 20.1, 20.15, 20.2, 20.22];
 const USD = [17.6, 17.5, 17.4, 17.3, 17.2, 17.1, 17.0, 17.1, 17.2, 17.3, 17.4, 17.5, 17.5];

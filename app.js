@@ -267,14 +267,10 @@ function curMonth(){return today().slice(0,7)}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
 function toast(msg){var w=$("#toasts");var el=document.createElement("div");el.className="toast";el.textContent=msg;w.appendChild(el);setTimeout(function(){el.remove()},2200)}
 function monthName(ym){if(!ym)return"";var p=ym.split("-");var names=lang==="ru"?["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"]:["ianuarie","februarie","martie","aprilie","mai","iunie","iulie","august","septembrie","octombrie","noiembrie","decembrie"];var i=parseInt(p[1],10)-1;return (names[i]||"")+" "+p[0]}
-function workdays(ym){ // Mon-Sat
-  if(!ym||ym.length<7)return 0;
-  var y=parseInt(ym.slice(0,4),10),m=parseInt(ym.slice(5,7),10);
-  if(!y||!m)return 0;
-  var dim=new Date(y,m,0).getDate(),c=0;
-  for(var i=1;i<=dim;i++){if(new Date(y,m-1,i).getDay()!==0)c++;}
-  return c;
-}
+/* The firm's rule: a monthly salary is always divided by 24 working days, whatever the month, and paid in two halves
+   (days 1–15 and 16–end). So the price of a day is salary / 24 and each half is its days × that price. */
+var ZILE_LUNA=24;
+function workdays(ym){return ym&&ym.length>=7?ZILE_LUNA:0}
 function monthEnd(ym){var y=parseInt(ym.slice(0,4),10),m=parseInt(ym.slice(5,7),10);return ym+"-"+p2(new Date(y,m,0).getDate())}
 
 /* ---------------- state ---------------- */
@@ -854,7 +850,12 @@ var FORMS={
    {k:"z2",t:"number",l:"f_z2",half:1,step:"1",def:"0"}
  ]},calc:function(d){var wd=workdays(d.luna),sal=salariuLa(d.angajat,d.luna?monthEnd(d.luna):today()),pz=wd?sal/wd:0;
    var out=[{l:(lang==="ru"?"Раб. дней":"Zile lucr."),v:String(wd)}];
-   if(isDir)out.push({l:T("tot"),v:money((n(d.z1)+n(d.z2))*pz)+" MDL"}); /* operators cannot read salaries */
+   if(isDir){ /* operators cannot read salaries */
+     out.push({l:(lang==="ru"?"Цена дня":"Preț zi"),v:money(pz)});
+     out.push({l:T("f_z1"),v:money(n(d.z1)*pz)});
+     out.push({l:T("f_z2"),v:money(n(d.z2)*pz)});
+     out.push({l:T("tot"),v:money((n(d.z1)+n(d.z2))*pz)+" MDL"});
+   }
    return out}},
 
  utilizatori:{title:"a_user",icon:"userplus",fields:function(){return[
@@ -1813,7 +1814,7 @@ function vSalarii(){
     h+='<div class="sec"><h2>'+esc(T("a_pontaj"))+'</h2><div class="card rows">'
     +C.pontaj.slice().sort(function(a,b){return String(b.luna).localeCompare(String(a.luna))}).map(function(p){
       return '<button type="button" class="tap row" data-edit="pontaj" data-id="'+esc(p.id)+'">'
-        +'<span class="l">'+esc(p.angajat)+'<span class="s">'+esc(monthName(p.luna))+" · "+(p.z1+p.z2)+" "+(lang==="ru"?"дн.":"zile")+" · "+money(p.pretZi)+"/"+(lang==="ru"?"день":"zi")+'</span></span>'
+        +'<span class="l">'+esc(p.angajat)+'<span class="s">'+esc(monthName(p.luna))+" · "+T("f_z1")+": "+p.z1+" = "+money(p.s1)+" · "+T("f_z2")+": "+p.z2+" = "+money(p.s2)+" · "+money(p.pretZi)+"/"+(lang==="ru"?"день":"zi")+'</span></span>'
         +'<span class="r">'+money(p.total)+'</span></button>';
     }).join("")+'</div></div>';
   }

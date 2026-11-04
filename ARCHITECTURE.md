@@ -314,7 +314,7 @@ Order of computation:
 5. **The firm's total:** `totalFirma = casaMDL + contMDL + colabRamas`.
 6. **By client, project, category:** `perClient` (incomes − expenses), `proiecte` (budget, spent, received, percent), `perProiect` (projects without a card), `perCateg`.
 7. **Contracts:** by client name `incCash`, `incTr`, the remainders, `contrPct`.
-8. **Salaries:** for every timesheet `wd = workdays(luna)` (Mon–Sat), `sal = salariuLa(angajat, month end)`, `pretZi = sal / wd`, `total = (z1+z2) × pretZi`; by month `castigat`, `platit` (Salarii outflows with that `luna`), `rest`.
+8. **Salaries:** for every timesheet `wd = workdays(luna)` = 24 (the firm's rule: every month counts 24 working days, `ZILE_LUNA`), `sal = salariuLa(angajat, month end)`, `pretZi = sal / 24`, `s1 = z1 × pretZi` (days 1–15), `s2 = z2 × pretZi` (days 16–end), `total = s1 + s2`; by month `castigat`, `platit` (Salarii outflows with that `luna`), `rest`. Salaries are paid every two weeks, so the timesheet form and the Salarii register show both halves.
 9. **Loans:** `imprTotal`, `imprRestituit` (Achitat), `imprRamas`, `imprRestante` (due date < today and not Achitat), by person.
 
 `salariuLa(angajat, data)` finds the `istoric` row with the largest `dinData ≤ data`; if there is none, the earliest row.

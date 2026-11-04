@@ -46,7 +46,7 @@ const store = {
   contracte: { k1: { id: "k1", client: "A", sumaContract: 200000, deIncasatCash: 150000 } },
   angajati: { a1: { id: "a1", nume: "Ion", dataInceput: "2026-01-01", status: "Activ" } },
   istoric: { h1: { id: "h1", angajat: "Ion", salariu: 12000, dinData: "2026-01-01" } },
-  pontaj: { p1: { id: "p1", luna: "2026-10", angajat: "Ion", z1: 13, z2: 14 } }, /* Oct 2026 has 27 Mon-Sat days: 12000/27*27 = 12 000 */
+  pontaj: { p1: { id: "p1", luna: "2026-10", angajat: "Ion", z1: 11, z2: 13 } }, /* the firm counts 24 working days in every month: 12000/24*24 = 12 000 */
   imprumuturi: { l1: { id: "l1", data: D, persoana: "Vasile", suma: 8000, termen: "2026-10-01", status: "Neachitat" }, l2: { id: "l2", data: D, persoana: "Vasile", suma: 2000, status: "Achitat" } },
   proiecte: {}, jurnal: {}
 };

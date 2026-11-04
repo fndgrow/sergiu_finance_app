@@ -34,7 +34,7 @@ const sum = (arr, f) => r2(arr.reduce((a, r) => a + (f(r) || 0), 0));
   out.colabRamas = colab; out.totalFirma = r2(out.casaMDL + out.bank + colab);
   out.contracts = S.contracte.map(k => { const cash = sum(S.incasari, r => same(r.client, k.client) && r.mod === "Numerar" ? n(r.suma) * n(r.curs) : 0), tr = sum(S.incasari, r => same(r.client, k.client) && r.mod === "Transfer" ? n(r.suma) * n(r.curs) : 0); return { client: k.client, nota: k.nota, val: n(k.sumaContract), incCash: cash, incTr: tr, ramas: r2(n(k.sumaContract) - cash - tr) }; });
   out.contrVal = sum(out.contracts, x => x.val); out.contrInc = sum(out.contracts, x => x.incCash + x.incTr); out.contrRamas = r2(out.contrVal - out.contrInc); out.contrPct = out.contrVal ? r2(out.contrInc / out.contrVal * 100) : 0;
-  const wd = ym => { const y = +ym.slice(0, 4), m = +ym.slice(5, 7), d = new Date(y, m, 0).getDate(); let c = 0; for (let i = 1; i <= d; i++) if (new Date(y, m - 1, i).getDay() !== 0) c++; return c; };
+  const wd = () => 24; /* the firm's rule: 24 working days in every month */
   const salAt = (a, date) => { let best = null; for (const h of S.istoric) if (same(h.angajat, a) && h.dinData <= date && (!best || h.dinData > best.dinData)) best = h; if (!best) for (const h of S.istoric) if (same(h.angajat, a) && (!best || h.dinData < best.dinData)) best = h; return best ? n(best.salariu) : 0; };
   const monthEnd = ym => ym + "-" + String(new Date(+ym.slice(0, 4), +ym.slice(5, 7), 0).getDate()).padStart(2, "0");
   const pont = S.pontaj.map(p => { const w = wd(p.luna), s = salAt(p.angajat, monthEnd(p.luna)); return { luna: p.luna, total: r2((n(p.z1) + n(p.z2)) * (w ? s / w : 0)) }; });
