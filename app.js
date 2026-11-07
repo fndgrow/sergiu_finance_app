@@ -147,7 +147,7 @@ ro:{
  pontaj_paid:"Achitat deja",pontaj_due:"De achitat",pontaj_nosal:"Angajatul nu are salariu stabilit, nu este nimic de achitat.",pontaj_nota:"Salariu pontaj",
  srv_ies_op:"Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).",
  a_grafic:"Grafic de lucru",a_grafic_d:"Ore lucrate, zi cu zi",gr_full:"8h",gr_ore:"ore",gr_h1:"Ore 1–15",gr_h2:"Ore 16–sfârșit",gr_tot:"Total ore",gr_zile:"Zile (8 ore = o zi)",
- gr_din:"Zilele vin din graficul de lucru și nu se scriu de mână.",gr_none:"Alegeți angajatul.",gr_h:"Apăsați „8h” pentru o zi întreagă sau scrieți orele lucrate. Fiecare zi se salvează imediat.",
+ gr_din:"Zilele vin din graficul de lucru și nu se scriu de mână.",gr_bani:"Cuvenit pe lună",gr_nosal:"fără salariu stabilit",gr_none:"Alegeți angajatul.",gr_h:"Apăsați „8h” pentru o zi întreagă sau scrieți orele lucrate. Fiecare zi se salvează imediat.",
  srv_grafic:"Graficul se face doar pentru angajații creați de dumneavoastră.",srv_ore:"Orele trebuie să fie între 0 și 24.",f_extra:"Extra (MDL)",f_extra_h:"Remunerare suplimentară pentru luna aceasta, dacă angajatul a făcut ceva în plus. Intră în suma de achitat.",
  op_ang:"Angajații mei",op_ang_h:"Pentru luna aleasă sus: ore din grafic, suma pontajului, cât s-a plătit și restul. Apăsați pe un angajat ca să-i deschideți graficul.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
@@ -299,7 +299,7 @@ ru:{
  pontaj_paid:"Уже выплачено",pontaj_due:"К выплате",pontaj_nosal:"У сотрудника не задан оклад, выплачивать нечего.",pontaj_nota:"Зарплата по табелю",
  srv_ies_op:"Сотрудник записывает из аванса только выплаты зарплаты (галочка «Оплачено» в табеле).",
  a_grafic:"График работы",a_grafic_d:"Часы по дням",gr_full:"8ч",gr_ore:"ч",gr_h1:"Часы 1–15",gr_h2:"Часы 16–конец",gr_tot:"Всего часов",gr_zile:"Дней (8 часов = день)",
- gr_din:"Дни берутся из графика работы и вручную не вводятся.",gr_none:"Выберите сотрудника.",gr_h:"Нажмите «8ч» за полный день или впишите часы. Каждый день сохраняется сразу.",
+ gr_din:"Дни берутся из графика работы и вручную не вводятся.",gr_bani:"Причитается за месяц",gr_nosal:"оклад не задан",gr_none:"Выберите сотрудника.",gr_h:"Нажмите «8ч» за полный день или впишите часы. Каждый день сохраняется сразу.",
  srv_grafic:"График можно вести только для сотрудников, которых создали вы.",srv_ore:"Часы должны быть от 0 до 24.",f_extra:"Премия (MDL)",f_extra_h:"Дополнительное вознаграждение за этот месяц, если сотрудник сделал что-то сверх. Входит в сумму к выплате.",
  op_ang:"Мои сотрудники",op_ang_h:"За выбранный сверху месяц: часы из графика, сумма табеля, сколько выплачено и остаток. Нажмите на сотрудника, чтобы открыть его график.",pontaj_lipsa:"табеля за этот месяц нет",gr_zile_s:"дн.",rest_total:"остаток за все месяцы",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
@@ -1201,6 +1201,15 @@ function drawGrafic(){
     }
     h+='</div><div class="calc-row"><div class="calcbox"><span>'+esc(T("gr_h1"))+'</span><span class="num">'+fmt(g.h1,1)+'</span></div><div class="calcbox"><span>'+esc(T("gr_h2"))+'</span><span class="num">'+fmt(g.h2,1)+'</span></div>'
       +'<div class="calcbox"><span>'+esc(T("gr_tot"))+'</span><span class="num">'+fmt(g.h1+g.h2,1)+'</span></div><div class="calcbox"><span>'+esc(T("gr_zile"))+'</span><span class="num">'+fmt(g.z1+g.z2,2)+'</span></div></div>';
+    /* the money: the month's worth at this employee's salary (the timesheet's extra included), and what is still to be paid */
+    var pr=S.pontaj.filter(function(r){return sameP(r.angajat,a)&&r.luna===ym})[0];
+    var dp={angajat:a,luna:ym,z1:g.z1,z2:g.z2,extra:pr?n(pr.extra):0},sal=salariuLa(a,monthEnd(ym));
+    if(angajatMeu(a)){
+      var worth=sal>0?pontajTotal(dp):0,paid=pontajPlatit(dp),due=round2(worth-paid);
+      h+='<div class="calc-row"><div class="calcbox"><span>'+esc(T("gr_bani"))+'</span><span class="num">'+(sal>0?money(worth)+" MDL":esc(T("gr_nosal")))+'</span></div>'
+        +'<div class="calcbox"><span>'+esc(T("l_plata"))+'</span><span class="num">'+money(paid)+'</span></div>'
+        +'<div class="calcbox"><span>'+esc(T("pontaj_due"))+'</span><span class="num">'+(sal>0?money(due)+" MDL":"—")+'</span></div></div>';
+    }
   }
   $("#sheet").innerHTML=h+'</div></div>';
 }
