@@ -142,7 +142,10 @@ ro:{
  cont_lipsa:"Pe cont nu sunt destui bani: disponibil {s} MDL. Depuneți mai întâi din casă.",
  cont_lei:"Pe cont intră doar lei: alegeți MDL.",
  d_rest:"Restituire fondator",s_fond:"Datorii către fondatori",l_fond_primit:"Împrumutat de la fondatori",l_fond_dat:"Datorie",
- pontaj_h:"Pontajul se face doar pentru angajații pe care i-ați creat dumneavoastră.",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
+ pontaj_h:"Pontajul se face doar pentru angajații pe care i-ați creat dumneavoastră.",
+ pontaj_pay:"Achitat: plătesc acum suma pontajului",pontaj_pay_h:"Se înregistrează o ieșire „Salarii” pentru suma rămasă de plătit din acest pontaj. La colaborator banii se iau din avansul lui, la director din casă.",
+ pontaj_paid:"Achitat deja",pontaj_due:"De achitat",pontaj_nosal:"Angajatul nu are salariu stabilit, nu este nimic de achitat.",pontaj_nota:"Salariu pontaj",
+ srv_ies_op:"Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
  f_adaug:"Adăugător (MDL)",p_adaug:"Adăugător",p_total:"Contract + adăugător",
  sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",
@@ -287,7 +290,10 @@ ru:{
  cont_lipsa:"На счёте недостаточно денег: доступно {s} MDL. Сначала внесите из кассы.",
  cont_lei:"На счёт поступают только леи: выберите MDL.",
  d_rest:"Возврат учредителю",s_fond:"Долги перед учредителями",l_fond_primit:"Занято у учредителей",l_fond_dat:"Долг",
- pontaj_h:"Табель можно заполнять только для сотрудников, которых создали вы.",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
+ pontaj_h:"Табель можно заполнять только для сотрудников, которых создали вы.",
+ pontaj_pay:"Оплачено: выплачиваю сумму табеля сейчас",pontaj_pay_h:"Создаётся выдача «Зарплата» на остаток к выплате по этому табелю. У сотрудника деньги берутся из его аванса, у директора из кассы.",
+ pontaj_paid:"Уже выплачено",pontaj_due:"К выплате",pontaj_nosal:"У сотрудника не задан оклад, выплачивать нечего.",pontaj_nota:"Зарплата по табелю",
+ srv_ies_op:"Сотрудник записывает из аванса только выплаты зарплаты (галочка «Оплачено» в табеле).",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
  f_adaug:"Дополнительно (MDL)",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
  sess_other:"В аккаунт вошли на другом устройстве. Введите код, чтобы продолжить здесь.",
@@ -304,7 +310,7 @@ var lang="ro";
 try{var sl=localStorage.getItem("ehl.lang"); if(sl==="ro"||sl==="ru") lang=sl;}catch(e){}
 function T(k){var d=I18N[lang];return (d&&d[k])||I18N.ro[k]||k;}
 /* the server answers in Romanian; known messages are shown in the interface language */
-var SRV_MSG={"Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans","Salariul se stabilește doar pentru angajații creați de dumneavoastră.":"srv_sal"};
+var SRV_MSG={"Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans","Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).":"srv_ies_op","Salariul se stabilește doar pentru angajații creați de dumneavoastră.":"srv_sal"};
 function srvT(m){var k=SRV_MSG[String(m||"").trim()];return k?T(k):m}
 
 /* ---------------- helpers ---------------- */
@@ -706,6 +712,9 @@ function angajatiActivi(){return S.angajati.filter(function(a){return a.status!=
 /* an operator fills timesheets only for the employees he created himself (the server checks the same); a director for all */
 /* an operator sets and sees the salary only of the employees he created himself; a director of everyone */
 function angajatMeu(nume){if(isDir)return true;var a=S.angajati.filter(function(x){return sameP(x.nume,nume)})[0];return !a||a.by===ME}
+function pontajTotal(d){var wd=workdays(d.luna),sal=salariuLa(d.angajat,d.luna?monthEnd(d.luna):today()),pz=wd?sal/wd:0;return round2((n(d.z1)+n(d.z2))*pz)}
+function pontajPlatit(d){return round2(S.iesiri.reduce(function(a,r){return a+(r.destinatie==="Salarii"&&r.luna===d.luna&&sameP(r.persoana,d.angajat)?n(r.suma)*n(r.curs):0)},0))}
+function pontajDue(d){return round2(pontajTotal(d)-pontajPlatit(d))}
 function angajatiPontaj(){return S.angajati.filter(function(a){return a.status!=="Inactiv"&&(isDir||a.by===ME)}).map(function(a){return a.nume})}
 function fAngajatPontaj(){
   if(isDir)return {k:"angajat",t:"text",l:"f_ang",req:1,list:angajatiActivi().length?angajatiActivi():persoane()};
@@ -1097,14 +1106,19 @@ var FORMS={
    {k:"luna",t:"month",l:"f_luna",req:1,def:curMonth()},
    fAngajatPontaj(),
    {k:"z1",t:"number",l:"f_z1",half:1,step:"1",def:"0"},
-   {k:"z2",t:"number",l:"f_z2",half:1,step:"1",def:"0"}
+   {k:"z2",t:"number",l:"f_z2",half:1,step:"1",def:"0"},
+   /* "paid now": a Salarii outflow for what is still due on this timesheet; from the collaborator's advance, or from the till for a director */
+   {k:"achitat",t:"checkbox",l:"pontaj_pay",hint:"pontaj_pay_h",showIf:function(d){return angajatMeu(d.angajat)&&pontajDue(d)>0.004}}
  ]},calc:function(d){var wd=workdays(d.luna),sal=salariuLa(d.angajat,d.luna?monthEnd(d.luna):today()),pz=wd?sal/wd:0;
    var out=[{l:(lang==="ru"?"Раб. дней":"Zile lucr."),v:String(wd)}];
    if(angajatMeu(d.angajat)&&sal>0){ /* an operator sees the salary of his own employees only */
      out.push({l:(lang==="ru"?"Цена дня":"Preț zi"),v:money(pz)});
      out.push({l:T("f_z1"),v:money(n(d.z1)*pz)});
      out.push({l:T("f_z2"),v:money(n(d.z2)*pz)});
-     out.push({l:T("tot"),v:money((n(d.z1)+n(d.z2))*pz)+" MDL"});
+     out.push({l:T("tot"),v:money(pontajTotal(d))+" MDL"});
+     var paid=pontajPlatit(d),due=pontajDue(d);
+     if(paid>0)out.push({l:T("pontaj_paid"),v:money(paid)});
+     if(due>0.004)out.push({l:T("pontaj_due"),v:money(due)+" MDL"});
    }
    return out}},
 
@@ -1799,7 +1813,8 @@ function mineView(fn){
   S.cheltuieli=keep.cheltuieli.filter(function(r){return r.by===ME||sameP(r.platitDe,me)});
   /* what he received plays the part of the incomes in the month chart */
   S.incasari=adv.map(function(r){return {id:r.id,data:r.data,suma:r.suma,curs:r.curs,valuta:r.valuta,mod:"Numerar",client:"",proiect:"",ts:r.ts}});
-  S.iesiri=adv;S.contracte=[];S.imprumuturi=[];S.istoric=[];
+  var gave=keep.iesiri.filter(function(r){return dinAvans(r)&&sameP(r.platitDe,me)});
+  S.iesiri=adv.concat(gave);S.contracte=[];S.imprumuturi=[];S.istoric=[];
   ["chirii","angajati","pontaj"].forEach(function(c){S[c]=keep[c].filter(function(r){return r.by===ME})});
   try{return fn(me,adv)}finally{cols.forEach(function(c){S[c]=keep[c]})}
 }
@@ -1810,12 +1825,14 @@ function vPanouOp(){
     var chn=sumBy(function(r){return r.mod==="Numerar"&&sameP(r.platitDe,me)?n(r.suma):0});
     var prop=sumBy(function(r){return r.mod==="Numerar"&&r.sursa==="Proprii"&&sameP(r.platitDe,me)?n(r.suma):0});
     var tr=sumBy(function(r){return r.mod==="Transfer"?n(r.suma):0});
-    var sold=round2(primit-chn);
+    var dat=round2(S.iesiri.filter(dinAvans).reduce(function(a,r){return a+n(r.suma)*n(r.curs)},0));
+    var sold=round2(primit-chn-dat);
     var h=vOverview()+'<div class="dash-grid">';
     h+='<div class="sec sec-wide"><div class="tiles">'
       +tile(sold<0?T("colab_owed"):T("my_sold"),money(Math.abs(sold)),"MDL",sold<0?"neg":"",1,"wallet")
       +tile(T("op_primit"),money(primit),"MDL","pos",0,"inArrow")
       +tile(T("op_chn"),money(chn),"MDL","neg",0,"cash")
+      +(dat>0?tile(T("l_salplatit"),money(dat),"MDL","neg",0,"users"):"")
       +tile(T("op_prop"),money(prop),"MDL","",0,"user")
       +tile(T("op_tr"),money(tr),"MDL","",0,"bank")
       +'</div></div>';
@@ -2412,6 +2429,13 @@ function submitForm(){
     if(z1<0||z1>15||z2<0||z2>16){st.err=T("pontaj_zile");drawSheet();return;}
     if(S.pontaj.some(function(r){return r.id!==st.id&&r.luna===st.data.luna&&sameP(r.angajat,st.data.angajat)})){st.err=T("pontaj_dup");drawSheet();return;}
     if(!isDir&&!angajatiPontaj().some(function(a){return sameP(a,st.data.angajat)})){st.err=T("pontaj_h");drawSheet();return;}
+    if(st.data.achitat){
+      var dueP=pontajDue(st.data);
+      if(!(dueP>0.004)){st.err=T("pontaj_nosal");drawSheet();return;}
+      var payP={data:today(),destinatie:"Salarii",valuta:"MDL",curs:1,suma:dueP};
+      var lkP=isDir?casaErr("iesiri",payP,null):avansErr("iesiri",payP,null);
+      if(lkP){st.err=lkP;drawSheet();return;}
+    }
   }
   /* the bank account holds lei only */
   /* (a deposit from the till may come from any currency shelf: the account receives suma × curs in lei) */
@@ -2471,6 +2495,11 @@ function submitForm(){
     if(b.valuta==="MDL"&&("curs" in b))b.curs=1; /* lei never carry a rate */
     if(col==="iesiri"&&!st.id){if(ieseDinAvans(null)){b.sursa="Avans";b.platitDe=meName()}else{b.sursa="Casa";b.platitDe=""}}
     p=saveDoc(col,b,st.id);
+    if(col==="pontaj"&&d.achitat){
+      var due=pontajDue(b);
+      if(due>0.004)p=p.then(function(){return saveDoc("iesiri",{data:today(),destinatie:"Salarii",valuta:"MDL",curs:1,suma:due,persoana:b.angajat,luna:b.luna,
+        nota:T("pontaj_nota")+" "+monthName(b.luna),sursa:isDir?"Casa":"Avans",platitDe:isDir?"":meName()})});
+    }
   }
   p.then(function(){closeSheet();toast(T("saved"))})
    .catch(function(e){st.err=saveErr(e);drawSheet();if(!netErr(e))selfCheck()}); /* a refusal may mean this device was signed out elsewhere */
@@ -2706,7 +2735,7 @@ document.addEventListener("change",function(ev){
   if(k==="valuta"){sheetState.data.curs=String(cursAzi(el.value));drawSheet();return;}
   if(k==="proiect"){var pj=S.proiecte.filter(function(p){return sameP(p.nume,el.value)})[0];if(pj&&pj.client){sheetState.data.client=pj.client;drawSheet();}return;}
   if(k==="destinatie"||k==="mod"||k==="categorie"||k==="client"||k==="pentru"||el.type==="checkbox"){drawSheet();return;}
-  if(k==="angajat"||k==="luna"){var def=FORMS[sheetState.col];if(def&&def.calc)drawSheet();}
+  if(k==="angajat"||k==="luna"||(sheetState.col==="pontaj"&&(k==="z1"||k==="z2"))){var def=FORMS[sheetState.col];if(def&&def.calc)drawSheet();} /* the days decide whether the "Achitat" box is offered */
 });
 document.addEventListener("submit",function(ev){
   var f=ev.target;ev.preventDefault();
