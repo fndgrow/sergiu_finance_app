@@ -778,3 +778,12 @@ label>span .cur-b{width:16px;height:16px;font-size:10px}
   body.locked main{max-width:620px}
 }
 
+
+/* ---- work schedule grid ---- */
+.gr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin:8px 0 12px}
+.gr-day{display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.gr-day.sun{opacity:.6}.gr-day.on{border-color:var(--accent)}
+.gr-day .gr-n{flex:1;font-family:var(--d);font-weight:600;font-size:13px}.gr-day .gr-n small{color:var(--muted);font-weight:400}
+.gr-full{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:4px 9px;font-family:var(--d);font-size:12px;cursor:pointer;color:var(--ink)}
+.gr-full[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.gr-day .gr-h{width:62px;padding:6px 8px;border-radius:8px}

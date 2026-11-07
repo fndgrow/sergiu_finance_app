@@ -115,7 +115,7 @@ routerAdd("POST", "/api/ehl/password", (e) => {
 onRecordCreateRequest((e) => {
   if (e.auth) e.record.set("by", e.auth.id);
   e.next();
-}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "proiecte", "angajati", "istoric", "pontaj", "jurnal");
+}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal");
 
 onRecordUpdateRequest((e) => {
   /* the author never changes on edit */
@@ -126,7 +126,31 @@ onRecordUpdateRequest((e) => {
     if (createdMs && Date.now() - createdMs > 15 * 24 * 3600 * 1000) throw new BadRequestError("Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.");
   }
   e.next();
-}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "proiecte", "angajati", "istoric", "pontaj");
+}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "proiecte", "angajati", "istoric", "pontaj", "grafic");
+
+/* ---- the work schedule: hours 0–24; an operator fills it only for the employees he created, a director for anyone ---- */
+onRecordCreateRequest((e) => {
+  var h = e.record.getFloat("ore");
+  if (h < 0 || h > 24) throw new BadRequestError("Orele trebuie să fie între 0 și 24.");
+  if (e.auth && e.auth.getString("rol") !== "Director") {
+    var nm = String(e.record.getString("angajat") || "").trim();
+    var ok = false;
+    if (nm) { try { ok = $app.countRecords("angajati", $dbx.exp("TRIM(nume) = {:n} AND by = {:u}", { n: nm, u: e.auth.id })) > 0; } catch (err) { ok = false; } }
+    if (!ok) throw new BadRequestError("Graficul se face doar pentru angajații creați de dumneavoastră.");
+  }
+  e.next();
+}, "grafic");
+onRecordUpdateRequest((e) => {
+  var h = e.record.getFloat("ore");
+  if (h < 0 || h > 24) throw new BadRequestError("Orele trebuie să fie între 0 și 24.");
+  if (e.auth && e.auth.getString("rol") !== "Director") {
+    var nm = String(e.record.getString("angajat") || "").trim();
+    var ok = false;
+    if (nm) { try { ok = $app.countRecords("angajati", $dbx.exp("TRIM(nume) = {:n} AND by = {:u}", { n: nm, u: e.auth.id })) > 0; } catch (err) { ok = false; } }
+    if (!ok) throw new BadRequestError("Graficul se face doar pentru angajații creați de dumneavoastră.");
+  }
+  e.next();
+}, "grafic");
 
 /* ---- users: random credentials, numeric codes, no self-lockout ---- */
 onRecordCreateRequest((e) => {
