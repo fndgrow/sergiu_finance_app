@@ -1,6 +1,6 @@
 /* Casieria EHL — service worker.
    Bump CACHE whenever app files change, so phones pick up the new version. */
-var CACHE = "casieria-ehl-v112";
+var CACHE = "casieria-ehl-v136";
 var SHELL = [
   "./", "./index.html", "./styles.css", "./app.js", "./app-config.js", "./vendor/pocketbase.umd.js", "./manifest.json",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png", "./icons/apple-touch-icon.png"
@@ -26,8 +26,10 @@ self.addEventListener("fetch", function (e) {
   if (sameOrigin && (url.pathname.indexOf("/api/") === 0 || url.pathname.indexOf("/_/") === 0)) return;
 
   if (sameOrigin) {
-    /* app shell: network first, so updates arrive; cache keeps it working offline */
-    e.respondWith(fetch(req).then(function (res) {
+    /* app shell: network first, so updates arrive; cache keeps it working offline.
+       "no-cache" makes the browser ask the server instead of answering from its own HTTP cache,
+       otherwise a new version can sit behind the heuristic cache for hours. */
+    e.respondWith(fetch(req, { cache: "no-cache" }).then(function (res) {
       if (res && res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
       return res;
     }).catch(function () {

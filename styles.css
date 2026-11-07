@@ -77,6 +77,11 @@ main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px
 .tile .k{font-family:var(--d);font-size:13px;font-weight:500;color:var(--muted);display:block;margin-bottom:6px}
 .tile .v{font-family:var(--d);font-size:20px;font-weight:700;letter-spacing:-.02em;display:block;line-height:1.15;overflow-wrap:normal;word-break:normal}
 .tile .u{font-size:11px;color:var(--muted);margin-left:3px;font-weight:500}
+/* the till tile: one small line per currency under the total */
+.tile .t-sub{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:500;color:var(--ink)}
+.tile .t-cur{display:flex;align-items:center;gap:7px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tile .t-cur.neg{color:var(--neg)}
+.tile .t-cur .cur-b{width:18px;height:18px;font-size:11px;flex:0 0 auto}
 .tile.big{grid-column:1/-1;background:var(--accent);border-color:transparent;color:var(--accent-ink)}
 .tile.big .k{color:var(--accent-ink);opacity:.72}
 .tile.big .v{font-size:27px}

@@ -127,7 +127,33 @@ ro:{
  show_more:"Arată încă {n}",show_less:"Arată mai puțin",
  th_det:"Detalii",th_how:"Cine și cum",n_rec:"Înregistrări: {n}",
  pg_of:"{a}–{b} din {n}",pg_prev:"Pagina anterioară",pg_next:"Pagina următoare",
- ov_more:"Detalii",ov_all_s:"Toate",per_lbl:"Perioada",menu_t:"Salt rapid",menu_a:"Meniu",s_totals:"Totaluri"
+ ov_more:"Detalii",ov_all_s:"Toate",per_lbl:"Perioada",menu_t:"Salt rapid",menu_a:"Meniu",s_totals:"Totaluri",
+ f_dinsal:"Salariul se aplică din",f_dinsal_h:"Lunile de dinaintea acestei date se calculează cu salariul vechi.",
+ save_err:"Serverul nu a acceptat înregistrarea.",
+ pending_out:"Înregistrările netrimise ({n}) rămân pe acest telefon și se trimit când utilizatorul intră din nou.",
+ val_used:"Valuta {v} este folosită în înregistrări și nu poate fi ștearsă sau redenumită.",
+ pontaj_dup:"Pentru acest angajat există deja un pontaj în luna aleasă. Deschideți-l și corectați-l.",
+ pontaj_zile:"Zilele: 0–15 pentru prima jumătate și 0–16 pentru a doua.",
+ casa_lipsa:"În casă nu sunt destui bani: disponibil {s} {v}. Alimentați mai întâi casa.",
+ by_lbl:"introdus de",
+ arch_t:"Arhivă: utilizatori dezactivați",arch_h:"Nu mai pot intra, dar înregistrările lor rămân în registre și în istoric. Pot fi restabiliți oricând.",
+ restore:"Restabilește",restored:"Utilizator restabilit",fondator:"fondator",
+ f_codfond:"Codul fondatorului",f_codfond_h:"Fondatorul confirmă încasarea cu codul său de acces.",codfond_bad:"Codul fondatorului este greșit.",confirmat:"confirmat de",
+ cont_lipsa:"Pe cont nu sunt destui bani: disponibil {s} MDL. Depuneți mai întâi din casă.",
+ cont_lei:"Pe cont intră doar lei: alegeți MDL.",
+ d_rest:"Restituire fondator",s_fond:"Datorii către fondatori",l_fond_primit:"Împrumutat de la fondatori",l_fond_dat:"Datorie",
+ pontaj_h:"Pontajul se face doar pentru angajații pe care i-ați creat dumneavoastră.",
+ f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
+ f_adaug:"Adăugător (MDL)",p_adaug:"Adăugător",p_total:"Contract + adăugător",
+ sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",
+ op_primit:"Primit de la director",op_chn:"Cheltuit numerar",op_prop:"Din banii mei",op_tr:"Prin transfer (din cont)",op_adv:"Bani primiți de la director",op_proj:"Cheltuieli pe proiect",
+ cont_intra:"Pe cont intră",
+ s_cont_minus:"Contul este în minus",l_cont_achitat:"De achitat pe cont",cont_minus_h:"Plățile prin transfer au depășit banii de pe cont. Mai jos sunt plățile care au dus contul în minus. Acoperiți-l cu o încasare prin transfer sau cu Ieșire din casă → Depus pe cont.",
+ srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",
+ s_tr:"Cheltuieli din cont (transfer)",tr_h:"La transfer banii se iau din contul bancar, nu de la persoană. Apăsați pe un nume ca să vedeți pe ce s-au cheltuit.",colab_tr:"Plătit prin transfer (din cont)",
+ avans_lipsa:"Nu aveți destui bani din avans: disponibil {s} MDL. Cereți mai întâi bani de la director.",avans_disp:"Disponibil din avansul meu",din_avans:"din avansul lui",colab_gave:"Ieșiri făcute din avans",
+ f_pentru:"Cheltuiala este pentru",pt_proiect:"Proiect",pt_proiecte:"Proiecte",pt_ehl:"EHL (firma)",pt_alte:"Altele",s_pentru:"Cheltuieli: proiecte, EHL, altele",
+ fond_h:"Banii puși de un fondator sunt un împrumut către firmă: datoria crește cu fiecare încasare de la el și scade prin Ieșire din casă → Restituire fondator."
 },
 ru:{
  app:"Касса EHL",director:"Директор",angajat:"Оператор",oaspete:"Гость",
@@ -246,13 +272,39 @@ ru:{
  show_more:"Показать ещё {n}",show_less:"Свернуть",
  th_det:"Детали",th_how:"Кто и как",n_rec:"Записей: {n}",
  pg_of:"{a}–{b} из {n}",pg_prev:"Предыдущая страница",pg_next:"Следующая страница",
- ov_more:"Подробнее",ov_all_s:"Все",per_lbl:"Период",menu_t:"Быстрый переход",menu_a:"Меню",s_totals:"Итоги"
+ ov_more:"Подробнее",ov_all_s:"Все",per_lbl:"Период",menu_t:"Быстрый переход",menu_a:"Меню",s_totals:"Итоги",
+ f_dinsal:"Оклад действует с",f_dinsal_h:"Месяцы до этой даты считаются по старому окладу.",
+ save_err:"Сервер не принял запись.",
+ pending_out:"Неотправленные записи ({n}) остались на этом телефоне и отправятся, когда пользователь войдёт снова.",
+ val_used:"Валюта {v} используется в записях, её нельзя удалить или переименовать.",
+ pontaj_dup:"Для этого сотрудника уже есть табель за выбранный месяц. Откройте его и исправьте.",
+ pontaj_zile:"Дни: 0–15 за первую половину и 0–16 за вторую.",
+ casa_lipsa:"В кассе недостаточно денег: доступно {s} {v}. Сначала пополните кассу.",
+ by_lbl:"внёс",
+ arch_t:"Архив: отключённые пользователи",arch_h:"Войти они не могут, но их записи остаются в журналах и истории. Их можно восстановить в любой момент.",
+ restore:"Восстановить",restored:"Пользователь восстановлен",fondator:"учредитель",
+ f_codfond:"Код учредителя",f_codfond_h:"Учредитель подтверждает поступление своим кодом доступа.",codfond_bad:"Код учредителя неверный.",confirmat:"подтвердил",
+ cont_lipsa:"На счёте недостаточно денег: доступно {s} MDL. Сначала внесите из кассы.",
+ cont_lei:"На счёт поступают только леи: выберите MDL.",
+ d_rest:"Возврат учредителю",s_fond:"Долги перед учредителями",l_fond_primit:"Занято у учредителей",l_fond_dat:"Долг",
+ pontaj_h:"Табель можно заполнять только для сотрудников, которых создали вы.",
+ f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
+ f_adaug:"Дополнительно (MDL)",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
+ sess_other:"В аккаунт вошли на другом устройстве. Введите код, чтобы продолжить здесь.",
+ op_primit:"Получено от директора",op_chn:"Потрачено наличными",op_prop:"Из своих денег",op_tr:"Переводом (со счёта)",op_adv:"Деньги, полученные от директора",op_proj:"Расходы по проектам",
+ cont_intra:"На счёт поступит",
+ s_cont_minus:"Счёт в минусе",l_cont_achitat:"Нужно внести на счёт",cont_minus_h:"Платежи переводом превысили деньги на счёте. Ниже — платежи, которые увели счёт в минус. Покройте его поступлением переводом или Выдачей из кассы → Внесено на счёт.",
+ srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",
+ s_tr:"Расходы со счёта (перевод)",tr_h:"При переводе деньги берутся с банковского счёта, а не у человека. Нажмите на имя, чтобы увидеть, на что они потрачены.",colab_tr:"Оплачено переводом (со счёта)",
+ avans_lipsa:"В вашем авансе недостаточно денег: доступно {s} MDL. Сначала получите деньги у директора.",avans_disp:"Доступно из моего аванса",din_avans:"из аванса:",colab_gave:"Выдачи из аванса",
+ f_pentru:"Расход относится к",pt_proiect:"Проект",pt_proiecte:"Проекты",pt_ehl:"EHL (фирма)",pt_alte:"Прочее",s_pentru:"Расходы: проекты, EHL, прочее",
+ fond_h:"Деньги, внесённые учредителем, — это заём фирме: долг растёт с каждым поступлением от него и уменьшается через Выдачу из кассы → Возврат учредителю."
 }};
 var lang="ro";
 try{var sl=localStorage.getItem("ehl.lang"); if(sl==="ro"||sl==="ru") lang=sl;}catch(e){}
 function T(k){var d=I18N[lang];return (d&&d[k])||I18N.ro[k]||k;}
 /* the server answers in Romanian; known messages are shown in the interface language */
-var SRV_MSG={"Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old"};
+var SRV_MSG={"Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans"};
 function srvT(m){var k=SRV_MSG[String(m||"").trim()];return k?T(k):m}
 
 /* ---------------- helpers ---------------- */
@@ -265,6 +317,10 @@ function today(){var d=new Date();return d.getFullYear()+"-"+p2(d.getMonth()+1)+
 function p2(x){return x<10?"0"+x:""+x}
 function curMonth(){return today().slice(0,7)}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+/* The id of a new record is made on the phone (15 characters, like PocketBase's own), so a create that is sent
+   again after its answer was lost is refused as a duplicate instead of becoming a second record. */
+function newId(){var a="abcdefghijklmnopqrstuvwxyz0123456789",s="";for(var i=0;i<15;i++)s+=a.charAt(Math.floor(Math.random()*36));return s}
+function localTs(s){var d=new Date(String(s||"").replace(" ","T"));return isNaN(d.getTime())?String(s||""):d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())+" "+p2(d.getHours())+":"+p2(d.getMinutes())}
 function toast(msg){var w=$("#toasts");var el=document.createElement("div");el.className="toast";el.textContent=msg;w.appendChild(el);setTimeout(function(){el.remove()},2200)}
 function monthName(ym){if(!ym)return"";var p=ym.split("-");var names=lang==="ru"?["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"]:["ianuarie","februarie","martie","aprilie","mai","iunie","iulie","august","septembrie","octombrie","noiembrie","decembrie"];var i=parseInt(p[1],10)-1;return (names[i]||"")+" "+p[0]}
 /* The firm's rule: a monthly salary is always divided by 24 working days, whatever the month, and paid in two halves
@@ -293,11 +349,19 @@ function uniq(a){var o=[],seen={};a.forEach(function(x){var k=String(x||"").trim
 function clienti(){return uniq(S.incasari.map(function(r){return r.client}).concat(S.cheltuieli.map(function(r){return r.client}),S.contracte.map(function(r){return r.client}),S.proiecte.map(function(p){return p.client})))}
 /* incomes and expenses pick the client from the ones already known (projects, contracts, earlier rows); only when
    none exists yet is the field free text. Choosing a project fills the client in (see the change handler). */
-function fClient(req){
-  var lst=clienti();
+/* the founders are the directors: money they put in is an income "from" them, so the client list of an income offers
+   them first (marked "fondator"), then the real clients */
+function fondatori(){return uniq(S.utilizatori.filter(function(u){return u.rol==="Director"&&u.status!=="Inactiv"}).map(function(u){return u.nume}))}
+function fondatoriToti(){return uniq(S.utilizatori.filter(function(u){return u.rol==="Director"}).map(function(u){return u.nume}))} /* a debt outlives a deactivation */
+/* the director whose name an income names as its source; money from a founder is confirmed with that founder's code */
+function fondatorOf(name){return S.utilizatori.filter(function(u){return u.rol==="Director"&&sameP(u.nume,name)})[0]||null}
+function fClient(req,withFounders){
+  var fnd=withFounders?fondatori():[];
+  var lst=clienti().filter(function(c){return !fnd.some(function(f){return sameP(f,c)})});
+  var opts=fnd.map(function(f){return {v:f,l:f+" · "+T("fondator")}}).concat(opt(lst));
   /* only the director creates clients (on a project or a contract); an operator always picks from the list */
-  if(!lst.length&&isDir)return {k:"client",t:"text",l:"f_client",req:req};
-  return {k:"client",t:"select",l:"f_client",req:req,allowEmpty:1,opts:opt(lst)};
+  if(!opts.length&&isDir)return {k:"client",t:"text",l:"f_client",req:req};
+  return {k:"client",t:"select",l:"f_client",req:req,allowEmpty:1,opts:opts};
 }
 function proiecteNume(){return uniq(S.incasari.map(function(r){return r.proiect}).concat(S.cheltuieli.map(function(r){return r.proiect}),S.proiecte.map(function(p){return p.nume})))}
 function respList(p){return String(p&&p.responsabili||"").split(",").map(function(s){return s.trim()}).filter(Boolean)}
@@ -309,10 +373,29 @@ function myUser(){
 }
 function computeDir(){var u=myUser();return !!(u&&u.rol==="Director")}
 function meName(){var u=myUser();return (u&&u.nume)||""}
+/* who entered a record: the author set by the server, named through the users list (directors hold the whole list) */
+function byName(r){var u=r&&r.by?S.utilizatori.filter(function(x){return x.id===r.by})[0]:null;return u?(u.nume||""):""}
+function byLine(r){var b=byName(r);return b?T("by_lbl")+" "+b:""}
+/* People are named by text in every register. When a user or an employee is renamed, the old name is replaced in all
+   the rows that carry it (and in the cashier setting), so the reports keep following the same person. Directors only. */
+function renamePerson(oldN,newN){
+  oldN=String(oldN||"").trim();newN=String(newN||"").trim();
+  if(!isDir||!oldN||!newN||oldN===newN)return Promise.resolve();
+  var fld={utilizatori:"nume",angajati:"nume",cheltuieli:"platitDe",iesiri:"persoana",imprumuturi:"persoana",chirii:"chirias",pontaj:"angajat",istoric:"angajat"},ops=[];
+  Object.keys(fld).forEach(function(col){var k=fld[col];(S[col]||[]).forEach(function(r){if(sameP(r[k],oldN)){var b={};b[k]=newN;ops.push([col,b,r.id])}})});
+  S.proiecte.forEach(function(p){var l=respList(p);if(l.some(function(x){return sameP(x,oldN)}))ops.push(["proiecte",{responsabili:l.map(function(x){return sameP(x,oldN)?newN:x}).join(", ")},p.id])});
+  var p=Promise.resolve();
+  ops.forEach(function(o){p=p.then(function(){return saveDoc(o[0],o[1],o[2])})});
+  if(sameP(casier(),oldN))p=p.then(function(){return saveCfg({casier:newN})});
+  return p;
+}
 function unsubAll(){subs.forEach(function(u){try{u()}catch(e){}});subs=[];if(PB){try{PB.realtime.unsubscribe()}catch(e){}}}
 function resetData(){COLS.forEach(function(c){S[c]=[]});S.cfg=null;loaded={};stale=false;dbErr=false;if(loadTimer){clearTimeout(loadTimer);loadTimer=null}}
 function logout(msg){
   unsubAll();resetData();
+  /* unsent records stay stored under their own user (qKey) and go out when that user signs in again */
+  var left=QUEUE.length;QUEUE=[];FAILED=[];
+  if(left)toast(T("pending_out").replace("{n}",String(left)));
   ACCESS=null;ME=null;isDir=false;LOCKED=false;sheetState=null;$("#sheet").innerHTML="";document.body.style.overflow="";
   if(PB)PB.authStore.clear();
   try{localStorage.removeItem("ehl.cache")}catch(e){}
@@ -329,7 +412,11 @@ function enter(user){
 var GATE={step:"cod"};
 /* Lock screen: the access code is asked again on every start of the app and after it sat in the background
    for LOCK_AFTER; the session itself (token, data, offline queue) stays, only the screen is covered. */
-var LOCKED=false,LOCKVIEW="",hiddenAt=0,LOCK_AFTER=10*60*1000;
+var LOCKED=false,LOCKVIEW="",hiddenAt=0,LOCK_AFTER=2*24*3600*1000; /* the code is asked at most once in 2 days (the firm's choice) */
+var PAROLA_DIR=false; /* the director's password is switched off for now (see PAROLA_DIRECTOR in the server hooks) */
+function lastUnlock(){try{return parseInt(localStorage.getItem("ehl.unlock")||"0",10)||0}catch(e){return 0}}
+function markUnlock(){try{localStorage.setItem("ehl.unlock",String(Date.now()))}catch(e){}}
+function lockDue(){return Date.now()-lastUnlock()>LOCK_AFTER}
 var EDIT_DAYS=15; /* an operator may correct his own rows for this many days; afterwards only the director */
 function lockScreen(){
   if(!ACCESS||LOCKED)return;
@@ -339,7 +426,7 @@ function lockScreen(){
   render();
 }
 function unlockScreen(){
-  LOCKED=false;gateErr="";GATE={step:"cod"};
+  LOCKED=false;gateErr="";GATE={step:"cod"};markUnlock();
   view=LOCKVIEW||(isDir?"panou":"add");
   render();
 }
@@ -355,9 +442,11 @@ function login(cod,parola,parolaNoua){
     if(res.needPassword){GATE={step:"parola",cod:cod,nume:res.record&&res.record.nume};return res;}
     PB.authStore.save(res.token,res.record);
     try{
-      if(res.record&&res.record.rol==="Director"){localStorage.setItem("ehl.cod",cod);localStorage.setItem("ehl.exp",String(res.expires||0))}
+      /* only a password-backed director session (it carries "expires") remembers the code for the weekly password screen */
+      if(res.record&&res.record.rol==="Director"&&res.expires){localStorage.setItem("ehl.cod",cod);localStorage.setItem("ehl.exp",String(res.expires))}
       else{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}
     }catch(e){}
+    markUnlock();
     enter(res.record);
     if(res.first||GATE.first)toast(T("first_pin"));
     return res;
@@ -394,24 +483,55 @@ function applyEvent(col,ev){
 }
 function authErrOf(e){
   if(e&&(e.status===401||e.status===403)){
-    if(isDir&&e.status===401){sessionExpired();return true;}
+    if(e.status===401){
+      if(PAROLA_DIR&&isDir){sessionExpired();return true;}
+      /* the token died: the account was opened on another device (one session per account) */
+      logout(T("sess_other"));return true;
+    }
     logout(T("gate_bad"));return true;
   }
   return false;
 }
 /* List rules filter instead of refusing, so a deactivated user just sees empty lists;
    the only reliable signal is our own user record disappearing (404) or the token refresh failing. */
+/* A page left open keeps running the code it was loaded with, while the server moves on (new fields, new rules).
+   The version is the cache name in sw.js: it is read once at start-up and again on every self-check; when it has
+   changed the page reloads itself — never while a form is open (then right after it closes). Unsent records are safe:
+   the queue lives in localStorage. */
+var VER0="",verNew=false;
+function verFetch(){
+  if(typeof window.fetch!=="function")return Promise.resolve("");
+  return window.fetch("./sw.js",{cache:"no-store"}).then(function(r){return r.ok?r.text():""})
+    .then(function(t){var m=/casieria-ehl-v(\d+)/.exec(t||"");return m?m[1]:""}).catch(function(){return ""});
+}
+function verCheck(){
+  verFetch().then(function(v){
+    if(!v)return;
+    if(!VER0){VER0=v;return;}
+    if(v!==VER0){verNew=true;verApply();}
+  });
+}
+function verApply(){if(verNew&&!sheetState){try{window.location.reload()}catch(e){}}}
 function selfCheck(){
+  verCheck();
   if(!PB||!ACCESS||!online)return Promise.resolve();
   if(expiryCheck())return Promise.resolve();
   return PB.collection("utilizatori").getOne(ACCESS.user.id,{requestKey:null}).then(function(u){
     S.utilizatori=S.utilizatori.filter(function(x){return x.id!==u.id}).concat([norm(u)]);checkSelf();
-  }).catch(function(e){if(e&&(e.status===404||e.status===401||e.status===403))logout(T("gate_bad"))});
+  }).catch(function(e){if(e&&(e.status===404||e.status===401||e.status===403))signedOut()});
+}
+/* Our own record cannot be read any more. PocketBase answers a dead token like a stranger (404 on the record), so the
+   reason is asked from the token itself: a refresh refused with 401 means the account was opened on another device
+   (one session per account); anything else is a deactivated user. */
+function signedOut(){
+  if(!PB||!ACCESS)return;
+  PB.collection("utilizatori").authRefresh({requestKey:null}).then(function(){return T("gate_bad")},function(e){return (e&&e.status===401)?T("sess_other"):T("gate_bad")})
+    .then(function(m){if(ACCESS)logout(m)});
 }
 setInterval(selfCheck,3*60*1000);
 document.addEventListener("visibilitychange",function(){
   if(document.visibilityState==="hidden"){hiddenAt=Date.now();return;}
-  if(ACCESS&&!LOCKED&&hiddenAt&&Date.now()-hiddenAt>LOCK_AFTER)lockScreen();
+  if(ACCESS&&!LOCKED&&hiddenAt&&lockDue())lockScreen();
   selfCheck();
 });
 var RT=typeof window.EventSource==="function";
@@ -439,11 +559,11 @@ function subscribe(){
   });
   if(isDir){
     PB.collection("utilizatori").getFullList({batch:500,requestKey:null}).then(function(items){S.utilizatori=items.map(norm);saveCache();checkSelf()}).catch(authErrOf);
-    sub("utilizatori","*",function(ev){applyEvent("utilizatori",ev);checkSelf()});
+    sub("utilizatori","*",function(ev){applyEvent("utilizatori",ev);checkSelf();if(ev.record&&ev.record.id===ME)selfCheck()}); /* my record changed: maybe a sign-in elsewhere */
   }else{
     PB.collection("utilizatori").getOne(ME,{requestKey:null}).then(function(u){S.utilizatori=[norm(u)];saveCache();checkSelf()})
-      .catch(function(e){if(e&&e.status===404){logout(T("gate_bad"));return}authErrOf(e)});
-    sub("utilizatori",ME,function(ev){applyEvent("utilizatori",ev);checkSelf()});
+      .catch(function(e){if(e&&e.status===404){signedOut();return}authErrOf(e)});
+    sub("utilizatori",ME,function(ev){applyEvent("utilizatori",ev);checkSelf();selfCheck()});
   }
   PB.collection("config").getFullList({requestKey:null}).then(function(items){if(items[0])S.cfg=normCfg(items[0]);saveCache();if(!sheetState)render()}).catch(authErrOf);
   sub("config","*",function(ev){if(ev.action!=="delete")S.cfg=normCfg(ev.record);saveCache();if(!sheetState)render()});
@@ -468,14 +588,29 @@ function saveCache(){
 function loadCache(){
   try{var o=JSON.parse(localStorage.getItem("ehl.cache")||"null");
     if(o&&o.u===ACCESS.user.id){COLS.forEach(function(c){if(o[c])S[c]=o[c]});if(o.cfg)S.cfg=o.cfg;}}catch(e){}
-  try{QUEUE=JSON.parse(localStorage.getItem("ehl.queue")||"[]")}catch(e){QUEUE=[]}
-  if(!(QUEUE instanceof Array))QUEUE=[];
-  loadFailed();
+  loadQueue();
 }
-function saveQueue(){try{localStorage.setItem("ehl.queue",JSON.stringify(QUEUE))}catch(e){}}
+/* The queue and the rejected list belong to the user who wrote them: each user has own keys, so after
+   "Schimbă utilizatorul" the next person on the phone never sends someone else's records under own name. */
+function qKey(k){return "ehl."+k+"."+ME}
+function readList(k){var a;try{a=JSON.parse(localStorage.getItem(k)||"[]")}catch(e){a=[]}return (a instanceof Array)?a:[]}
+function saveQueue(){
+  if(!ME)return;
+  var v=JSON.stringify(QUEUE);
+  try{localStorage.setItem(qKey("queue"),v)}catch(e){
+    /* storage is full: the data snapshot can be loaded again from the server, unsent records cannot */
+    try{localStorage.removeItem("ehl.cache");localStorage.setItem(qKey("queue"),v)}catch(e2){}
+  }
+}
 var FAILED=[];
-function saveFailed(){try{localStorage.setItem("ehl.failed",JSON.stringify(FAILED))}catch(e){}}
-function loadFailed(){try{FAILED=JSON.parse(localStorage.getItem("ehl.failed")||"[]")}catch(e){FAILED=[]}if(!(FAILED instanceof Array))FAILED=[]}
+function saveFailed(){if(!ME)return;try{localStorage.setItem(qKey("failed"),JSON.stringify(FAILED))}catch(e){}}
+function loadQueue(){
+  QUEUE=readList(qKey("queue"));FAILED=readList(qKey("failed"));
+  /* earlier versions kept one queue for the whole phone: take it over once */
+  var oq=readList("ehl.queue"),of=readList("ehl.failed");
+  if(oq.length||of.length){QUEUE=oq.concat(QUEUE);FAILED=of.concat(FAILED);saveQueue();saveFailed()}
+  try{localStorage.removeItem("ehl.queue");localStorage.removeItem("ehl.failed")}catch(e){}
+}
 function retryFailed(i){var op=FAILED[i];if(!op)return;FAILED.splice(i,1);delete op.err;delete op.at;QUEUE.push(op);saveFailed();saveQueue();render();flushQueue()}
 function dropFailed(i){FAILED.splice(i,1);saveFailed();render()}
 function failedNote(){
@@ -502,9 +637,15 @@ function flushQueue(){
      flushing=false;
      if(netErr(e)){online=false;render();return;}
      if(authErrOf(e))return;
+     /* the id is taken: an earlier attempt reached the server and only its answer was lost, so the record is already there */
+     if(op.op==="create"&&e&&e.status===400&&e.response&&e.response.data&&e.response.data.id){
+       QUEUE.shift();saveQueue();saveCache();
+       if(QUEUE.length)flushQueue();else if(!sheetState)render();
+       return;
+     }
      /* refused by the server (rule or validation): park it where the user can see and retry it; nothing is ever dropped silently */
      var bad=QUEUE.shift();bad.err=(e&&e.response&&e.response.message)||String(e&&e.message||e);bad.at=new Date().toISOString();
-     FAILED.push(bad);saveFailed();saveQueue();saveCache();toast(T("failed_toast"));
+     FAILED.push(bad);saveFailed();saveQueue();saveCache();toast(T("failed_toast"));selfCheck();
      if(QUEUE.length)flushQueue();else render();
    });
 }
@@ -535,6 +676,9 @@ function oameni(){
   var base=uniq(u.concat(a));
   return base.length?uniq(base.concat(persoane())):persoane();
 }
+/* money leaving the till goes to someone: the field offers every active user (directors included), the employees and
+   the names already used in the registers, and still accepts a name that is not on the list */
+function fPersoana(req){return {k:"persoana",t:"text",l:"f_pers",req:req,list:oameni()}}
 function persoane(){return uniq(S.iesiri.map(function(r){return r.persoana}).concat(S.cheltuieli.map(function(r){return r.platitDe}),S.angajati.map(function(r){return r.nume}),S.imprumuturi.map(function(r){return r.persoana})))}
 /* Expense categories are stored as typed (the defaults are Romanian). The common ones are shown in the interface
    language; catRaw maps what was typed in a form back to the stored name, so the data never splits in two. */
@@ -559,6 +703,12 @@ function categorii(){var c=cfg().categorii;return uniq((c&&c.length?c:DEF_CFG.ca
 function catMains(){var c=cfg().categorii;return uniqKeep((c&&c.length?c:DEF_CFG.categorii).map(catMain).concat(S.cheltuieli.map(function(r){return catMain(r.categorie)})))}
 function catSubs(main){if(!main)return [];return uniqKeep(categorii().filter(function(c){return catSub(c)&&sameP(catMain(c),main)}).map(catSub))}
 function angajatiActivi(){return S.angajati.filter(function(a){return a.status!=="Inactiv"}).map(function(a){return a.nume})}
+/* an operator fills timesheets only for the employees he created himself (the server checks the same); a director for all */
+function angajatiPontaj(){return S.angajati.filter(function(a){return a.status!=="Inactiv"&&(isDir||a.by===ME)}).map(function(a){return a.nume})}
+function fAngajatPontaj(){
+  if(isDir)return {k:"angajat",t:"text",l:"f_ang",req:1,list:angajatiActivi().length?angajatiActivi():persoane()};
+  return {k:"angajat",t:"select",l:"f_ang",req:1,allowEmpty:1,opts:opt(angajatiPontaj()),hint:"pontaj_h"};
+}
 
 /* ---------------- calculations (mirrors the workbook) ---------------- */
 function calc(){
@@ -567,21 +717,22 @@ function calc(){
 
   C.vals=vals;
   C.intratNum={};C.intratTr={};
-  C.iesDepus={};C.iesPers={};C.iesSal={};C.iesChirii={};C.iesImpr={};C.iesAlte={};C.iesCheltCasier={};
+  C.iesDepus={};C.iesPers={};C.iesSal={};C.iesChirii={};C.iesImpr={};C.iesAlte={};C.iesFond={};C.iesCheltCasier={};
   vals.forEach(function(v){
     C.intratNum[v]=sum(S.incasari,function(r){return r.mod==="Numerar"&&r.valuta===v?n(r.suma):0});
     C.intratTr[v]=sum(S.incasari,function(r){return r.mod==="Transfer"&&r.valuta===v?n(r.suma):0});
-    C.iesDepus[v]=sum(S.iesiri,function(r){return r.destinatie==="Depus pe cont"&&r.valuta===v?n(r.suma):0});
-    C.iesPers[v]=sum(S.iesiri,function(r){return r.destinatie==="Dat persoanei"&&r.valuta===v&&!(casier()&&sameP(r.persoana,casier()))?n(r.suma):0});
-    C.iesSal[v]=sum(S.iesiri,function(r){return r.destinatie==="Salarii"&&r.valuta===v?n(r.suma):0});
-    C.iesImpr[v]=sum(S.iesiri,function(r){return r.destinatie==="Împrumut"&&r.valuta===v?n(r.suma):0});
-    C.iesAlte[v]=sum(S.iesiri,function(r){return r.destinatie==="Alte"&&r.valuta===v?n(r.suma):0});
+    C.iesDepus[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Depus pe cont"&&r.valuta===v?n(r.suma):0});
+    C.iesPers[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Dat persoanei"&&r.valuta===v&&!(casier()&&sameP(r.persoana,casier()))?n(r.suma):0});
+    C.iesSal[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Salarii"&&r.valuta===v?n(r.suma):0});
+    C.iesImpr[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Împrumut"&&r.valuta===v?n(r.suma):0});
+    C.iesAlte[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Alte"&&r.valuta===v?n(r.suma):0});
+    C.iesFond[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Restituire fondator"&&r.valuta===v?n(r.suma):0});
     C.iesChirii[v]=sum(S.chirii,function(r){return r.mod==="Numerar"&&r.valuta===v?chirieTotal(r):0});
     C.iesCheltCasier[v]=(v==="MDL")?sum(S.cheltuieli,function(r){return r.mod==="Numerar"&&casier()&&sameP(r.platitDe,casier())?n(r.suma):0}):0;
   });
   C.iesTotal={};C.ramas={};C.ramasMDL={};C.casaMDL=0;
   vals.forEach(function(v){
-    C.iesTotal[v]=C.iesDepus[v]+C.iesPers[v]+C.iesSal[v]+C.iesChirii[v]+C.iesImpr[v]+C.iesAlte[v]+C.iesCheltCasier[v];
+    C.iesTotal[v]=C.iesDepus[v]+C.iesPers[v]+C.iesSal[v]+C.iesChirii[v]+C.iesImpr[v]+C.iesAlte[v]+C.iesFond[v]+C.iesCheltCasier[v];
     C.ramas[v]=C.intratNum[v]-C.iesTotal[v];
     C.ramasMDL[v]=C.ramas[v]*cursAzi(v);
     C.casaMDL+=C.ramasMDL[v];
@@ -603,20 +754,38 @@ function calc(){
 
   // collaborators
   var names=uniq(S.iesiri.filter(function(r){return r.destinatie==="Dat persoanei"}).map(function(r){return r.persoana})
-    .concat(S.cheltuieli.filter(function(r){return r.mod==="Numerar"}).map(function(r){return r.platitDe})))
+    .concat(S.cheltuieli.filter(function(r){return r.mod==="Numerar"}).map(function(r){return r.platitDe}),S.iesiri.filter(dinAvans).map(function(r){return r.platitDe})))
     .filter(function(p){return !(casier()&&sameP(p,casier()))});
   C.colab=names.map(function(p){
     var primit=sum(S.iesiri,function(r){return r.destinatie==="Dat persoanei"&&sameP(r.persoana,p)?n(r.suma)*n(r.curs):0});
     var chn=sum(S.cheltuieli,function(r){return r.mod==="Numerar"&&sameP(r.platitDe,p)?n(r.suma):0});
     var cht=sum(S.cheltuieli,function(r){return r.mod==="Transfer"&&sameP(r.platitDe,p)?n(r.suma):0});
     var prop=sum(S.cheltuieli,function(r){return r.mod==="Numerar"&&r.sursa==="Proprii"&&sameP(r.platitDe,p)?n(r.suma):0});
-    return {nume:p,primit:primit,cheltuit:chn,ramas:round2(primit-chn),transfer:cht,proprii:prop};
-  }).filter(function(x){return x.primit||x.cheltuit||x.transfer});
+    /* what he handed on from his advance: outflows he recorded himself (paid from his money, not from the till) */
+    var dat=sum(S.iesiri,function(r){return dinAvans(r)&&sameP(r.platitDe,p)?n(r.suma)*n(r.curs):0});
+    return {nume:p,primit:primit,cheltuit:round2(chn+dat),ramas:round2(primit-chn-dat),transfer:cht,proprii:prop,dat:dat};
+  }).filter(function(x){return x.primit||x.cheltuit}); /* transfers are not his money: they have their own report (C.trPers) */
   C.colabRamas=sum(C.colab,function(x){return x.ramas});
+  /* expenses by transfer are paid from the bank account, not from the person: reported apart, by who paid and how much */
+  C.trPers=uniq(S.cheltuieli.filter(function(r){return r.mod==="Transfer"}).map(function(r){return r.platitDe})).map(function(p){
+    var rows=S.cheltuieli.filter(function(r){return r.mod==="Transfer"&&sameP(r.platitDe,p)});
+    return {nume:p,val:sum(rows,function(r){return n(r.suma)}),n:rows.length};
+  }).sort(function(a,b){return b.val-a.val});
   C.totalFirma=C.casaMDL+C.contMDL+C.colabRamas;
 
-  // per client / project / category
-  C.perClient=clienti().map(function(cl){
+  // founders: what they put in is a loan to the firm, repaid through "Restituire fondator" outflows
+  var fnd=fondatoriToti();
+  C.fond=fnd.map(function(f){
+    var primit=sum(S.incasari,function(r){return sameP(r.client,f)?n(r.suma)*n(r.curs):0});
+    var rest=sum(S.iesiri,function(r){return r.destinatie==="Restituire fondator"&&sameP(r.persoana,f)?n(r.suma)*n(r.curs):0});
+    return {nume:f,primit:primit,restituit:rest,datorie:round2(primit-rest)};
+  }); /* every founder is listed, also with nothing owed: the report is always on the main page */
+  C.fondPrimit=sum(C.fond,function(x){return x.primit});
+  C.fondRest=sum(C.fond,function(x){return x.restituit});
+  C.fondDatorie=round2(C.fondPrimit-C.fondRest);
+
+  // per client / project / category (the founders are not clients)
+  C.perClient=clienti().filter(function(cl){return !fnd.some(function(f){return sameP(f,cl)})}).map(function(cl){
     var inc=sum(S.incasari,function(r){return sameP(r.client,cl)?n(r.suma)*n(r.curs):0});
     var ch=sum(S.cheltuieli,function(r){return sameP(r.client,cl)?n(r.suma):0});
     return {nume:cl,inc:inc,chelt:ch,sold:inc-ch};
@@ -624,14 +793,16 @@ function calc(){
   C.proiecte=S.proiecte.map(function(p){
     var inc=sum(S.incasari,function(r){return sameP(r.proiect,p.nume)?n(r.suma)*n(r.curs):0});
     var ch=sum(S.cheltuieli,function(r){return sameP(r.proiect,p.nume)?n(r.suma):0});
-    var bg=n(p.buget);
+    var bg=n(p.buget),pi=projInc(p.nume),ct=n(p.sumaContract);
     return {id:p.id,nume:p.nume,client:p.client||"",status:p.status||"Activ",resp:respList(p),
-      buget:bg,inc:inc,chelt:ch,rest:bg-ch,pct:bg>0?Math.min(100,ch/bg*100):0};
+      buget:bg,inc:inc,chelt:ch,rest:bg-ch,pct:bg>0?Math.min(100,ch/bg*100):0,
+      contract:ct,adaug:n(p.adaugator),incCash:pi.cash,incTr:pi.tr,ramasContract:round2(ct+n(p.adaugator)-pi.cash-pi.tr)};
   }).sort(function(a,b){return (a.status==="Finalizat"?1:0)-(b.status==="Finalizat"?1:0)||b.chelt-a.chelt});
   var defNames=S.proiecte.map(function(p){return String(p.nume||"").trim().toLowerCase()});
   C.perProiect=proiecteNume().map(function(p){
     return {nume:p,val:sum(S.cheltuieli,function(r){return sameP(r.proiect,p)?n(r.suma):0})};
   }).filter(function(x){return x.val>0&&defNames.indexOf(x.nume.toLowerCase())<0}).sort(function(a,b){return b.val-a.val});
+  C.perPentru=["Proiect","EHL","Altele"].map(function(k){return {k:k,val:sum(S.cheltuieli,function(r){return pentruOf(r)===k?n(r.suma):0})}});
   C.perCateg=catMains().map(function(c){
     var subs={};
     var val=sum(S.cheltuieli,function(r){if(!sameP(catMain(r.categorie),c))return 0;var sk=catSub(r.categorie);if(sk)subs[sk]=round2((subs[sk]||0)+n(r.suma));return n(r.suma)});
@@ -686,6 +857,71 @@ function calc(){
   return C;
 }
 function chirieTotal(r){return n(r.chirie)+n(r.gaj)+n(r.comunale)+n(r.avarii)}
+/* what a project's client has paid, in lei at each row's rate: cash and transfer apart */
+function projInc(nume){
+  var o={cash:0,tr:0};
+  if(String(nume||"").trim())S.incasari.forEach(function(r){if(sameP(r.proiect,nume)){var v=n(r.suma)*n(r.curs);if(r.mod==="Transfer")o.tr+=v;else o.cash+=v}});
+  o.cash=round2(o.cash);o.tr=round2(o.tr);return o;
+}
+/* The director's rule: money that is not in the till cannot be handed out. casaNeed says what a row takes from which
+   shelf (nothing when it does not leave the till); casaErr refuses a row that takes more than the shelf holds.
+   An edit that takes no more than the row already took always passes, so old rows stay correctable. */
+function casaNeed(col,d){
+  if(col==="iesiri")return (dinAvans(d)||(d.destinatie==="Dat persoanei"&&casier()&&sameP(d.persoana,casier())))?null:{v:d.valuta||"MDL",s:n(d.suma)};
+  if(col==="chirii")return d.mod==="Numerar"?{v:d.valuta||"MDL",s:chirieTotal(d)}:null;
+  if(col==="imprumuturi")return d.dinCasa?{v:"MDL",s:n(d.suma)}:null;
+  return null;
+}
+/* An outflow recorded by a collaborator is paid from the money the director gave him (his advance), never from the
+   till of the director: the server marks it sursa "Avans" with his name in platitDe. A director's or the cashier's
+   outflow comes from the till ("Casa"). */
+function isCasierMe(){return !!(casier()&&sameP(meName(),casier()))}
+function dinAvans(r){return !!(r&&r.sursa==="Avans"&&String(r.platitDe||"").trim())}
+function ieseDinAvans(id){var old=id?(S.iesiri||[]).filter(function(r){return r.id===id})[0]:null;return old?dinAvans(old):(!isDir&&!isCasierMe())}
+function soldAvans(nume){var x=calc().colab.filter(function(c){return sameP(c.nume,nume)})[0];return x?x.ramas:0}
+/* a collaborator cannot hand out more than he holds; an edit that takes no more than before always passes */
+function avansErr(col,d,id){
+  var need=0,old=null;
+  if(col==="iesiri"){if(!ieseDinAvans(id))return "";need=n(d.suma)*n(d.curs);old=id?S.iesiri.filter(function(r){return r.id===id})[0]:null;}
+  else if(col==="imprumuturi"){if(id||!d.dinCasa||isDir||isCasierMe())return "";need=n(d.suma);}
+  else if(col==="cheltuieli"){
+    /* cash is his own pocket of the firm's money: it cannot go below zero. A transfer is paid by the firm's account. */
+    if(isDir||isCasierMe()||d.mod==="Transfer")return "";
+    var oc=id?S.cheltuieli.filter(function(r){return r.id===id})[0]:null,bk=(oc&&oc.mod!=="Transfer")?n(oc.suma):0,nd=round2(n(d.suma));
+    if(!(nd>0)||(bk&&nd<=bk))return "";
+    var fr=round2(soldAvans(meName())+bk);
+    return nd>fr+0.004?T("avans_lipsa").replace("{s}",money(Math.max(0,fr))):"";
+  }
+  else return "";
+  need=round2(need);if(!(need>0))return "";
+  var back=old?round2(n(old.suma)*n(old.curs)):0;
+  if(back&&need<=back)return "";
+  var free=round2(soldAvans(old?old.platitDe:meName())+back);
+  return need>free+0.004?T("avans_lipsa").replace("{s}",money(Math.max(0,free))):"";
+}
+function casaErr(col,d,id){
+  if(!isDir)return ""; /* a collaborator does not see the till; what leaves it is recorded by a director */
+  if(col==="iesiri"&&ieseDinAvans(id))return "";
+  if(col==="imprumuturi"&&!isDir&&!isCasierMe())return "";
+  var need=casaNeed(col,d);if(!need||!(need.s>0))return "";
+  var old=id?(S[col]||[]).filter(function(r){return r.id===id})[0]:null,was=old?casaNeed(col,old):null;
+  var back=(was&&was.v===need.v)?was.s:0;
+  if(back&&need.s<=back)return "";
+  var free=round2((calc().ramas[need.v]||0)+back);
+  return need.s>free+0.004?T("casa_lipsa").replace("{s}",money(Math.max(0,free))).replace("{v}",need.v):"";
+}
+/* The bank account, unlike the till, may go below zero: a transfer is always accepted (the bank has paid it), and the
+   overdraft is shown as money the firm still has to put on the account. contDeficit() names the payments behind it:
+   the newest transfer expenses and transfer rents, as many as it takes to cover the minus. */
+function contDeficit(C){
+  var lipsa=round2(-C.contMDL);if(!(lipsa>0.004))return null;
+  var rows=S.cheltuieli.filter(function(r){return r.mod==="Transfer"}).map(function(r){return {col:"cheltuieli",id:r.id,data:r.data,ts:r.ts,val:n(r.suma),t:r.descriere||catLabel(r.categorie)||"—",s:[r.platitDe,catLabel(r.categorie),pentruOf(r)==="Proiect"?r.proiect:""].filter(Boolean).join(" · ")}})
+    .concat(S.chirii.filter(function(r){return r.mod==="Transfer"}).map(function(r){return {col:"chirii",id:r.id,data:r.dataInceput,ts:r.ts,val:round2(chirieTotal(r)*n(r.curs)),t:r.locatia||"—",s:[T("a_chirie"),r.chirias].filter(Boolean).join(" · ")}}))
+    .sort(function(a,b){return String(b.data).localeCompare(String(a.data))||String(b.ts||"").localeCompare(String(a.ts||""))});
+  var out=[],acc=0;
+  for(var i=0;i<rows.length&&acc<lipsa-0.004;i++){out.push(rows[i]);acc+=rows[i].val}
+  return {lipsa:lipsa,rows:out};
+}
 function salariuLa(angajat,data){
   var best=null;
   S.istoric.forEach(function(h){
@@ -770,18 +1006,23 @@ function catIcon(name){var sub=catSub(name);if(sub){var si=catIconOf(sub);if(si!
 /* fixed categorical slot per category: by position in the settings list, so a colour follows its category */
 function catSlot(name){var m=catMain(name),i=-1;catMains().forEach(function(c,k){if(sameP(c,m))i=k});return i<0?6:(i%7)}
 
+/* an expense is for a project, for the firm itself ("EHL") or for something else; rows from before the field
+   existed count as a project when they name one, otherwise as "Altele" */
+function pentruOf(r){var p=String(r&&r.pentru||"");return p==="Proiect"||p==="EHL"||p==="Altele"?p:(String(r&&r.proiect||"").trim()?"Proiect":"Altele")}
+function onlyIf(f,fn,req){f.showIf=fn;if(req)f.req=1;return f}
 /* ---------------- form definitions ---------------- */
 function opt(list){return list.map(function(v){return typeof v==="string"?{v:v,l:v}:v})}
 var FORMS={
  incasari:{title:"a_inc",icon:"down",fields:function(){return[
    {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
-   fClient(1),
+   fClient(1,1),
+   {k:"codFondator",t:"pin",l:"f_codfond",req:1,hint:"f_codfond_h",showIf:function(d){return !!fondatorOf(d.client)}},
    fProiect(),
    {k:"descriere",t:"text",l:"f_descr"},
-   {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs"},
+   {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"},
+   {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs",mdlIf:function(d){return d.mod==="Transfer"}},
    {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1",lockIf:function(d){return d.valuta==="MDL"}},
-   {k:"suma",t:"number",l:"f_suma",req:1,step:"0.01"},
-   {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"}
+   {k:"suma",t:"number",l:"f_suma",req:1,step:"0.01"}
  ]},calc:function(d){return [{l:T("eq"),v:money(n(d.suma)*n(d.curs))+" MDL"}]}},
 
  cheltuieli:{title:"a_chelt",icon:"up",fields:function(){return[
@@ -791,38 +1032,44 @@ var FORMS={
    {k:"categorie",t:"text",l:"f_categ",req:1,list:catMains()},
    {k:"subcat",t:"text",l:"f_subcat",list:catSubs(sheetState&&sheetState.col==="cheltuieli"?catMain(catRaw(sheetState.data.categorie)):""),
     showIf:function(d){return !!d.subcat||catSubs(catMain(catRaw(d.categorie))).length>0}},
-   fClient(0),
-   fProiect(),
-   {k:"platitDe",t:"text",l:"f_platit",req:1,list:oameni(),def:meName()||casier()},
+   /* what the money was spent for: a project (then the project is named), the firm itself, or something else */
+   {k:"pentru",t:"select",l:"f_pentru",req:1,opts:[{v:"Proiect",l:T("pt_proiect")},{v:"EHL",l:T("pt_ehl")},{v:"Altele",l:T("pt_alte")}],def:"Proiect"},
+   onlyIf(fProiect(),function(d){return pentruOf(d)==="Proiect"},1),
+   onlyIf(fClient(0),function(d){return pentruOf(d)==="Proiect"}),
+   {k:"platitDe",t:"text",l:"f_platit",req:1,list:oameni(),def:meName()||casier(),showIf:function(){return isDir}}, /* a collaborator pays himself */
    {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"},
-   {k:"sursa",t:"select",l:"src_t",req:1,opts:[{v:"Avans",l:T("src_avans")},{v:"Proprii",l:T("src_proprii")}],def:"Avans",hint:"src_h",showIf:function(d){return d.mod!=="Transfer"}}
- ]}},
+   {k:"sursa",t:"select",l:"src_t",req:1,opts:[{v:"Avans",l:T("src_avans")},{v:"Proprii",l:T("src_proprii")}],def:"Avans",hint:"src_h",showIf:function(d){return isDir&&d.mod!=="Transfer"}}
+ ]},calc:function(d){
+   if(isDir)return [];
+   return d.mod==="Transfer"?[{l:T("f_mod"),v:T("op_tr_h")}]:[{l:T("avans_disp"),v:money(soldAvans(meName()))+" MDL"}]}},
 
  iesiri:{title:"a_ies",icon:"send",fields:function(){return[
    {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
    {k:"destinatie",t:"select",l:"f_dest",req:1,opts:[
      {v:"Dat persoanei",l:T("d_pers")},{v:"Depus pe cont",l:T("d_depus")},
-     {v:"Salarii",l:T("d_sal")},{v:"Împrumut",l:T("d_impr")},{v:"Alte",l:T("d_alte")}],def:"Dat persoanei"},
+     {v:"Salarii",l:T("d_sal")},{v:"Împrumut",l:T("d_impr")},{v:"Restituire fondator",l:T("d_rest")},{v:"Alte",l:T("d_alte")}],def:"Dat persoanei"},
    {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs"},
    {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1",lockIf:function(d){return d.valuta==="MDL"}},
    {k:"suma",t:"number",l:"f_suma",req:1,step:"0.01"},
-   {k:"persoana",t:"text",l:"f_pers",list:persoane()},
+   fPersoana(0),
    {k:"luna",t:"month",l:"f_luna",def:curMonth(),showIf:function(d){return d.destinatie==="Salarii"}},
    {k:"nota",t:"text",l:"f_nota"}
- ]},calc:function(d){return [{l:T("eq"),v:money(n(d.suma)*n(d.curs))+" MDL"}]}},
+ ]},calc:function(d){var out=[{l:d.destinatie==="Depus pe cont"?T("cont_intra"):T("eq"),v:money(n(d.suma)*n(d.curs))+" MDL"}];
+   if(ieseDinAvans(sheetState&&sheetState.id))out.push({l:T("avans_disp"),v:money(soldAvans(meName()))+" MDL"});
+   return out}},
 
  chirii:{title:"a_chirie",icon:"home",fields:function(){return[
    {k:"dataInceput",t:"date",l:"f_di",req:1,half:1,def:today()},
    {k:"dataSfarsit",t:"date",l:"f_ds",half:1},
    {k:"locatia",t:"text",l:"f_loc",req:1},
    {k:"chirias",t:"text",l:"f_chirias",list:persoane()},
-   {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs"},
+   {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"},
+   {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs",mdlIf:function(d){return d.mod==="Transfer"}},
    {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1",lockIf:function(d){return d.valuta==="MDL"}},
    {k:"chirie",t:"number",l:"f_chirie",half:1,step:"0.01"},
    {k:"gaj",t:"number",l:"f_gaj",half:1,step:"0.01"},
    {k:"comunale",t:"number",l:"f_comun",half:1,step:"0.01"},
    {k:"avarii",t:"number",l:"f_avarii",half:1,step:"0.01"},
-   {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"},
    {k:"nota",t:"text",l:"f_nota"}
  ]},calc:function(d){var t=n(d.chirie)+n(d.gaj)+n(d.comunale)+n(d.avarii);
    return [{l:T("tot"),v:money(t)+" "+(d.valuta||"")},{l:T("eq"),v:money(t*n(d.curs))+" MDL"}]}},
@@ -833,7 +1080,7 @@ var FORMS={
    {k:"suma",t:"number",l:"f_sumamdl",req:1,step:"0.01"},
    {k:"termen",t:"date",l:"f_termen"},
    {k:"status",t:"select",l:"f_status",req:1,opts:[{v:"Neachitat",l:T("neachitat")},{v:"Achitat",l:T("achitat")}],def:"Neachitat"},
-   {k:"dinCasa",t:"checkbox",l:"impr_cash",hint:"impr_cash_h",newOnly:1},
+   {k:"dinCasa",t:"checkbox",l:"impr_cash",hint:"impr_cash_h",newOnly:1,showIf:function(){return isDir}}, /* only a director takes money out of the till */
    {k:"nota",t:"text",l:"f_nota"}
  ]}},
 
@@ -846,7 +1093,7 @@ var FORMS={
 
  pontaj:{title:"a_pontaj",icon:"calendar",fields:function(){return[
    {k:"luna",t:"month",l:"f_luna",req:1,def:curMonth()},
-   {k:"angajat",t:"text",l:"f_ang",req:1,list:angajatiActivi().length?angajatiActivi():persoane()},
+   fAngajatPontaj(),
    {k:"z1",t:"number",l:"f_z1",half:1,step:"1",def:"0"},
    {k:"z2",t:"number",l:"f_z2",half:1,step:"1",def:"0"}
  ]},calc:function(d){var wd=workdays(d.luna),sal=salariuLa(d.angajat,d.luna?monthEnd(d.luna):today()),pz=wd?sal/wd:0;
@@ -871,18 +1118,24 @@ var FORMS={
  proiecte:{title:"a_proj",icon:"folder",fields:function(){return[
    {k:"nume",t:"text",l:"f_nume",req:1},
    {k:"client",t:"text",l:"f_client",list:clienti()},
+   {k:"sumaContract",t:"number",l:"f_contract_mdl",step:"0.01",def:"0",half:1},
+   {k:"adaugator",t:"number",l:"f_adaug",step:"0.01",def:"0",half:1},
    {k:"responsabili",t:"multi",l:"f_resp",opts:oameni()},
    {k:"buget",t:"number",l:"f_buget",step:"0.01",def:"0"},
    {k:"dataInceput",t:"date",l:"f_di",half:1,def:today()},
    {k:"termen",t:"date",l:"f_termen",half:1},
    {k:"status",t:"select",l:"f_status",req:1,opts:[{v:"Activ",l:T("st_activ")},{v:"Pauză",l:T("st_pauza")},{v:"Finalizat",l:T("st_final")}],def:"Activ"},
    {k:"nota",t:"text",l:"f_nota"}
- ]}},
+ ]},calc:function(d){var pi=projInc(d.nume),ct=n(d.sumaContract)+n(d.adaugator);
+   /* the contract with its extra work, and what the client has paid so far, cash and transfer apart */
+   return [{l:T("p_total"),v:money(ct)},{l:T("p_cash"),v:money(pi.cash)},{l:T("p_tr"),v:money(pi.tr)},{l:T("p_ramas"),v:money(ct-pi.cash-pi.tr)}]}},
 
  angajati:{title:"a_ang",icon:"user",fields:function(){return[
    {k:"nume",t:"text",l:"f_nume",req:1},
    {k:"dataInceput",t:"date",l:"f_start",def:today()},
-   {k:"salariu",t:"number",l:"f_salariu",req:1,step:"0.01",newOnly:1},
+   /* salaries are the director's: an operator adds the person only */
+   {k:"salariu",t:"number",l:"f_salariu",req:1,step:"0.01",newOnly:1,showIf:function(){return isDir}},
+   {k:"dinSal",t:"date",l:"f_dinsal",hint:"f_dinsal_h",def:today(),showIf:function(){return isDir&&!!(sheetState&&sheetState.id)}},
    {k:"status",t:"select",l:"f_status",req:1,opts:[{v:"Activ",l:T("activ")},{v:"Inactiv",l:T("inactiv")}],def:"Activ"}
  ]}}
 };
@@ -896,7 +1149,7 @@ function clean(data){
   var body={};for(var k in data){if(data[k]!==undefined&&!skip[k])body[k]=data[k]}return body;
 }
 function localWrite(op){
-  if(op.op==="create"){var rec=norm(op.data);rec.id=op.id;rec.by=ME||"";rec.created=new Date().toISOString();rec.ts=rec.created;S[op.col]=(S[op.col]||[]).concat([rec]);}
+  if(op.op==="create"){var rec=norm(op.data);rec.id=op.id;delete rec.codFondator;rec.by=ME||"";rec.created=new Date().toISOString();rec.ts=rec.created;S[op.col]=(S[op.col]||[]).concat([rec]);}
   else if(op.op==="update"){S[op.col]=(S[op.col]||[]).map(function(r){if(r.id!==op.id)return r;var o=norm(r);for(var k in op.data)o[k]=op.data[k];return o})}
   else S[op.col]=(S[op.col]||[]).filter(function(r){return r.id!==op.id});
   if(op.op!=="create"){
@@ -913,25 +1166,26 @@ function localWrite(op){
 function isTmp(id){return String(id||"").indexOf("tmp")===0}
 function logEntry(act,col,ref,data){
   if(!PB||!ACCESS||col==="jurnal")return Promise.resolve();
-  var e={act:act,col:col,ref:ref,nume:meName()||"",data:data||{}};
+  var e={id:newId(),act:act,col:col,ref:ref,nume:meName()||"",data:data||{}};
   if(online&&!QUEUE.length){
     return PB.collection("jurnal").create(e,{requestKey:null}).then(function(){})
-      .catch(function(x){if(netErr(x)){online=false;return localWrite({op:"create",col:"jurnal",id:"tmp"+uid(),data:e}).then(function(){})}});
+      .catch(function(x){if(netErr(x)){online=false;return localWrite({op:"create",col:"jurnal",id:e.id,data:e}).then(function(){})}});
   }
-  return localWrite({op:"create",col:"jurnal",id:"tmp"+uid(),data:e}).then(function(){});
+  return localWrite({op:"create",col:"jurnal",id:e.id,data:e}).then(function(){});
 }
 function saveDoc(col,data,id){
   if(!PB||!ACCESS)return Promise.reject({code:"no_db"});
   var body=clean(data),p;
+  if(!id)body.id=newId();
   if(col==="utilizatori"&&!id){var pw="x"+uid()+uid();body.password=pw;body.passwordConfirm=pw;}
-  var queued=function(){return localWrite({op:id?"update":"create",col:col,id:id||("tmp"+uid()),data:body})};
+  var queued=function(){return localWrite({op:id?"update":"create",col:col,id:id||body.id,data:body})};
   if(online&&!QUEUE.length&&!isTmp(id)){
     p=(id?PB.collection(col).update(id,body,{requestKey:null}):PB.collection(col).create(body,{requestKey:null}))
       .then(function(rec){applyEvent(col,{action:id?"update":"create",record:rec});return rec.id})
       .catch(function(e){if(netErr(e)){online=false;return queued()}throw e});
   }else p=queued();
   return p.then(function(rid){
-    var copy=clean(body);delete copy.password;delete copy.passwordConfirm;copy.id=rid;
+    var copy=clean(body);delete copy.password;delete copy.passwordConfirm;delete copy.codFondator;copy.id=rid;
     return logEntry(id?"edit":"add",col,rid,copy).then(function(){return rid});
   });
 }
@@ -949,10 +1203,12 @@ function delDoc(col,id){
 function jurnalRows(luna){
   if(!PB)return Promise.resolve([]);
   if(!/^[0-9]{4}-[0-9]{2}$/.test(String(luna||"")))return Promise.resolve([]);
-  var from=luna+"-01 00:00:00",to=monthEnd(luna)+" 23:59:59";
+  /* the server keeps "created" in UTC; the month asked for is the local one */
+  var y=parseInt(luna.slice(0,4),10),m=parseInt(luna.slice(5,7),10),utc=function(d){return d.toISOString().replace("T"," ").slice(0,19)};
+  var from=utc(new Date(y,m-1,1)),to=utc(new Date(y,m,1,0,0,-1));
   return PB.collection("jurnal").getFullList({batch:1000,requestKey:null,sort:"-created",
       filter:'created >= "'+from+'" && created <= "'+to+'"'})
-    .then(function(items){return items.map(function(e){var o=norm(e);o.ts=o.created;
+    .then(function(items){return items.map(function(e){var o=norm(e);o.ts=localTs(o.created);
       if(typeof o.data==="string"){try{o.data=JSON.parse(o.data)}catch(x){o.data={}}}return o})});
 }
 function loadJurnal(){
@@ -1283,7 +1539,7 @@ function dashBlocks(){
 }
 function openMenu(){
   if(view!=="panou"){view="panou";histPush({v:view});render();}
-  if(!MENU_IC){MENU_IC={};[["ov_chelt","outArrow"],["ov_flux","chart"],["s_totals","wallet"],["s_bani","wallet"],["s_casa","cash"],["s_colab","users"],["s_client","user"],["s_categ","tag"],["s_proiecte","folder"],["p_alte","folder"],["s_contr","file"],["s_sal","users"],["s_impr","clock"],["s_chirii","home"]].forEach(function(p){MENU_IC[p[0]]=p[1]})}
+  if(!MENU_IC){MENU_IC={};[["ov_chelt","outArrow"],["ov_flux","chart"],["s_totals","wallet"],["s_cont_minus","bank"],["s_bani","wallet"],["s_casa","cash"],["s_colab","users"],["s_tr","bank"],["s_client","user"],["s_categ","tag"],["s_proiecte","folder"],["p_alte","folder"],["s_contr","file"],["s_sal","users"],["s_impr","clock"],["s_fond","user"],["s_chirii","home"]].forEach(function(p){MENU_IC[p[0]]=p[1]})}
   var byLbl={};Object.keys(MENU_IC).forEach(function(k){byLbl[T(k)]=MENU_IC[k]});
   var m=$("#menu");if(!m)return;
   m.innerHTML='<div class="menu-bg" data-menu-close="1"></div><div class="menu-p" role="dialog" aria-label="'+esc(T("menu_t"))+'"><div class="menu-h"><b>'+esc(T("menu_t"))+'</b><button type="button" class="x" data-menu-close="1" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div><div class="menu-g">'
@@ -1307,7 +1563,7 @@ function renderNav(){
   if(needGate()){$("#nav").innerHTML="";return;}
   var items=isDir
     ?[["panou",icon("chart"),T("nav_panou")],["add",icon("plus"),T("nav_add")],["reg",icon("list"),T("nav_reg")],["set",icon("gear"),T("nav_set")]]
-    :[["add",icon("plus"),T("nav_add")],["mine",icon("list"),T("nav_mine")],["panou",icon("lock"),T("nav_panou")]];
+    :[["add",icon("plus"),T("nav_add")],["panou",icon("chart"),T("nav_panou")],["mine",icon("list"),T("nav_mine")]];
   $("#nav").innerHTML=items.map(function(it){
     return '<button type="button" data-view="'+it[0]+'"'+(view===it[0]?' aria-current="page"':'')+'><span class="ic">'+it[1]+'</span><span class="lb">'+esc(it[2])+'</span></button>';
   }).join("");
@@ -1333,9 +1589,13 @@ function statusNote(){
   return h;
 }
 /* a figure tile: icon and label on top, the amount below with its unit as quiet text */
-function tile(k,v,u,cls,big,ic){
+function tile(k,v,u,cls,big,ic,sub){
   var unit=u?'<span class="u">'+esc(u)+'</span>':'';
-  return '<div class="tile'+(big?" big":"")+'"><span class="k">'+(ic?'<span class="t-ic '+(cls||"")+'">'+icon(ic)+'</span>':'')+esc(k)+'</span><span class="v '+(cls||"")+'">'+v+unit+'</span></div>';
+  return '<div class="tile'+(big?" big":"")+'"><span class="k">'+(ic?'<span class="t-ic '+(cls||"")+'">'+icon(ic)+'</span>':'')+esc(k)+'</span><span class="v '+(cls||"")+'">'+v+unit+'</span>'+(sub?'<span class="t-sub">'+sub+'</span>':'')+'</div>';
+}
+/* what the till holds in each currency, for the till tile (the total above it is in lei at today's rates) */
+function casaPeValute(C){
+  return C.vals.map(function(v){return '<span class="t-cur'+(C.ramas[v]<0?" neg":"")+'">'+curBadge(v,false)+money(C.ramas[v])+' '+esc(v)+'</span>'}).join("");
 }
 /* key figures of one subject in a grid, optionally under a progress bar (share done, 0-100) and above extra rows */
 function statCard(items,pct,more){
@@ -1454,6 +1714,7 @@ function openColab(name){
   var C=calc(),x=C.colab.filter(function(c){return sameP(c.nume,name)})[0]||{nume:name,primit:0,cheltuit:0,ramas:0,transfer:0,proprii:0};
   var got=S.iesiri.filter(function(r){return r.destinatie==="Dat persoanei"&&sameP(r.persoana,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
   var spent=S.cheltuieli.filter(function(r){return r.mod==="Numerar"&&sameP(r.platitDe,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
+  var gave=S.iesiri.filter(function(r){return dinAvans(r)&&sameP(r.platitDe,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
   var h='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(name)+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div>';
   h+='<div class="tiles"><div class="tile big" style="background:'+(x.ramas<0?"var(--neg)":"var(--accent)")+'"><span class="k">'+esc(x.ramas<0?T("colab_owed"):T("colab_has"))+'</span><span class="v">'+money(Math.abs(x.ramas))+'<span class="u">MDL</span></span></div>'
     +tile(T("l_primit"),money(x.primit),"MDL")+tile(T("l_cheltuit"),money(x.cheltuit),"MDL")+'</div>';
@@ -1461,6 +1722,14 @@ function openColab(name){
   h+='<div class="sec"><h2>'+esc(T("colab_spent"))+'</h2>'+(spent.length?'<div class="card rows">'+spent.map(function(r){
     return '<button type="button" class="tap row" data-edit="cheltuieli" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.descriere||catLabel(r.categorie)||"—")+'<span class="s">'+esc([r.data,catLabel(r.categorie),r.proiect,r.sursa==="Proprii"?T("src_proprii_short"):""].filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(n(r.suma))+'</span></button>';
   }).join("")+'</div>':'<div class="card"><div class="empty">'+esc(T("nothing"))+'</div></div>')+'</div>';
+  var trs=S.cheltuieli.filter(function(r){return r.mod==="Transfer"&&sameP(r.platitDe,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
+  if(trs.length)h+='<div class="sec"><h2>'+esc(T("colab_tr"))+'</h2><div class="card rows">'+trs.map(function(r){
+    var pt=pentruOf(r);
+    return '<button type="button" class="tap row" data-edit="cheltuieli" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.descriere||catLabel(r.categorie)||"—")+'<span class="s">'+esc([r.data,catLabel(r.categorie),pt==="Proiect"?r.proiect:(pt==="EHL"?T("pt_ehl"):T("pt_alte"))].filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(n(r.suma))+'</span></button>';
+  }).join("")+r2(T("l_total"),money(trs.reduce(function(a,r){return a+n(r.suma)},0)),null,"neg",1)+'</div></div>';
+  if(gave.length)h+='<div class="sec"><h2>'+esc(T("colab_gave"))+'</h2><div class="card rows">'+gave.map(function(r){
+    return '<button type="button" class="tap row" data-edit="iesiri" data-id="'+esc(r.id)+'"><span class="l">'+esc(REGDEF.iesiri.main(r))+'<span class="s">'+esc([r.data,r.persoana,r.nota].filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(n(r.suma)*n(r.curs))+'</span></button>';
+  }).join("")+'</div></div>';
   h+='<div class="sec"><h2>'+esc(T("colab_got"))+'</h2>'+(got.length?'<div class="card rows">'+got.map(function(r){
     return '<button type="button" class="tap row" data-edit="iesiri" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.nota||T("d_pers"))+'<span class="s">'+esc(r.data+(r.valuta!=="MDL"?" · "+money(n(r.suma))+" "+r.valuta+" × "+r.curs:""))+'</span></span><span class="r pos">'+money(n(r.suma)*n(r.curs))+'</span></button>';
   }).join("")+'</div>':'<div class="card"><div class="empty">'+esc(T("nothing"))+'</div></div>')+'</div></div></div>';
@@ -1518,21 +1787,91 @@ function vOverview(){
   return h;
 }
 
+/* The collaborator's own dashboard: the director's look, built only from what is his — the money the director gave
+   him, what he spent (cash, own money, by transfer) and every operation he entered. The firm's till, account, clients
+   and founders are not his to see (the server does not send them to him either). */
+function mineView(fn){
+  var me=meName(),cols=["incasari","cheltuieli","iesiri","chirii","contracte","imprumuturi","angajati","istoric","pontaj"],keep={};
+  cols.forEach(function(c){keep[c]=S[c]});
+  var adv=keep.iesiri.filter(function(r){return r.destinatie==="Dat persoanei"&&sameP(r.persoana,me)});
+  S.cheltuieli=keep.cheltuieli.filter(function(r){return r.by===ME||sameP(r.platitDe,me)});
+  /* what he received plays the part of the incomes in the month chart */
+  S.incasari=adv.map(function(r){return {id:r.id,data:r.data,suma:r.suma,curs:r.curs,valuta:r.valuta,mod:"Numerar",client:"",proiect:"",ts:r.ts}});
+  S.iesiri=adv;S.contracte=[];S.imprumuturi=[];S.istoric=[];
+  ["chirii","angajati","pontaj"].forEach(function(c){S[c]=keep[c].filter(function(r){return r.by===ME})});
+  try{return fn(me,adv)}finally{cols.forEach(function(c){S[c]=keep[c]})}
+}
+function vPanouOp(){
+  return statusNote()+mineView(function(me,adv){
+    var C=calc(),sumBy=function(f){var t=0;S.cheltuieli.forEach(function(r){t+=f(r)||0});return round2(t)};
+    var primit=round2(adv.reduce(function(a,r){return a+n(r.suma)*n(r.curs)},0));
+    var chn=sumBy(function(r){return r.mod==="Numerar"&&sameP(r.platitDe,me)?n(r.suma):0});
+    var prop=sumBy(function(r){return r.mod==="Numerar"&&r.sursa==="Proprii"&&sameP(r.platitDe,me)?n(r.suma):0});
+    var tr=sumBy(function(r){return r.mod==="Transfer"?n(r.suma):0});
+    var sold=round2(primit-chn);
+    var h=vOverview()+'<div class="dash-grid">';
+    h+='<div class="sec sec-wide"><div class="tiles">'
+      +tile(sold<0?T("colab_owed"):T("my_sold"),money(Math.abs(sold)),"MDL",sold<0?"neg":"",1,"wallet")
+      +tile(T("op_primit"),money(primit),"MDL","pos",0,"inArrow")
+      +tile(T("op_chn"),money(chn),"MDL","neg",0,"cash")
+      +tile(T("op_prop"),money(prop),"MDL","",0,"user")
+      +tile(T("op_tr"),money(tr),"MDL","",0,"bank")
+      +'</div></div>';
+    if(C.perCateg.length){var mx=C.perCateg[0].val;
+      h+='<div class="sec"><h2>'+esc(T("s_categ"))+'</h2>'+rowsCardMore(C.perCateg.map(function(x){return barRow(catLabel(x.nume),x.val,mx,"var(--s"+(catSlot(x.nume)+1)+")",catIcon(x.nume),x.subs.map(function(y){return y.nume+" "+money(y.val)}).join(" · "))}),5,true)+'</div>';}
+    if(C.cheltTotal>0){var mxp=Math.max.apply(null,C.perPentru.map(function(x){return x.val}));
+      h+='<div class="sec"><h2>'+esc(T("s_pentru"))+'</h2>'+rowsCard(C.perPentru.map(function(x){
+        return barRow(T(x.k==="Proiect"?"pt_proiecte":(x.k==="EHL"?"pt_ehl":"pt_alte")),x.val,mxp,x.k==="Proiect"?"var(--s1)":(x.k==="EHL"?"var(--s3)":"var(--muted)"),x.k==="Proiect"?"folder":(x.k==="EHL"?"wallet":"dots"));
+      }))+'</div>';}
+    var byP={};S.cheltuieli.forEach(function(r){if(pentruOf(r)==="Proiect"&&String(r.proiect||"").trim()){var k=String(r.proiect).trim();byP[k]=round2((byP[k]||0)+n(r.suma))}});
+    var pj=Object.keys(byP).map(function(k){return {nume:k,val:byP[k]}}).sort(function(a,b){return b.val-a.val});
+    if(pj.length)h+='<div class="sec"><h2>'+esc(T("op_proj"))+'</h2>'+rowsCardMore(pj.map(function(x){return barRow(x.nume,x.val,pj[0].val,"var(--s1)","folder")}),5,true)+'</div>';
+    if(adv.length)h+='<div class="sec"><h2>'+esc(T("op_adv"))+'</h2>'+rowsCardMore(adv.slice().sort(function(a,b){return String(b.data).localeCompare(String(a.data))}).map(function(r){
+      return r2(r.nota||T("d_pers"),money(n(r.suma)*n(r.curs)),shortDate(r.data)+(r.valuta!=="MDL"?" · "+money(n(r.suma))+" "+r.valuta+" × "+r.curs:""),"pos",0,"inArrow","var(--pos)");
+    }),5,true)+'</div>';
+    return h+mineList(15)+'</div>';
+  });
+}
+/* everything this user entered, newest first (the full list is on "Ale mele") */
+function mineList(max){
+  var all=[];
+  COLS.forEach(function(c){if(!REGDEF[c]&&c!=="pontaj"&&c!=="angajati")return;S[c].forEach(function(r){if(ME&&r.by===ME)all.push({c:c,r:r})})});
+  if(!all.length)return "";
+  all.sort(function(a,b){return String(b.r.ts||"").localeCompare(String(a.r.ts||""))});
+  return '<div class="sec sec-wide"><h2>'+esc(T("mine_t"))+' <span class="cnt">'+all.length+'</span></h2><div class="card rows">'+all.slice(0,max).map(function(x){
+    var def=REGDEF[x.c],main=def?def.main(x.r):(x.r.nume||x.r.angajat||"—"),amt=def?def.amt(x.r):"",meta=def?def.meta(x.r):(x.r.luna?monthName(x.r.luna):"");
+    return '<button type="button" class="tap row" data-edit="'+x.c+'" data-id="'+esc(x.r.id)+'"><span class="l">'+esc(main)+'<span class="s">'+esc([T(FORMS[x.c]?FORMS[x.c].title:""),meta].filter(Boolean).join(" · "))+'</span></span><span class="r">'+amt+'</span></button>';
+  }).join("")+'</div>'+(all.length>max?'<button type="button" class="btn ghost" data-view="mine" style="margin-top:10px">'+esc(T("nav_mine"))+' ('+all.length+')</button>':'')+'</div>';
+}
 function vPanou(){
-  if(!isDir)return vPin();
+  if(!isDir)return vPanouOp();
   var C=calc(),h=statusNote();
   h+=vOverview();
   h+='<div class="dash-grid">';
   h+='<div class="sec sec-wide"><div class="tiles">'
     +tile(T("t_total"),money(C.totalFirma),"MDL","",1,"wallet")
-    +tile(T("t_casa"),money(C.casaMDL),"MDL","",0,"cash")
+    +tile(T("t_casa"),money(C.casaMDL),"MDL","",0,"cash",casaPeValute(C))
     +tile(T("t_cont"),money(C.contMDL),"MDL",C.contMDL<0?"neg":"",0,"bank")
     +tile(T("t_incasari"),money(C.incTotal),"MDL","pos",0,"inArrow")
     +tile(T("t_cheltuieli"),money(C.cheltTotal),"MDL","neg",0,"outArrow")
     +'</div></div>';
 
+  /* the account is below zero: how much has to be put on it, and the payments that took it there */
+  var cd=contDeficit(C);
+  if(cd)h+='<div class="sec sec-wide sec-cont"><h2>'+esc(T("s_cont_minus"))+'</h2>'+statCard([[T("l_cont_achitat"),money(cd.lipsa)+' <span class="u">MDL</span>',"neg"]],null,cd.rows.map(function(x){
+    return '<button type="button" class="tap row" data-edit="'+x.col+'" data-id="'+esc(x.id)+'"><span class="l">'+esc(x.t)+'<span class="s">'+esc([shortDate(x.data),x.s].filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(x.val)+'</span></button>';
+  }).join(""))+'<p class="hint" style="margin-top:8px">'+esc(T("cont_minus_h"))+'</p></div>';
+
+  /* a report of its own, right under the totals: what the firm owes each founder for the money he put in */
+  if(C.fond.length)h+='<div class="sec sec-wide sec-fond"><h2>'+esc(T("s_fond"))+'</h2>'+statCard([
+    [T("l_fond_dat"),money(C.fondDatorie)+' <span class="u">MDL</span>',C.fondDatorie>0?"warnc":""],[T("l_fond_primit"),money(C.fondPrimit)],[T("l_restituit"),money(C.fondRest),"pos"]
+  ],C.fondPrimit>0?C.fondRest/C.fondPrimit*100:null,C.fond.map(function(f){
+    return r2(f.nume,money(f.datorie),T("l_primit")+" "+money(f.primit)+" · "+T("l_restituit")+" "+money(f.restituit),f.datorie>0?"warnc":"pos",0,"user","var(--s5)");
+  }).join(""))+'<p class="hint" style="margin-top:8px">'+esc(T("fond_h"))+'</p></div>';
+
   h+='<div class="sec"><h2>'+esc(T("s_bani"))+'</h2>'+rowsCard([
     r2(T("l_num"),money(C.incNumMDL),null,"",0,"cash","var(--pos)"),r2(T("l_tr"),money(C.incTrMDL),null,"",0,"cardIc","var(--pos)"),
+    r2(T("l_fond_primit"),money(C.fondPrimit),null,"",0,"user","var(--s5)"),
     r2(T("l_chnum"),money(C.cheltNum),null,"",0,"cash","var(--neg)"),r2(T("l_chtr"),money(C.cheltTr),null,"",0,"cardIc","var(--neg)"),
     r2(T("l_salplatit"),money(C.salPlatitMDL),null,"",0,"users","var(--s1)"),r2(T("l_avans"),money(C.avansMDL),null,"",0,"send","var(--s6)"),
     r2(T("l_depus"),money(C.depusMDL),null,"",0,"bank","var(--s3)"),r2(T("l_chirii"),money(C.chiriiMDL),null,"",0,"home","var(--s4)"),
@@ -1540,12 +1879,12 @@ function vPanou(){
     r2(T("t_total"),money(C.totalFirma),null,"",1,"wallet","var(--accent)")
   ])+'</div>';
 
-  var cv=C.vals.filter(function(v){return C.intratNum[v]||C.iesTotal[v]||C.ramas[v]});
-  if(cv.length)h+='<div class="sec sec-casa"><h2>'+esc(T("s_casa"))+'</h2>'+rowsCard(cv.map(function(v){
-    return '<div class="row"><span class="l">'+curBadge(v)+'<span class="s">'+esc(money(C.ramasMDL[v])+" MDL · "+T("l_azi"))+'</span></span><span class="r '+(C.ramas[v]<0?"neg":"")+'">'+money(C.ramas[v])+'</span></div>';
-  }).concat([r2(T("l_total"),money(C.casaMDL)+" MDL",null,"",1)]))+'</div>';
-
   if(C.colab.length)h+='<div class="sec"><h2>'+esc(T("s_colab"))+'</h2><div class="card rows">'+C.colab.map(function(x){return colabRow(x)}).join("")+'</div></div>';
+  /* money taken from the bank by transfer: who paid, how much; a tap lists what it was spent on */
+  if(C.trPers.length)h+='<div class="sec"><h2>'+esc(T("s_tr"))+'</h2><div class="card rows">'+C.trPers.map(function(x){
+    return '<button type="button" class="tap row person" data-colab="'+esc(x.nume)+'"><span class="av" style="--c:'+toneOf(x.nume)+'">'+esc(initials(x.nume))+'</span><span class="l"><span class="nm-row">'+esc(x.nume)+'</span></span>'
+      +'<span class="r neg">'+money(x.val)+'</span><span class="pm">'+esc(T("n_rec").replace("{n}",x.n))+'</span></button>';
+  }).join("")+r2(T("l_total"),money(C.cheltTr),null,"neg",1)+'</div><p class="hint" style="margin-top:8px">'+esc(T("tr_h"))+'</p></div>';
 
   if(C.perClient.length)h+='<div class="sec"><h2>'+esc(T("s_client"))+'</h2>'+rowsCardMore(C.perClient.map(function(x){
     return r2(x.nume,money(x.sold),T("t_incasari")+" "+money(x.inc)+" · "+T("t_cheltuieli")+" "+money(x.chelt),x.sold<0?"neg":"pos");
@@ -1553,6 +1892,11 @@ function vPanou(){
 
   if(C.perCateg.length){var mx=C.perCateg[0].val;
     h+='<div class="sec"><h2>'+esc(T("s_categ"))+'</h2>'+rowsCardMore(C.perCateg.map(function(x){return barRow(catLabel(x.nume),x.val,mx,"var(--s"+(catSlot(x.nume)+1)+")",catIcon(x.nume),x.subs.map(function(y){return y.nume+" "+money(y.val)}).join(" · "))}),5,true)+'</div>';}
+  /* expenses by what they were for: projects, the firm itself, other */
+  if(C.cheltTotal>0){var mxp=Math.max.apply(null,C.perPentru.map(function(x){return x.val}));
+    h+='<div class="sec"><h2>'+esc(T("s_pentru"))+'</h2>'+rowsCard(C.perPentru.map(function(x){
+      return barRow(T(x.k==="Proiect"?"pt_proiecte":(x.k==="EHL"?"pt_ehl":"pt_alte")),x.val,mxp,x.k==="Proiect"?"var(--s1)":(x.k==="EHL"?"var(--s3)":"var(--muted)"),x.k==="Proiect"?"folder":(x.k==="EHL"?"wallet":"dots"));
+    }))+'</div>';}
   h+='<div class="sec"><h2>'+esc(T("s_proiecte"))+'</h2>';
   if(!C.proiecte.length){
     h+='<div class="card"><div class="empty"><b>'+esc(T("proj_none"))+'</b>'+esc(T("proj_none_d"))+'</div></div>';
@@ -1563,8 +1907,10 @@ function vPanou(){
       var bar=p.buget>0?'<span class="bar-wrap"><span class="bar-fill" style="width:'+Math.max(2,Math.round(p.pct))+'%;background:'+(over?"var(--neg)":"var(--accent)")+'"></span></span>':"";
       var right=p.buget>0?money(p.rest):money(p.chelt);
       var note=p.buget>0?(T("p_cheltuit")+" "+money(p.chelt)+" / "+money(p.buget)):(T("p_cheltuit")+" "+money(p.chelt)+" · "+T("p_incasat")+" "+money(p.inc));
+      /* the contract and the client's payments: cash and transfer apart, and what is still to come */
+      var pay=(p.contract||p.adaug||p.incCash||p.incTr)?[p.contract?T("f_contract")+" "+money(p.contract):"",p.adaug?T("p_adaug")+" "+money(p.adaug):"",T("p_cash")+" "+money(p.incCash),T("p_tr")+" "+money(p.incTr),(p.contract||p.adaug)?T("p_ramas")+" "+money(p.ramasContract):""].filter(Boolean).join(" · "):"";
       return '<button type="button" class="tap row wrap" data-edit="proiecte" data-id="'+esc(p.id)+'">'
-        +'<span class="l">'+esc(p.nume)+'<span class="s">'+esc(sub)+'</span><span class="s">'+esc(note)+'</span></span>'
+        +'<span class="l">'+esc(p.nume)+'<span class="s">'+esc(sub)+'</span><span class="s">'+esc(note)+'</span>'+(pay?'<span class="s">'+esc(pay)+'</span>':'')+'</span>'
         +'<span class="r '+(over?"neg":(p.buget>0?"pos":""))+'">'+right+'</span>'+bar+'</button>';
     }),5,true)+'</div>';
   }
@@ -1632,19 +1978,34 @@ function vPin(){
 }
 function vUsers(){
   var h='<div class="sec"><div class="sec-h"><h2>'+esc(T("r_user"))+'</h2><div class="sec-act"><button class="btn sm ghost exit-top" id="exitdir" type="button">'+icon("users")+esc(T("logout"))+'</button><button class="btn sm" type="button" data-form="utilizatori">'+icon("userplus")+esc(T("a_user"))+'</button></div></div>';
-  if(!S.utilizatori.length){
+  /* only the active users here; the deactivated ones wait in the archive (vArhiva), nothing of theirs is lost */
+  var act=S.utilizatori.filter(function(u){return u.status!=="Inactiv"});
+  if(!act.length){
     h+='<div class="card"><div class="empty"><b>'+esc(T("u_none"))+'</b>'+esc(T("u_none_d"))+'</div></div>';
   }else{
     /* a person per row: initials in their colour, the role as a tag, the access code in a mono chip */
-    h+='<div class="card rows">'+S.utilizatori.slice().sort(function(a,b){return String(a.nume).localeCompare(String(b.nume))}).map(function(u){
-      var off=u.status==="Inactiv",dir=u.rol==="Director";
-      return '<button type="button" class="tap row user-row'+(off?" off":"")+'" data-edit="utilizatori" data-id="'+esc(u.id)+'">'
+    h+='<div class="card rows">'+act.slice().sort(function(a,b){return String(a.nume).localeCompare(String(b.nume))}).map(function(u){
+      var dir=u.rol==="Director";
+      return '<button type="button" class="tap row user-row" data-edit="utilizatori" data-id="'+esc(u.id)+'">'
         +'<span class="av" style="--c:'+toneOf(u.nume)+'">'+esc(initials(u.nume))+'</span>'
-        +'<span class="l"><span class="nm-row">'+esc(u.nume)+'<span class="tagc '+(dir?"acc":"mut")+'">'+esc(dir?T("rol_dir"):T("rol_op"))+'</span>'+(off?'<span class="tagc neg">'+esc(T("u_inactiv"))+'</span>':'')+'</span></span>'
-        +'<span class="code">'+esc(off?"—":u.cod)+'</span></button>';
+        +'<span class="l"><span class="nm-row">'+esc(u.nume)+'<span class="tagc '+(dir?"acc":"mut")+'">'+esc(dir?T("rol_dir"):T("rol_op"))+'</span></span></span>'
+        +'<span class="code">'+esc(u.cod)+'</span></button>';
     }).join("")+'</div>';
   }
   return h+'</div>';
+}
+/* the archive: deactivated users, each with a "restore" button; a tap on the row still opens the card */
+function vArhiva(){
+  var off=S.utilizatori.filter(function(u){return u.status==="Inactiv"}).sort(function(a,b){return String(a.nume).localeCompare(String(b.nume))});
+  if(!off.length)return "";
+  return '<div class="sec"><div class="sec-h"><h2>'+esc(T("arch_t"))+' <span class="cnt">'+off.length+'</span></h2></div><p class="hint" style="margin:0 0 8px">'+esc(T("arch_h"))+'</p><div class="card rows">'
+    +off.map(function(u){
+      var dir=u.rol==="Director";
+      return '<div class="row user-row off"><span class="av" style="--c:'+toneOf(u.nume)+'">'+esc(initials(u.nume))+'</span>'
+        +'<span class="l"><span class="nm-row">'+esc(u.nume)+'<span class="tagc '+(dir?"acc":"mut")+'">'+esc(dir?T("rol_dir"):T("rol_op"))+'</span><span class="tagc neg">'+esc(T("u_inactiv"))+'</span></span></span>'
+        +'<button type="button" class="btn sm ghost" data-restore="'+esc(u.id)+'">'+esc(T("restore"))+'</button>'
+        +'<button type="button" class="btn sm ghost" data-edit="utilizatori" data-id="'+esc(u.id)+'" aria-label="'+esc(T("edit"))+'">'+icon("gear")+'</button></div>';
+    }).join("")+'</div></div>';
 }
 
 function vWho(){
@@ -1660,7 +2021,7 @@ function vWho(){
 }
 function vAdd(){
   var h=statusNote()+'<div class="add-layout"><div class="add-main">'+vWho()+vMyBalance();
-  var order=["cheltuieli","iesiri","chirii","imprumuturi","pontaj","angajati"]; /* client incomes, contracts and clients are the director's */
+  var order=["cheltuieli","chirii","pontaj","angajati"]; /* client incomes, contracts, clients, till outflows and loans are the director's */
   if(isDir)order=["incasari","cheltuieli","iesiri","proiecte","utilizatori","chirii","imprumuturi","contracte","pontaj","angajati"];
   var desc={incasari:"a_inc_d",cheltuieli:"a_chelt_d",iesiri:"a_ies_d",chirii:"a_chirie_d",
     imprumuturi:"a_impr_d",contracte:"a_contr_d",pontaj:"a_pontaj_d",angajati:"a_ang_d",proiecte:"a_proj_d",utilizatori:"a_user_d"};
@@ -1671,8 +2032,6 @@ function vAdd(){
       +'<span class="d2">'+esc(T(desc[k]))+'</span></button>';
   }).join("")+'</div></div>';
   h+='</div><aside class="add-side">';
-  h+='<div class="sec"><h2>'+esc(T("ord"))+'</h2><div class="card rows">'
-    +[1,2,3,4].map(function(i){return '<div class="row step"><span class="num">'+i+'</span><span class="l">'+esc(T("ord_"+i))+'</span></div>'}).join("")+'</div></div>';
   h+=installNote();
   if(!isDir)h+='<div class="sec"><button class="btn ghost" id="exitdir" type="button">'+esc(T("logout"))+'</button></div>';
   h+='</aside></div>';
@@ -1681,15 +2040,15 @@ function vAdd(){
 
 var REGDEF={
  incasari:{t:"r_inc",cols:[["data","f_data"],["client","f_client"],["suma","f_suma","n"],["mod","f_mod"]],
-   sub:function(r){return [r.proiect,r.descriere].filter(Boolean).join(" · ")},
+   sub:function(r){return [r.proiect,r.descriere,r.confirmat?T("confirmat")+" "+r.confirmat:""].filter(Boolean).join(" · ")},
    main:function(r){return r.client||"—"},amt:function(r){return money(n(r.suma))+" "+curBadge(r.valuta||"MDL",false)},
    cls:function(){return "pos"},meta:function(r){return r.data+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
  cheltuieli:{t:"r_chelt",main:function(r){return catLabel(r.categorie)||"—"},
-   sub:function(r){return [r.descriere,r.client,r.proiect,(r.mod!=="Transfer"&&r.sursa==="Proprii")?T("src_proprii_short"):""].filter(Boolean).join(" · ")},
+   sub:function(r){var pt=pentruOf(r);return [r.descriere,r.client,pt==="Proiect"?r.proiect:(pt==="EHL"?T("pt_ehl"):T("pt_alte")),(r.mod!=="Transfer"&&r.sursa==="Proprii")?T("src_proprii_short"):""].filter(Boolean).join(" · ")},
    amt:function(r){return money(n(r.suma))+" MDL"},cls:function(){return "neg"},
    meta:function(r){return r.data+" · "+(r.platitDe||"")+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
- iesiri:{t:"r_ies",main:function(r){var m={"Depus pe cont":"d_depus","Dat persoanei":"d_pers",Salarii:"d_sal","Împrumut":"d_impr",Alte:"d_alte"};return T(m[r.destinatie]||"d_alte")},
-   sub:function(r){return [r.persoana,r.luna?monthName(r.luna):"",r.nota].filter(Boolean).join(" · ")},
+ iesiri:{t:"r_ies",main:function(r){var m={"Depus pe cont":"d_depus","Dat persoanei":"d_pers",Salarii:"d_sal","Împrumut":"d_impr","Restituire fondator":"d_rest",Alte:"d_alte"};return T(m[r.destinatie]||"d_alte")},
+   sub:function(r){return [r.persoana,r.luna?monthName(r.luna):"",r.nota,dinAvans(r)?T("din_avans")+" "+r.platitDe:""].filter(Boolean).join(" · ")},
    amt:function(r){return money(n(r.suma))+" "+curBadge(r.valuta||"MDL",false)},cls:function(){return "warnc"},
    meta:function(r){return r.data}},
  chirii:{t:"r_chirii",main:function(r){return r.locatia||"—"},
@@ -1699,7 +2058,7 @@ var REGDEF={
  contracte:{t:"r_contr",main:function(r){return r.client||"—"},sub:function(r){return r.nota||""},
    amt:function(r){return money(n(r.sumaContract))+" MDL"},cls:function(){return ""},meta:function(){return ""}},
  proiecte:{t:"r_proj",main:function(r){return r.nume||"—"},
-   sub:function(r){return [r.client,respList(r).join(", ")||T("p_niciunul")].filter(Boolean).join(" · ")},
+   sub:function(r){var pi=projInc(r.nume);return [r.client,respList(r).join(", ")||T("p_niciunul"),n(r.sumaContract)?T("f_contract")+" "+money(n(r.sumaContract)):"",n(r.adaugator)?T("p_adaug")+" "+money(n(r.adaugator)):"",(pi.cash||pi.tr)?T("p_cash")+" "+money(pi.cash)+", "+T("p_tr")+" "+money(pi.tr):""].filter(Boolean).join(" · ")},
    amt:function(r){return n(r.buget)?money(n(r.buget))+" MDL":"—"},
    cls:function(r){return r.status==="Finalizat"?"":"pos"},
    meta:function(r){return r.status==="Finalizat"?T("st_final"):(r.status==="Pauză"?T("st_pauza"):T("st_activ"))}},
@@ -1709,7 +2068,7 @@ var REGDEF={
    meta:function(r){return r.data}}
 };
 /* table view of the registers: the title of the main column, an icon per record, the "who and how" cell and the amount in lei */
-var DEST_IC={"Depus pe cont":["bank","var(--s3)"],"Dat persoanei":["send","var(--s6)"],Salarii:["users","var(--s1)"],"Împrumut":["clock","var(--s4)"],Alte:["dots","var(--muted)"]};
+var DEST_IC={"Depus pe cont":["bank","var(--s3)"],"Dat persoanei":["send","var(--s6)"],Salarii:["users","var(--s1)"],"Împrumut":["clock","var(--s4)"],"Restituire fondator":["user","var(--s5)"],Alte:["dots","var(--muted)"]};
 var REGTBL={
  incasari:{th:"f_client",ic:function(){return ["inArrow","var(--pos)"]},how:function(r){return [r.mod==="Numerar"?T("numerar"):T("transfer"),""]},mdl:function(r){return n(r.suma)*n(r.curs)}},
  cheltuieli:{th:"f_categ",ic:function(r){return [catIcon(r.categorie),"var(--s"+(catSlot(r.categorie)+1)+")"]},how:function(r){return [r.mod==="Numerar"?T("numerar"):T("transfer"),r.platitDe||""]},mdl:function(r){return n(r.suma)}},
@@ -1747,7 +2106,7 @@ function regTable(tab,list,all){
       h+='<tr class="tr" data-edit="'+tab+'" data-id="'+esc(r.id)+'"><td class="t-date"><div class="cell">'+esc(shortDate(dateOf(r)))+'</div></td>'
         +'<td><div class="cell"><span class="t-main" style="--c:'+ic[1]+'"><span class="ic-badge tint">'+icon(ic[0])+'</span>'+esc(def.main(r))+'</span></div></td>'
         +'<td class="t-sub"><div class="cell">'+esc(def.sub(r))+'</div></td>'
-        +'<td class="t-how"><div class="cell">'+(how[0]?'<span class="pill-m">'+esc(how[0])+'</span>':'')+esc(how[1])+'</div></td>'
+        +'<td class="t-how"><div class="cell">'+(how[0]?'<span class="pill-m">'+esc(how[0])+'</span>':'')+esc(how[1])+(byLine(r)?'<small style="display:block;color:var(--muted)">'+esc(byLine(r))+'</small>':'')+'</div></td>'
         +'<td class="n amt '+def.cls(r)+'"><div class="cell">'+def.amt(r)+'</div></td></tr>';
     });
     h+='</tbody>';
@@ -1791,7 +2150,7 @@ function vReg(){
   if(REGTBL[regTab])h+='<div class="sec">'+regTable(regTab,list,full)+'</div>';
   h+='<div class="sec reg-rows"><div class="card rows">'+list.map(function(r){
     return '<button type="button" class="tap row" data-edit="'+regTab+'" data-id="'+esc(r.id)+'">'
-      +'<span class="l">'+esc(def.main(r))+'<span class="s">'+esc([def.meta(r),def.sub(r)].filter(Boolean).join(" · "))+'</span></span>'
+      +'<span class="l">'+esc(def.main(r))+'<span class="s">'+esc([def.meta(r),def.sub(r),byLine(r)].filter(Boolean).join(" · "))+'</span></span>'
       +'<span class="r '+def.cls(r)+'">'+def.amt(r)+'</span></button>';
   }).join("")+'</div></div>';
   if(pages>1)h+=pager(pg,pages,full.length);
@@ -1837,7 +2196,8 @@ function jurLabel(e){
 function jurSum(e){
   var d=e.data||{},def=REGDEF[e.col];
   var main=def?def.main(d):(d.nume||d.angajat||d.client||"");
-  var amt=def?def.amt(d):(d.suma!=null?money(n(d.suma)):"");
+  /* plain text: it is escaped on screen and written to Excel, so the amount carries the currency code, not a badge */
+  var amt=e.col==="chirii"?money(chirieTotal(d))+" "+(d.valuta||"MDL"):(d.suma!=null?money(n(d.suma))+" "+(d.valuta||"MDL"):(def?def.amt(d):""));
   return [main,amt].filter(Boolean).join(" — ");
 }
 function vJurnal(){
@@ -1912,7 +2272,7 @@ function vSet(){
   h+=setCard("wallet",T("set_cas"),T("set_cas_h"),'<form id="casf"><label><span>'+esc(T("f_pers"))+'</span><input name="casier" value="'+esc(c.casier||"")+'" list="dl-pers"></label>'+setSave()+'</form>')
     +'<datalist id="dl-pers">'+persoane().map(function(p){return '<option value="'+esc(p)+'">'}).join("")+'</datalist>';
 
-  h+=setCard("lock",T("set_pw"),T("set_pw_h"),'<form id="pwchg">'
+  if(PAROLA_DIR)h+=setCard("lock",T("set_pw"),T("set_pw_h"),'<form id="pwchg">'
     +'<label><span>'+esc(T("f_parola_veche"))+'</span><input type="password" name="veche" autocomplete="current-password"></label>'
     +'<div class="pair"><label><span>'+esc(T("f_parola_noua"))+'</span><input type="password" name="noua" autocomplete="new-password" minlength="8"></label>'
     +'<label><span>'+esc(T("f_parola2"))+'</span><input type="password" name="noua2" autocomplete="new-password" minlength="8"></label></div>'+setSave()+'</form>');
@@ -1923,6 +2283,7 @@ function vSet(){
   h+=setCard("file",T("exp_t"),T("j_exp_h"),'<form id="expf">'
     +'<div class="pair exp-row"><label><span>'+esc(T("f_luna"))+'</span><input type="month" name="luna" value="'+esc(JUR.luna)+'"></label>'
     +'<label class="cb exp-cb"><input type="checkbox" name="doar"><span>'+esc(T("exp_luna"))+'</span></label></div>'+setSave("expsub",T("exp_btn"),"down")+'</form>');
+  h+=vArhiva();
   h+=installNote();
   /* switching user: in the users header on wide screens, full width at the very bottom on phones */
   h+='<div class="sec sec-full exit-bottom"><button class="btn ghost logout" id="exitdir" type="button">'+icon("users")+esc(T("logout"))+'</button></div>';
@@ -1937,8 +2298,8 @@ function openForm(col,id){
   var rec=id?S[col].filter(function(r){return r.id===id})[0]:null;
   var data={};
   def.fields().forEach(function(f){data[f.k]=rec?(rec[f.k]!=null?rec[f.k]:""):(f.def!=null?f.def:"")});
-  if(rec&&col==="angajati")data.salariu=salariuLa(rec.nume,today());
-  if(col==="cheltuieli"){var full=data.categorie;data.categorie=catMain(full);data.subcat=catSub(full);}
+  if(rec&&col==="angajati"){data.salariu=salariuLa(rec.nume,today());data.dinSal=today();}
+  if(col==="cheltuieli"){var full=data.categorie;data.categorie=catMain(full);data.subcat=catSub(full);if(rec)data.pentru=pentruOf(rec);}
   sheetState={col:col,id:id||null,data:data,err:""};
   sheetOpened();
   drawSheet();
@@ -1948,7 +2309,7 @@ function openForm(col,id){
 var HIST=typeof history!=="undefined"&&history.pushState?history:null;
 function histPush(st){if(HIST){try{HIST.pushState(st,"")}catch(e){}}}
 function sheetOpened(){if(HIST&&!(HIST.state&&HIST.state.sheet))histPush({v:view,sheet:true})}
-function closeSheetNow(){sheetState=null;$("#sheet").innerHTML="";document.body.style.overflow="";render()}
+function closeSheetNow(){sheetState=null;$("#sheet").innerHTML="";document.body.style.overflow="";render();verApply()}
 function closeSheet(){
   if(HIST&&HIST.state&&HIST.state.sheet){HIST.back();return;} /* popstate closes it */
   closeSheetNow();
@@ -2013,16 +2374,19 @@ function fieldHtml(f,v){
   }
   if(f.t==="select"){
     var opts=f.opts.slice();
+    /* the bank account holds lei only: a transfer (or a deposit to the account) fixes the currency to MDL, rate 1 */
+    var fix=!!(f.mdlIf&&sheetState&&f.mdlIf(sheetState.data));
+    if(fix){v="MDL";sheetState.data[f.k]="MDL";sheetState.data.curs="1";}
     if(f.k==="valuta")lbl=curBadge(v||"MDL",false)+' '+lbl;
     if(v&&!opts.some(function(o){return String(o.v)===String(v)}))opts.unshift({v:v,l:v});
     if(f.allowEmpty)opts.unshift({v:"",l:"—"});
-    return '<label for="'+id+'"><span>'+lbl+(f.req?" *":"")+'</span><select id="'+id+'" data-k="'+f.k+'">'
+    return '<label for="'+id+'"><span>'+lbl+(f.req?" *":"")+'</span><select id="'+id+'" data-k="'+f.k+'"'+(fix?' disabled':'')+'>'
       +opts.map(function(o){return '<option value="'+esc(o.v)+'"'+(String(v)===String(o.v)?" selected":"")+'>'+esc(o.l)+'</option>'}).join("")
-      +'</select></label>';
+      +'</select></label>'+(f.hint?'<p class="hint">'+esc(T(f.hint))+'</p>':"");
   }
   if(f.k==="categorie")v=catLabel(v);
-  var type=f.t==="number"?"number":(f.t==="date"?"date":(f.t==="month"?"month":"text"));
-  var extra=f.t==="number"?' inputmode="decimal" step="'+(f.step||"0.01")+'"':"";
+  var type=f.t==="number"?"number":(f.t==="date"?"date":(f.t==="month"?"month":(f.t==="pin"?"password":"text")));
+  var extra=f.t==="number"?' inputmode="decimal" step="'+(f.step||"0.01")+'"':(f.t==="pin"?' inputmode="numeric" autocomplete="off"':"");
   var list=f.list&&f.list.length?' list="dl-'+f.k+'" autocomplete="off"':"";
   if(f.noFuture)extra+=' max="'+today()+'"';
   return '<label for="'+id+'"><span>'+lbl+(f.req?" *":"")+'</span><input type="'+type+'" id="'+id+'" data-k="'+f.k+'" value="'+esc(v)+'"'+extra+list+(locked?' readonly':'')+'></label>'
@@ -2041,6 +2405,20 @@ function submitForm(){
   if(short.length){st.err=T("descr_short");drawSheet();return;}
   var fut=fields.filter(function(f){return f.noFuture&&String(st.data[f.k]||"")>today()});
   if(fut.length){st.err=T("date_future");drawSheet();return;}
+  if(st.col==="pontaj"){
+    var z1=n(st.data.z1),z2=n(st.data.z2);
+    if(z1<0||z1>15||z2<0||z2>16){st.err=T("pontaj_zile");drawSheet();return;}
+    if(S.pontaj.some(function(r){return r.id!==st.id&&r.luna===st.data.luna&&sameP(r.angajat,st.data.angajat)})){st.err=T("pontaj_dup");drawSheet();return;}
+    if(!isDir&&!angajatiPontaj().some(function(a){return sameP(a,st.data.angajat)})){st.err=T("pontaj_h");drawSheet();return;}
+  }
+  /* the bank account holds lei only */
+  /* (a deposit from the till may come from any currency shelf: the account receives suma × curs in lei) */
+  var toCont=(st.col==="incasari"||st.col==="chirii")&&st.data.mod==="Transfer";
+  if(toCont&&st.data.valuta&&st.data.valuta!=="MDL"){st.err=T("cont_lei");drawSheet();return;}
+  var lipsa=casaErr(st.col,st.data,st.id)||avansErr(st.col,st.data,st.id); /* the account has no such check: it may go below zero */
+  if(lipsa){st.err=lipsa;drawSheet();return;}
+  /* money from a founder: the founder's own code confirms it (the server checks it again) */
+  if(st.col==="incasari"){var fo=fondatorOf(st.data.client);if(fo&&String(st.data.codFondator||"").trim()!==String(fo.cod||"")){st.err=T("codfond_bad");drawSheet();return;}}
   var btn=$("#savebtn");if(btn){btn.disabled=true;btn.textContent=T("saving")}
   var d=st.data,col=st.col,p;
   if(col==="cheltuieli"&&d.categorie)d.categorie=catRaw(d.categorie);
@@ -2050,8 +2428,10 @@ function submitForm(){
     if(dup||!/^\d{4,8}$/.test(ub.cod)){st.err=T("cod_bad");if(btn){btn.disabled=false;btn.textContent=T("save")}drawSheet();return;}
     var self=!!(ACCESS&&st.id===ACCESS.user.id);
     if(self&&(ub.status==="Inactiv"||ub.rol!=="Director")){st.err=T("self_lock");if(btn){btn.disabled=false;btn.textContent=T("save")}drawSheet();return;}
+    var oldU=st.id?((S.utilizatori.filter(function(u){return u.id===st.id})[0]||{}).nume||""):"";
     p=saveDoc("utilizatori",ub,st.id).then(function(){
-      if(!st.id&&d.caAngajat){
+      if(st.id)return renamePerson(oldU,ub.nume);
+      if(d.caAngajat){
         return saveDoc("angajati",{nume:ub.nume,dataInceput:today(),status:"Activ"}).then(function(){
           if(n(d.salariu)>0)return saveDoc("istoric",{angajat:ub.nume,salariu:n(d.salariu),dinData:today()});
         });
@@ -2059,16 +2439,22 @@ function submitForm(){
     });
   }else if(col==="angajati"){
     var body={nume:String(d.nume).trim(),dataInceput:d.dataInceput,status:d.status};
-    p=saveDoc("angajati",body,st.id).then(function(){
-      if(n(d.salariu)>0){
-        var exist=S.istoric.filter(function(h){return sameP(h.angajat,body.nume)&&n(h.salariu)===n(d.salariu)})[0];
-        if(!exist)return saveDoc("istoric",{angajat:body.nume,salariu:n(d.salariu),dinData:d.dataInceput||today()});
-      }
+    var oldA=st.id?((S.angajati.filter(function(a){return a.id===st.id})[0]||{}).nume||""):"";
+    p=saveDoc("angajati",body,st.id).then(function(){return renamePerson(oldA,body.nume)}).then(function(){
+      /* a new employee earns the salary from the start date; a changed salary counts from the chosen date,
+         so the months before it keep the old one. A second change for the same date corrects that row. */
+      var sal=n(d.salariu);
+      if(!isDir||!(sal>0))return;
+      var hist=S.istoric.filter(function(h){return sameP(h.angajat,body.nume)});
+      var din=(st.id&&hist.length)?(d.dinSal||today()):(d.dataInceput||today());
+      if(hist.length&&sal===salariuLa(body.nume,din))return;
+      var same=hist.filter(function(h){return h.dinData===din})[0];
+      return saveDoc("istoric",{angajat:body.nume,salariu:sal,dinData:din},same?same.id:null);
     });
   }else if(col==="imprumuturi"){
     var ib={data:d.data,persoana:String(d.persoana).trim(),suma:n(d.suma),termen:d.termen,status:d.status,nota:d.nota};
     p=saveDoc("imprumuturi",ib,st.id).then(function(){
-      if(!st.id&&d.dinCasa)return saveDoc("iesiri",{data:d.data,destinatie:"Împrumut",valuta:"MDL",curs:1,
+      if(!st.id&&d.dinCasa)return saveDoc("iesiri",{sursa:ieseDinAvans(null)?"Avans":"Casa",platitDe:ieseDinAvans(null)?meName():"",data:d.data,destinatie:"Împrumut",valuta:"MDL",curs:1,
         suma:n(d.suma),persoana:ib.persoana,nota:(lang==="ru"?"Заём":"Împrumut")+" — "+ib.persoana});
     });
   }else{
@@ -2077,12 +2463,21 @@ function submitForm(){
       if(f.newOnly&&st.id)return;
       b[f.k]=(f.t==="number")?n(d[f.k]):String(d[f.k]==null?"":d[f.k]).trim();
     });
-    if(col==="cheltuieli"){b.categorie=catJoin(catRaw(b.categorie),b.subcat);delete b.subcat;}
+    if(col==="cheltuieli"){b.categorie=catJoin(catRaw(b.categorie),b.subcat);delete b.subcat;
+      if(!isDir&&!isCasierMe()){b.platitDe=meName();b.sursa="Avans";} /* the server sets the same */
+      if(b.pentru!=="Proiect"){b.proiect="";b.client="";}} /* "EHL" and "Altele" carry no project and no client */
     if(b.valuta==="MDL"&&("curs" in b))b.curs=1; /* lei never carry a rate */
+    if(col==="iesiri"&&!st.id){if(ieseDinAvans(null)){b.sursa="Avans";b.platitDe=meName()}else{b.sursa="Casa";b.platitDe=""}}
     p=saveDoc(col,b,st.id);
   }
   p.then(function(){closeSheet();toast(T("saved"))})
-   .catch(function(e){st.err=(e&&e.code==="permission-denied")?T("nowrite"):(T("offline"));drawSheet()});
+   .catch(function(e){st.err=saveErr(e);drawSheet();if(!netErr(e))selfCheck()}); /* a refusal may mean this device was signed out elsewhere */
+}
+/* why a save or a delete did not go through: no connection, or the server's own reason when it is one of ours */
+function saveErr(e){
+  if(netErr(e)||(e&&e.code==="no_db"))return T("offline");
+  var m=String((e&&e.response&&e.response.message)||"").trim();
+  return SRV_MSG[m]?srvT(m):T("save_err");
 }
 
 /* ---------------- date / month picker for mouse-driven screens ----------------
@@ -2251,7 +2646,7 @@ document.addEventListener("click",function(ev){
     var b=t.closest("#delbtn");
     if(b.dataset.armed==="1"){
       delDoc(sheetState.col,sheetState.id).then(function(){closeSheet();toast(T("deleted"))})
-        .catch(function(){sheetState.err=T("offline");drawSheet()});
+        .catch(function(e){if(!sheetState)return;sheetState.err=saveErr(e);drawSheet()});
     }else{b.dataset.armed="1";b.innerHTML=icon("trash")+'<span>'+esc(T("del_yes"))+'</span>';}
     return;
   }
@@ -2271,8 +2666,11 @@ document.addEventListener("click",function(ev){
   var ol=t.closest&&t.closest("[data-ovluna]");
   if(ol){OV.luna=ol.getAttribute("data-ovluna")||"";render();return;}
   var dc=t.closest&&t.closest("[data-cat]");
+  if(dc&&!isDir)return; /* the registers are the director's */
   if(dc){regFilter={col:"cheltuieli",categorie:dc.getAttribute("data-cat")||"",luna:OV.luna};REGPAGE.cheltuieli=0;regTab="cheltuieli";if(view!=="reg"){view="reg";histPush({v:view});}render();return;}
   if(t.closest&&t.closest("[data-clearfilter]")){regFilter=null;REGPAGE[regTab]=0;render();return;}
+  var rs=t.closest&&t.closest("[data-restore]");
+  if(rs){rs.disabled=true;saveDoc("utilizatori",{status:"Activ"},rs.getAttribute("data-restore")).then(function(){toast(T("restored"));render()}).catch(function(e){toast(saveErr(e));render()});return;}
   var rf=t.closest&&t.closest("[data-retry]");
   if(rf){retryFailed(parseInt(rf.getAttribute("data-retry"),10));return;}
   var df=t.closest&&t.closest("[data-dropfailed]");
@@ -2305,7 +2703,7 @@ document.addEventListener("change",function(ev){
   sheetState.data[k]=(el.type==="checkbox")?el.checked:el.value;
   if(k==="valuta"){sheetState.data.curs=String(cursAzi(el.value));drawSheet();return;}
   if(k==="proiect"){var pj=S.proiecte.filter(function(p){return sameP(p.nume,el.value)})[0];if(pj&&pj.client){sheetState.data.client=pj.client;drawSheet();}return;}
-  if(k==="destinatie"||k==="mod"||k==="categorie"||el.type==="checkbox"){drawSheet();return;}
+  if(k==="destinatie"||k==="mod"||k==="categorie"||k==="client"||k==="pentru"||el.type==="checkbox"){drawSheet();return;}
   if(k==="angajat"||k==="luna"){var def=FORMS[sheetState.col];if(def&&def.calc)drawSheet();}
 });
 document.addEventListener("submit",function(ev){
@@ -2367,6 +2765,9 @@ document.addEventListener("submit",function(ev){
       if(cod)arr.push({cod:cod,curs:cod==="MDL"?1:n(f.elements["curs"+i].value)||1});i++;}
     var nc=f.elements["newcod"].value.trim().toUpperCase();
     if(nc&&!arr.some(function(x){return x.cod===nc}))arr.push({cod:nc,curs:n(f.elements["newcurs"].value)||1});
+    /* a currency that rows were entered in must stay in the list, or its shelf drops out of the till */
+    var gone=uniq(S.incasari.concat(S.iesiri,S.chirii).map(function(r){return r.valuta})).filter(function(v){return !arr.some(function(x){return x.cod===v.toUpperCase()})})[0];
+    if(gone){toast(T("val_used").replace("{v}",gone));return;}
     saveCfg({valute:arr}).then(function(){toast(T("saved"));render()}).catch(function(){toast(T("offline"))});
     return;
   }
@@ -2388,6 +2789,7 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&sheetState)
 if(HIST){try{HIST.replaceState({v:view},"")}catch(e){}}
 render();
 (function boot(){
+  verCheck(); /* remembers the version this page was loaded with */
   if(!window.PocketBase){noCfg=true;render();return;}
   try{
     PB=new PocketBase(String(window.PB_URL||"").replace(/\/+$/,"")||window.location.origin);
@@ -2397,11 +2799,13 @@ render();
   var rec=PB.authStore.record||PB.authStore.model;
   if(PB.authStore.isValid&&rec&&rec.id){
     enter(rec);
-    lockScreen(); /* the code is asked again on every start */
+    if(lockDue())lockScreen(); /* the code is asked again when the last entry is older than LOCK_AFTER */
     /* confirm the session with the server: a deactivated user or an expired director week ends it */
     selfCheck();
   }else{
     var sc="";try{sc=localStorage.getItem("ehl.cod")||""}catch(e){}
+    /* a code remembered by the old password flow is dropped while the password is off: the plain code screen follows */
+    if(sc&&!PAROLA_DIR){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}sc="";}
     if(sc)GATE={step:"cod",relock:true,weekly:!!sessionExp(),cod:sc};
     render();
   }
