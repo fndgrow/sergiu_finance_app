@@ -236,6 +236,26 @@ onRecordUpdateRequest((e) => {
   e.next();
 }, "pontaj");
 
+/* ---- an operator sets a salary only for the employees he created himself; a director for anyone ---- */
+onRecordCreateRequest((e) => {
+  if (e.auth && e.auth.getString("rol") !== "Director") {
+    var nm = String(e.record.getString("angajat") || "").trim();
+    var ok = false;
+    if (nm) { try { ok = $app.countRecords("angajati", $dbx.exp("TRIM(nume) = {:n} AND by = {:u}", { n: nm, u: e.auth.id })) > 0; } catch (err) { ok = false; } }
+    if (!ok) throw new BadRequestError("Salariul se stabilește doar pentru angajații creați de dumneavoastră.");
+  }
+  e.next();
+}, "istoric");
+onRecordUpdateRequest((e) => {
+  if (e.auth && e.auth.getString("rol") !== "Director") {
+    var nm = String(e.record.getString("angajat") || "").trim();
+    var ok = false;
+    if (nm) { try { ok = $app.countRecords("angajati", $dbx.exp("TRIM(nume) = {:n} AND by = {:u}", { n: nm, u: e.auth.id })) > 0; } catch (err) { ok = false; } }
+    if (!ok) throw new BadRequestError("Salariul se stabilește doar pentru angajații creați de dumneavoastră.");
+  }
+  e.next();
+}, "istoric");
+
 /* ---- a collaborator's expense: he is the payer. Cash comes out of the money the director gave him and cannot take
         his balance below zero; a transfer is paid by the firm's account, which may go below zero. The cashier pays from the till. ---- */
 onRecordCreateRequest((e) => {

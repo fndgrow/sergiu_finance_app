@@ -142,7 +142,7 @@ ro:{
  cont_lipsa:"Pe cont nu sunt destui bani: disponibil {s} MDL. Depuneți mai întâi din casă.",
  cont_lei:"Pe cont intră doar lei: alegeți MDL.",
  d_rest:"Restituire fondator",s_fond:"Datorii către fondatori",l_fond_primit:"Împrumutat de la fondatori",l_fond_dat:"Datorie",
- pontaj_h:"Pontajul se face doar pentru angajații pe care i-ați creat dumneavoastră.",
+ pontaj_h:"Pontajul se face doar pentru angajații pe care i-ați creat dumneavoastră.",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
  f_adaug:"Adăugător (MDL)",p_adaug:"Adăugător",p_total:"Contract + adăugător",
  sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",
@@ -287,7 +287,7 @@ ru:{
  cont_lipsa:"На счёте недостаточно денег: доступно {s} MDL. Сначала внесите из кассы.",
  cont_lei:"На счёт поступают только леи: выберите MDL.",
  d_rest:"Возврат учредителю",s_fond:"Долги перед учредителями",l_fond_primit:"Занято у учредителей",l_fond_dat:"Долг",
- pontaj_h:"Табель можно заполнять только для сотрудников, которых создали вы.",
+ pontaj_h:"Табель можно заполнять только для сотрудников, которых создали вы.",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
  f_adaug:"Дополнительно (MDL)",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
  sess_other:"В аккаунт вошли на другом устройстве. Введите код, чтобы продолжить здесь.",
@@ -304,7 +304,7 @@ var lang="ro";
 try{var sl=localStorage.getItem("ehl.lang"); if(sl==="ro"||sl==="ru") lang=sl;}catch(e){}
 function T(k){var d=I18N[lang];return (d&&d[k])||I18N.ro[k]||k;}
 /* the server answers in Romanian; known messages are shown in the interface language */
-var SRV_MSG={"Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans"};
+var SRV_MSG={"Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans","Salariul se stabilește doar pentru angajații creați de dumneavoastră.":"srv_sal"};
 function srvT(m){var k=SRV_MSG[String(m||"").trim()];return k?T(k):m}
 
 /* ---------------- helpers ---------------- */
@@ -544,7 +544,7 @@ function subscribe(){
   if(!PB||!ACCESS)return;
   loadCache();
   loadTimer=setTimeout(function(){stale=true;render()},10000);
-  var cols=DATA_COLS.filter(function(c){return isDir||c!=="istoric"});
+  var cols=DATA_COLS.slice(); /* operators get only the salary rows of their own employees (server rule) */
   cols.forEach(function(col){
     PB.collection(col).getFullList({batch:1000,requestKey:null}).then(function(items){
       S[col]=items.map(norm);loaded[col]=true;stale=false;
@@ -704,6 +704,8 @@ function catMains(){var c=cfg().categorii;return uniqKeep((c&&c.length?c:DEF_CFG
 function catSubs(main){if(!main)return [];return uniqKeep(categorii().filter(function(c){return catSub(c)&&sameP(catMain(c),main)}).map(catSub))}
 function angajatiActivi(){return S.angajati.filter(function(a){return a.status!=="Inactiv"}).map(function(a){return a.nume})}
 /* an operator fills timesheets only for the employees he created himself (the server checks the same); a director for all */
+/* an operator sets and sees the salary only of the employees he created himself; a director of everyone */
+function angajatMeu(nume){if(isDir)return true;var a=S.angajati.filter(function(x){return sameP(x.nume,nume)})[0];return !a||a.by===ME}
 function angajatiPontaj(){return S.angajati.filter(function(a){return a.status!=="Inactiv"&&(isDir||a.by===ME)}).map(function(a){return a.nume})}
 function fAngajatPontaj(){
   if(isDir)return {k:"angajat",t:"text",l:"f_ang",req:1,list:angajatiActivi().length?angajatiActivi():persoane()};
@@ -1098,7 +1100,7 @@ var FORMS={
    {k:"z2",t:"number",l:"f_z2",half:1,step:"1",def:"0"}
  ]},calc:function(d){var wd=workdays(d.luna),sal=salariuLa(d.angajat,d.luna?monthEnd(d.luna):today()),pz=wd?sal/wd:0;
    var out=[{l:(lang==="ru"?"Раб. дней":"Zile lucr."),v:String(wd)}];
-   if(isDir){ /* operators cannot read salaries */
+   if(angajatMeu(d.angajat)&&sal>0){ /* an operator sees the salary of his own employees only */
      out.push({l:(lang==="ru"?"Цена дня":"Preț zi"),v:money(pz)});
      out.push({l:T("f_z1"),v:money(n(d.z1)*pz)});
      out.push({l:T("f_z2"),v:money(n(d.z2)*pz)});
@@ -1134,8 +1136,8 @@ var FORMS={
    {k:"nume",t:"text",l:"f_nume",req:1},
    {k:"dataInceput",t:"date",l:"f_start",def:today()},
    /* salaries are the director's: an operator adds the person only */
-   {k:"salariu",t:"number",l:"f_salariu",req:1,step:"0.01",newOnly:1,showIf:function(){return isDir}},
-   {k:"dinSal",t:"date",l:"f_dinsal",hint:"f_dinsal_h",def:today(),showIf:function(){return isDir&&!!(sheetState&&sheetState.id)}},
+   {k:"salariu",t:"number",l:"f_salariu",req:isDir?1:0,step:"0.01",newOnly:1,hint:isDir?"":"sal_h",showIf:function(d){return isDir||!(sheetState&&sheetState.id)||angajatMeu(d.nume)}},
+   {k:"dinSal",t:"date",l:"f_dinsal",hint:"f_dinsal_h",def:today(),showIf:function(d){return !!(sheetState&&sheetState.id)&&angajatMeu(d.nume)}},
    {k:"status",t:"select",l:"f_status",req:1,opts:[{v:"Activ",l:T("activ")},{v:"Inactiv",l:T("inactiv")}],def:"Activ"}
  ]}}
 };
@@ -2444,7 +2446,7 @@ function submitForm(){
       /* a new employee earns the salary from the start date; a changed salary counts from the chosen date,
          so the months before it keep the old one. A second change for the same date corrects that row. */
       var sal=n(d.salariu);
-      if(!isDir||!(sal>0))return;
+      if(!(sal>0)||!angajatMeu(body.nume))return;
       var hist=S.istoric.filter(function(h){return sameP(h.angajat,body.nume)});
       var din=(st.id&&hist.length)?(d.dinSal||today()):(d.dataInceput||today());
       if(hist.length&&sal===salariuLa(body.nume,din))return;
