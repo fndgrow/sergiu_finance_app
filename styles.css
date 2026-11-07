@@ -787,3 +787,10 @@ label>span .cur-b{width:16px;height:16px;font-size:10px}
 .gr-full{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:4px 9px;font-family:var(--d);font-size:12px;cursor:pointer;color:var(--ink)}
 .gr-full[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:transparent}
 .gr-day .gr-h{width:62px;padding:6px 8px;border-radius:8px}
+
+/* ---- a form's figures as a list: label left, amount right; the total and the due amount stand out ---- */
+.calc-list{display:flex;flex-direction:column;gap:6px;margin:2px 0}
+.calc-list .calcbox{padding:9px 13px;align-items:center}
+.calc-list .calcbox span:first-child{font-weight:500;color:var(--ink);font-family:var(--b);font-size:13.5px}
+.calc-list .calcbox.tot{background:var(--accent);color:var(--accent-ink)}
+.calc-list .calcbox.tot span:first-child{color:var(--accent-ink);font-weight:600}
