@@ -128,7 +128,8 @@ ro:{
  th_det:"Detalii",th_how:"Cine și cum",n_rec:"Înregistrări: {n}",
  pg_of:"{a}–{b} din {n}",pg_prev:"Pagina anterioară",pg_next:"Pagina următoare",
  ov_more:"Detalii",ov_all_s:"Toate",per_lbl:"Perioada",menu_t:"Salt rapid",menu_a:"Meniu",s_totals:"Totaluri",
- f_dinsal:"Salariul se aplică din",f_dinsal_h:"Lunile de dinaintea acestei date se calculează cu salariul vechi.",
+ f_dinsal:"Salariul nou se aplică din",f_dinsal_h:"Luna în care cade această dată se calculează întreagă cu salariul nou (și pontajele deja scrise). Lunile dinainte rămân cu salariul vechi.",
+ f_salariu_nou:"Salariu nou (MDL)",sal_actual:"Salariu actual",sal_din:"Salariu din",sal_nou:"Salariu nou din",
  save_err:"Serverul nu a acceptat înregistrarea.",
  pending_out:"Înregistrările netrimise ({n}) rămân pe acest telefon și se trimit când utilizatorul intră din nou.",
  val_used:"Valuta {v} este folosită în înregistrări și nu poate fi ștearsă sau redenumită.",
@@ -280,7 +281,8 @@ ru:{
  th_det:"Детали",th_how:"Кто и как",n_rec:"Записей: {n}",
  pg_of:"{a}–{b} из {n}",pg_prev:"Предыдущая страница",pg_next:"Следующая страница",
  ov_more:"Подробнее",ov_all_s:"Все",per_lbl:"Период",menu_t:"Быстрый переход",menu_a:"Меню",s_totals:"Итоги",
- f_dinsal:"Оклад действует с",f_dinsal_h:"Месяцы до этой даты считаются по старому окладу.",
+ f_dinsal:"Новый оклад действует с",f_dinsal_h:"Месяц, на который приходится эта дата, целиком считается по новому окладу (включая уже внесённые табели). Предыдущие месяцы остаются по старому.",
+ f_salariu_nou:"Новый оклад (MDL)",sal_actual:"Текущий оклад",sal_din:"Оклад с",sal_nou:"Новый оклад с",
  save_err:"Сервер не принял запись.",
  pending_out:"Неотправленные записи ({n}) остались на этом телефоне и отправятся, когда пользователь войдёт снова.",
  val_used:"Валюта {v} используется в записях, её нельзя удалить или переименовать.",
@@ -1168,10 +1170,21 @@ var FORMS={
    {k:"nume",t:"text",l:"f_nume",req:1},
    {k:"dataInceput",t:"date",l:"f_start",def:today()},
    /* salaries are the director's: an operator adds the person only */
-   {k:"salariu",t:"number",l:"f_salariu",req:isDir?1:0,step:"0.01",newOnly:1,hint:isDir?"":"sal_h",showIf:function(d){return isDir||!(sheetState&&sheetState.id)||angajatMeu(d.nume)}},
+   {k:"salariu",t:"number",l:(sheetState&&sheetState.id)?"f_salariu_nou":"f_salariu",req:isDir?1:0,step:"0.01",newOnly:1,hint:isDir?"":"sal_h",showIf:function(d){return isDir||!(sheetState&&sheetState.id)||angajatMeu(d.nume)}},
    {k:"dinSal",t:"date",l:"f_dinsal",hint:"f_dinsal_h",def:today(),showIf:function(d){return !!(sheetState&&sheetState.id)&&angajatMeu(d.nume)}},
    {k:"status",t:"select",l:"f_status",req:1,opts:[{v:"Activ",l:T("activ")},{v:"Inactiv",l:T("inactiv")}],def:"Activ"}
- ]}}
+ ]},calc:function(d){
+   /* the salary rubric: what he gets now and since when, every earlier step, and the new salary with its date */
+   if(!angajatMeu(d.nume))return [];
+   var hist=S.istoric.filter(function(h){return sameP(h.angajat,d.nume)}).sort(function(a,b){return String(a.dinData).localeCompare(String(b.dinData))});
+   var out=[],cur=salariuLa(d.nume,today()),edit=!!(sheetState&&sheetState.id);
+   if(edit&&hist.length){
+     out.push({l:T("sal_actual"),v:money(cur)+" MDL"});
+     hist.forEach(function(h){out.push({l:T("sal_din")+" "+shortDate(h.dinData),v:money(n(h.salariu))+" MDL"})});
+   }
+   var sal=n(d.salariu);
+   if(sal>0&&(!hist.length||sal!==cur))out.push({l:T("sal_nou")+" "+shortDate(edit?(d.dinSal||today()):(d.dataInceput||today())),v:money(sal)+" MDL",cls:"tot"});
+   return out}}
 };
 
 FORMS.grafic={title:"a_grafic",icon:"clock",fields:function(){return[]}}; /* drawn by openGrafic(), not by the form engine */
@@ -2854,7 +2867,7 @@ document.addEventListener("change",function(ev){
     if(!sheetState.id){var exP=S.pontaj.filter(function(r){return r.luna===sheetState.data.luna&&sameP(r.angajat,sheetState.data.angajat)})[0];if(exP){openForm("pontaj",exP.id);return;}}
     pontajDinGrafic(sheetState.data);
   }
-  if(k==="angajat"||k==="luna"||(sheetState.col==="pontaj"&&(k==="z1"||k==="z2"||k==="extra"))){var def=FORMS[sheetState.col];if(def&&def.calc)drawSheet();} /* the days decide whether the "Achitat" box is offered */
+  if(k==="angajat"||k==="luna"||(sheetState.col==="pontaj"&&(k==="z1"||k==="z2"||k==="extra"))||(sheetState.col==="angajati"&&(k==="salariu"||k==="dinSal"))){var def=FORMS[sheetState.col];if(def&&def.calc)drawSheet();} /* the days decide whether the "Achitat" box is offered */
 });
 document.addEventListener("submit",function(ev){
   var f=ev.target;ev.preventDefault();
