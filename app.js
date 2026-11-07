@@ -145,7 +145,7 @@ ro:{
  d_rest:"Restituire fondator",s_fond:"Datorii către fondatori",l_fond_primit:"Împrumutat de la fondatori",l_fond_dat:"Datorie",
  pontaj_h:"Pontajul se face doar pentru angajații pe care i-ați creat dumneavoastră.",
  pontaj_pay:"Achitat: plătesc acum suma pontajului",pontaj_pay_h:"Se înregistrează o ieșire „Salarii” pentru suma rămasă de plătit din acest pontaj. La colaborator banii se iau din avansul lui, la director din casă.",
- pontaj_paid:"Achitat deja",pontaj_dinavans:"Colaborator: salariul se scade din avansul lui, nu din casă",pontaj_due:"De achitat",pontaj_nosal:"Angajatul nu are salariu stabilit, nu este nimic de achitat.",pontaj_nota:"Salariu pontaj",
+ pontaj_paid:"Achitat deja",ang_deact:"Șterge angajatul",ang_deact_h:"Angajatul trece în arhivă: dispare din liste, dar pontajele, salariile și istoricul lui rămân.",ang_deact_yes:"Da, trece în arhivă",ang_deact_done:"Angajat trecut în arhivă",pontaj_dinavans:"Colaborator: salariul se scade din avansul lui, nu din casă",pontaj_due:"De achitat",pontaj_nosal:"Angajatul nu are salariu stabilit, nu este nimic de achitat.",pontaj_nota:"Salariu pontaj",
  srv_ies_op:"Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).",
  a_grafic:"Grafic de lucru",a_grafic_d:"Ore lucrate, zi cu zi",gr_full:"8h",gr_ore:"ore",gr_h1:"Ore 1–15",gr_h2:"Ore 16–sfârșit",gr_tot:"Total ore",gr_zile:"Zile (8 ore = o zi)",
  gr_din:"Zilele vin din graficul de lucru și nu se scriu de mână.",arch_ang:"Arhivă: angajați inactivi",arch_ang_h:"Nu apar în grafic, pontaj și rapoarte; înregistrările lor rămân. Pot fi reactivați oricând.",inact_lbl:"Inactivi",gr_bani:"Cuvenit pe lună",gr_nosal:"fără salariu stabilit",gr_none:"Alegeți angajatul.",gr_h:"Apăsați „8h” pentru o zi întreagă sau scrieți orele lucrate. Fiecare zi se salvează imediat.",
@@ -298,7 +298,7 @@ ru:{
  d_rest:"Возврат учредителю",s_fond:"Долги перед учредителями",l_fond_primit:"Занято у учредителей",l_fond_dat:"Долг",
  pontaj_h:"Табель можно заполнять только для сотрудников, которых создали вы.",
  pontaj_pay:"Оплачено: выплачиваю сумму табеля сейчас",pontaj_pay_h:"Создаётся выдача «Зарплата» на остаток к выплате по этому табелю. У сотрудника деньги берутся из его аванса, у директора из кассы.",
- pontaj_paid:"Уже выплачено",pontaj_dinavans:"Сотрудник-оператор: зарплата вычитается из его аванса, а не из кассы",pontaj_due:"К выплате",pontaj_nosal:"У сотрудника не задан оклад, выплачивать нечего.",pontaj_nota:"Зарплата по табелю",
+ pontaj_paid:"Уже выплачено",ang_deact:"Удалить сотрудника",ang_deact_h:"Сотрудник уходит в архив: исчезает из списков, но его табели, оклады и история остаются.",ang_deact_yes:"Да, в архив",ang_deact_done:"Сотрудник переведён в архив",pontaj_dinavans:"Сотрудник-оператор: зарплата вычитается из его аванса, а не из кассы",pontaj_due:"К выплате",pontaj_nosal:"У сотрудника не задан оклад, выплачивать нечего.",pontaj_nota:"Зарплата по табелю",
  srv_ies_op:"Сотрудник записывает из аванса только выплаты зарплаты (галочка «Оплачено» в табеле).",
  a_grafic:"График работы",a_grafic_d:"Часы по дням",gr_full:"8ч",gr_ore:"ч",gr_h1:"Часы 1–15",gr_h2:"Часы 16–конец",gr_tot:"Всего часов",gr_zile:"Дней (8 часов = день)",
  gr_din:"Дни берутся из графика работы и вручную не вводятся.",arch_ang:"Архив: неактивные сотрудники",arch_ang_h:"Не показываются в графике, табеле и отчётах; их записи остаются. Можно вернуть в любой момент.",inact_lbl:"Неактивные",gr_bani:"Причитается за месяц",gr_nosal:"оклад не задан",gr_none:"Выберите сотрудника.",gr_h:"Нажмите «8ч» за полный день или впишите часы. Каждый день сохраняется сразу.",
@@ -1914,7 +1914,7 @@ function vAngajatiiMei(){
   var mine=S.angajati.filter(function(a){return a.by===ME&&a.status!=="Inactiv"});
   if(!mine.length)return "";
   var luna=OV.luna||curMonth();
-  var h='<div class="sec sec-wide"><h2>'+esc(T("op_ang"))+'</h2><div class="card rows">';
+  var h='<div class="sec sec-wide"><div class="sec-h"><h2>'+esc(T("op_ang"))+'</h2><div class="sec-act"><button class="btn sm" type="button" data-form="angajati">'+icon("userplus")+esc(T("a_ang"))+'</button></div></div><div class="card rows">';
   mine.forEach(function(a){
     var sal=salariuLa(a.nume,today()),g=graficOre(a.nume,luna);
     var p=S.pontaj.filter(function(r){return sameP(r.angajat,a.nume)&&r.luna===luna})[0];
@@ -1925,7 +1925,9 @@ function vAngajatiiMei(){
     var line1=T("f_salariu")+" "+money(sal)+" · "+monthName(luna)+": "+fmt(g.h1+g.h2,1)+" "+T("gr_ore")+" = "+fmt(g.z1+g.z2,2)+" "+T("gr_zile_s");
     var line2=p?(T("tot")+" "+money(tot)+(p.extra?" ("+T("f_extra")+" "+money(n(p.extra))+")":"")+" · "+T("l_plata")+" "+money(paid)):T("pontaj_lipsa");
     if(Math.abs(restAll-due)>0.004)line2+=" · "+T("rest_total")+" "+money(restAll);
-    h+='<button type="button" class="tap row wrap" data-grafic="'+esc(a.nume)+'"><span class="l">'+esc(a.nume)+'<span class="s">'+esc(line1)+'</span><span class="s">'+esc(line2)+'</span></span><span class="r '+(due>0?"warnc":"pos")+'">'+money(due)+'</span></button>';
+    h+='<div class="row wrap user-row"><span class="l">'+esc(a.nume)+'<span class="s">'+esc(line1)+'</span><span class="s">'+esc(line2)+'</span></span><span class="r '+(due>0?"warnc":"pos")+'">'+money(due)+'</span>'
+      +'<button type="button" class="btn sm ghost" data-grafic="'+esc(a.nume)+'" title="'+esc(T("a_grafic"))+'">'+icon("clock")+'</button>'
+      +'<button type="button" class="btn sm ghost" data-edit="angajati" data-id="'+esc(a.id)+'" title="'+esc(T("a_ang"))+'">'+icon("gear")+'</button></div>';
   });
   var offMine=S.angajati.filter(function(a){return a.by===ME&&a.status==="Inactiv"}).map(function(a){return a.nume});
   return h+'</div>'+(offMine.length?'<p class="hint" style="margin-top:8px">'+esc(T("inact_lbl")+": "+offMine.join(", "))+'</p>':'')+'<p class="hint" style="margin-top:8px">'+esc(T("op_ang_h"))+'</p></div>';
@@ -2311,7 +2313,8 @@ function vSalarii(){
     }).join("")+'</div></div>';
   }
   var actA=S.angajati.filter(function(a){return a.status!=="Inactiv"}),offA=S.angajati.filter(function(a){return a.status==="Inactiv"});
-  if(actA.length)h+='<div class="sec"><h2>'+esc(T("a_ang"))+'</h2><div class="card rows">'
+  h+='<div class="sec"><div class="sec-h"><h2>'+esc(T("a_ang"))+'</h2><div class="sec-act"><button class="btn sm" type="button" data-form="angajati">'+icon("userplus")+esc(T("a_ang"))+'</button></div></div></div>';
+  if(actA.length)h+='<div class="sec" style="margin-top:-14px"><div class="card rows">'
     +actA.map(function(a){
       return '<button type="button" class="tap row" data-edit="angajati" data-id="'+esc(a.id)+'">'
         +'<span class="l">'+esc(a.nume)+'<span class="s">'+esc(T("activ"))+'</span></span>'
@@ -2489,7 +2492,8 @@ function drawSheet(){
     +'<form id="recf" novalidate>'+out+calcHtml
     +(st.err?'<p class="err">'+esc(st.err)+'</p>':'')
     +'<div class="form-act"><button class="btn" type="submit" id="savebtn">'+esc(T("save"))+'</button>'
-    +(st.id&&isDir?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
+    +((st.id&&st.col==="angajati"&&(isDir||angajatMeu(st.data.nume))&&st.data.status!=="Inactiv")?'<button class="btn danger" type="button" id="deact" title="'+esc(T("ang_deact_h"))+'">'+icon("trash")+'<span>'+esc(T("ang_deact"))+'</span></button>':'')
+    +((st.id&&isDir&&st.col!=="angajati")?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
     +'</div></form>'+dls+'</div></div>';
   document.body.style.overflow="hidden";
   if(lockedOld){var sb=$("#savebtn");if(sb){var nt=document.createElement("p");nt.className="note";nt.textContent=T("lock_old");sb.parentNode.replaceChild(nt,sb);}
@@ -2800,6 +2804,15 @@ document.addEventListener("click",function(ev){
   if(t.closest&&t.closest("#closeSheet")){closeSheet();return;}
   /* a click on the dimmed backdrop around a form window closes it */
   if(t.classList&&t.classList.contains("sheet")){closeSheet();return;}
+  if(t.closest&&t.closest("#deact")){
+    var db=t.closest("#deact");
+    if(db.dataset.armed==="1"){
+      var oldA=sheetState.id,nmA=sheetState.data.nume;
+      saveDoc("angajati",{nume:String(nmA).trim(),dataInceput:sheetState.data.dataInceput,status:"Inactiv"},oldA).then(function(){closeSheet();toast(T("ang_deact_done"))})
+        .catch(function(e){if(!sheetState)return;sheetState.err=saveErr(e);drawSheet()});
+    }else{db.dataset.armed="1";db.innerHTML=icon("trash")+'<span>'+esc(T("ang_deact_yes"))+'</span>';}
+    return;
+  }
   if(t.closest&&t.closest("#delbtn")){
     var b=t.closest("#delbtn");
     if(b.dataset.armed==="1"){

@@ -120,8 +120,8 @@ onRecordCreateRequest((e) => {
 onRecordUpdateRequest((e) => {
   /* the author never changes on edit */
   if (e.record.original) e.record.set("by", e.record.original().getString("by"));
-  /* an operator may correct his own rows for 15 days; afterwards only the director */
-  if (e.auth && e.auth.getString("rol") !== "Director" && e.record.original) {
+  /* an operator may correct his own rows for 15 days; afterwards only the director (employee cards excepted) */
+  if (e.auth && e.auth.getString("rol") !== "Director" && e.record.original && e.record.collection().name !== "angajati") {
     var createdMs = Date.parse(String(e.record.original().getString("created")).replace(" ", "T"));
     if (createdMs && Date.now() - createdMs > 15 * 24 * 3600 * 1000) throw new BadRequestError("Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.");
   }
