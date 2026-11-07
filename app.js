@@ -145,7 +145,7 @@ ro:{
  d_rest:"Restituire fondator",s_fond:"Datorii către fondatori",l_fond_primit:"Împrumutat de la fondatori",l_fond_dat:"Datorie",
  pontaj_h:"Pontajul se face doar pentru angajații pe care i-ați creat dumneavoastră.",
  pontaj_pay:"Achitat: plătesc acum suma pontajului",pontaj_pay_h:"Se înregistrează o ieșire „Salarii” pentru suma rămasă de plătit din acest pontaj. La colaborator banii se iau din avansul lui, la director din casă.",
- pontaj_paid:"Achitat deja",pontaj_due:"De achitat",pontaj_nosal:"Angajatul nu are salariu stabilit, nu este nimic de achitat.",pontaj_nota:"Salariu pontaj",
+ pontaj_paid:"Achitat deja",pontaj_dinavans:"Colaborator: salariul se scade din avansul lui, nu din casă",pontaj_due:"De achitat",pontaj_nosal:"Angajatul nu are salariu stabilit, nu este nimic de achitat.",pontaj_nota:"Salariu pontaj",
  srv_ies_op:"Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).",
  a_grafic:"Grafic de lucru",a_grafic_d:"Ore lucrate, zi cu zi",gr_full:"8h",gr_ore:"ore",gr_h1:"Ore 1–15",gr_h2:"Ore 16–sfârșit",gr_tot:"Total ore",gr_zile:"Zile (8 ore = o zi)",
  gr_din:"Zilele vin din graficul de lucru și nu se scriu de mână.",arch_ang:"Arhivă: angajați inactivi",arch_ang_h:"Nu apar în grafic, pontaj și rapoarte; înregistrările lor rămân. Pot fi reactivați oricând.",inact_lbl:"Inactivi",gr_bani:"Cuvenit pe lună",gr_nosal:"fără salariu stabilit",gr_none:"Alegeți angajatul.",gr_h:"Apăsați „8h” pentru o zi întreagă sau scrieți orele lucrate. Fiecare zi se salvează imediat.",
@@ -298,7 +298,7 @@ ru:{
  d_rest:"Возврат учредителю",s_fond:"Долги перед учредителями",l_fond_primit:"Занято у учредителей",l_fond_dat:"Долг",
  pontaj_h:"Табель можно заполнять только для сотрудников, которых создали вы.",
  pontaj_pay:"Оплачено: выплачиваю сумму табеля сейчас",pontaj_pay_h:"Создаётся выдача «Зарплата» на остаток к выплате по этому табелю. У сотрудника деньги берутся из его аванса, у директора из кассы.",
- pontaj_paid:"Уже выплачено",pontaj_due:"К выплате",pontaj_nosal:"У сотрудника не задан оклад, выплачивать нечего.",pontaj_nota:"Зарплата по табелю",
+ pontaj_paid:"Уже выплачено",pontaj_dinavans:"Сотрудник-оператор: зарплата вычитается из его аванса, а не из кассы",pontaj_due:"К выплате",pontaj_nosal:"У сотрудника не задан оклад, выплачивать нечего.",pontaj_nota:"Зарплата по табелю",
  srv_ies_op:"Сотрудник записывает из аванса только выплаты зарплаты (галочка «Оплачено» в табеле).",
  a_grafic:"График работы",a_grafic_d:"Часы по дням",gr_full:"8ч",gr_ore:"ч",gr_h1:"Часы 1–15",gr_h2:"Часы 16–конец",gr_tot:"Всего часов",gr_zile:"Дней (8 часов = день)",
  gr_din:"Дни берутся из графика работы и вручную не вводятся.",arch_ang:"Архив: неактивные сотрудники",arch_ang_h:"Не показываются в графике, табеле и отчётах; их записи остаются. Можно вернуть в любой момент.",inact_lbl:"Неактивные",gr_bani:"Причитается за месяц",gr_nosal:"оклад не задан",gr_none:"Выберите сотрудника.",gr_h:"Нажмите «8ч» за полный день или впишите часы. Каждый день сохраняется сразу.",
@@ -722,6 +722,8 @@ function angajatiActivi(){return S.angajati.filter(function(a){return a.status!=
 /* an operator fills timesheets only for the employees he created himself (the server checks the same); a director for all */
 /* an operator sets and sees the salary only of the employees he created himself; a director of everyone */
 function angajatMeu(nume){if(isDir)return true;var a=S.angajati.filter(function(x){return sameP(x.nume,nume)})[0];return !a||a.by===ME}
+/* a collaborator is an operator account; his own salary comes out of the advance the director gave him, never out of the till */
+function colabUser(nume){return !!(nume&&S.utilizatori.some(function(u){return u.rol==="Operator"&&u.status!=="Inactiv"&&sameP(u.nume,nume)}))}
 function pontajTotal(d){var wd=workdays(d.luna),sal=salariuLa(d.angajat,d.luna?monthEnd(d.luna):today()),pz=wd?sal/wd:0;return round2((n(d.z1)+n(d.z2))*pz+n(d.extra))}
 function pontajPlatit(d){return round2(S.iesiri.reduce(function(a,r){return a+(r.destinatie==="Salarii"&&r.luna===d.luna&&sameP(r.persoana,d.angajat)?n(r.suma)*n(r.curs):0)},0))}
 function pontajDue(d){return round2(pontajTotal(d)-pontajPlatit(d))}
@@ -1139,6 +1141,7 @@ var FORMS={
      var paid=pontajPlatit(d),due=pontajDue(d);
      if(paid>0)out.push({l:T("pontaj_paid"),v:money(paid)+" MDL"});
      if(due>0.004)out.push({l:T("pontaj_due"),v:money(due)+" MDL",cls:"tot"});
+     if(isDir&&colabUser(d.angajat))out.push({l:T("pontaj_dinavans"),v:money(soldAvans(d.angajat))+" MDL"});
    }
    return out}},
 
@@ -2553,7 +2556,7 @@ function submitForm(){
       var dueP=pontajDue(st.data);
       if(!(dueP>0.004)){st.err=T("pontaj_nosal");drawSheet();return;}
       var payP={data:today(),destinatie:"Salarii",valuta:"MDL",curs:1,suma:dueP};
-      var lkP=isDir?casaErr("iesiri",payP,null):avansErr("iesiri",payP,null);
+      var lkP=isDir?(colabUser(st.data.angajat)?"":casaErr("iesiri",payP,null)):avansErr("iesiri",payP,null);
       if(lkP){st.err=lkP;drawSheet();return;}
     }
   }
@@ -2618,7 +2621,7 @@ function submitForm(){
     if(col==="pontaj"&&d.achitat){
       var due=pontajDue(b);
       if(due>0.004)p=p.then(function(){return saveDoc("iesiri",{data:today(),destinatie:"Salarii",valuta:"MDL",curs:1,suma:due,persoana:b.angajat,luna:b.luna,
-        nota:T("pontaj_nota")+" "+monthName(b.luna),sursa:isDir?"Casa":"Avans",platitDe:isDir?"":meName()})});
+        nota:T("pontaj_nota")+" "+monthName(b.luna),sursa:(isDir&&!colabUser(b.angajat))?"Casa":"Avans",platitDe:isDir?(colabUser(b.angajat)?b.angajat:""):meName()})});
     }
   }
   p.then(function(){closeSheet();toast(T("saved"))})

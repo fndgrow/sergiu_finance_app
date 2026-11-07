@@ -224,7 +224,13 @@ onRecordCreateRequest((e) => {
     var cas = "";
     try { cas = String($app.findFirstRecordByFilter("config", "id != ''").getString("casier") || "").trim().toLowerCase(); } catch (err) { cas = ""; }
     if (e.auth.getString("rol") === "Director" || (cas && me.toLowerCase() === cas)) {
-      e.record.set("sursa", "Casa"); e.record.set("platitDe", "");
+      /* a collaborator's own salary (a director paying an operator account) comes out of that collaborator's advance */
+      var want = String(e.record.getString("sursa") || ""), who = String(e.record.getString("platitDe") || "").trim(), isCollab = false;
+      if (want === "Avans" && who && e.record.getString("destinatie") === "Salarii") {
+        try { isCollab = $app.countRecords("utilizatori", $dbx.exp("rol = 'Operator' AND TRIM(nume) = {:n}", { n: who })) > 0; } catch (err) { isCollab = false; }
+      }
+      if (isCollab) { e.record.set("sursa", "Avans"); e.record.set("platitDe", who); }
+      else { e.record.set("sursa", "Casa"); e.record.set("platitDe", ""); }
     } else {
       /* a collaborator takes money out of his advance only to pay a salary (the "Achitat" box of a timesheet),
          and never more than the advance still holds */
