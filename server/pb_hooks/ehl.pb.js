@@ -149,6 +149,8 @@ onRecordUpdateRequest((e) => {
 onRecordCreateRequest((e) => {
   var h = e.record.getFloat("ore");
   if (h !== 0 && h !== 4 && h !== 8) throw new BadRequestError("Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).");
+  /* today and back only; the server clock is UTC-based, so one day of slack covers the evening hours in Moldova */
+  if (String(e.record.getString("data") || "") > new Date(Date.now() + 86400000).toISOString().slice(0, 10)) throw new BadRequestError("Zilele viitoare nu se bifează: doar azi și înapoi.");
   /* one row per employee and day: a day booked by one collaborator cannot be booked again by another */
   var nm = String(e.record.getString("angajat") || "").trim(), zi = String(e.record.getString("data") || "");
   var dup = 0; try { dup = $app.countRecords("grafic", $dbx.exp("TRIM(angajat) = {:n} AND data = {:d}", { n: nm, d: zi })); } catch (err) { dup = 0; }
@@ -162,6 +164,8 @@ onRecordCreateRequest((e) => {
 onRecordUpdateRequest((e) => {
   var h = e.record.getFloat("ore");
   if (h !== 0 && h !== 4 && h !== 8) throw new BadRequestError("Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).");
+  /* today and back only; the server clock is UTC-based, so one day of slack covers the evening hours in Moldova */
+  if (String(e.record.getString("data") || "") > new Date(Date.now() + 86400000).toISOString().slice(0, 10)) throw new BadRequestError("Zilele viitoare nu se bifează: doar azi și înapoi.");
   if (e.record.original) e.record.set("deCine", e.record.original().getString("deCine"));
   if (e.auth && e.record.original) {
     var nm = String(e.record.original().getString("angajat") || "").trim(), zi = String(e.record.original().getString("data") || ""), paid = false;
