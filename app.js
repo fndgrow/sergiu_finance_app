@@ -153,7 +153,7 @@ ro:{
  gr_h_zi:"Alegeți data, apoi la fiecare angajat bifați zi întreagă sau jumătate. Fiecare bifă se salvează imediat, cu numele dvs.",
  gr_lock:"Zilele de până la ultima plată sunt închise și nu se mai schimbă.",srv_gr_dup:"Ziua este deja bifată de alt utilizator.",gr_other:"Ziua a fost introdusă de alt utilizator și nu poate fi schimbată.",
  f_complet:"Salariu complet (luna întreagă, indiferent de zile)",f_complet_h:"Se achită salariul lunar întreg, plus extra.",
- pontaj_paidby:"Achitat de",sal_descr:"Salariu",gr_bani:"Cuvenit pe lună",gr_nosal:"fără salariu stabilit",gr_none:"Alegeți angajatul.",gr_h:"Apăsați „Zi” pentru o zi întreagă sau „½ zi” pentru jumătate. Se bifează doar ziua de azi și cele trecute. Fiecare zi se salvează imediat, cu numele dvs.; o zi o schimbă doar cel care a introdus-o.",gr_future:"Zilele viitoare nu se bifează: doar azi și înapoi.",
+ pontaj_paidby:"Achitat de",sal_descr:"Salariu",gr_bani:"Cuvenit pe lună",gr_nosal:"fără salariu stabilit",gr_none:"Alegeți angajatul.",gr_h:"Apăsați „Zi” pentru o zi întreagă sau „½ zi” pentru jumătate. Se bifează doar ziua de azi și cele trecute. Fiecare zi se salvează imediat, cu numele dvs.; o zi o schimbă doar cel care a introdus-o.",gr_future:"Zilele viitoare nu se bifează: doar azi și înapoi.",gr_remind_t:"Graficul de lucru nu a fost deschis azi",gr_remind:"Notați zilele angajaților dvs. care au lucrat azi. Panoul dispare după ce deschideți graficul.",
  reset_btn:"Șterge datele",reset_t:"Ștergerea tuturor datelor",reset_h:"Se șterg toate înregistrările: încasări, cheltuieli, ieșiri, chirii, contracte, împrumuturi, proiecte, angajați, salarii, grafic, istoric. Se șterg și conturile colaboratorilor. Nu se poate anula.",reset_keep:"Rămân doar conturile directorilor și setările (valute, categorii, casier).",reset_cod:"Codul dvs. de acces, pentru confirmare",reset_go:"Șterg tot, definitiv",reset_busy:"Se șterge…",reset_done:"Datele au fost șterse. Aplicația repornește.",srv_reset_dir:"Doar directorul poate șterge datele.",srv_reset_cod:"Codul de acces este greșit.",srv_sal_lock:"Plățile de salariu nu se mai schimbă și nu se șterg.",
  srv_grafic:"Graficul se face doar pentru angajații creați de dumneavoastră.",srv_ore:"Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).",srv_gr_lock:"Zilele achitate nu se mai schimbă.",f_extra:"Extra (MDL)",f_extra_h:"Remunerare suplimentară pentru luna aceasta, dacă angajatul a făcut ceva în plus. Intră în suma de achitat.",
  op_ang:"Angajați",op_ang_h:"Pentru luna aleasă sus: toate zilele angajatului și de cine au fost bifate, suma lunii, cât s-a achitat și de cine, restul. Ceasul deschide graficul, rotița fișa.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
@@ -312,7 +312,7 @@ ru:{
  gr_h_zi:"Выберите дату, затем у каждого сотрудника отметьте полный день или половину. Каждая отметка сохраняется сразу, с вашим именем.",
  gr_lock:"Дни до последней выплаты закрыты и больше не меняются.",srv_gr_dup:"Этот день уже отмечен другим пользователем.",gr_other:"День внёс другой пользователь, изменить его нельзя.",
  f_complet:"Полный оклад (за весь месяц, независимо от дней)",f_complet_h:"Выплачивается весь месячный оклад плюс премия.",
- pontaj_paidby:"Выплатил",sal_descr:"Зарплата",gr_bani:"Причитается за месяц",gr_nosal:"оклад не задан",gr_none:"Выберите сотрудника.",gr_h:"Нажмите «День» за полный день или «½ дня» за половину. Отмечать можно только сегодня и прошедшие дни. Каждый день сохраняется сразу, с вашим именем; изменить день может только тот, кто его внёс.",gr_future:"Будущие дни не отмечаются: только сегодня и назад.",
+ pontaj_paidby:"Выплатил",sal_descr:"Зарплата",gr_bani:"Причитается за месяц",gr_nosal:"оклад не задан",gr_none:"Выберите сотрудника.",gr_h:"Нажмите «День» за полный день или «½ дня» за половину. Отмечать можно только сегодня и прошедшие дни. Каждый день сохраняется сразу, с вашим именем; изменить день может только тот, кто его внёс.",gr_future:"Будущие дни не отмечаются: только сегодня и назад.",gr_remind_t:"График работы сегодня не открывался",gr_remind:"Отметьте дни ваших сотрудников, которые работали сегодня. Панель исчезнет после открытия графика.",
  reset_btn:"Удалить данные",reset_t:"Удаление всех данных",reset_h:"Удаляются все записи: поступления, расходы, выдачи, аренда, договоры, займы, проекты, сотрудники, зарплаты, график, история. Удаляются и учётные записи сотрудников-операторов. Отменить нельзя.",reset_keep:"Остаются только учётные записи директоров и настройки (валюты, категории, кассир).",reset_cod:"Ваш код доступа, для подтверждения",reset_go:"Удалить всё, безвозвратно",reset_busy:"Удаляется…",reset_done:"Данные удалены. Приложение перезапускается.",srv_reset_dir:"Удалять данные может только директор.",srv_reset_cod:"Код доступа неверный.",srv_sal_lock:"Выплаты зарплаты не меняются и не удаляются.",
  srv_grafic:"График можно вести только для сотрудников, которых создали вы.",srv_ore:"День отмечается полным (8 часов) или половиной (4 часа).",srv_gr_lock:"Оплаченные дни больше не меняются.",f_extra:"Премия (MDL)",f_extra_h:"Дополнительное вознаграждение за этот месяц, если сотрудник сделал что-то сверх. Входит в сумму к выплате.",
  op_ang:"Сотрудники",op_ang_h:"За выбранный сверху месяц: все дни сотрудника и кто их отметил, сумма за месяц, сколько и кем выплачено, остаток. Часы открывают график, шестерёнка карточку.",pontaj_lipsa:"табеля за этот месяц нет",gr_zile_s:"дн.",rest_total:"остаток за все месяцы",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
@@ -1264,6 +1264,7 @@ function grProjOpts(){return S.proiecte.filter(function(p){return p.status!=="Fi
 function grTag(r){if(!r)return "";return (r.pentru==="Proiect"&&r.proiect)?r.proiect:"EHL"}
 function grWho(r){return r?(byName(r)||r.deCine||(r.by===ME?meName():"")):""}
 function openGrafic(angajat,luna){
+  grMarkOpened();grRemindShown=false;
   var lst=angajatiLucru();
   GR.angajat=angajat||(lst.some(function(a){return sameP(a,GR.angajat)})?GR.angajat:(lst[0]||""));
   GR.luna=luna||GR.luna||curMonth();
@@ -1776,8 +1777,18 @@ function installNote(){
   var how=ios?T("install_ios_h"):(COARSE?T("install_android_h"):T("install_pc_h"));
   return '<div class="sec"><div class="card pad inst"><span class="ic-badge tint" style="--c:var(--accent)">'+icon("down")+'</span><div><div class="d" style="font-weight:600;margin-bottom:4px">'+esc(label)+'</div><p class="hint" style="margin:0">'+esc(how)+'</p></div></div></div>';
 }
+/* the evening reminder: from 21:00, a collaborator who has not opened the work schedule today is told to record the
+   employees who worked today; opening the schedule once (any employee, any month) clears it for the day */
+var GR_REMIND_H=21;
+function grKey(){return "ehl.grafic."+(ME||"")}
+function grOpenedToday(){try{return localStorage.getItem(grKey())===today()}catch(e){return true}}
+function grMarkOpened(){try{localStorage.setItem(grKey(),today())}catch(e){}}
+function grRemindDue(){return !!(ACCESS&&!isDir&&!LOCKED&&new Date().getHours()>=GR_REMIND_H&&!grOpenedToday()&&angajatiLucru().length>0)}
+function grRemindNote(){return grRemindDue()?'<div class="note alert"><b>'+esc(T("gr_remind_t"))+'</b><span>'+esc(T("gr_remind"))+'</span><button type="button" class="btn sm" data-grafic="">'+icon("clock")+esc(T("a_grafic"))+'</button></div>':""}
+var grRemindShown=false;
+setInterval(function(){var due=grRemindDue();if(due!==grRemindShown){grRemindShown=due;if(ACCESS&&!sheetState)render()}},60*1000);
 function statusNote(){
-  var h=failedNote();
+  var h=failedNote()+grRemindNote();
   if(!online)h+='<div class="note">'+esc(T("offline_note"))+'</div>';
   if(QUEUE.length)h+='<div class="note">'+esc(T("pending").replace("{n}",String(QUEUE.length)))+'</div>';
   if(online&&dbErr)h+='<div class="note">'+esc(T("offline"))+'</div>';

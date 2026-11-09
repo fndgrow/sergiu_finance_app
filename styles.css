@@ -800,3 +800,8 @@ label>span .cur-b{width:16px;height:16px;font-size:10px}
 .gr-day{flex-wrap:wrap}
 .gr-row{flex-wrap:wrap;align-items:center}
 .gr-full[disabled]{opacity:.45;cursor:default}
+/* the evening reminder about the work schedule */
+.note.alert{background:color-mix(in srgb,var(--neg) 10%,var(--surface));border-color:var(--neg);color:var(--ink);display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.note.alert b{color:var(--neg);flex:1 1 100%}
+.note.alert span{flex:1 1 220px}
+.note.alert .btn{background:var(--neg);color:#fff}
