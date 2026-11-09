@@ -111,6 +111,21 @@ routerAdd("POST", "/api/ehl/password", (e) => {
   return e.json(200, { ok: true, token: rec.newStaticAuthToken(WEEK * 1000000000), expires: Date.now() + WEEK * 1000 });
 }, $apis.requireAuth("utilizatori"));
 
+/* ---- the director wipes everything for a fresh start: every register, the schedule, the journal and every account
+        that is not a director's. The settings and the director accounts stay. Confirmed with the director's own code.
+        POST /api/ehl/reset {cod} ---- */
+routerAdd("POST", "/api/ehl/reset", (e) => {
+  var body = e.requestInfo().body || {}, rec = e.auth;
+  if (!rec || rec.getString("rol") !== "Director") throw new ForbiddenError("Doar directorul poate șterge datele.");
+  if (String(body.cod || "").trim() === "" || String(body.cod || "").trim() !== rec.getString("cod")) throw new BadRequestError("Codul de acces este greșit.");
+  var cols = ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal"];
+  $app.runInTransaction(function (tx) {
+    cols.forEach(function (c) { tx.db().newQuery("DELETE FROM {{" + c + "}}").execute(); });
+    tx.db().newQuery("DELETE FROM {{utilizatori}} WHERE rol != 'Director'").execute();
+  });
+  return e.json(200, { ok: true });
+}, $apis.requireAuth("utilizatori"));
+
 /* ---- every register row carries its author, set by the server, never by the client ---- */
 onRecordCreateRequest((e) => {
   if (e.auth) e.record.set("by", e.auth.id);
@@ -129,7 +144,8 @@ onRecordUpdateRequest((e) => {
 }, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "proiecte", "angajati", "istoric", "pontaj", "grafic");
 
 /* ---- the work schedule: a full day (8) or a half day (4); any user, any active employee; a day is changed by its
-        author only (collection rule) and not after that author has paid the employee for the month ---- */
+        author only (collection rule). The month is paid as one sum by whoever pays, so a day is closed for everyone
+        once a salary payment for that employee is dated on that day or later. ---- */
 onRecordCreateRequest((e) => {
   var h = e.record.getFloat("ore");
   if (h !== 0 && h !== 4 && h !== 8) throw new BadRequestError("Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).");
@@ -137,6 +153,8 @@ onRecordCreateRequest((e) => {
   var nm = String(e.record.getString("angajat") || "").trim(), zi = String(e.record.getString("data") || "");
   var dup = 0; try { dup = $app.countRecords("grafic", $dbx.exp("TRIM(angajat) = {:n} AND data = {:d}", { n: nm, d: zi })); } catch (err) { dup = 0; }
   if (dup > 0) throw new BadRequestError("Ziua este deja bifată de alt utilizator.");
+  var closed = 0; try { closed = $app.countRecords("cheltuieli", $dbx.exp("categorie = 'Salarii' AND luna = {:l} AND TRIM(angajat) = {:n} AND data >= {:d}", { l: zi.slice(0, 7), n: nm, d: zi })); } catch (err) { closed = 0; }
+  if (closed > 0) throw new BadRequestError("Zilele achitate nu se mai schimbă.");
   /* the author's name is written by the server, so everyone can read who booked the day */
   if (e.auth) e.record.set("deCine", String(e.auth.getString("nume") || ""));
   e.next();
@@ -146,12 +164,28 @@ onRecordUpdateRequest((e) => {
   if (h !== 0 && h !== 4 && h !== 8) throw new BadRequestError("Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).");
   if (e.record.original) e.record.set("deCine", e.record.original().getString("deCine"));
   if (e.auth && e.record.original) {
-    var nm = String(e.record.original().getString("angajat") || "").trim(), luna = String(e.record.original().getString("data") || "").slice(0, 7), paid = false;
-    try { paid = $app.countRecords("cheltuieli", $dbx.exp("categorie = 'Salarii' AND luna = {:l} AND TRIM(angajat) = {:n} AND by = {:u}", { l: luna, n: nm, u: e.auth.id })) > 0; } catch (err) { paid = false; }
+    var nm = String(e.record.original().getString("angajat") || "").trim(), zi = String(e.record.original().getString("data") || ""), paid = false;
+    try { paid = $app.countRecords("cheltuieli", $dbx.exp("categorie = 'Salarii' AND luna = {:l} AND TRIM(angajat) = {:n} AND data >= {:d}", { l: zi.slice(0, 7), n: nm, d: zi })) > 0; } catch (err) { paid = false; }
     if (paid) throw new BadRequestError("Zilele achitate nu se mai schimbă.");
   }
   e.next();
 }, "grafic");
+onRecordDeleteRequest((e) => {
+  var nm = String(e.record.getString("angajat") || "").trim(), zi = String(e.record.getString("data") || ""), paid = false;
+  try { paid = $app.countRecords("cheltuieli", $dbx.exp("categorie = 'Salarii' AND luna = {:l} AND TRIM(angajat) = {:n} AND data >= {:d}", { l: zi.slice(0, 7), n: nm, d: zi })) > 0; } catch (err) { paid = false; }
+  if (paid) throw new BadRequestError("Zilele achitate nu se mai schimbă.");
+  e.next();
+}, "grafic");
+
+/* ---- a salary payment is final: nobody, the director included, edits or deletes it (the books rest on it) ---- */
+onRecordUpdateRequest((e) => {
+  if (e.record.original && e.record.original().getString("categorie") === "Salarii") throw new BadRequestError("Plățile de salariu nu se mai schimbă și nu se șterg.");
+  e.next();
+}, "cheltuieli");
+onRecordDeleteRequest((e) => {
+  if (e.record.getString("categorie") === "Salarii") throw new BadRequestError("Plățile de salariu nu se mai schimbă și nu se șterg.");
+  e.next();
+}, "cheltuieli");
 
 /* ---- users: random credentials, numeric codes, no self-lockout ---- */
 onRecordCreateRequest((e) => {

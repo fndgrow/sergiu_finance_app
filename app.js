@@ -144,18 +144,19 @@ ro:{
  cont_lei:"Pe cont intră doar lei: alegeți MDL.",
  d_rest:"Restituire fondator",s_fond:"Datorii către fondatori",l_fond_primit:"Împrumutat de la fondatori",l_fond_dat:"Datorie",
  pontaj_h:"Pontajul se face doar pentru angajații pe care i-ați creat dumneavoastră.",
- pontaj_pay:"Achitat: plătesc acum suma pontajului",pontaj_pay_h:"Se creează cheltuieli „Salarii” pe proiectele din zilele dvs. (sau EHL), pentru suma rămasă. Banii ies din avansul dvs.; la director, din casă. Plata merge și dacă banii lipsesc.",
+ pontaj_pay:"Achitat: plătesc acum",pontaj_pay_h:"Se creează cheltuieli „Salarii” pe proiectele din zilele lunii (sau EHL). Banii ies din avansul dvs.; la director, din casă. Plata merge și dacă banii lipsesc.",pontaj_suma:"Achit acum (MDL)",pontaj_suma_h:"Gol = toată suma rămasă pe lună, inclusiv zilele bifate de alți colaboratori. Puteți scrie și o parte, de exemplu doar zilele dvs.",
  pontaj_paid:"Achitat deja",ang_deact:"Șterge angajatul",ang_deact_h:"Angajatul trece în arhivă: dispare din liste, dar pontajele, salariile și istoricul lui rămân.",ang_deact_yes:"Da, trece în arhivă",ang_deact_done:"Angajat trecut în arhivă",pontaj_dinavans:"Colaborator: salariul se scade din avansul lui, nu din casă",pontaj_due:"De achitat",pontaj_nosal:"Angajatul nu are salariu stabilit, nu este nimic de achitat.",pontaj_nota:"Salariu pontaj",
  srv_ies_op:"Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).",
  a_grafic:"Grafic de lucru",a_grafic_d:"Ore lucrate, zi cu zi",gr_full:"8h",gr_ore:"ore",gr_h1:"Ore 1–15",gr_h2:"Ore 16–sfârșit",gr_tot:"Total ore",gr_zile:"Zile (8 ore = o zi)",
  gr_din:"Zilele vin din graficul de lucru și nu se scriu de mână.",arch_ang:"Arhivă: angajați inactivi",arch_ang_h:"Nu apar în grafic, pontaj și rapoarte; înregistrările lor rămân. Pot fi reactivați oricând.",inact_lbl:"Inactivi",
  gr_mode_ang:"Pe angajat",gr_mode_zi:"Pe zi",gr_zi:"Zi",gr_half:"½ zi",gr_mine:"zilele mele",
  gr_h_zi:"Alegeți data, apoi la fiecare angajat bifați zi întreagă sau jumătate. Fiecare bifă se salvează imediat, cu numele dvs.",
- gr_lock:"Zilele achitate nu se mai schimbă.",srv_gr_dup:"Ziua este deja bifată de alt utilizator.",gr_other:"Ziua a fost introdusă de alt utilizator și nu poate fi schimbată.",
+ gr_lock:"Zilele de până la ultima plată sunt închise și nu se mai schimbă.",srv_gr_dup:"Ziua este deja bifată de alt utilizator.",gr_other:"Ziua a fost introdusă de alt utilizator și nu poate fi schimbată.",
  f_complet:"Salariu complet (luna întreagă, indiferent de zile)",f_complet_h:"Se achită salariul lunar întreg, plus extra.",
  pontaj_paidby:"Achitat de",sal_descr:"Salariu",gr_bani:"Cuvenit pe lună",gr_nosal:"fără salariu stabilit",gr_none:"Alegeți angajatul.",gr_h:"Apăsați „Zi” pentru o zi întreagă sau „½ zi” pentru jumătate. Fiecare zi se salvează imediat, cu numele dvs.; o zi o schimbă doar cel care a introdus-o.",
+ reset_btn:"Șterge datele",reset_t:"Ștergerea tuturor datelor",reset_h:"Se șterg toate înregistrările: încasări, cheltuieli, ieșiri, chirii, contracte, împrumuturi, proiecte, angajați, salarii, grafic, istoric. Se șterg și conturile colaboratorilor. Nu se poate anula.",reset_keep:"Rămân doar conturile directorilor și setările (valute, categorii, casier).",reset_cod:"Codul dvs. de acces, pentru confirmare",reset_go:"Șterg tot, definitiv",reset_busy:"Se șterge…",reset_done:"Datele au fost șterse. Aplicația repornește.",srv_reset_dir:"Doar directorul poate șterge datele.",srv_reset_cod:"Codul de acces este greșit.",srv_sal_lock:"Plățile de salariu nu se mai schimbă și nu se șterg.",
  srv_grafic:"Graficul se face doar pentru angajații creați de dumneavoastră.",srv_ore:"Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).",srv_gr_lock:"Zilele achitate nu se mai schimbă.",f_extra:"Extra (MDL)",f_extra_h:"Remunerare suplimentară pentru luna aceasta, dacă angajatul a făcut ceva în plus. Intră în suma de achitat.",
- op_ang:"Angajați",op_ang_h:"Pentru luna aleasă sus: zilele introduse de dvs., suma lor, cât ați achitat și restul. Ceasul deschide graficul, rotița fișa.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
+ op_ang:"Angajați",op_ang_h:"Pentru luna aleasă sus: toate zilele angajatului și de cine au fost bifate, suma lunii, cât s-a achitat și de cine, restul. Ceasul deschide graficul, rotița fișa.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
  f_adaug:"Adăugător (MDL)",p_adaug:"Adăugător",p_total:"Contract + adăugător",
  sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",
@@ -302,18 +303,19 @@ ru:{
  cont_lei:"На счёт поступают только леи: выберите MDL.",
  d_rest:"Возврат учредителю",s_fond:"Долги перед учредителями",l_fond_primit:"Занято у учредителей",l_fond_dat:"Долг",
  pontaj_h:"Табель можно заполнять только для сотрудников, которых создали вы.",
- pontaj_pay:"Оплачено: выплачиваю сумму табеля сейчас",pontaj_pay_h:"Создаются расходы «Зарплата» по проектам из ваших дней (или EHL) на остаток к выплате. Деньги берутся из вашего аванса; у директора из кассы. Выплата проходит и при нехватке денег.",
+ pontaj_pay:"Оплачено: выплачиваю сейчас",pontaj_pay_h:"Создаются расходы «Зарплата» по проектам из дней месяца (или EHL). Деньги берутся из вашего аванса; у директора из кассы. Выплата проходит и при нехватке денег.",
  pontaj_paid:"Уже выплачено",ang_deact:"Удалить сотрудника",ang_deact_h:"Сотрудник уходит в архив: исчезает из списков, но его табели, оклады и история остаются.",ang_deact_yes:"Да, в архив",ang_deact_done:"Сотрудник переведён в архив",pontaj_dinavans:"Сотрудник-оператор: зарплата вычитается из его аванса, а не из кассы",pontaj_due:"К выплате",pontaj_nosal:"У сотрудника не задан оклад, выплачивать нечего.",pontaj_nota:"Зарплата по табелю",
  srv_ies_op:"Сотрудник записывает из аванса только выплаты зарплаты (галочка «Оплачено» в табеле).",
  a_grafic:"График работы",a_grafic_d:"Часы по дням",gr_full:"8ч",gr_ore:"ч",gr_h1:"Часы 1–15",gr_h2:"Часы 16–конец",gr_tot:"Всего часов",gr_zile:"Дней (8 часов = день)",
  gr_din:"Дни берутся из графика работы и вручную не вводятся.",arch_ang:"Архив: неактивные сотрудники",arch_ang_h:"Не показываются в графике, табеле и отчётах; их записи остаются. Можно вернуть в любой момент.",inact_lbl:"Неактивные",
- gr_mode_ang:"По сотруднику",gr_mode_zi:"По дню",gr_zi:"День",gr_half:"½ дня",gr_mine:"мои дни",
+ gr_mode_ang:"По сотруднику",gr_mode_zi:"По дню",gr_zi:"День",gr_half:"½ дня",gr_mine:"мои дни",pontaj_suma:"Выплачиваю сейчас (MDL)",pontaj_suma_h:"Пусто = весь остаток за месяц, включая дни, отмеченные другими. Можно указать часть, например только свои дни.",
  gr_h_zi:"Выберите дату, затем у каждого сотрудника отметьте полный день или половину. Каждая отметка сохраняется сразу, с вашим именем.",
- gr_lock:"Оплаченные дни больше не меняются.",srv_gr_dup:"Этот день уже отмечен другим пользователем.",gr_other:"День внёс другой пользователь, изменить его нельзя.",
+ gr_lock:"Дни до последней выплаты закрыты и больше не меняются.",srv_gr_dup:"Этот день уже отмечен другим пользователем.",gr_other:"День внёс другой пользователь, изменить его нельзя.",
  f_complet:"Полный оклад (за весь месяц, независимо от дней)",f_complet_h:"Выплачивается весь месячный оклад плюс премия.",
  pontaj_paidby:"Выплатил",sal_descr:"Зарплата",gr_bani:"Причитается за месяц",gr_nosal:"оклад не задан",gr_none:"Выберите сотрудника.",gr_h:"Нажмите «День» за полный день или «½ дня» за половину. Каждый день сохраняется сразу, с вашим именем; изменить день может только тот, кто его внёс.",
+ reset_btn:"Удалить данные",reset_t:"Удаление всех данных",reset_h:"Удаляются все записи: поступления, расходы, выдачи, аренда, договоры, займы, проекты, сотрудники, зарплаты, график, история. Удаляются и учётные записи сотрудников-операторов. Отменить нельзя.",reset_keep:"Остаются только учётные записи директоров и настройки (валюты, категории, кассир).",reset_cod:"Ваш код доступа, для подтверждения",reset_go:"Удалить всё, безвозвратно",reset_busy:"Удаляется…",reset_done:"Данные удалены. Приложение перезапускается.",srv_reset_dir:"Удалять данные может только директор.",srv_reset_cod:"Код доступа неверный.",srv_sal_lock:"Выплаты зарплаты не меняются и не удаляются.",
  srv_grafic:"График можно вести только для сотрудников, которых создали вы.",srv_ore:"День отмечается полным (8 часов) или половиной (4 часа).",srv_gr_lock:"Оплаченные дни больше не меняются.",f_extra:"Премия (MDL)",f_extra_h:"Дополнительное вознаграждение за этот месяц, если сотрудник сделал что-то сверх. Входит в сумму к выплате.",
- op_ang:"Сотрудники",op_ang_h:"За выбранный сверху месяц: внесённые вами дни, их сумма, сколько вы выплатили и остаток. Часы открывают график, шестерёнка карточку.",pontaj_lipsa:"табеля за этот месяц нет",gr_zile_s:"дн.",rest_total:"остаток за все месяцы",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
+ op_ang:"Сотрудники",op_ang_h:"За выбранный сверху месяц: все дни сотрудника и кто их отметил, сумма за месяц, сколько и кем выплачено, остаток. Часы открывают график, шестерёнка карточку.",pontaj_lipsa:"табеля за этот месяц нет",gr_zile_s:"дн.",rest_total:"остаток за все месяцы",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
  f_adaug:"Дополнительно (MDL)",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
  sess_other:"В аккаунт вошли на другом устройстве. Введите код, чтобы продолжить здесь.",
@@ -330,7 +332,7 @@ var lang="ro";
 try{var sl=localStorage.getItem("ehl.lang"); if(sl==="ro"||sl==="ru") lang=sl;}catch(e){}
 function T(k){var d=I18N[lang];return (d&&d[k])||I18N.ro[k]||k;}
 /* the server answers in Romanian; known messages are shown in the interface language */
-var SRV_MSG={"Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans","Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).":"srv_ies_op","Salariul se stabilește doar pentru angajații creați de dumneavoastră.":"srv_sal","Graficul se face doar pentru angajații creați de dumneavoastră.":"srv_grafic","Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).":"srv_ore","Zilele achitate nu se mai schimbă.":"srv_gr_lock","Ziua este deja bifată de alt utilizator.":"srv_gr_dup"};
+var SRV_MSG={"Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Doar directorul poate șterge datele.":"srv_reset_dir","Plățile de salariu nu se mai schimbă și nu se șterg.":"srv_sal_lock","Codul de acces este greșit.":"srv_reset_cod","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans","Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).":"srv_ies_op","Salariul se stabilește doar pentru angajații creați de dumneavoastră.":"srv_sal","Graficul se face doar pentru angajații creați de dumneavoastră.":"srv_grafic","Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).":"srv_ore","Zilele achitate nu se mai schimbă.":"srv_gr_lock","Ziua este deja bifată de alt utilizator.":"srv_gr_dup"};
 function srvT(m){var k=SRV_MSG[String(m||"").trim()];return k?T(k):m}
 
 /* ---------------- helpers ---------------- */
@@ -735,21 +737,38 @@ function angajatMeu(nume){return !!String(nume||"").trim()} /* employees are sha
 /* a collaborator is an operator account; his own salary comes out of the advance the director gave him, never out of the till */
 function colabUser(nume){return !!(nume&&S.utilizatori.some(function(u){return u.rol==="Operator"&&u.status!=="Inactiv"&&sameP(u.nume,nume)}))}
 function pontajTotal(d){var wd=workdays(d.luna),sal=salariuLa(d.angajat,d.luna?monthEnd(d.luna):today()),pz=wd?sal/wd:0;return round2((d.complet?sal:(n(d.z1)+n(d.z2))*pz)+n(d.extra))}
-function pontajPlatit(d){return round2(platiSalariu(d.angajat,d.luna).filter(function(p){return p.by===ME}).reduce(function(a,p){return a+p.suma},0))} /* what this user already paid */
+/* the whole month is one sum, whoever scheduled the days: everything paid so far by anyone counts */
+function pontajPlatit(d){return round2(platiSalariu(d.angajat,d.luna).reduce(function(a,p){return a+p.suma},0))}
 function pontajDue(d){return round2(pontajTotal(d)-pontajPlatit(d))}
+/* the bonuses and the "full salary" mark of the other users' Salarii rows for this employee and month */
+function pontajAltii(angajat,luna){var o={extra:0,complet:false};S.pontaj.forEach(function(r){if(r.by===ME||!sameP(r.angajat,angajat)||r.luna!==luna)return;o.extra+=n(r.extra);if(r.complet)o.complet=true});o.extra=round2(o.extra);return o}
+/* the form's data completed with what the others added: the sums below are for the whole month */
+function dPlin(d){var o={};for(var k in d)o[k]=d[k];var alt=pontajAltii(d.angajat,d.luna);o.extra=round2(n(d.extra)+alt.extra);o.complet=!!d.complet||alt.complet;return o}
+/* the month's figures for the reports: all days, all bonuses, all payments */
+function pontajLuna(angajat,luna){var g=graficOre(angajat,luna),ex=0,cp=false;S.pontaj.forEach(function(r){if(!sameP(r.angajat,angajat)||r.luna!==luna)return;ex+=n(r.extra);if(r.complet)cp=true});
+  var d={angajat:angajat,luna:luna,z1:g.z1,z2:g.z2,extra:round2(ex),complet:cp},sal=salariuLa(angajat,monthEnd(luna));
+  return {g:g,sal:sal,extra:d.extra,complet:cp,tot:(sal>0&&(g.n||cp||ex>0))?pontajTotal(d):0,paid:pontajPlatit(d),due:round2(((sal>0&&(g.n||cp||ex>0))?pontajTotal(d):0)-pontajPlatit(d))}}
+/* the days of a month by the user who booked them: "3,00 Ruslan · 2,00 Sergiu" */
+function zilePeAutor(angajat,luna){var m={},ord=[];S.grafic.forEach(function(r){if(!sameP(r.angajat,angajat)||String(r.data||"").slice(0,7)!==luna||!(n(r.ore)>0))return;var w=grWho(r)||"…";if(!(w in m)){m[w]=0;ord.push(w)}m[w]+=n(r.ore)/8});
+  return ord.map(function(w){return {nume:w,zile:round2(m[w])}})}
+function zilePeAutorTxt(angajat,luna){return zilePeAutor(angajat,luna).map(function(x){return fmt(x.zile,2)+" "+x.nume}).join(" · ")}
+/* who paid how much for an employee and month: "4.266,67 Ruslan" */
+function platitDeTxt(angajat,luna){var m={},ord=[];platiSalariu(angajat,luna).forEach(function(p){var w=p.nume||"…";if(!(w in m)){m[w]=0;ord.push(w)}m[w]+=p.suma});return ord.map(function(w){return money(round2(m[w]))+" "+w}).join(" · ")}
 /* the work schedule: hours per employee per day; eight hours make one timesheet day */
 function graficOre(angajat,luna,by){var o={h1:0,h2:0,n:0,z1:0,z2:0};if(!angajat||!luna)return o;
   S.grafic.forEach(function(r){if(!sameP(r.angajat,angajat)||String(r.data||"").slice(0,7)!==luna)return;if(by&&r.by!==by)return;var h=n(r.ore);if(!(h>0))return;o.n++;if(parseInt(String(r.data).slice(8,10),10)<=15)o.h1+=h;else o.h2+=h});
   o.h1=round2(o.h1);o.h2=round2(o.h2);o.z1=round2(o.h1/8);o.z2=round2(o.h2/8);return o}
 /* the days this user scheduled for an employee: what he pays for */
 function graficMele(angajat,luna){return graficOre(angajat,luna,ME)}
-function pontajDinGrafic(d){if(!d||!d.angajat||!d.luna)return false;var g=graficMele(d.angajat,d.luna);if(!g.n)return false;d.z1=String(g.z1);d.z2=String(g.z2);return true}
+function pontajDinGrafic(d){if(!d||!d.angajat||!d.luna)return false;var g=graficOre(d.angajat,d.luna);if(!g.n)return false;d.z1=String(g.z1);d.z2=String(g.z2);return true}
 /* every salary payment for an employee and month, by anyone: the expenses "Salarii" and the old-style outflows */
 function platiSalariu(angajat,luna){
-  return S.cheltuieli.filter(function(r){return r.categorie==="Salarii"&&r.luna===luna&&sameP(r.angajat,angajat)}).map(function(r){return {by:r.by,data:r.data,suma:n(r.suma)}})
-    .concat(S.iesiri.filter(function(r){return r.destinatie==="Salarii"&&r.luna===luna&&sameP(r.persoana,angajat)}).map(function(r){return {by:r.by,data:r.data,suma:round2(n(r.suma)*n(r.curs))}}));
+  return S.cheltuieli.filter(function(r){return r.categorie==="Salarii"&&r.luna===luna&&sameP(r.angajat,angajat)}).map(function(r){return {by:r.by,data:r.data,suma:n(r.suma),nume:byName(r)||r.platitDe||""}})
+    .concat(S.iesiri.filter(function(r){return r.destinatie==="Salarii"&&r.luna===luna&&sameP(r.persoana,angajat)}).map(function(r){return {by:r.by,data:r.data,suma:round2(n(r.suma)*n(r.curs)),nume:byName(r)||r.platitDe||""}}));
 }
-function lunaAchitataDe(by,angajat,luna){return platiSalariu(angajat,luna).some(function(p){return p.by===by})}
+/* a day is closed once anyone paid the employee on that day or later: what was paid for does not move any more */
+function ziInchisa(angajat,iso){return platiSalariu(angajat,String(iso).slice(0,7)).some(function(p){return String(p.data||"")>=String(iso)})}
+function lunaAchitata(angajat,luna){return platiSalariu(angajat,luna).length>0}
 /* the till is paid by the cashier and by the directors; everyone else pays from an advance */
 function isTillPayer(name){return !!(name&&((casier()&&sameP(name,casier()))||S.utilizatori.some(function(u){return u.rol==="Director"&&sameP(u.nume,name)})))}
 function directorNames(){var c=cfg().directori;return uniq((Array.isArray(c)?c:[]).concat(S.utilizatori.filter(function(u){return u.rol==="Director"}).map(function(u){return u.nume})))}
@@ -757,7 +776,7 @@ function directorNames(){var c=cfg().directori;return uniq((Array.isArray(c)?c:[
 function angajatiLucru(){var d=directorNames();return angajatiActivi().filter(function(nm){return !d.some(function(x){return sameP(x,nm)})})}
 function angajatiPontaj(){return angajatiLucru()}
 function platesteSalariu(angajat,luna,due){
-  var rows=S.grafic.filter(function(r){return r.by===ME&&sameP(r.angajat,angajat)&&String(r.data||"").slice(0,7)===luna&&n(r.ore)>0});
+  var rows=S.grafic.filter(function(r){return sameP(r.angajat,angajat)&&String(r.data||"").slice(0,7)===luna&&n(r.ore)>0}); /* everyone's days: the payment covers the whole month */
   var groups={},tot=0;rows.forEach(function(r){var k=(r.pentru==="Proiect"&&r.proiect)?"Proiect|"+r.proiect:"EHL|";groups[k]=(groups[k]||0)+n(r.ore);tot+=n(r.ore)});
   var keys=Object.keys(groups);if(!keys.length||!(tot>0)){keys=["EHL|"];groups["EHL|"]=1;tot=1;}
   var payer=isDir?(colabUser(angajat)?angajat:(casier()||meName())):meName(),left=round2(due),p=Promise.resolve();
@@ -1155,20 +1174,22 @@ var FORMS={
  pontaj:{title:"a_pontaj",icon:"calendar",fields:function(){return[
    {k:"luna",t:"month",l:"f_luna",req:1,def:curMonth()},
    fAngajatPontaj(),
-   {k:"z1",t:"number",l:"f_z1",half:1,step:"0.5",def:"0",roIf:function(d){return graficMele(d.angajat,d.luna).n>0||!!d.complet}},
-   {k:"z2",t:"number",l:"f_z2",half:1,step:"0.5",def:"0",roIf:function(d){return graficMele(d.angajat,d.luna).n>0||!!d.complet},hint:"gr_din",hintIf:function(d){return graficMele(d.angajat,d.luna).n>0}},
+   {k:"z1",t:"number",l:"f_z1",half:1,step:"0.5",def:"0",roIf:function(d){return graficOre(d.angajat,d.luna).n>0||!!dPlin(d).complet}},
+   {k:"z2",t:"number",l:"f_z2",half:1,step:"0.5",def:"0",roIf:function(d){return graficOre(d.angajat,d.luna).n>0||!!dPlin(d).complet},hint:"gr_din",hintIf:function(d){return graficOre(d.angajat,d.luna).n>0}},
    /* the whole monthly salary, whatever the days */
-   {k:"complet",t:"checkbox",l:"f_complet",hint:"f_complet_h",showIf:function(d){return !!d.angajat&&pontajPlatit(d)<=0.004}},
+   {k:"complet",t:"checkbox",l:"f_complet",hint:"f_complet_h",showIf:function(d){return !!d.angajat&&pontajPlatit(d)<=0.004&&!pontajAltii(d.angajat,d.luna).complet}},
    /* a bonus on top, for work beyond the ordinary */
    {k:"extra",t:"number",l:"f_extra",step:"0.01",def:"0",hint:"f_extra_h",showIf:function(d){return !!d.angajat}},
    /* "paid now": expenses "Salarii" on the projects of my days, for what is still due; from my advance (a director: from the till) */
-   {k:"achitat",t:"checkbox",l:"pontaj_pay",hint:"pontaj_pay_h",showIf:function(d){return !!d.angajat&&pontajDue(d)>0.004}}
- ]},calc:function(d){var wd=workdays(d.luna),sal=salariuLa(d.angajat,d.luna?monthEnd(d.luna):today()),pz=wd?sal/wd:0;
+   {k:"achitat",t:"checkbox",l:"pontaj_pay",hint:"pontaj_pay_h",showIf:function(d){return !!d.angajat&&pontajDue(dPlin(d))>0.004}},
+   /* the whole remainder by default; a part (for instance one's own days only) when a sum is typed */
+   {k:"suma",t:"number",l:"pontaj_suma",step:"0.01",hint:"pontaj_suma_h",showIf:function(d){return !!d.angajat&&!!d.achitat&&pontajDue(dPlin(d))>0.004}}
+ ]},calc:function(d0){var d=dPlin(d0),wd=workdays(d.luna),sal=salariuLa(d.angajat,d.luna?monthEnd(d.luna):today()),pz=wd?sal/wd:0;
    var out=[{l:(lang==="ru"?"Раб. дней":"Zile lucr."),v:String(wd)}];
    if(!d.angajat)return out;
-   var g=graficMele(d.angajat,d.luna),gt=graficOre(d.angajat,d.luna);
-   if(g.n){out.push({l:T("gr_h1")+" · "+T("gr_mine"),v:fmt(g.h1,1)+" "+T("gr_ore")});out.push({l:T("gr_h2")+" · "+T("gr_mine"),v:fmt(g.h2,1)+" "+T("gr_ore")});}
-   if(gt.n>g.n)out.push({l:T("gr_tot"),v:fmt(gt.h1+gt.h2,1)+" "+T("gr_ore")});
+   var gt=graficOre(d.angajat,d.luna);
+   if(gt.n){out.push({l:T("gr_tot"),v:fmt(gt.h1+gt.h2,1)+" "+T("gr_ore")+" · "+fmt(gt.z1+gt.z2,2)+" "+T("gr_zile_s")});
+     zilePeAutor(d.angajat,d.luna).forEach(function(x){out.push({l:T("gr_zile_s")+" · "+x.nume,v:fmt(x.zile,2)})});}
    if(sal>0){
      out.push({l:(lang==="ru"?"Цена дня":"Preț zi"),v:money(pz)+" MDL"});
      if(d.complet)out.push({l:T("f_salariu"),v:money(sal)+" MDL"});
@@ -1178,12 +1199,12 @@ var FORMS={
      var paid=pontajPlatit(d),due=pontajDue(d);
      if(paid>0)out.push({l:T("pontaj_paid"),v:money(paid)+" MDL"});
      if(due>0.004)out.push({l:T("pontaj_due"),v:money(due)+" MDL",cls:"tot"});
+     if(d.achitat&&due>0.004)out.push({l:T("pontaj_suma"),v:money(n(d.suma)>0?n(d.suma):due)+" MDL",cls:"tot"});
      if(isDir&&colabUser(d.angajat))out.push({l:T("pontaj_dinavans"),v:money(soldAvans(d.angajat))+" MDL"});
    }
    /* who paid what for this employee and month, everyone included */
    platiSalariu(d.angajat,d.luna).sort(function(a,b){return String(a.data).localeCompare(String(b.data))}).forEach(function(p){
-     var u=S.utilizatori.filter(function(x){return x.id===p.by})[0];
-     out.push({l:T("pontaj_paidby")+" "+(u?u.nume:(p.by===ME?meName():"…"))+" · "+shortDate(p.data),v:money(p.suma)+" MDL"});
+     out.push({l:T("pontaj_paidby")+" "+(p.nume||(p.by===ME?meName():"…"))+" · "+shortDate(p.data),v:money(p.suma)+" MDL"});
    });
    return out}},
 
@@ -1215,7 +1236,7 @@ var FORMS={
    {k:"nume",t:"text",l:"f_nume",req:1},
    {k:"dataInceput",t:"date",l:"f_start",def:today()},
    /* salaries are the director's: an operator adds the person only */
-   {k:"salariu",t:"number",l:(sheetState&&sheetState.id)?"f_salariu_nou":"f_salariu",req:isDir?1:0,step:"0.01",newOnly:1,hint:isDir?"":"sal_h",showIf:function(d){return isDir||!(sheetState&&sheetState.id)||angajatMeu(d.nume)}},
+   {k:"salariu",t:"number",l:(sheetState&&sheetState.id)?"f_salariu_nou":"f_salariu",req:isDir?1:0,step:"0.01",newOnly:1,hint:"",showIf:function(d){return isDir||!(sheetState&&sheetState.id)||angajatMeu(d.nume)}},
    {k:"dinSal",t:"date",l:"f_dinsal",hint:"f_dinsal_h",def:today(),showIf:function(d){return !!(sheetState&&sheetState.id)&&angajatMeu(d.nume)}},
    {k:"status",t:"select",l:"f_status",req:1,opts:[{v:"Activ",l:T("activ")},{v:"Inactiv",l:T("inactiv")}],def:"Activ"}
  ]},calc:function(d){
@@ -1238,7 +1259,7 @@ FORMS.grafic={title:"a_grafic",icon:"clock",fields:function(){return[]}}; /* dra
 var GR={mode:"ang",angajat:"",luna:curMonth(),zi:today(),pentru:"EHL",proiect:""};
 function grRec(angajat,iso){return S.grafic.filter(function(r){return sameP(r.angajat,angajat)&&r.data===iso})[0]||null}
 /* a day is changed only by its author, and not once that author has paid the employee for that month */
-function grEditable(r,angajat,iso){if(r&&r.by!==ME)return false;if(lunaAchitataDe(ME,angajat,iso.slice(0,7)))return false;return true}
+function grEditable(r,angajat,iso){if(r&&r.by!==ME)return false;if(ziInchisa(angajat,iso))return false;return true}
 function grProjOpts(){return S.proiecte.filter(function(p){return p.status!=="Finalizat"}).map(function(p){return p.nume}).sort(function(a,b){return String(a).localeCompare(String(b))})}
 function grTag(r){if(!r)return "";return (r.pentru==="Proiect"&&r.proiect)?r.proiect:"EHL"}
 function grWho(r){return r?(byName(r)||r.deCine||(r.by===ME?meName():"")):""}
@@ -1278,16 +1299,16 @@ function drawGrafic(){
     if(!a)h+='<p class="hint">'+esc(T("gr_none"))+'</p>';
     else{
       var g=graficOre(a,ym),gm=graficMele(a,ym);
-      h+='<p class="hint">'+esc(lunaAchitataDe(ME,a,ym)?T("gr_lock"):T("gr_h"))+'</p><div class="gr-grid">';
+      h+='<p class="hint">'+esc(lunaAchitata(a,ym)?T("gr_lock"):T("gr_h"))+'</p><div class="gr-grid">';
       for(var d=1;d<=dim;d++){var iso=ym+"-"+p2(d),r=grRec(a,iso),hrs=r?n(r.ore):0,dow=new Date(y,m-1,d).getDay();
         h+='<div class="gr-day'+(dow===0?" sun":"")+(hrs>0?" on":"")+'"><span class="gr-n">'+d+' <small>'+wd[dow]+'</small></span>'+grCell(a,iso)+'</div>';
       }
       h+='</div><div class="calc-row"><div class="calcbox"><span>'+esc(T("gr_tot"))+'</span><span class="num">'+fmt(g.h1+g.h2,1)+' '+esc(T("gr_ore"))+'</span></div><div class="calcbox"><span>'+esc(T("gr_zile"))+'</span><span class="num">'+fmt(g.z1+g.z2,2)+'</span></div>'
         +'<div class="calcbox"><span>'+esc(T("gr_mine"))+'</span><span class="num">'+fmt(gm.z1+gm.z2,2)+' '+esc(T("gr_zile_s"))+'</span></div></div>';
-      /* the money for my days: worth at this employee's salary, what I paid, what I still owe */
-      var pr=S.pontaj.filter(function(r){return r.by===ME&&sameP(r.angajat,a)&&r.luna===ym})[0];
-      var dp={angajat:a,luna:ym,z1:gm.z1,z2:gm.z2,extra:pr?n(pr.extra):0,complet:pr?!!pr.complet:false},sal=salariuLa(a,monthEnd(ym));
-      var worth=sal>0?pontajTotal(dp):0,paid=pontajPlatit(dp),due=round2(worth-paid);
+      /* the money for the whole month: worth at this employee's salary, what was paid by anyone, what is still owed */
+      var L=pontajLuna(a,ym),sal=L.sal,worth=L.tot,paid=L.paid,due=L.due,aut=zilePeAutorTxt(a,ym),pl=platitDeTxt(a,ym);
+      if(aut)h+='<p class="hint">'+esc(T("gr_zile_s")+": "+aut)+'</p>';
+      if(pl)h+='<p class="hint">'+esc(T("pontaj_paidby")+" "+pl)+'</p>';
       h+='<div class="calc-row"><div class="calcbox"><span>'+esc(T("gr_bani"))+'</span><span class="num">'+(sal>0?money(worth)+" MDL":esc(T("gr_nosal")))+'</span></div>'
         +'<div class="calcbox"><span>'+esc(T("l_plata"))+'</span><span class="num">'+money(paid)+'</span></div>'
         +'<div class="calcbox"><span>'+esc(T("pontaj_due"))+'</span><span class="num">'+(sal>0?money(due)+" MDL":"—")+'</span></div></div>';
@@ -1986,12 +2007,9 @@ function vAngajatiiMei(){
   var luna=OV.luna||curMonth();
   var h='<div class="sec sec-wide"><div class="sec-h"><h2>'+esc(T("op_ang"))+'</h2><div class="sec-act"><button class="btn sm" type="button" data-form="angajati">'+icon("userplus")+esc(T("a_ang"))+'</button></div></div><div class="card rows">';
   mine.forEach(function(a){
-    var sal=salariuLa(a.nume,today()),g=graficMele(a.nume,luna),gt=graficOre(a.nume,luna);
-    var p=S.pontaj.filter(function(r){return r.by===ME&&sameP(r.angajat,a.nume)&&r.luna===luna})[0];
-    var dp={angajat:a.nume,luna:luna,z1:g.z1,z2:g.z2,extra:p?n(p.extra):0,complet:p?!!p.complet:false};
-    var tot=(sal>0&&(g.n||p))?pontajTotal(dp):0,paid=pontajPlatit(dp),due=round2(tot-paid);
-    var line1=T("f_salariu")+" "+money(sal)+" · "+monthName(luna)+": "+fmt(g.z1+g.z2,2)+" "+T("gr_zile_s")+" "+T("gr_mine")+(gt.n>g.n?" ("+fmt(gt.z1+gt.z2,2)+" "+T("l_total").toLowerCase()+")":"");
-    var line2=(g.n||p)?(T("tot")+" "+money(tot)+(p&&p.extra?" ("+T("f_extra")+" "+money(n(p.extra))+")":"")+" · "+T("l_plata")+" "+money(paid)):T("pontaj_lipsa");
+    var L=pontajLuna(a.nume,luna),sal=salariuLa(a.nume,today()),gt=L.g,tot=L.tot,paid=L.paid,due=L.due,aut=zilePeAutorTxt(a.nume,luna),pl=platitDeTxt(a.nume,luna);
+    var line1=T("f_salariu")+" "+money(sal)+" · "+monthName(luna)+": "+fmt(gt.z1+gt.z2,2)+" "+T("gr_zile_s")+(aut?" ("+aut+")":"");
+    var line2=(gt.n||L.complet||L.extra>0||paid>0)?(T("tot")+" "+money(tot)+(L.extra>0?" ("+T("f_extra")+" "+money(L.extra)+")":"")+" · "+T("l_plata")+" "+money(paid)+(pl?" ("+pl+")":"")):T("pontaj_lipsa");
     h+='<div class="row wrap user-row"><span class="l">'+esc(a.nume)+'<span class="s">'+esc(line1)+'</span><span class="s">'+esc(line2)+'</span></span><span class="r '+(due>0?"warnc":"pos")+'">'+money(due)+'</span>'
       +'<button type="button" class="btn sm ghost" data-grafic="'+esc(a.nume)+'" title="'+esc(T("a_grafic"))+'">'+icon("clock")+'</button>'
       +'<button type="button" class="btn sm ghost" data-edit="angajati" data-id="'+esc(a.id)+'" title="'+esc(T("a_ang"))+'">'+icon("gear")+'</button></div>';
@@ -2178,7 +2196,7 @@ function vPin(){
   return h;
 }
 function vUsers(){
-  var h='<div class="sec"><div class="sec-h"><h2>'+esc(T("r_user"))+'</h2><div class="sec-act"><button class="btn sm ghost exit-top" id="exitdir" type="button">'+icon("users")+esc(T("logout"))+'</button><button class="btn sm" type="button" data-form="utilizatori">'+icon("userplus")+esc(T("a_user"))+'</button></div></div>';
+  var h='<div class="sec"><div class="sec-h"><h2>'+esc(T("r_user"))+'</h2><div class="sec-act"><button class="btn sm ghost exit-top" id="exitdir" type="button">'+icon("users")+esc(T("logout"))+'</button><button class="btn sm danger" id="resetAll" type="button" title="'+esc(T("reset_h"))+'">'+icon("trash")+esc(T("reset_btn"))+'</button><button class="btn sm" type="button" data-form="utilizatori">'+icon("userplus")+esc(T("a_user"))+'</button></div></div>';
   /* only the active users here; the deactivated ones wait in the archive (vArhiva), nothing of theirs is lost */
   var act=S.utilizatori.filter(function(u){return u.status!=="Inactiv"});
   if(!act.length){
@@ -2529,11 +2547,32 @@ window.addEventListener("popstate",function(e){
   if($("#sheet").innerHTML){closeSheetNow();}
   if(st.v&&st.v!==view&&!needGate()){view=st.v;render();}
 });
+/* the director's "delete the data": everything but the settings and the director accounts, after the access code */
+var RESET={busy:false,err:""};
+function openReset(){if(!isDir)return;RESET={busy:false,err:""};sheetState={col:"__reset",id:null,data:{},err:""};sheetOpened();drawReset();}
+function drawReset(){
+  var h='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(T("reset_t"))+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div>'
+    +'<p class="hint">'+esc(T("reset_h"))+'</p><p class="hint">'+esc(T("reset_keep"))+'</p>'
+    +'<form id="resetf"><label><span>'+esc(T("reset_cod"))+'</span><input name="cod" inputmode="numeric" autocomplete="off" required'+(RESET.busy?' disabled':'')+'></label>'
+    +(RESET.err?'<p class="err">'+esc(RESET.err)+'</p>':'')
+    +'<div class="form-act"><button class="btn danger" type="submit" style="flex:1"'+(RESET.busy?' disabled':'')+'>'+icon("trash")+'<span>'+esc(RESET.busy?T("reset_busy"):T("reset_go"))+'</span></button></div></form></div></div>';
+  $("#sheet").innerHTML=h;
+}
+function doReset(cod){
+  if(RESET.busy||!PB)return;
+  RESET.busy=true;RESET.err="";drawReset();
+  PB.send("/api/ehl/reset",{method:"POST",body:{cod:cod},requestKey:null}).then(function(){
+    try{localStorage.removeItem("ehl.cache");localStorage.removeItem("ehl.queue");localStorage.removeItem("ehl.failed")}catch(e){}
+    resetData();toast(T("reset_done"));setTimeout(function(){location.reload()},600);
+  }).catch(function(e){RESET.busy=false;var srv=e&&e.response&&e.response.message;RESET.err=netErr(e)?T("offline"):(srv&&SRV_MSG[srv]?srvT(srv):T("save_err"));drawReset();});
+}
 function drawSheet(){
   if(!sheetState)return;
+  if(sheetState.col==="__reset"){drawReset();return;}
   var st=sheetState,def=FORMS[st.col],fields=def.fields();
   var rec0=st.id?(S[st.col]||[]).filter(function(r){return r.id===st.id})[0]:null;
-  var lockedOld=!!(rec0&&(rec0.by!==ME||(!isDir&&rec0.created&&Date.now()-Date.parse(String(rec0.created).replace(" ","T"))>EDIT_DAYS*86400000)));
+  var salPay=!!(rec0&&st.col==="cheltuieli"&&rec0.categorie==="Salarii"); /* a salary payment: the books are closed on it */
+  var lockedOld=salPay||!!(rec0&&(rec0.by!==ME||(!isDir&&rec0.created&&Date.now()-Date.parse(String(rec0.created).replace(" ","T"))>EDIT_DAYS*86400000)));
   var body=fields.filter(function(f){
     if(f.showIf&&!f.showIf(st.data))return false;
     if(f.newOnly&&st.id&&st.col!=="angajati")return false;
@@ -2560,7 +2599,7 @@ function drawSheet(){
     +(st.err?'<p class="err">'+esc(st.err)+'</p>':'')
     +'<div class="form-act"><button class="btn" type="submit" id="savebtn">'+esc(T("save"))+'</button>'
     +((st.id&&st.col==="angajati"&&rec0&&rec0.by===ME&&st.data.status!=="Inactiv")?'<button class="btn danger" type="button" id="deact" title="'+esc(T("ang_deact_h"))+'">'+icon("trash")+'<span>'+esc(T("ang_deact"))+'</span></button>':'')
-    +((st.id&&isDir&&st.col!=="angajati"&&rec0&&rec0.by===ME)?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
+    +((st.id&&isDir&&st.col!=="angajati"&&rec0&&rec0.by===ME&&!salPay)?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
     +'</div></form>'+dls+'</div></div>';
   document.body.style.overflow="hidden";
   if(lockedOld){var sb=$("#savebtn");if(sb){var nt=document.createElement("p");nt.className="note";nt.textContent=T("lock_old");sb.parentNode.replaceChild(nt,sb);}
@@ -2620,9 +2659,9 @@ function submitForm(){
   if(fut.length){st.err=T("date_future");drawSheet();return;}
   if(st.col==="pontaj"){
     var z1=n(st.data.z1),z2=n(st.data.z2);
-    if(!(graficMele(st.data.angajat,st.data.luna).n>0)&&!st.data.complet&&(z1<0||z1>15||z2<0||z2>16)){st.err=T("pontaj_zile");drawSheet();return;}
+    if(!(graficOre(st.data.angajat,st.data.luna).n>0)&&!dPlin(st.data).complet&&(z1<0||z1>15||z2<0||z2>16)){st.err=T("pontaj_zile");drawSheet();return;}
     if(S.pontaj.some(function(r){return r.id!==st.id&&r.by===ME&&r.luna===st.data.luna&&sameP(r.angajat,st.data.angajat)})){st.err=T("pontaj_dup");drawSheet();return;}
-    if(st.data.achitat&&!(pontajDue(st.data)>0.004)){st.err=T("pontaj_nosal");drawSheet();return;}
+    if(st.data.achitat&&!(pontajDue(dPlin(st.data))>0.004)){st.err=T("pontaj_nosal");drawSheet();return;}
   }
   /* the bank account holds lei only */
   /* (a deposit from the till may come from any currency shelf: the account receives suma × curs in lei) */
@@ -2674,6 +2713,7 @@ function submitForm(){
     var b={};fields.forEach(function(f){
       if(f.t==="checkbox")return;
       if(f.newOnly&&st.id)return;
+      if(col==="pontaj"&&f.k==="suma")return; /* the sum paid now is not a column of the Salarii row */
       b[f.k]=(f.t==="number")?n(d[f.k]):String(d[f.k]==null?"":d[f.k]).trim();
     });
     if(col==="cheltuieli"){b.categorie=catJoin(catRaw(b.categorie),b.subcat);delete b.subcat;
@@ -2684,8 +2724,8 @@ function submitForm(){
     p=saveDoc(col,b,st.id);
     if(col==="pontaj"){b.complet=!!d.complet;}
     if(col==="pontaj"&&d.achitat){
-      var dueB={angajat:b.angajat,luna:b.luna,z1:b.z1,z2:b.z2,extra:b.extra,complet:!!d.complet},due=pontajDue(dueB);
-      if(due>0.004)p=p.then(function(){return platesteSalariu(b.angajat,b.luna,due)});
+      var dueB=dPlin({angajat:b.angajat,luna:b.luna,z1:b.z1,z2:b.z2,extra:b.extra,complet:!!d.complet}),due=pontajDue(dueB),pay=n(d.suma)>0?Math.min(round2(n(d.suma)),due):due;
+      if(pay>0.004)p=p.then(function(){return platesteSalariu(b.angajat,b.luna,pay)});
     }
   }
   p.then(function(){closeSheet();toast(T("saved"))})
@@ -2912,6 +2952,7 @@ document.addEventListener("click",function(ev){
   if(df){if(df.dataset.armed==="1"){dropFailed(parseInt(df.getAttribute("data-dropfailed"),10))}else{df.dataset.armed="1";df.textContent=T("del_yes")}return;}
   if(t.closest&&t.closest("#expbtn")){exportRun(JUR.luna,false);return;}
   if(t.closest&&t.closest("#exitdir")){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}logout();return;}
+  if(t.closest&&t.closest("#resetAll")){openReset();return;}
   if(t.closest&&t.closest("#gateback")){GATE={step:"cod"};gateErr="";render();return;}
   if(t.closest&&t.closest("#gateother")){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}GATE={step:"cod"};logout();return;}
   if(t.closest&&t.closest("#installbtn")&&installEvt){var ev2=installEvt;installEvt=null;ev2.prompt();render();return;}
@@ -2944,11 +2985,12 @@ document.addEventListener("change",function(ev){
     if(!sheetState.id){var exP=S.pontaj.filter(function(r){return r.luna===sheetState.data.luna&&sameP(r.angajat,sheetState.data.angajat)})[0];if(exP){openForm("pontaj",exP.id);return;}}
     pontajDinGrafic(sheetState.data);
   }
-  if(k==="angajat"||k==="luna"||(sheetState.col==="pontaj"&&(k==="z1"||k==="z2"||k==="extra"))||(sheetState.col==="angajati"&&(k==="salariu"||k==="dinSal"))){var def=FORMS[sheetState.col];if(def&&def.calc)drawSheet();} /* the days decide whether the "Achitat" box is offered */
+  if(k==="angajat"||k==="luna"||(sheetState.col==="pontaj"&&(k==="z1"||k==="z2"||k==="extra"||k==="achitat"||k==="complet"))||(sheetState.col==="angajati"&&(k==="salariu"||k==="dinSal"))){var def=FORMS[sheetState.col];if(def&&def.calc)drawSheet();} /* the days decide whether the "Achitat" box is offered */
 });
 document.addEventListener("submit",function(ev){
   var f=ev.target;ev.preventDefault();
   if(f.id==="recf"){submitForm();return;}
+  if(f.id==="resetf"){doReset(String(f.elements["cod"].value||"").trim());return;}
   var gateFail=function(e,dflt){
     gateBusy=false;
     var srv=e&&e.response&&e.response.message;
