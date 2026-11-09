@@ -496,7 +496,7 @@ function netErr(e){return !e||e.status===0||e.isAbort===true||(!e.status&&!e.cod
 function norm(r){var o={};for(var k in r)o[k]=r[k];o.ts=o.ts||o.created||"";if(!o.by)o.by="";return o}
 function normCfg(c){
   var o=norm(c);
-  ["valute","categorii"].forEach(function(k){if(typeof o[k]==="string"){try{o[k]=JSON.parse(o[k])}catch(e){o[k]=null}}});
+  ["valute","categorii","directori"].forEach(function(k){if(typeof o[k]==="string"){try{o[k]=JSON.parse(o[k])}catch(e){o[k]=null}}});
   return o;
 }
 function applyEvent(col,ev){
@@ -752,7 +752,10 @@ function platiSalariu(angajat,luna){
 function lunaAchitataDe(by,angajat,luna){return platiSalariu(angajat,luna).some(function(p){return p.by===by})}
 /* the till is paid by the cashier and by the directors; everyone else pays from an advance */
 function isTillPayer(name){return !!(name&&((casier()&&sameP(name,casier()))||S.utilizatori.some(function(u){return u.rol==="Director"&&sameP(u.nume,name)})))}
-function angajatiPontaj(){return angajatiActivi()}
+function directorNames(){var c=cfg().directori;return uniq((Array.isArray(c)?c:[]).concat(S.utilizatori.filter(function(u){return u.rol==="Director"}).map(function(u){return u.nume})))}
+/* the employees one can schedule and pay: the active ones that are not directors (nobody pays a director's salary) */
+function angajatiLucru(){var d=directorNames();return angajatiActivi().filter(function(nm){return !d.some(function(x){return sameP(x,nm)})})}
+function angajatiPontaj(){return angajatiLucru()}
 function platesteSalariu(angajat,luna,due){
   var rows=S.grafic.filter(function(r){return r.by===ME&&sameP(r.angajat,angajat)&&String(r.data||"").slice(0,7)===luna&&n(r.ore)>0});
   var groups={},tot=0;rows.forEach(function(r){var k=(r.pentru==="Proiect"&&r.proiect)?"Proiect|"+r.proiect:"EHL|";groups[k]=(groups[k]||0)+n(r.ore);tot+=n(r.ore)});
@@ -766,7 +769,7 @@ function platesteSalariu(angajat,luna,due){
   });
   return p;
 }
-function fAngajatPontaj(){return {k:"angajat",t:"select",l:"f_ang",req:1,allowEmpty:1,opts:opt(angajatiActivi())}}
+function fAngajatPontaj(){return {k:"angajat",t:"select",l:"f_ang",req:1,allowEmpty:1,opts:opt(angajatiLucru())}}
 
 /* ---------------- calculations (mirrors the workbook) ---------------- */
 function calc(){
@@ -1240,7 +1243,7 @@ function grProjOpts(){return S.proiecte.filter(function(p){return p.status!=="Fi
 function grTag(r){if(!r)return "";return (r.pentru==="Proiect"&&r.proiect)?r.proiect:"EHL"}
 function grWho(r){return r?(byName(r)||r.deCine||(r.by===ME?meName():"")):""}
 function openGrafic(angajat,luna){
-  var lst=angajatiActivi();
+  var lst=angajatiLucru();
   GR.angajat=angajat||(lst.some(function(a){return sameP(a,GR.angajat)})?GR.angajat:(lst[0]||""));
   GR.luna=luna||GR.luna||curMonth();
   if(String(GR.zi).slice(0,7)!==GR.luna)GR.zi=GR.luna===curMonth()?today():GR.luna+"-01";
@@ -1256,7 +1259,7 @@ function grCell(angajat,iso){
     +(r&&hrs>0?'<span class="gr-meta">'+esc(grTag(r))+(who?' · '+esc(who):'')+'</span>':'');
 }
 function drawGrafic(){
-  var lst=angajatiActivi(),a=GR.angajat,ym=GR.luna;
+  var lst=angajatiLucru(),a=GR.angajat,ym=GR.luna;
   var y=parseInt(ym.slice(0,4),10),m=parseInt(ym.slice(5,7),10),dim=new Date(y,m,0).getDate();
   var wd=lang==="ru"?["Вс","Пн","Вт","Ср","Чт","Пт","Сб"]:["Du","Lu","Ma","Mi","Jo","Vi","Sâ"];
   var h='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(T("a_grafic"))+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div>';
@@ -1978,7 +1981,7 @@ function mineView(fn){
 /* what the collaborator's employees are at: for the chosen month the hours from the schedule, the timesheet's worth,
    what was paid and what is still due; and the rest over every month. A tap opens the employee's schedule. */
 function vAngajatiiMei(){
-  var mine=S.angajati.filter(function(a){return a.status!=="Inactiv"});
+  var dn=directorNames(),mine=S.angajati.filter(function(a){return a.status!=="Inactiv"&&!dn.some(function(x){return sameP(x,a.nume)})});
   if(!mine.length)return "";
   var luna=OV.luna||curMonth();
   var h='<div class="sec sec-wide"><div class="sec-h"><h2>'+esc(T("op_ang"))+'</h2><div class="sec-act"><button class="btn sm" type="button" data-form="angajati">'+icon("userplus")+esc(T("a_ang"))+'</button></div></div><div class="card rows">';

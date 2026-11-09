@@ -153,6 +153,127 @@ onRecordUpdateRequest((e) => {
   e.next();
 }, "grafic");
 
+/* ---- users: random credentials, numeric codes, no self-lockout ---- */
+onRecordCreateRequest((e) => {
+  var cod = String(e.record.getString("cod") || "").trim();
+  if (!/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Codul trebuie să aibă 4–8 cifre.");
+  e.record.set("cod", cod);
+  if (!e.record.getString("status")) e.record.set("status", "Activ");
+  if (!e.record.getString("rol")) e.record.set("rol", "Operator");
+  e.record.set("email", $security.randomStringWithAlphabet(12, "abcdefghijklmnopqrstuvwxyz") + "@casieria.local");
+  e.record.setPassword($security.randomString(32));
+  e.record.set("parolaSetata", false);
+  e.next();
+}, "utilizatori");
+
+onRecordUpdateRequest((e) => {
+  var cod = String(e.record.getString("cod") || "").trim();
+  if (!/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Codul trebuie să aibă 4–8 cifre.");
+  e.record.set("cod", cod);
+  if (e.auth && e.auth.id === e.record.id) {
+    if (e.record.getString("status") === "Inactiv" || e.record.getString("rol") !== "Director") {
+      throw new BadRequestError("Nu vă puteți dezactiva sau retrograda propriul cont.");
+    }
+  }
+  /* credentials stay server-owned; a director demoted to operator loses the password requirement */
+  if (e.record.original) {
+    e.record.set("email", e.record.original().getString("email"));
+    e.record.set("parolaSetata", e.record.getString("rol") === "Director" ? e.record.original().getBool("parolaSetata") : false);
+  }
+  e.next();
+}, "utilizatori");
+
+onRecordDeleteRequest((e) => {
+  if (e.auth && e.auth.id === e.record.id) throw new BadRequestError("Nu vă puteți șterge propriul cont.");
+  e.next();
+}, "utilizatori");
+
+/* ---- the directors' names are kept in the settings (readable by everyone), so a collaborator's app can leave them out
+        of the employees it schedules and pays; refreshed after every change to the users ---- */
+onRecordAfterCreateSuccess((e) => {
+  var names = [];
+  try { $app.findRecordsByFilter("utilizatori", "rol = 'Director' && status != 'Inactiv'", "", 0, 0).forEach(function (r) { names.push(r.getString("nume")); }); } catch (err) {}
+  try { var cfg = $app.findFirstRecordByFilter("config", "id != ''"); cfg.set("directori", names); $app.save(cfg); } catch (err) {}
+  e.next();
+}, "utilizatori");
+onRecordAfterUpdateSuccess((e) => {
+  var names = [];
+  try { $app.findRecordsByFilter("utilizatori", "rol = 'Director' && status != 'Inactiv'", "", 0, 0).forEach(function (r) { names.push(r.getString("nume")); }); } catch (err) {}
+  try { var cfg = $app.findFirstRecordByFilter("config", "id != ''"); cfg.set("directori", names); $app.save(cfg); } catch (err) {}
+  e.next();
+}, "utilizatori");
+onRecordAfterDeleteSuccess((e) => {
+  var names = [];
+  try { $app.findRecordsByFilter("utilizatori", "rol = 'Director' && status != 'Inactiv'", "", 0, 0).forEach(function (r) { names.push(r.getString("nume")); }); } catch (err) {}
+  try { var cfg = $app.findFirstRecordByFilter("config", "id != ''"); cfg.set("directori", names); $app.save(cfg); } catch (err) {}
+  e.next();
+}, "utilizatori");
+
+/* ---- money from a founder (an income whose client is a director) is confirmed with that founder's access code;
+        the server records who confirmed it and when ---- */
+onRecordCreateRequest((e) => {
+  var client = String(e.record.getString("client") || "").trim();
+  var f = null;
+  if (client) { try { f = $app.findFirstRecordByFilter("utilizatori", "rol = 'Director' && nume = {:n}", { n: client }); } catch (err) { f = null; } }
+  if (f) {
+    var cod = String((e.requestInfo().body || {}).codFondator || "").trim();
+    if (cod !== f.getString("cod")) throw new BadRequestError("Codul fondatorului este greșit.");
+    e.record.set("confirmat", f.getString("nume") + " · " + new Date().toISOString().slice(0, 16).replace("T", " "));
+  } else {
+    e.record.set("confirmat", "");
+  }
+  e.next();
+}, "incasari");
+onRecordUpdateRequest((e) => {
+  var client = String(e.record.getString("client") || "").trim();
+  var f = null;
+  if (client) { try { f = $app.findFirstRecordByFilter("utilizatori", "rol = 'Director' && nume = {:n}", { n: client }); } catch (err) { f = null; } }
+  if (f) {
+    var cod = String((e.requestInfo().body || {}).codFondator || "").trim();
+    if (cod !== f.getString("cod")) throw new BadRequestError("Codul fondatorului este greșit.");
+    e.record.set("confirmat", f.getString("nume") + " · " + new Date().toISOString().slice(0, 16).replace("T", " "));
+  } else {
+    e.record.set("confirmat", "");
+  }
+  e.next();
+}, "incasari");
+
+/* ---- where an outflow is paid from: a director's (or the cashier's) comes from the till ("Casa"); a collaborator's
+        comes out of the money the director gave him ("Avans", platitDe = his name). Set here, never by the client. ---- */
+onRecordCreateRequest((e) => {
+  if (e.auth) {
+    var me = String(e.auth.getString("nume") || "").trim();
+    var cas = "";
+    try { cas = String($app.findFirstRecordByFilter("config", "id != ''").getString("casier") || "").trim().toLowerCase(); } catch (err) { cas = ""; }
+    if (e.auth.getString("rol") === "Director" || (cas && me.toLowerCase() === cas)) {
+      /* a collaborator's own salary (a director paying an operator account) comes out of that collaborator's advance */
+      var want = String(e.record.getString("sursa") || ""), who = String(e.record.getString("platitDe") || "").trim(), isCollab = false;
+      if (want === "Avans" && who && e.record.getString("destinatie") === "Salarii") {
+        try { isCollab = $app.countRecords("utilizatori", $dbx.exp("rol = 'Operator' AND TRIM(nume) = {:n}", { n: who })) > 0; } catch (err) { isCollab = false; }
+      }
+      if (isCollab) { e.record.set("sursa", "Avans"); e.record.set("platitDe", who); }
+      else { e.record.set("sursa", "Casa"); e.record.set("platitDe", ""); }
+    } else {
+      /* a collaborator takes money out of his advance only to pay a salary (the "Achitat" box of a timesheet),
+         and never more than the advance still holds */
+      if (e.record.getString("destinatie") !== "Salarii") throw new BadRequestError("Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).");
+      var res = new DynamicModel({ v: "" });
+      $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(res);
+      if (e.record.getFloat("suma") * (e.record.getFloat("curs") || 1) > parseFloat(res.v || "0") + 0.004) throw new BadRequestError("Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
+      e.record.set("sursa", "Avans"); e.record.set("platitDe", me);
+    }
+  }
+  e.next();
+}, "iesiri");
+onRecordUpdateRequest((e) => {
+  /* the source never changes on edit */
+  if (e.record.original) {
+    e.record.set("sursa", e.record.original().getString("sursa"));
+    e.record.set("platitDe", e.record.original().getString("platitDe"));
+  }
+  e.next();
+}, "iesiri");
+
 /* ---- a collaborator's expense: he is the payer. Cash comes out of the money the director gave him and cannot take
         his balance below zero; a transfer is paid by the firm's account, which may go below zero. The cashier pays from the till. ---- */
 onRecordCreateRequest((e) => {
