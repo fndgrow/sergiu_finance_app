@@ -359,7 +359,7 @@ function monthEnd(ym){var y=parseInt(ym.slice(0,4),10),m=parseInt(ym.slice(5,7),
 
 /* ---------------- state ---------------- */
 var DEF_CFG={valute:[{cod:"MDL",curs:1},{cod:"EUR",curs:20.22},{cod:"USD",curs:17.5}],casier:"",
-  categorii:["Materiale","Transport","Combustibil","Unelte","Birou","Taxe","Reparații","Diverse"],pin:"1234"};
+  categorii:["Materiale","Transport","Combustibil","Unelte","Birou","Taxe","Reparații","Arhitectură","Diverse"],pin:"1234"};
 var S={cfg:null,incasari:[],cheltuieli:[],iesiri:[],chirii:[],contracte:[],angajati:[],istoric:[],pontaj:[],grafic:[],imprumuturi:[],proiecte:[],utilizatori:[]};
 var COLS=["incasari","cheltuieli","iesiri","chirii","contracte","angajati","istoric","pontaj","grafic","imprumuturi","proiecte","utilizatori"];
 var DATA_COLS=["incasari","cheltuieli","iesiri","chirii","contracte","angajati","istoric","pontaj","grafic","imprumuturi","proiecte"];
@@ -711,7 +711,7 @@ function persoane(){return uniq(S.iesiri.map(function(r){return r.persoana}).con
 /* Expense categories are stored as typed (the defaults are Romanian). The common ones are shown in the interface
    language; catRaw maps what was typed in a form back to the stored name, so the data never splits in two. */
 var CAT_RU={materiale:"Материалы",transport:"Транспорт",combustibil:"Топливо",unelte:"Инструменты",birou:"Офис",taxe:"Налоги",
- "reparații":"Ремонт",reparatii:"Ремонт",diverse:"Разное",salarii:"Зарплаты",chirie:"Аренда",chirii:"Аренда",
+ "reparații":"Ремонт",reparatii:"Ремонт","arhitectură":"Архитектура",arhitectura:"Архитектура",diverse:"Разное",salarii:"Зарплаты",chirie:"Аренда",chirii:"Аренда",
  comunale:"Коммунальные услуги","mâncare":"Питание",mancare:"Питание",telefon:"Связь",alte:"Прочее"};
 var CAT_RO={};Object.keys(CAT_RU).forEach(function(k){var r=CAT_RU[k].toLowerCase();if(!CAT_RO[r])CAT_RO[r]=k.charAt(0).toUpperCase()+k.slice(1)});
 /* A category may have a subcategory: stored as one string "Materiale / Acoperiș" (CAT_SEP). The main part is translated
