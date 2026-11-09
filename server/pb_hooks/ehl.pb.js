@@ -128,169 +128,30 @@ onRecordUpdateRequest((e) => {
   e.next();
 }, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "proiecte", "angajati", "istoric", "pontaj", "grafic");
 
-/* ---- the work schedule: hours 0–24; an operator fills it only for the employees he created, a director for anyone ---- */
+/* ---- the work schedule: a full day (8) or a half day (4); any user, any active employee; a day is changed by its
+        author only (collection rule) and not after that author has paid the employee for the month ---- */
 onRecordCreateRequest((e) => {
   var h = e.record.getFloat("ore");
-  if (h < 0 || h > 24) throw new BadRequestError("Orele trebuie să fie între 0 și 24.");
-  if (e.auth && e.auth.getString("rol") !== "Director") {
-    var nm = String(e.record.getString("angajat") || "").trim();
-    var ok = false;
-    if (nm) { try { ok = $app.countRecords("angajati", $dbx.exp("TRIM(nume) = {:n} AND by = {:u}", { n: nm, u: e.auth.id })) > 0; } catch (err) { ok = false; } }
-    if (!ok) throw new BadRequestError("Graficul se face doar pentru angajații creați de dumneavoastră.");
-  }
+  if (h !== 0 && h !== 4 && h !== 8) throw new BadRequestError("Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).");
+  /* one row per employee and day: a day booked by one collaborator cannot be booked again by another */
+  var nm = String(e.record.getString("angajat") || "").trim(), zi = String(e.record.getString("data") || "");
+  var dup = 0; try { dup = $app.countRecords("grafic", $dbx.exp("TRIM(angajat) = {:n} AND data = {:d}", { n: nm, d: zi })); } catch (err) { dup = 0; }
+  if (dup > 0) throw new BadRequestError("Ziua este deja bifată de alt utilizator.");
+  /* the author's name is written by the server, so everyone can read who booked the day */
+  if (e.auth) e.record.set("deCine", String(e.auth.getString("nume") || ""));
   e.next();
 }, "grafic");
 onRecordUpdateRequest((e) => {
   var h = e.record.getFloat("ore");
-  if (h < 0 || h > 24) throw new BadRequestError("Orele trebuie să fie între 0 și 24.");
-  if (e.auth && e.auth.getString("rol") !== "Director") {
-    var nm = String(e.record.getString("angajat") || "").trim();
-    var ok = false;
-    if (nm) { try { ok = $app.countRecords("angajati", $dbx.exp("TRIM(nume) = {:n} AND by = {:u}", { n: nm, u: e.auth.id })) > 0; } catch (err) { ok = false; } }
-    if (!ok) throw new BadRequestError("Graficul se face doar pentru angajații creați de dumneavoastră.");
+  if (h !== 0 && h !== 4 && h !== 8) throw new BadRequestError("Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).");
+  if (e.record.original) e.record.set("deCine", e.record.original().getString("deCine"));
+  if (e.auth && e.record.original) {
+    var nm = String(e.record.original().getString("angajat") || "").trim(), luna = String(e.record.original().getString("data") || "").slice(0, 7), paid = false;
+    try { paid = $app.countRecords("cheltuieli", $dbx.exp("categorie = 'Salarii' AND luna = {:l} AND TRIM(angajat) = {:n} AND by = {:u}", { l: luna, n: nm, u: e.auth.id })) > 0; } catch (err) { paid = false; }
+    if (paid) throw new BadRequestError("Zilele achitate nu se mai schimbă.");
   }
   e.next();
 }, "grafic");
-
-/* ---- users: random credentials, numeric codes, no self-lockout ---- */
-onRecordCreateRequest((e) => {
-  var cod = String(e.record.getString("cod") || "").trim();
-  if (!/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Codul trebuie să aibă 4–8 cifre.");
-  e.record.set("cod", cod);
-  if (!e.record.getString("status")) e.record.set("status", "Activ");
-  if (!e.record.getString("rol")) e.record.set("rol", "Operator");
-  e.record.set("email", $security.randomStringWithAlphabet(12, "abcdefghijklmnopqrstuvwxyz") + "@casieria.local");
-  e.record.setPassword($security.randomString(32));
-  e.record.set("parolaSetata", false);
-  e.next();
-}, "utilizatori");
-
-onRecordUpdateRequest((e) => {
-  var cod = String(e.record.getString("cod") || "").trim();
-  if (!/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Codul trebuie să aibă 4–8 cifre.");
-  e.record.set("cod", cod);
-  if (e.auth && e.auth.id === e.record.id) {
-    if (e.record.getString("status") === "Inactiv" || e.record.getString("rol") !== "Director") {
-      throw new BadRequestError("Nu vă puteți dezactiva sau retrograda propriul cont.");
-    }
-  }
-  /* credentials stay server-owned; a director demoted to operator loses the password requirement */
-  if (e.record.original) {
-    e.record.set("email", e.record.original().getString("email"));
-    e.record.set("parolaSetata", e.record.getString("rol") === "Director" ? e.record.original().getBool("parolaSetata") : false);
-  }
-  e.next();
-}, "utilizatori");
-
-onRecordDeleteRequest((e) => {
-  if (e.auth && e.auth.id === e.record.id) throw new BadRequestError("Nu vă puteți șterge propriul cont.");
-  e.next();
-}, "utilizatori");
-
-/* ---- money from a founder (an income whose client is a director) is confirmed with that founder's access code;
-        the server records who confirmed it and when ---- */
-onRecordCreateRequest((e) => {
-  var client = String(e.record.getString("client") || "").trim();
-  var f = null;
-  if (client) { try { f = $app.findFirstRecordByFilter("utilizatori", "rol = 'Director' && nume = {:n}", { n: client }); } catch (err) { f = null; } }
-  if (f) {
-    var cod = String((e.requestInfo().body || {}).codFondator || "").trim();
-    if (cod !== f.getString("cod")) throw new BadRequestError("Codul fondatorului este greșit.");
-    e.record.set("confirmat", f.getString("nume") + " · " + new Date().toISOString().slice(0, 16).replace("T", " "));
-  } else {
-    e.record.set("confirmat", "");
-  }
-  e.next();
-}, "incasari");
-onRecordUpdateRequest((e) => {
-  var client = String(e.record.getString("client") || "").trim();
-  var f = null;
-  if (client) { try { f = $app.findFirstRecordByFilter("utilizatori", "rol = 'Director' && nume = {:n}", { n: client }); } catch (err) { f = null; } }
-  if (f) {
-    var cod = String((e.requestInfo().body || {}).codFondator || "").trim();
-    if (cod !== f.getString("cod")) throw new BadRequestError("Codul fondatorului este greșit.");
-    e.record.set("confirmat", f.getString("nume") + " · " + new Date().toISOString().slice(0, 16).replace("T", " "));
-  } else {
-    e.record.set("confirmat", "");
-  }
-  e.next();
-}, "incasari");
-
-/* ---- where an outflow is paid from: a director's (or the cashier's) comes from the till ("Casa"); a collaborator's
-        comes out of the money the director gave him ("Avans", platitDe = his name). Set here, never by the client. ---- */
-onRecordCreateRequest((e) => {
-  if (e.auth) {
-    var me = String(e.auth.getString("nume") || "").trim();
-    var cas = "";
-    try { cas = String($app.findFirstRecordByFilter("config", "id != ''").getString("casier") || "").trim().toLowerCase(); } catch (err) { cas = ""; }
-    if (e.auth.getString("rol") === "Director" || (cas && me.toLowerCase() === cas)) {
-      /* a collaborator's own salary (a director paying an operator account) comes out of that collaborator's advance */
-      var want = String(e.record.getString("sursa") || ""), who = String(e.record.getString("platitDe") || "").trim(), isCollab = false;
-      if (want === "Avans" && who && e.record.getString("destinatie") === "Salarii") {
-        try { isCollab = $app.countRecords("utilizatori", $dbx.exp("rol = 'Operator' AND TRIM(nume) = {:n}", { n: who })) > 0; } catch (err) { isCollab = false; }
-      }
-      if (isCollab) { e.record.set("sursa", "Avans"); e.record.set("platitDe", who); }
-      else { e.record.set("sursa", "Casa"); e.record.set("platitDe", ""); }
-    } else {
-      /* a collaborator takes money out of his advance only to pay a salary (the "Achitat" box of a timesheet),
-         and never more than the advance still holds */
-      if (e.record.getString("destinatie") !== "Salarii") throw new BadRequestError("Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).");
-      var res = new DynamicModel({ v: "" });
-      $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(res);
-      if (e.record.getFloat("suma") * (e.record.getFloat("curs") || 1) > parseFloat(res.v || "0") + 0.004) throw new BadRequestError("Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
-      e.record.set("sursa", "Avans"); e.record.set("platitDe", me);
-    }
-  }
-  e.next();
-}, "iesiri");
-onRecordUpdateRequest((e) => {
-  /* the source never changes on edit */
-  if (e.record.original) {
-    e.record.set("sursa", e.record.original().getString("sursa"));
-    e.record.set("platitDe", e.record.original().getString("platitDe"));
-  }
-  e.next();
-}, "iesiri");
-
-/* ---- an operator fills timesheets only for the employees he created himself; a director for anyone ---- */
-onRecordCreateRequest((e) => {
-  if (e.auth && e.auth.getString("rol") !== "Director") {
-    var nm = String(e.record.getString("angajat") || "").trim();
-    var ok = false;
-    if (nm) { try { ok = $app.countRecords("angajati", $dbx.exp("TRIM(nume) = {:n} AND by = {:u}", { n: nm, u: e.auth.id })) > 0; } catch (err) { ok = false; } }
-    if (!ok) throw new BadRequestError("Pontajul se face doar pentru angajații creați de dumneavoastră.");
-  }
-  e.next();
-}, "pontaj");
-onRecordUpdateRequest((e) => {
-  if (e.auth && e.auth.getString("rol") !== "Director") {
-    var nm = String(e.record.getString("angajat") || "").trim();
-    var ok = false;
-    if (nm) { try { ok = $app.countRecords("angajati", $dbx.exp("TRIM(nume) = {:n} AND by = {:u}", { n: nm, u: e.auth.id })) > 0; } catch (err) { ok = false; } }
-    if (!ok) throw new BadRequestError("Pontajul se face doar pentru angajații creați de dumneavoastră.");
-  }
-  e.next();
-}, "pontaj");
-
-/* ---- an operator sets a salary only for the employees he created himself; a director for anyone ---- */
-onRecordCreateRequest((e) => {
-  if (e.auth && e.auth.getString("rol") !== "Director") {
-    var nm = String(e.record.getString("angajat") || "").trim();
-    var ok = false;
-    if (nm) { try { ok = $app.countRecords("angajati", $dbx.exp("TRIM(nume) = {:n} AND by = {:u}", { n: nm, u: e.auth.id })) > 0; } catch (err) { ok = false; } }
-    if (!ok) throw new BadRequestError("Salariul se stabilește doar pentru angajații creați de dumneavoastră.");
-  }
-  e.next();
-}, "istoric");
-onRecordUpdateRequest((e) => {
-  if (e.auth && e.auth.getString("rol") !== "Director") {
-    var nm = String(e.record.getString("angajat") || "").trim();
-    var ok = false;
-    if (nm) { try { ok = $app.countRecords("angajati", $dbx.exp("TRIM(nume) = {:n} AND by = {:u}", { n: nm, u: e.auth.id })) > 0; } catch (err) { ok = false; } }
-    if (!ok) throw new BadRequestError("Salariul se stabilește doar pentru angajații creați de dumneavoastră.");
-  }
-  e.next();
-}, "istoric");
 
 /* ---- a collaborator's expense: he is the payer. Cash comes out of the money the director gave him and cannot take
         his balance below zero; a transfer is paid by the firm's account, which may go below zero. The cashier pays from the till. ---- */
@@ -303,6 +164,7 @@ onRecordCreateRequest((e) => {
       e.record.set("platitDe", me);
       if (e.record.getString("mod") !== "Transfer") {
         e.record.set("sursa", "Avans");
+        if (e.record.getString("categorie") === "Salarii") { e.next(); return; } /* a salary may take the advance below zero (the firm's rule) */
         var res = new DynamicModel({ v: "" });
         $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(res);
         if (e.record.getFloat("suma") > parseFloat(res.v || "0") + 0.004) throw new BadRequestError("Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
@@ -320,6 +182,7 @@ onRecordUpdateRequest((e) => {
       e.record.set("platitDe", e.record.original().getString("platitDe"));
       if (e.record.getString("mod") !== "Transfer") {
         e.record.set("sursa", "Avans");
+        if (e.record.getString("categorie") === "Salarii") { e.next(); return; } /* a salary may take the advance below zero (the firm's rule) */
         var res = new DynamicModel({ v: "" });
         $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(res);
         var back = e.record.original().getString("mod") !== "Transfer" ? e.record.original().getFloat("suma") : 0;

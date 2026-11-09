@@ -794,3 +794,9 @@ label>span .cur-b{width:16px;height:16px;font-size:10px}
 .calc-list .calcbox span:first-child{font-weight:500;color:var(--ink);font-family:var(--b);font-size:13.5px}
 .calc-list .calcbox.tot{background:var(--accent);color:var(--accent-ink)}
 .calc-list .calcbox.tot span:first-child{color:var(--accent-ink);font-weight:600}
+
+.gr-ctl{display:inline-flex;gap:4px;flex:0 0 auto}
+.gr-day .gr-meta,.gr-row .gr-meta{display:block;width:100%;font-size:11px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
+.gr-day{flex-wrap:wrap}
+.gr-row{flex-wrap:wrap;align-items:center}
+.gr-full[disabled]{opacity:.45;cursor:default}
