@@ -46,7 +46,7 @@ ro:{
  saved:"Salvat",deleted:"Șters",edit:"Editare",
  eq:"Echivalent MDL",tot:"Total",
  impr_cash:"Banii au ieșit din casă acum",impr_cash_h:"Creează automat și o ieșire din casă, ca să nu rămână casa umflată.",
- req:"Completați câmpurile obligatorii.",date_future:"Data nu poate fi în viitor.",lock_old:"Înregistrarea are mai mult de 15 zile sau a fost introdusă de altcineva: o poate modifica doar directorul. Dumneavoastră o puteți doar vedea.",srv_old:"Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.",
+ req:"Completați câmpurile obligatorii.",date_future:"Data nu poate fi în viitor.",lock_old:"Înregistrarea a fost introdusă de altcineva sau are mai mult de 15 zile: o poate modifica doar cel care a introdus-o, în primele 15 zile. Dumneavoastră o puteți doar vedea.",srv_old:"Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.",
  // registers
  r_inc:"Încasări",r_chelt:"Cheltuieli",r_ies:"Ieșiri din casă",r_chirii:"Chirii",
  r_contr:"Contracte",r_sal:"Salarii",r_impr:"Împrumuturi",
@@ -202,7 +202,7 @@ ru:{
  saved:"Сохранено",deleted:"Удалено",edit:"Изменить",
  eq:"Эквивалент MDL",tot:"Итого",
  impr_cash:"Деньги вышли из кассы сейчас",impr_cash_h:"Автоматически создаст и выдачу из кассы, чтобы касса не была завышена.",
- req:"Заполните обязательные поля.",date_future:"Дата не может быть в будущем.",lock_old:"Записи больше 15 дней или её внёс другой человек: изменить может только директор. Вы можете только смотреть.",srv_old:"Записи больше 15 дней, изменить её может только директор.",
+ req:"Заполните обязательные поля.",date_future:"Дата не может быть в будущем.",lock_old:"Запись внёс другой человек или ей больше 15 дней: изменить её может только автор, в первые 15 дней. Вы можете только смотреть.",srv_old:"Записи больше 15 дней, изменить её может только директор.",
  r_inc:"Поступления",r_chelt:"Расходы",r_ies:"Выдачи из кассы",r_chirii:"Аренда",
  r_contr:"Договоры",r_sal:"Зарплаты",r_impr:"Займы",
  mine_t:"Мои записи",mine_e:"Вы ещё ничего не вносили.",
@@ -398,8 +398,8 @@ function renamePerson(oldN,newN){
   oldN=String(oldN||"").trim();newN=String(newN||"").trim();
   if(!isDir||!oldN||!newN||oldN===newN)return Promise.resolve();
   var fld={utilizatori:"nume",angajati:"nume",cheltuieli:"platitDe",iesiri:"persoana",imprumuturi:"persoana",chirii:"chirias",pontaj:"angajat",istoric:"angajat"},ops=[];
-  Object.keys(fld).forEach(function(col){var k=fld[col];(S[col]||[]).forEach(function(r){if(sameP(r[k],oldN)){var b={};b[k]=newN;ops.push([col,b,r.id])}})});
-  S.proiecte.forEach(function(p){var l=respList(p);if(l.some(function(x){return sameP(x,oldN)}))ops.push(["proiecte",{responsabili:l.map(function(x){return sameP(x,oldN)?newN:x}).join(", ")},p.id])});
+  Object.keys(fld).forEach(function(col){var k=fld[col];(S[col]||[]).forEach(function(r){if(sameP(r[k],oldN)&&(col==="utilizatori"||r.by===ME)){var b={};b[k]=newN;ops.push([col,b,r.id])}})});
+  S.proiecte.forEach(function(p){var l=respList(p);if(p.by===ME&&l.some(function(x){return sameP(x,oldN)}))ops.push(["proiecte",{responsabili:l.map(function(x){return sameP(x,oldN)?newN:x}).join(", ")},p.id])});
   var p=Promise.resolve();
   ops.forEach(function(o){p=p.then(function(){return saveDoc(o[0],o[1],o[2])})});
   if(sameP(casier(),oldN))p=p.then(function(){return saveCfg({casier:newN})});
@@ -2323,7 +2323,7 @@ function vSalarii(){
   if(offA.length)h+='<div class="sec"><h2>'+esc(T("arch_ang"))+' <span class="cnt">'+offA.length+'</span></h2><p class="hint" style="margin:0 0 8px">'+esc(T("arch_ang_h"))+'</p><div class="card rows">'
     +offA.map(function(a){
       return '<div class="row user-row off"><span class="l"><span class="nm-row">'+esc(a.nume)+'<span class="tagc neg">'+esc(T("inactiv"))+'</span></span></span>'
-        +'<button type="button" class="btn sm ghost" data-restore-ang="'+esc(a.id)+'">'+esc(T("restore"))+'</button>'
+        +(a.by===ME?'<button type="button" class="btn sm ghost" data-restore-ang="'+esc(a.id)+'">'+esc(T("restore"))+'</button>':'')
         +'<button type="button" class="btn sm ghost" data-edit="angajati" data-id="'+esc(a.id)+'" aria-label="'+esc(T("edit"))+'">'+icon("gear")+'</button></div>';
     }).join("")+'</div></div>';
   if(!h)h='<div class="sec"><div class="card"><div class="empty"><b>'+esc(T("nothing"))+'</b>'+esc(T("nothing_d"))+'</div></div></div>';
@@ -2466,7 +2466,7 @@ function drawSheet(){
   if(!sheetState)return;
   var st=sheetState,def=FORMS[st.col],fields=def.fields();
   var rec0=st.id?(S[st.col]||[]).filter(function(r){return r.id===st.id})[0]:null;
-  var lockedOld=!!(rec0&&!isDir&&(rec0.by!==ME||(rec0.created&&Date.now()-Date.parse(String(rec0.created).replace(" ","T"))>EDIT_DAYS*86400000)));
+  var lockedOld=!!(rec0&&(rec0.by!==ME||(!isDir&&rec0.created&&Date.now()-Date.parse(String(rec0.created).replace(" ","T"))>EDIT_DAYS*86400000)));
   var body=fields.filter(function(f){
     if(f.showIf&&!f.showIf(st.data))return false;
     if(f.newOnly&&st.id&&st.col!=="angajati")return false;
@@ -2492,8 +2492,8 @@ function drawSheet(){
     +'<form id="recf" novalidate>'+out+calcHtml
     +(st.err?'<p class="err">'+esc(st.err)+'</p>':'')
     +'<div class="form-act"><button class="btn" type="submit" id="savebtn">'+esc(T("save"))+'</button>'
-    +((st.id&&st.col==="angajati"&&(isDir||angajatMeu(st.data.nume))&&st.data.status!=="Inactiv")?'<button class="btn danger" type="button" id="deact" title="'+esc(T("ang_deact_h"))+'">'+icon("trash")+'<span>'+esc(T("ang_deact"))+'</span></button>':'')
-    +((st.id&&isDir&&st.col!=="angajati")?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
+    +((st.id&&st.col==="angajati"&&rec0&&rec0.by===ME&&st.data.status!=="Inactiv")?'<button class="btn danger" type="button" id="deact" title="'+esc(T("ang_deact_h"))+'">'+icon("trash")+'<span>'+esc(T("ang_deact"))+'</span></button>':'')
+    +((st.id&&isDir&&st.col!=="angajati"&&rec0&&rec0.by===ME)?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
     +'</div></form>'+dls+'</div></div>';
   document.body.style.overflow="hidden";
   if(lockedOld){var sb=$("#savebtn");if(sb){var nt=document.createElement("p");nt.className="note";nt.textContent=T("lock_old");sb.parentNode.replaceChild(nt,sb);}
