@@ -1168,8 +1168,9 @@ var FORMS={
    {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
    {k:"suma",t:"number",l:"f_sumamdl",req:1,step:"0.01"},
    {k:"descriere",t:"text",l:"f_descr_req",req:1,hint:"f_descr_h",minlen:3},
-   {k:"categorie",t:"text",l:"f_categ",req:1,list:catMains()},
-   {k:"subcat",t:"text",l:"f_subcat",list:catSubs(sheetState&&sheetState.col==="cheltuieli"?catMain(catRaw(sheetState.data.categorie)):""),
+   /* the category is chosen, never typed: the list comes from the settings (and from what was used before) */
+   {k:"categorie",t:"select",l:"f_categ",req:1,allowEmpty:1,opts:catMains().map(function(c){return {v:c,l:catLabel(c)}})},
+   {k:"subcat",t:"select",l:"f_subcat",allowEmpty:1,opts:catSubs(sheetState&&sheetState.col==="cheltuieli"?catMain(catRaw(sheetState.data.categorie)):"").map(function(c){return {v:c,l:c}}),
     showIf:function(d){return !!d.subcat||catSubs(catMain(catRaw(d.categorie))).length>0}},
    /* what the money was spent for: a project (then the project is named), the firm itself, or something else */
    {k:"pentru",t:"select",l:"f_pentru",req:1,opts:[{v:"Proiect",l:T("pt_proiect")},{v:"EHL",l:T("pt_ehl")},{v:"Altele",l:T("pt_alte")}],def:"Proiect"},
