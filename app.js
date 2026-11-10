@@ -359,7 +359,7 @@ function monthEnd(ym){var y=parseInt(ym.slice(0,4),10),m=parseInt(ym.slice(5,7),
 
 /* ---------------- state ---------------- */
 var DEF_CFG={valute:[{cod:"MDL",curs:1},{cod:"EUR",curs:20.22},{cod:"USD",curs:17.5}],casier:"",
-  categorii:["Materiale","Materiale / Fundația","Materiale / Finisaje exterioare","Materiale / Instalații sanitare și electrice","Materiale / Acoperiș","Materiale / Finisaje interioare","Transport","Combustibil","Unelte","Birou","Taxe","Reparații","Arhitectură","Diverse"],pin:"1234"};
+  categorii:["Materiale","Materiale / Fundația","Materiale / Finisaje exterioare","Materiale / Instalații sanitare și electrice","Materiale / Acoperiș","Materiale / Finisaje interioare","Arhitectură","Tâmplărie","Combustibil","Transport","Servicii terțe","Taxe și impozite","Instrumente și unelte","Reparații administrative","Marketing","Comision","Consumabile","Cheltuieli neplanificate","Kit MgO"],pin:"1234"};
 var S={cfg:null,incasari:[],cheltuieli:[],iesiri:[],chirii:[],contracte:[],angajati:[],istoric:[],pontaj:[],grafic:[],imprumuturi:[],proiecte:[],utilizatori:[]};
 var COLS=["incasari","cheltuieli","iesiri","chirii","contracte","angajati","istoric","pontaj","grafic","imprumuturi","proiecte","utilizatori"];
 var DATA_COLS=["incasari","cheltuieli","iesiri","chirii","contracte","angajati","istoric","pontaj","grafic","imprumuturi","proiecte"];
@@ -751,7 +751,9 @@ function persoane(){return uniq(S.iesiri.map(function(r){return r.persoana}).con
    language; catRaw maps what was typed in a form back to the stored name, so the data never splits in two. */
 var CAT_RU={materiale:"Материалы",transport:"Транспорт",combustibil:"Топливо",unelte:"Инструменты",birou:"Офис",taxe:"Налоги",
  "reparații":"Ремонт",reparatii:"Ремонт","arhitectură":"Архитектура",arhitectura:"Архитектура",diverse:"Разное",salarii:"Зарплаты",chirie:"Аренда",chirii:"Аренда",
- comunale:"Коммунальные услуги","mâncare":"Питание",mancare:"Питание",telefon:"Связь",alte:"Прочее"};
+ comunale:"Коммунальные услуги","mâncare":"Питание",mancare:"Питание",telefon:"Связь",alte:"Прочее",
+ "tâmplărie":"Столярные работы",timplarie:"Столярные работы","servicii terțe":"Услуги третьих лиц","taxe și impozite":"Налоги и сборы","instrumente și unelte":"Инструменты",
+ "reparații administrative":"Административный ремонт",marketing:"Маркетинг",comision:"Комиссия",consumabile:"Расходные материалы","cheltuieli neplanificate":"Незапланированные расходы","kit mgo":"Kit MgO"};
 var CAT_RO={};Object.keys(CAT_RU).forEach(function(k){var r=CAT_RU[k].toLowerCase();if(!CAT_RO[r])CAT_RO[r]=k.charAt(0).toUpperCase()+k.slice(1)});
 /* A category may have a subcategory: stored as one string "Materiale / Acoperiș" (CAT_SEP). The main part is translated
    for display, the subcategory is shown as typed. Colours, the donut and the category totals group by the main part. */
