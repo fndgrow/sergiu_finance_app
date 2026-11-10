@@ -359,7 +359,7 @@ function monthEnd(ym){var y=parseInt(ym.slice(0,4),10),m=parseInt(ym.slice(5,7),
 
 /* ---------------- state ---------------- */
 var DEF_CFG={valute:[{cod:"MDL",curs:1},{cod:"EUR",curs:20.22},{cod:"USD",curs:17.5}],casier:"",
-  categorii:["Materiale","Transport","Combustibil","Unelte","Birou","Taxe","Reparații","Arhitectură","Diverse"],pin:"1234"};
+  categorii:["Materiale","Materiale / Fundația","Materiale / Finisaje exterioare","Materiale / Instalații sanitare și electrice","Materiale / Acoperiș","Materiale / Finisaje interioare","Transport","Combustibil","Unelte","Birou","Taxe","Reparații","Arhitectură","Diverse"],pin:"1234"};
 var S={cfg:null,incasari:[],cheltuieli:[],iesiri:[],chirii:[],contracte:[],angajati:[],istoric:[],pontaj:[],grafic:[],imprumuturi:[],proiecte:[],utilizatori:[]};
 var COLS=["incasari","cheltuieli","iesiri","chirii","contracte","angajati","istoric","pontaj","grafic","imprumuturi","proiecte","utilizatori"];
 var DATA_COLS=["incasari","cheltuieli","iesiri","chirii","contracte","angajati","istoric","pontaj","grafic","imprumuturi","proiecte"];
