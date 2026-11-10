@@ -89,7 +89,8 @@ const has = (label, v) => { const ok = txt().includes(v); console.log((ok ? "  o
   has("Ion balance (company owes)", EXPECT.ionHand); has("Ion own-money total", "din banii proprii 7.000,00"); has("contract left", EXPECT.contrLeft); has("contract %", EXPECT.pct);
   has("salary left Oct", EXPECT.salLeft); has("loans open", EXPECT.loanOpen);
   /* the overview donut for this month: Materiale 13 500 (90,0%) + Transport 1 500 (10,0%) */
-  has("overview Materiale share", "90,0%"); has("overview Transport share", "10,0%");
+  /* rents join the card as "Chirie": 8 000 + 3 200 = 11 200 -> month total 26 200 */
+  has("overview Materiale share", "51,5%"); has("overview Transport share", "5,7%"); has("overview Chirie share", "42,7%");
   console.log(errors.length ? "\nERRORS: " + errors.join("; ") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
 })().catch(e => { console.error("CRASH", e); process.exit(2); });

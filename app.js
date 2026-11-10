@@ -1875,9 +1875,13 @@ function addMonths(ym,k){var y=parseInt(ym.slice(0,4),10),m=parseInt(ym.slice(5,
 function monthsBack(n){var out=[],cur=curMonth();for(var i=n-1;i>=0;i--)out.push(addMonths(cur,-i));return out}
 function shortMonth(ym){var nm=monthName(ym).split(" ")[0];return nm.slice(0,3)}
 function round2(v){return Math.round((v||0)*100)/100}
+var OV_CHIRIE="Chirie"; /* the pseudo-category of the rents on the expenses card */
 function ovData(luna){
   var inM=function(r){return !luna||ymOf(r)===luna};
-  var chelt=S.cheltuieli.filter(inM),inc=S.incasari.filter(inM);
+  /* rents are expenses too: they join the card as the category "Chirie" (in lei at each row's rate) */
+  var outRows=function(f){return S.cheltuieli.filter(f).map(function(r){return {categorie:r.categorie,suma:n(r.suma)}})
+    .concat(S.chirii.filter(f).map(function(r){return {categorie:OV_CHIRIE,suma:round2(chirieTotal(r)*n(r.curs))}}))};
+  var chelt=outRows(inM),inc=S.incasari.filter(inM);
   var byCat={},bySub={};chelt.forEach(function(r){var k=catMain(r.categorie)||"—",sk=catSub(r.categorie);byCat[k]=round2((byCat[k]||0)+n(r.suma));if(sk){bySub[k]=bySub[k]||{};bySub[k][sk]=round2((bySub[k][sk]||0)+n(r.suma))}});
   var cats=Object.keys(byCat).map(function(k){var sb=bySub[k]||{};return {nume:k,val:byCat[k],slot:catSlot(k),icon:catIcon(k),
     subs:Object.keys(sb).sort(function(a,b){return sb[b]-sb[a]}).map(function(x){return x+" "+money(sb[x])})}}).sort(function(a,b){return b.val-a.val});
@@ -1887,10 +1891,10 @@ function ovData(luna){
     head.push({nume:T("ov_alte"),val:rest,slot:6,icon:"dots",folded:tail.map(function(c){return catLabel(c.nume)})});cats=head;}
   var incTotal=round2(inc.reduce(function(a,r){return a+n(r.suma)*n(r.curs)},0));
   var prevLuna=luna?addMonths(luna,-1):"";
-  var prev=luna?round2(S.cheltuieli.filter(function(r){return ymOf(r)===prevLuna}).reduce(function(a,r){return a+n(r.suma)},0)):0;
+  var prev=luna?round2(outRows(function(r){return ymOf(r)===prevLuna}).reduce(function(a,r){return a+n(r.suma)},0)):0;
   var months=monthsBack(6).map(function(m){
     return {luna:m,inc:round2(S.incasari.filter(function(r){return ymOf(r)===m}).reduce(function(a,r){return a+n(r.suma)*n(r.curs)},0)),
-      out:round2(S.cheltuieli.filter(function(r){return ymOf(r)===m}).reduce(function(a,r){return a+n(r.suma)},0))};
+      out:round2(outRows(function(r){return ymOf(r)===m}).reduce(function(a,r){return a+n(r.suma)},0))};
   });
   return {cats:cats,total:total,inc:incTotal,prev:prev,months:months};
 }
@@ -2991,7 +2995,10 @@ document.addEventListener("click",function(ev){
   if(ol){OV.luna=ol.getAttribute("data-ovluna")||"";render();return;}
   var dc=t.closest&&t.closest("[data-cat]");
   if(dc&&!isDir)return; /* the registers are the director's */
-  if(dc){regFilter={col:"cheltuieli",categorie:dc.getAttribute("data-cat")||"",luna:OV.luna};REGPAGE.cheltuieli=0;regTab="cheltuieli";if(view!=="reg"){view="reg";histPush({v:view});}render();return;}
+  if(dc){var dcat=dc.getAttribute("data-cat")||"";
+    if(sameP(dcat,OV_CHIRIE)&&!S.cheltuieli.some(function(r){return sameP(catMain(r.categorie),OV_CHIRIE)})){regFilter={col:"chirii",categorie:"",luna:OV.luna};REGPAGE.chirii=0;regTab="chirii";} /* the rents slice opens the rents register */
+    else{regFilter={col:"cheltuieli",categorie:dcat,luna:OV.luna};REGPAGE.cheltuieli=0;regTab="cheltuieli";}
+    if(view!=="reg"){view="reg";histPush({v:view});}render();return;}
   if(t.closest&&t.closest("[data-clearfilter]")){regFilter=null;REGPAGE[regTab]=0;render();return;}
   var ra=t.closest&&t.closest("[data-restore-ang]");
   if(ra){ra.disabled=true;saveDoc("angajati",{status:"Activ"},ra.getAttribute("data-restore-ang")).then(function(){toast(T("restored"));render()}).catch(function(e){toast(saveErr(e));render()});return;}
