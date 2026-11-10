@@ -2,7 +2,7 @@
 /* Casieria EHL — server hooks.
    Handlers cannot share functions declared outside them (PocketBase JS VM rule), so helpers are inlined. */
 
-var DATA_COLS = ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "proiecte", "angajati", "istoric", "pontaj", "jurnal"];
+var DATA_COLS = ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "jurnal"];
 
 /* ---- the app files (pb_public) are always revalidated: without this header a phone may keep an old app.js
         in its HTTP cache for hours after a deploy. The API and the admin UI are left alone. ---- */
@@ -122,7 +122,7 @@ routerAdd("POST", "/api/ehl/reset", (e) => {
   var body = e.requestInfo().body || {}, rec = e.auth;
   if (!rec || rec.getString("rol") !== "Director") throw new ForbiddenError("Doar directorul poate șterge datele.");
   if (String(body.cod || "").trim() === "" || String(body.cod || "").trim() !== rec.getString("cod")) throw new BadRequestError("Codul de acces este greșit.");
-  var cols = ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal"];
+  var cols = ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal"];
   $app.runInTransaction(function (tx) {
     cols.forEach(function (c) { tx.db().newQuery("DELETE FROM {{" + c + "}}").execute(); });
     tx.db().newQuery("DELETE FROM {{utilizatori}} WHERE rol != 'Director'").execute();
@@ -134,7 +134,7 @@ routerAdd("POST", "/api/ehl/reset", (e) => {
 onRecordCreateRequest((e) => {
   if (e.auth) e.record.set("by", e.auth.id);
   e.next();
-}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal");
+}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal");
 
 onRecordUpdateRequest((e) => {
   /* the author never changes on edit */
@@ -145,7 +145,25 @@ onRecordUpdateRequest((e) => {
     if (createdMs && Date.now() - createdMs > 15 * 24 * 3600 * 1000) throw new BadRequestError("Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.");
   }
   e.next();
-}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "proiecte", "angajati", "istoric", "pontaj", "grafic");
+}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic");
+
+/* ---- currency exchange: a person swaps money he holds from one currency to another; the record is always his ---- */
+function schimbCheck(e) {
+  var din = String(e.record.getString("valutaDin") || "").trim(), inn = String(e.record.getString("valutaIn") || "").trim();
+  if (!din || !inn || din === inn) throw new BadRequestError("Alegeți două valute diferite.");
+  if (!(e.record.getFloat("sumaDin") > 0) || !(e.record.getFloat("sumaIn") > 0)) throw new BadRequestError("Suma dată și suma primită trebuie să fie mai mari ca zero.");
+}
+onRecordCreateRequest((e) => {
+  if (!e.auth) throw new ForbiddenError("Autentificare necesară.");
+  e.record.set("persoana", String(e.auth.getString("nume") || "").trim());
+  schimbCheck(e);
+  e.next();
+}, "schimburi");
+onRecordUpdateRequest((e) => {
+  if (e.record.original) e.record.set("persoana", e.record.original().getString("persoana"));
+  schimbCheck(e);
+  e.next();
+}, "schimburi");
 
 /* ---- the work schedule: a full day (8) or a half day (4); any user, any active employee; a day is changed by its
         author only (collection rule). The month is paid as one sum by whoever pays, so a day is closed for everyone

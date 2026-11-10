@@ -39,7 +39,7 @@ const visible = (col, r) => {
   if (col === "istoric" || col === "angajati" || col === "grafic") return true; /* migration 17: employees, salaries and the schedule are shared */
   if (col === "cheltuieli") return r.by === me.id || r.platitDe === me.nume;
   if (col === "iesiri") return r.by === me.id || r.persoana === me.nume;
-  if (["chirii", "pontaj"].includes(col)) return r.by === me.id;
+  if (["chirii", "pontaj", "schimburi"].includes(col)) return r.by === me.id;
   return true; /* proiecte, config */
 };
 function emit(col, action, record) { subs.forEach(s => { if (s.col === col && (s.topic === "*" || s.topic === record.id) && visible(col, record)) s.cb({ action, record: { ...record } }); }); }
@@ -62,6 +62,11 @@ function collection(col) {
       if (col === "utilizatori") { /* made from the EHL account only, and always a collaborator */
         if (String(data.ehlCod || "") !== String(currentUser.codEHL || "")) throw err(400, "Colaboratorii se creează doar din contul EHL.");
         delete data.ehlCod; data.rol = "Operator"; data.codEHL = "";
+      }
+      if (col === "schimburi") { /* the hook: the exchange is the account's own, two different currencies, both sums */
+        data.persoana = currentUser.nume;
+        if (!data.valutaDin || !data.valutaIn || data.valutaDin === data.valutaIn) throw err(400, "Alegeți două valute diferite.");
+        if (!(data.sumaDin > 0) || !(data.sumaIn > 0)) throw err(400, "Suma dată și suma primită trebuie să fie mai mari ca zero.");
       }
       if (col === "incasari" && !isDir()) throw err(403, "forbidden"); /* client incomes: director only */
       if (col === "incasari") { /* money from a founder is confirmed with that founder's code */
@@ -303,7 +308,7 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("suma", "300"); setField("descriere", "Țiglă metalică"); setField("subcat", "Acoperiș"); submit($("#recf")); await tick(60);
   check(Object.values(store.cheltuieli).some(r => r.categorie === "Materiale / Acoperiș" && r.suma === 300), "expense stored as \"Materiale / Acoperiș\"");
   click($('[data-view="ehl"]')); await tick();
-  check(window.document.querySelectorAll(".donut .seg").length === 1 && /Acoperiș 300,00/.test(text()), "donut still one Materiale slice, the subcategory listed under it with its amount");
+  check(window.document.querySelectorAll(".donut .seg").length === 1 && !/Cheltuieli pe categorie|<h2>Salarii/.test(text()), "donut still one Materiale slice; no second category block and no salary block below");
   click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
   check(text().indexOf("Materiale / Acoperiș") >= 0, "register shows the full category name");
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
@@ -387,6 +392,7 @@ const ls = (k) => window.localStorage.getItem(k);
   console.log("7k. the EHL tab lists every movement of money; a record carries its history");
   click($('[data-view="ehl"]')); await tick();
   const tzSec = Array.from(window.document.querySelectorAll("#app .sec")).find(s => /Toate tranzacțiile/.test((s.querySelector("h2") || {}).textContent || ""));
+  check(tzSec && /Toate tranzacțiile/.test(Array.from(window.document.querySelectorAll("#app .sec h2")).pop().textContent), "the transactions box is the last block of the EHL tab");
   check(tzSec && /Casa EHL → Dat persoanei · Sergiu/.test(tzSec.textContent) && /Vopsea/.test(tzSec.textContent) && /introdus de Sergiu/.test(tzSec.textContent), "the list shows the till → administrator move and the expenses, each with who recorded it");
   click(tzSec.querySelector('[data-edit="iesiri"]')); await tick(80);
   check($("#rec-hist") && /Istoricul înregistrării/.test($("#sheet").textContent) && /Adăugat/.test($("#sheet").textContent) && /Sergiu/.test($("#rec-hist").textContent), "the record's form shows its history: created, by whom, when");
@@ -661,6 +667,23 @@ const ls = (k) => window.localStorage.getItem(k);
   check(ln && ln.valuta === "EUR" && ln.curs === 20.22 && ln.suma === 100, "the loan is saved as 100 EUR at 20,22");
   click($('[data-view="reg"]')); await tick(); click($('[data-tab="imprumuturi"]')); await tick();
   check(/100,00/.test(text()) && /2\.022,00 MDL/.test(text()), "the register shows the 100 EUR and its 2.022,00 lei");
+
+  console.log("12. currency exchange: the administrator turns lei he holds into euro; more than he holds is refused");
+  click($('[data-view="panou"]')); await tick();
+  const mdlBefore = (($(".tile.big").textContent.match(/([0-9.]+,[0-9]{2}) MDL/) || [])[1]) || "";
+  click($('[data-view="add"]')); await tick(); click($('[data-form="schimburi"]')); await tick();
+  setField("valutaDin", "MDL"); setField("sumaDin", "9999999"); setField("valutaIn", "EUR"); setField("sumaIn", "1"); submit($("#recf")); await tick(40);
+  check($("#recf") && /Nu aveți atâta/.test($("#sheet").textContent), "an exchange of more lei than he holds is refused");
+  setField("sumaDin", "2022"); setField("sumaIn", "100"); await tick();
+  check(/20\.2200/.test($("#sheet").textContent), "the card shows the resulting rate 20,2200 lei per euro");
+  submit($("#recf")); await tick(80);
+  const sx = Object.values(store.schimburi || {}).find(r => r.sumaDin === 2022);
+  check(!$("#recf") && sx && sx.persoana === "Sergiu" && sx.valutaDin === "MDL" && sx.valutaIn === "EUR" && sx.sumaIn === 100, "saved: 2 022 MDL given, 100 EUR received, in the administrator's name");
+  click($('[data-view="panou"]')); await tick();
+  const tileNow = $(".tile.big").textContent.replace(/\s+/g, " ");
+  check(/100,00 EUR/.test(tileNow) && mdlBefore && !tileNow.includes(mdlBefore + " MDL"), "Soldul meu now lists 100,00 EUR and the lei line went down");
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="schimburi"]')); await tick();
+  check(/2\.022,00 MDL → EUR/.test(text()), "the exchange has its own register tab");
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
