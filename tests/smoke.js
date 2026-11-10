@@ -460,7 +460,7 @@ const ls = (k) => window.localStorage.getItem(k);
   check($('[data-k="contractTransfer"]').value === "20000", "the transfer part fills itself: 50 000 − 30 000 cash = 20 000");
   const boxes = Array.from(window.document.querySelectorAll("#sheet .calcbox")).map(b => b.textContent);
   const eurCash = ro(Math.round(paid("Numerar") / 20.22 * 100) / 100);
-  check(boxes.length === 4 && boxes[0].includes("50.000,00 EUR") && boxes[1].includes(eurCash + " / 30.000,00 EUR") && boxes[2].includes("/ 20.000,00 EUR"), "the project card shows the contract in euro, cash " + eurCash + " / 30 000 and transfer / 20 000");
+  check(boxes.length === 5 && boxes[0].includes("50.000,00 EUR") && boxes[1].includes(eurCash + " / 30.000,00 EUR") && boxes[2].includes("/ 20.000,00 EUR"), "the project card shows the contract in euro, cash " + eurCash + " / 30 000 and transfer / 20 000");
   setField("contractCash", "40000"); await tick(); setField("contractTransfer", "5000"); submit($("#recf")); await tick(60);
   check($("#recf") && /Cash \+ transfer trebuie/.test($("#sheet").textContent), "cash + transfer that do not give the contract are refused");
   setField("contractCash", "30000"); await tick(); submit($("#recf")); await tick(80);

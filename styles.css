@@ -433,6 +433,12 @@ nav button .ic .ic-svg{width:22px;height:22px}
 /* ---- settings ---- */
 .sec-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .sec-h>h2{margin:0}
+/* a folding block: the header is a button with an arrow that turns when open */
+.fold-h{display:flex;align-items:center;gap:6px;background:transparent;border:0;padding:0;cursor:pointer;color:var(--ink);text-align:left;min-width:0}
+.fold-h h2{margin:0}
+.fold-h .ic-svg{width:20px;height:20px;flex:0 0 auto;transition:transform .2s;color:var(--muted)}
+.fold-h[aria-expanded="true"] .ic-svg{transform:rotate(90deg)}
+.fold-sum{margin:0}
 .sec-act{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .exit-bottom{display:none}
 @media (max-width:899px){.sec-act .btn.exit-top{display:none}.exit-bottom{display:block}}
@@ -560,7 +566,8 @@ nav button .ic .ic-svg{width:22px;height:22px}
   .dash-grid>.sec{order:2;margin:0 0 22px}
   .dash-grid>.sec-wide{order:0}
   .dash-grid>.sec-casa{order:1}
-  .dash-grid>.sec-last{order:3} /* the lists that grow all year ("Ce am introdus eu", "Toate tranzacțiile") stay at the bottom */
+  .dash-grid>.sec-late{order:3} /* the employees block: low, it grows with the firm */
+  .dash-grid>.sec-last{order:4} /* the lists that grow all year ("Ce am introdus eu", "Toate tranzacțiile") stay at the bottom */
 }
 /* 4. quick-jump menu */
 .burger{display:none;place-items:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;flex:0 0 auto}
