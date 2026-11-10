@@ -163,7 +163,7 @@ ro:{
  op_primit:"Primit de la director",op_chn:"Cheltuit numerar",op_prop:"Din banii mei",op_tr:"Prin transfer (din cont)",op_adv:"Bani primiți de la director",op_proj:"Cheltuieli pe proiect",
  cont_intra:"Pe cont intră",
  s_cont_minus:"Contul este în minus",l_cont_achitat:"De achitat pe cont",cont_minus_h:"Plățile prin transfer au depășit banii de pe cont. Mai jos sunt plățile care au dus contul în minus. Acoperiți-l cu o încasare prin transfer sau cu Ieșire din casă → Depus pe cont.",
- srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",
+ srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",din_casa:"din casă",
  s_tr:"Cheltuieli din cont (transfer)",tr_h:"La transfer banii se iau din contul bancar, nu de la persoană. Apăsați pe un nume ca să vedeți pe ce s-au cheltuit.",colab_tr:"Plătit prin transfer (din cont)",
  avans_lipsa:"Nu aveți destui bani din avans: disponibil {s} MDL. Cereți mai întâi bani de la director.",avans_disp:"Disponibil din avansul meu",din_avans:"din avansul lui",colab_gave:"Ieșiri făcute din avans",
  f_pentru:"Cheltuiala este pentru",pt_proiect:"Proiect",pt_proiecte:"Proiecte",pt_ehl:"EHL (firma)",pt_alte:"Altele",s_pentru:"Cheltuieli: proiecte, EHL, altele",
@@ -322,7 +322,7 @@ ru:{
  op_primit:"Получено от директора",op_chn:"Потрачено наличными",op_prop:"Из своих денег",op_tr:"Переводом (со счёта)",op_adv:"Деньги, полученные от директора",op_proj:"Расходы по проектам",
  cont_intra:"На счёт поступит",
  s_cont_minus:"Счёт в минусе",l_cont_achitat:"Нужно внести на счёт",cont_minus_h:"Платежи переводом превысили деньги на счёте. Ниже — платежи, которые увели счёт в минус. Покройте его поступлением переводом или Выдачей из кассы → Внесено на счёт.",
- srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",
+ srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",din_casa:"из кассы",
  s_tr:"Расходы со счёта (перевод)",tr_h:"При переводе деньги берутся с банковского счёта, а не у человека. Нажмите на имя, чтобы увидеть, на что они потрачены.",colab_tr:"Оплачено переводом (со счёта)",
  avans_lipsa:"В вашем авансе недостаточно денег: доступно {s} MDL. Сначала получите деньги у директора.",avans_disp:"Доступно из моего аванса",din_avans:"из аванса:",colab_gave:"Выдачи из аванса",
  f_pentru:"Расход относится к",pt_proiect:"Проект",pt_proiecte:"Проекты",pt_ehl:"EHL (фирма)",pt_alte:"Прочее",s_pentru:"Расходы: проекты, EHL, прочее",
@@ -802,7 +802,7 @@ function calc(){
     C.intratNum[v]=sum(S.incasari,function(r){return r.mod==="Numerar"&&r.valuta===v?n(r.suma):0});
     C.intratTr[v]=sum(S.incasari,function(r){return r.mod==="Transfer"&&r.valuta===v?n(r.suma):0});
     C.iesDepus[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Depus pe cont"&&r.valuta===v?n(r.suma):0});
-    C.iesPers[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Dat persoanei"&&r.valuta===v&&!(casier()&&sameP(r.persoana,casier()))?n(r.suma):0});
+    C.iesPers[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Dat persoanei"&&r.valuta===v&&!isTillPayer(r.persoana)?n(r.suma):0});
     C.iesSal[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Salarii"&&r.valuta===v?n(r.suma):0});
     C.iesImpr[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Împrumut"&&r.valuta===v?n(r.suma):0});
     C.iesAlte[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Alte"&&r.valuta===v?n(r.suma):0});
@@ -826,7 +826,7 @@ function calc(){
   C.cheltTr=sum(S.cheltuieli,function(r){return r.mod==="Transfer"?n(r.suma):0});
   C.depusMDL=sum(S.iesiri,function(r){return r.destinatie==="Depus pe cont"?n(r.suma)*n(r.curs):0});
   C.salPlatitMDL=round2(sum(S.iesiri,function(r){return r.destinatie==="Salarii"?n(r.suma)*n(r.curs):0})+sum(S.cheltuieli,function(r){return r.categorie==="Salarii"?n(r.suma):0}));
-  C.avansMDL=sum(S.iesiri,function(r){return r.destinatie==="Dat persoanei"&&!(casier()&&sameP(r.persoana,casier()))?n(r.suma)*n(r.curs):0});
+  C.avansMDL=sum(S.iesiri,function(r){return r.destinatie==="Dat persoanei"&&!isTillPayer(r.persoana)?n(r.suma)*n(r.curs):0});
   C.chiriiMDL=sum(S.chirii,function(r){return chirieTotal(r)*n(r.curs)});
   C.chiriiTrMDL=sum(S.chirii,function(r){return r.mod==="Transfer"?chirieTotal(r)*n(r.curs):0});
 
@@ -947,7 +947,7 @@ function projInc(nume){
    shelf (nothing when it does not leave the till); casaErr refuses a row that takes more than the shelf holds.
    An edit that takes no more than the row already took always passes, so old rows stay correctable. */
 function casaNeed(col,d){
-  if(col==="iesiri")return (dinAvans(d)||(d.destinatie==="Dat persoanei"&&casier()&&sameP(d.persoana,casier())))?null:{v:d.valuta||"MDL",s:n(d.suma)};
+  if(col==="iesiri")return (dinAvans(d)||(d.destinatie==="Dat persoanei"&&isTillPayer(d.persoana)))?null:{v:d.valuta||"MDL",s:n(d.suma)};
   if(col==="chirii")return d.mod==="Numerar"?{v:d.valuta||"MDL",s:chirieTotal(d)}:null;
   if(col==="imprumuturi")return d.dinCasa?{v:"MDL",s:n(d.suma)}:null;
   return null;
@@ -1116,11 +1116,11 @@ var FORMS={
    {k:"pentru",t:"select",l:"f_pentru",req:1,opts:[{v:"Proiect",l:T("pt_proiect")},{v:"EHL",l:T("pt_ehl")},{v:"Altele",l:T("pt_alte")}],def:"Proiect"},
    onlyIf(fProiect(),function(d){return pentruOf(d)==="Proiect"},1),
    onlyIf(fClient(0),function(d){return pentruOf(d)==="Proiect"}),
-   {k:"platitDe",t:"text",l:"f_platit",req:1,list:oameni(),def:meName()||casier(),showIf:function(){return isDir}}, /* a collaborator pays himself */
    {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"},
-   {k:"sursa",t:"select",l:"src_t",req:1,opts:[{v:"Avans",l:T("src_avans")},{v:"Proprii",l:T("src_proprii")}],def:"Avans",hint:"src_h",showIf:function(d){return isDir&&d.mod!=="Transfer"}}
  ]},calc:function(d){
-   if(isDir)return [];
+   /* who pays is never chosen: the account that records the expense. A director or the cashier pays from the till,
+      a collaborator from his advance; a transfer comes from the firm's account for everyone. */
+   if(isDir||isCasierMe())return [{l:T("f_mod"),v:d.mod==="Transfer"?T("op_tr_h"):T("din_casa")}];
    return d.mod==="Transfer"?[{l:T("f_mod"),v:T("op_tr_h")}]:[{l:T("avans_disp"),v:money(soldAvans(meName()))+" MDL"}]}},
 
  iesiri:{title:"a_ies",icon:"send",fields:function(){return[
@@ -2728,7 +2728,7 @@ function submitForm(){
       b[f.k]=(f.t==="number")?n(d[f.k]):String(d[f.k]==null?"":d[f.k]).trim();
     });
     if(col==="cheltuieli"){b.categorie=catJoin(catRaw(b.categorie),b.subcat);delete b.subcat;
-      if(!isDir&&!isCasierMe()){b.platitDe=meName();b.sursa="Avans";} /* the server sets the same */
+      if(!st.id){b.platitDe=meName();b.sursa=(!isDir&&!isCasierMe())?"Avans":"";} /* the payer is the account itself; the server sets the same */
       if(b.pentru!=="Proiect"){b.proiect="";b.client="";}} /* "EHL" and "Altele" carry no project and no client */
     if(b.valuta==="MDL"&&("curs" in b))b.curs=1; /* lei never carry a rate */
     if(col==="iesiri"&&!st.id){if(ieseDinAvans(null)){b.sursa="Avans";b.platitDe=meName()}else{b.sursa="Casa";b.platitDe=""}}

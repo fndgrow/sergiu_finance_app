@@ -71,7 +71,7 @@ function col(c) { return {
 }; }
 window.PocketBase = class { constructor() { this.authStore = { token: "", record: null, get isValid() { return !!this.token; }, save(t, r) { this.token = t; this.record = r; currentUser = r; }, clear() { this.token = ""; this.record = null; } }; this.realtime = { unsubscribe() {} }; }
   autoCancellation() {} collection(c) { return col(c); }
-  async send(p, o) { if (o.body.cod !== DIR.cod) throw err(401, "x"); if (!o.body.parola) return { needPassword: true, record: DIR }; return { token: "tok", expires: Date.now() + 7e8, record: DIR }; } };
+  async send(p, o) { if (o.body.cod !== DIR.cod) throw err(401, "x"); return { token: "tok", record: DIR }; } }; /* the code alone, as in the server hooks */
 window.PB_URL = ""; window.ExcelJS = undefined;
 
 const tick = (ms = 30) => new Promise(r => setTimeout(r, ms));
@@ -81,12 +81,11 @@ const has = (label, v) => { const ok = txt().includes(v); console.log((ok ? "  o
 (async () => {
   window.eval(fs.readFileSync(path.join(APP, "app.js"), "utf8"));
   await tick(50);
-  $("#pinv").value = DIR.cod; $("#pinf").dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true })); await tick(60);
-  $("#pwf").elements["p"].value = "secret12"; $("#pwf").dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true })); await tick(200);
+  $("#pinv").value = DIR.cod; $("#pinf").dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true })); await tick(200);
   const t = txt();
   console.log("dashboard loaded:", /Banii firmei/.test(t));
   has("till (În casă)", EXPECT.till); has("bank (Pe cont)", EXPECT.bank); has("company total", EXPECT.total);
-  has("incomes", EXPECT.inc); has("expenses", EXPECT.exp); has("EUR shelf", EXPECT.eur); has("EUR shelf in MDL", EXPECT.eurMdl);
+  has("incomes", EXPECT.inc); has("expenses", EXPECT.exp); has("EUR shelf (on the till tile)", EXPECT.eur + " EUR"); has("MDL shelf (on the till tile)", "71.200,00 MDL");
   has("Ion balance (company owes)", EXPECT.ionHand); has("Ion own-money total", "din banii proprii 7.000,00"); has("contract left", EXPECT.contrLeft); has("contract %", EXPECT.pct);
   has("salary left Oct", EXPECT.salLeft); has("loans open", EXPECT.loanOpen);
   /* the overview donut for this month: Materiale 13 500 (90,0%) + Transport 1 500 (10,0%) */

@@ -315,6 +315,15 @@ onRecordUpdateRequest((e) => {
 /* ---- a collaborator's expense: he is the payer. Cash comes out of the money the director gave him and cannot take
         his balance below zero; a transfer is paid by the firm's account, which may go below zero. The cashier pays from the till. ---- */
 onRecordCreateRequest((e) => {
+  /* the payer is the account that records the expense. A director pays from the till: platitDe is his own name,
+     except a salary paid to a collaborator account, which comes out of that collaborator's advance. */
+  if (e.auth && e.auth.getString("rol") === "Director") {
+    var who = String(e.record.getString("platitDe") || "").trim(), isCollab = false;
+    if (who && e.record.getString("categorie") === "Salarii") {
+      try { isCollab = $app.countRecords("utilizatori", $dbx.exp("rol = 'Operator' AND TRIM(nume) = {:n}", { n: who })) > 0; } catch (err) { isCollab = false; }
+    }
+    if (!isCollab) { e.record.set("platitDe", String(e.auth.getString("nume") || "").trim()); e.record.set("sursa", ""); }
+  }
   if (e.auth && e.auth.getString("rol") !== "Director") {
     var me = String(e.auth.getString("nume") || "").trim();
     var cas = "";
@@ -333,6 +342,11 @@ onRecordCreateRequest((e) => {
   e.next();
 }, "cheltuieli");
 onRecordUpdateRequest((e) => {
+  /* the payer and the source never change on edit, for a director too */
+  if (e.auth && e.auth.getString("rol") === "Director" && e.record.original) {
+    e.record.set("platitDe", e.record.original().getString("platitDe"));
+    e.record.set("sursa", e.record.original().getString("sursa"));
+  }
   if (e.auth && e.auth.getString("rol") !== "Director" && e.record.original) {
     var me = String(e.auth.getString("nume") || "").trim();
     var cas = "";

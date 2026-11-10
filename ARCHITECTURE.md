@@ -31,6 +31,7 @@ Contents
 25. [Tests: what they check and how they work](#25-tests-what-they-check-and-how-they-work)
 26. [How to make changes](#26-how-to-make-changes)
 27. [Developer FAQ](#27-developer-faq)
+28. [The firm's rules added on 6 November 2026](#28-the-firms-rules-added-on-6-november-2026)
 
 ---
 
@@ -68,6 +69,13 @@ Contents
 | `server/pb_migrations/1762000002_backups.js` | 12 | daily backup at 03:00, keep 14 |
 | `server/pb_migrations/1762000003_sursa.js` | 12 | the `sursa` field on expenses |
 | `server/pb_migrations/1762000004_incasari_director.js` | 12 | client incomes are created by directors only |
+| `server/pb_migrations/1762000005_incasari_confirmat.js` | — | `incasari.confirmat`: who confirmed a founder's money and when |
+| `server/pb_migrations/1762000006_proiecte_contract.js` | — | `proiecte.sumaContract`, `proiecte.adaugator` |
+| `server/pb_migrations/1762000007_cheltuieli_pentru.js` | — | `cheltuieli.pentru`: Proiect / EHL / Altele |
+| `server/pb_migrations/1762000008_iesiri_sursa.js` | — | `iesiri.sursa`, `iesiri.platitDe`: paid from the till or from a collaborator's advance |
+| `server/pb_migrations/1762000009_iesiri_director.js` | — | till outflows are created by directors only |
+| `server/pb_migrations/1762000010_imprumuturi_director.js` | — | loans are created by directors only |
+| `server/pb_migrations/1762000011_operator_citire.js` | — | list/view rules: a collaborator reads only what is his |
 | `server/pb_hooks/ehl.pb.js` | 151 | sign-in by code, the director's password, record authorship, validations |
 | `server/install.sh` | 85 | installs PocketBase as a service + nginx site + certificate |
 | `server/nginx-site.conf` | 32 | nginx site template (proxy to 8090, security headers) |
@@ -135,8 +143,8 @@ localStorage holds only:
 | `ehl.cod` | the director's code, so the weekly password prompt does not need the code typed again as a full sign-in |
 | `ehl.exp` | when the director's session expires (ms) |
 | `ehl.cache` | a snapshot of `S` for offline use, bound to the user id |
-| `ehl.queue` | the queue of unsent operations |
-| `ehl.failed` | the rejected operations |
+| `ehl.queue.<user id>` | the queue of unsent operations, one per user (`qKey`); a shared `ehl.queue` from older versions is taken over once |
+| `ehl.failed.<user id>` | the rejected operations, one list per user |
 
 ## 4. Client: the render cycle
 
@@ -168,6 +176,8 @@ Every HTML string goes through `esc()`, so typed text can never become markup.
 All clicks are handled by one delegated handler, `document.addEventListener("click", …)`, which looks at the `data-` attributes of the nearest element: `data-view`, `data-form`, `data-edit`, `data-tab`, `data-ovluna`, `data-cat`, `data-colab`, `data-lang`, `data-retry`, `data-page`, `data-grp`, `data-more`, `data-goto`, `data-menu-close` and so on. Handlers therefore survive every re-render.
 
 ## 5. Sign-in, lock screen and session, step by step
+
+**Current state (the firm's decision):** the director's password is switched off — `PAROLA_DIRECTOR = false` in `ehl.pb.js` makes the login route answer a director exactly like an operator (a code, a 1-year token), and `PAROLA_DIR = false` in `app.js` hides the password card and drops a code remembered by the old flow. The lock screen asks the code at most once in 2 days: `ehl.unlock` holds the time of the last successful code entry (`markUnlock()`), and `lockDue()` compares it with `LOCK_AFTER` on start-up and when the page comes back to the foreground. The description below of the password steps applies once both flags are set back to `true`.
 
 **Start-up (`boot`).**
 1. If `window.PocketBase` did not load → `noCfg = true`, the "application is not configured" screen.
@@ -239,6 +249,10 @@ saveDoc:
 - any other server error (400: an access rule or a validation, such as an empty description) → the operation **moves to `FAILED`** with the error text and time. Nothing is ever dropped silently.
 
 `FAILED` is shown by `failedNote()` in a red note at the top of every screen: which record, the amount, the reason (translated by `srvT`); "Retry" puts it back into the queue, "Delete" needs two taps.
+
+**Ids and lost answers.** The id of a new record is made on the client (`newId()`, 15 characters like PocketBase's own) and sent with the create. When a create reached the server but its answer was lost, the retry is refused with a validation error on the `id` field; `flushQueue()` reads that as "already there" and drops the operation, so a bad connection never doubles a record. Operations queued by older versions carry a `tmp…` id and no `data.id`; they still get a server id as described above.
+
+**One queue per user.** `QUEUE` and `FAILED` are stored under the user's id. `logout()` empties them in memory only, so the next person on the phone never sends someone else's records; they go out when their author signs in again. When storage is full, `saveQueue()` drops the `ehl.cache` snapshot to make room: the snapshot can be reloaded, unsent records cannot.
 
 Why an online write bypasses the queue only when the queue is **empty**: otherwise ordering would break (a new record could overtake an older one it refers to).
 
@@ -464,18 +478,18 @@ PocketBase settings made by migrations: `trustedProxy.headers = ["X-Real-IP"]` (
 
 ## 21. Database schema: collections and fields
 
-Every record has the system fields `id` (15 characters), `created`, `updated`. Every register has `by` (a relation to `utilizatori`, set by the server).
+Every record has the system fields `id` (15 characters; new records get it on the client, see section 7), `created`, `updated`. Every register has `by` (a relation to `utilizatori`, set by the server).
 
 | Collection | Fields |
 |---|---|
-| `utilizatori` (auth) | `nume` text; `rol` select Operator/Director; `cod` text 4–8 digits, unique index; `status` select Activ/Inactiv; `parolaSetata` bool; system `email`, `password`, `verified`, `tokenKey` (email and password are random and never used directly; the director's password lives in the system `password`) |
-| `incasari` | `data`, `client`, `proiect`, `descriere`, `valuta` text; `curs`, `suma` number; `mod` text (Numerar/Transfer) |
-| `cheltuieli` | `data`, `categorie`, `descriere`, `client`, `proiect`, `platitDe`, `mod`, `sursa` (Avans/Proprii/empty) text; `suma` number |
-| `iesiri` | `data`, `destinatie` (Dat persoanei/Depus pe cont/Salarii/Împrumut/Alte), `valuta`, `persoana`, `luna` (YYYY-MM), `nota`; `curs`, `suma` |
+| `utilizatori` (auth) | `nume` text; `rol` select Operator/Director; `cod` text 4–8 digits, unique index; `status` select Activ/Inactiv; `parolaSetata` bool; system `email`, `password`, `verified`, `tokenKey` (email and password are random; `tokenKey` is refreshed on every sign-in: one session per account) |
+| `incasari` | `data`, `client` (a client or a founder = a director's name), `proiect`, `descriere`, `valuta` text; `curs`, `suma` number; `mod` text (Numerar/Transfer; a transfer is always MDL); `confirmat` text (set by the server for a founder's money) |
+| `cheltuieli` | `data`, `categorie`, `descriere`, `pentru` (Proiect/EHL/Altele), `client`, `proiect`, `platitDe`, `mod`, `sursa` (Avans/Proprii/empty) text; `suma` number |
+| `iesiri` | `data`, `destinatie` (Dat persoanei/Depus pe cont/Salarii/Împrumut/Restituire fondator/Alte), `valuta`, `persoana`, `luna` (YYYY-MM), `nota`, `sursa` (Casa/Avans), `platitDe`; `curs`, `suma` |
 | `chirii` | `dataInceput`, `dataSfarsit`, `locatia`, `chirias`, `valuta`, `mod`, `nota`; `curs`, `chirie`, `gaj`, `comunale`, `avarii` |
 | `contracte` | `client`, `nota`; `sumaContract`, `deIncasatCash` |
 | `imprumuturi` | `data`, `persoana`, `termen`, `status` (Neachitat/Achitat), `nota`; `suma` |
-| `proiecte` | `nume`, `client`, `responsabili` (names separated by commas), `dataInceput`, `termen`, `status` (Activ/Pauză/Finalizat), `nota`; `buget` |
+| `proiecte` | `nume`, `client`, `responsabili` (names separated by commas), `dataInceput`, `termen`, `status` (Activ/Pauză/Finalizat), `nota`; `buget`, `sumaContract`, `adaugator` |
 | `angajati` | `nume`, `dataInceput`, `status` |
 | `istoric` | `angajat`, `dinData`; `salariu` |
 | `pontaj` | `luna`, `angajat`; `z1`, `z2` |
@@ -483,11 +497,11 @@ Every record has the system fields `id` (15 characters), `created`, `updated`. E
 | `config` | `valute` JSON `[{cod, curs}]`; `casier` text; `categorii` JSON `[…]` |
 | `login_attempts` | `ip`; written only by the server |
 
-Dates are stored as **text** in ISO form (`2026-11-02`) so comparisons and the export do not depend on time zones; amounts are numbers.
+Dates are stored as **text** in ISO form (`2026-11-02`) so comparisons and the export do not depend on time zones; amounts are numbers. People, clients and projects are referenced by **name** (text); a rename is propagated by the client (`renamePerson`), and the server hooks compare names exactly (SQLite's `LOWER()` knows ASCII only, so it is not used on names).
 
 ## 22. Access rules
 
-Rules are PocketBase expressions on the collections (in `1762000000_init.js`). The base expressions:
+Rules are PocketBase expressions on the collections (`1762000000_init.js`, changed by `…0004`, `…0009`, `…0010`, `…0011`). The base expressions:
 
 ```
 MEMBER   = @request.auth.id != "" && @request.auth.status != "Inactiv"
@@ -497,45 +511,53 @@ OWN_OR_DIR = DIRECTOR || (MEMBER && by = @request.auth.id)
 
 | Collection | list/view | create | update | delete |
 |---|---|---|---|---|
-| registers (`cheltuieli`, `iesiri`, `chirii`, `contracte`, `imprumuturi`, `proiecte`, `angajati`) | MEMBER | MEMBER | OWN_OR_DIR (+ the 15-day hook) | DIRECTOR |
-| `incasari` | MEMBER | DIRECTOR (migration `1762000004`) | OWN_OR_DIR (+ the 15-day hook) | DIRECTOR |
+| `incasari` | DIRECTOR | DIRECTOR (+ founder code hook) | OWN_OR_DIR (+ the 15-day hook) | DIRECTOR |
+| `cheltuieli` | DIRECTOR or MEMBER with `by = auth.id` or `platitDe = auth.nume` | MEMBER (+ the collaborator's cash-balance hook) | OWN_OR_DIR (+ hooks) | DIRECTOR |
+| `iesiri` | DIRECTOR or MEMBER with `by = auth.id` or `persoana = auth.nume` | DIRECTOR | OWN_OR_DIR (+ hooks) | DIRECTOR |
+| `imprumuturi` | DIRECTOR | DIRECTOR | OWN_OR_DIR | DIRECTOR |
+| `contracte` | DIRECTOR | MEMBER | OWN_OR_DIR | DIRECTOR |
+| `chirii`, `angajati` | OWN_OR_DIR | MEMBER | OWN_OR_DIR (+ the 15-day hook) | DIRECTOR |
+| `proiecte` | MEMBER | MEMBER | OWN_OR_DIR | DIRECTOR |
 | `istoric` | DIRECTOR | DIRECTOR | DIRECTOR | DIRECTOR |
-| `pontaj` | OWN_OR_DIR | MEMBER | OWN_OR_DIR | DIRECTOR |
+| `pontaj` | OWN_OR_DIR | MEMBER (+ own-employee hook) | OWN_OR_DIR (+ hook) | DIRECTOR |
 | `utilizatori` | DIRECTOR or `id = @request.auth.id && status != "Inactiv"` | DIRECTOR | DIRECTOR | DIRECTOR |
 | `jurnal` | DIRECTOR | MEMBER | null | null |
 | `config` | MEMBER | DIRECTOR | DIRECTOR | null |
 | `login_attempts` | null | null | null | null |
 
-`null` means superuser only. An important PocketBase trait: a `list` rule acts as a filter (records that do not match are simply left out of the answer), while `view`/`update`/`delete` return 404 on a mismatch. The detection of a deactivated user (section 5) relies on this.
+`null` means superuser only. An important PocketBase trait: a `list` rule acts as a filter (records that do not match are simply left out of the answer), while `view`/`update`/`delete` return 404 on a mismatch. A request with a dead or missing token is treated as a stranger: lists come back empty and a single record answers 404, never 401 — the client therefore asks `auth-refresh` why it was signed out (`signedOut()`, section 28).
 
-`@request.auth` is always read from the database by the token, so a changed status or role takes effect on the very next request.
+A collaborator's client still asks for every collection; the ones he may not read simply come back empty, so the loading code is the same for both roles.
 
 ## 23. Server hooks, line by line
 
-File `server/pb_hooks/ehl.pb.js`. In the PocketBase JS engine handlers cannot see functions declared outside them, so everything is written inside each handler.
+File `server/pb_hooks/ehl.pb.js`. In the PocketBase JS engine handlers cannot see functions declared outside them, so everything is written inside each handler (that is why create and update handlers repeat the same lines).
+
+**`routerUse` (every request).** Anything outside `/api/` and `/_/` — the app files — is answered with `Cache-Control: no-cache`, so a browser revalidates them instead of keeping an old `app.js` for hours.
 
 **`POST /api/ehl/login`**
 1. `cod` is taken from the body; the format is `^[0-9]{4,8}$`, otherwise 400.
-2. `ip = e.realIP()` (honouring X-Real-IP). The `login_attempts` rows with that ip in the last 15 minutes are counted; 8 or more → 429 with a message.
-3. The user is looked up by `cod`. If none is found and the collection holds **zero** users → a director is created with that code (name "Director", random email/password), plus a `config` record with default currencies and categories; `first = true`.
-4. If no user is found or the user is `Inactiv` → an attempt is recorded in `login_attempts` (rows older than a day are purged along the way) and 401 follows.
-5. An operator → `rec.newAuthToken()` (the collection's token duration, 1 year) and the answer `{token, record, first}`.
-6. A director without a password (`parolaSetata = false`): without `parolaNoua` → `{needSetPassword:true}`; with `parolaNoua` (≥ 8 characters) → `setPassword`, `parolaSetata = true`, save, a static 7-day token (`newStaticAuthToken(7 days in nanoseconds)`), the answer carries `expires`.
-7. A director with a password: without `parola` → `{needPassword:true}`; a wrong password → an attempt + 401; a right one → a static 7-day token.
+2. `ip = e.realIP()`. The `login_attempts` rows with that ip in the last 15 minutes are counted; 8 or more → 429.
+3. The user is looked up by `cod`. If none is found and the collection holds **zero** users → a director is created with that code, plus a `config` record with default currencies and categories; `first = true`.
+4. No user or `Inactiv` → an attempt is recorded (rows older than a day are purged) and 401 follows.
+5. `PAROLA_DIRECTOR = false` (the current state): operators and directors alike get `rec.refreshTokenKey(); $app.save(rec)` and then `rec.newAuthToken()` (1 year). Refreshing the token key is what makes it **one session per account**: every token issued before stops working.
+6. With `PAROLA_DIRECTOR = true` a director goes through `needSetPassword` / `needPassword` and gets a static 7-day token, as before.
 
-**`POST /api/ehl/password`** (requires `utilizatori` auth): directors only; `noua` ≥ 8; when a password already exists, `veche` is checked; `setPassword`, save; **a fresh token is returned**, because changing a password in PocketBase invalidates every earlier token of the user (`tokenKey` changes).
+**`POST /api/ehl/password`** — unchanged; only reachable in the client when the password is on.
 
-**`onRecordCreateRequest` for every register and `jurnal`:** `record.by = e.auth.id`. A client cannot plant another author.
+**Every register, create/update:** `by` is set on create and restored on update; a non-director editing a row created more than 15 days ago gets a 400.
 
-**`onRecordUpdateRequest` for the registers:** `by` is restored to its original value, and a non-director editing a row created more than 15 days ago gets a 400 ("Înregistrarea are mai mult de 15 zile…"). The client mirrors this: `drawSheet()` opens such a row, or a row by someone else, read-only with a note (`EDIT_DAYS`).
+**`utilizatori`** create/update/delete — code validation, default status/role, random email and password, no self-deactivation, no self-demotion, no self-delete.
 
-**`utilizatori`, create:** code validation, default status/role, a random email `…@casieria.local`, a random password, `parolaSetata = false`.
+**`incasari`, create/update — the founder's code.** When `client` is exactly the name of a user with `rol = Director`, the body must carry `codFondator` equal to that founder's `cod` (it is not a schema field, so it is never stored); otherwise 400 "Codul fondatorului este greșit.". On success `confirmat = "<name> · <UTC date time>"`; for an ordinary client `confirmat` is emptied.
 
-**`utilizatori`, update:** code validation; you cannot deactivate or demote **yourself** (400); the email never changes; `parolaSetata` is kept for a director and reset when the role becomes Operator.
+**`iesiri`, create/update — the source.** On create: a director or the cashier → `sursa = "Casa"`, `platitDe = ""`; anyone else → `sursa = "Avans"`, `platitDe = his name`. On update both are restored. (Since migration `…0009` only directors can create outflows, so "Avans" is unreachable; the code path stays.)
 
-**`utilizatori`, delete:** you cannot delete yourself.
+**`pontaj`, create/update.** A non-director may name only an employee from `angajati` with `by = auth.id`; otherwise 400.
 
-**`cheltuieli`, create/update:** `descriere` after `trim` must be at least 3 characters, otherwise 400 with the message "Scrieți pe ce s-au cheltuit banii".
+**`cheltuieli`, create/update — the collaborator.** For a non-director who is not the cashier: `platitDe` is forced to his own name; for cash `sursa = "Avans"` and the amount may not exceed what the director gave him minus his cash expenses (he cannot go below zero); a transfer is not limited by his balance, nor by the account (it may go below zero).
+
+**`cheltuieli`, create/update — the description:** at least 3 characters after `trim`.
 
 ## 24. Deployment: what the scripts do
 
@@ -593,3 +615,44 @@ Server rules were additionally checked with a scenario of ~45 curl requests agai
 **How do I add a currency?** In settings: code and rate. The shelf appears by itself. The badge is grey with the first letter; a coloured one can be added to `CUR`.
 
 **Where does the rate in old rows come from?** From the row itself: the rate is written on entry and never changes. The rate in settings only affects today's conversion of the till balances to MDL and the pre-filled value in new forms.
+
+## 28. The firm's rules added on 6 November 2026
+
+Everything below was asked for by the directors while the app went into use. Where a rule is enforced is named each time: **client** means `app.js` only (it can be bypassed with a raw API call and relies on the data on the device), **server** means a collection rule or a hook.
+
+**Sign-in and sessions**
+- Directors sign in by code alone (`PAROLA_DIRECTOR` / `PAROLA_DIR` = false). *server + client.*
+- The lock screen asks the code at most once in 2 days: `ehl.unlock` in localStorage holds the last entry, `lockDue()` compares it with `LOCK_AFTER`. *client.*
+- One session per account: a sign-in refreshes the token key. The other device learns it from its next request, from the 3-minute `selfCheck()`, or at once from the realtime update of its own user record; `signedOut()` calls `authRefresh()` — 401 means "opened on another device" (`sess_other`), anything else a deactivated user. *server + client.*
+- A page left open reloads itself when `sw.js` on the server names a newer cache version (`verCheck()`, never while a form is open). `sw.js` fetches the shell with `cache: "no-cache"`. *client + the cache header on the server.*
+
+**People**
+- Several directors with equal rights; every register row shows `byLine(r)` ("introdus de …").
+- Deactivated users leave the list for `vArhiva()` with a restore button.
+- `renamePerson(old, new)` rewrites the name in every register and in the cashier setting when a director renames a user or an employee. *client.*
+- Salary changes: the employee form carries `dinSal` ("Salariul se aplică din"); a new `istoric` row is written from that date, a second change for the same date updates that row. Operators add employees without a salary.
+
+**The till, the account, the founders**
+- The till cannot be overdrawn: `casaNeed` / `casaErr` refuse an outflow, a cash rent or a loan above the shelf of that currency. *client (director's device).*
+- The account holds lei only: a transfer income or a transfer rent is fixed to MDL (`mdlIf` on the currency field); a deposit from the till may come from any currency shelf and reaches the account as `suma × curs` lei. Unlike the till it **may go below zero**: a transfer is always accepted, and `contDeficit(C)` feeds the dashboard block "Contul este în minus" — the amount to put on the account and the newest transfer payments that took it there. *client.*
+- Founders are the directors. An income picks its source from `fondatori()` first, then the real clients; a founder's money needs `codFondator` and is a **loan to the firm**: `C.fond` (per founder: put in, returned, owed) is rendered right under the dashboard totals, the outflow destination "Restituire fondator" repays it, and founders are left out of `C.perClient`. *code check: client + server.*
+
+**Projects and expenses**
+- A project carries `sumaContract` and `adaugator`; `projInc(name)` splits what the client paid into cash and transfer from the incomes naming the project.
+- An expense is for a project, for the firm or for something else (`pentru`, `pentruOf()`); "Proiect" requires the project. `C.perPentru` feeds a dashboard block.
+- A transfer expense is paid by the account: `C.trPers` lists who paid by transfer; the cash report (`C.colab`) no longer lists people who only paid by transfer.
+
+**Collaborators**
+- Cards: Cheltuială, Chirie, Pontaj, Angajat. No income, no till outflow, no loan, no contract, no project card. *client + create rules.*
+- Nobody picks the payer of an expense: it is the account that records it (`platitDe` is set by the client and forced by the hook). A director or the cashier pays cash from the till (`isTillPayer`), and money handed to them never leaves the till; the only exception is a salary a director pays to a collaborator account, which comes out of that collaborator's advance. A collaborator pays his expenses himself: cash comes out of what the director gave him and cannot go below zero (`avansErr`, and the hook); a transfer is paid by the firm's account, whatever its balance. The payer and the source are not his to choose.
+- He fills timesheets only for the employees he created. *client + server.*
+- He reads only what is his (migration `…0011`). His "Panou" is `vPanouOp()`: `mineView()` swaps the registers for his rows (his advances play the incomes), so the director's overview and `calc()` are reused unchanged, then adds his tiles, his expenses by category / target / project, the money he received and `mineList()` — every operation he entered.
+
+**Writes**
+- New records get their id on the client; a create repeated after a lost answer is recognised by the validation error on `id` and dropped from the queue.
+- The queue and the rejected list are stored per user (`ehl.queue.<id>`, `ehl.failed.<id>`).
+
+**Known gaps**
+- The work schedule, the day-based salaries, the employees rubric, the "Arhitectură" category and the evening reminder (7–9 November 2026, migrations 12–19) are not yet described here; the commit messages are the reference.
+- The till rule is client-only; the audit trail (`jurnal`) is still written by the client.
+- `tests/fill.js`, `tests/seed-year*.js` and `tests/verify-*.js` predate these rules and were not updated; `tests/smoke.js` and `tests/calc.js` are current (the fake server in `smoke.js` mirrors the rules and hooks above).
