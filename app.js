@@ -156,7 +156,7 @@ ro:{
  pontaj_paidby:"Achitat de",sal_descr:"Salariu",gr_bani:"Cuvenit pe lună",gr_nosal:"fără salariu stabilit",gr_none:"Alegeți angajatul.",gr_h:"Apăsați „Zi” pentru o zi întreagă sau „½ zi” pentru jumătate. Se bifează doar ziua de azi și cele trecute. Fiecare zi se salvează imediat, cu numele dvs.; o zi o schimbă doar cel care a introdus-o.",gr_future:"Zilele viitoare nu se bifează: doar azi și înapoi.",gr_remind_t:"Graficul de lucru nu a fost deschis azi",gr_remind:"Notați zilele angajaților dvs. care au lucrat azi. Panoul dispare după ce deschideți graficul.",
  reset_btn:"Șterge datele",reset_t:"Ștergerea tuturor datelor",reset_h:"Se șterg toate înregistrările: încasări, cheltuieli, ieșiri, chirii, contracte, împrumuturi, proiecte, angajați, salarii, grafic, istoric. Se șterg și conturile colaboratorilor. Nu se poate anula.",reset_keep:"Rămân doar conturile directorilor și setările (valute, categorii, casier).",reset_cod:"Codul dvs. de acces, pentru confirmare",reset_go:"Șterg tot, definitiv",reset_busy:"Se șterge…",reset_done:"Datele au fost șterse. Aplicația repornește.",srv_reset_dir:"Doar directorul poate șterge datele.",srv_reset_cod:"Codul de acces este greșit.",srv_sal_lock:"Plățile de salariu nu se mai schimbă și nu se șterg.",
  srv_grafic:"Graficul se face doar pentru angajații creați de dumneavoastră.",srv_ore:"Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).",srv_gr_lock:"Zilele achitate nu se mai schimbă.",f_extra:"Extra (MDL)",f_extra_h:"Remunerare suplimentară pentru luna aceasta, dacă angajatul a făcut ceva în plus. Intră în suma de achitat.",
- op_ang:"Angajați",ang_n:"angajați",f_aditional:"Adițional (EUR)",op_ang_h:"Pentru luna aleasă sus: toate zilele angajatului și de cine au fost bifate, suma lunii, cât s-a achitat și de cine, restul. Ceasul deschide graficul, rotița fișa.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
+ op_ang:"Angajați",ang_n:"angajați",f_aditional:"Adițional",op_ang_h:"Pentru luna aleasă sus: toate zilele angajatului și de cine au fost bifate, suma lunii, cât s-a achitat și de cine, restul. Ceasul deschide graficul, rotița fișa.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
  f_adaug:"Adăugător (MDL)",f_contract_eur:"Contract în EUR",f_contract_eur_sum:"Suma contractului (EUR)",f_contract_cash:"Din care cash (EUR)",f_contract_tr:"Din care transfer (EUR)",contract_split:"Cash + transfer trebuie să dea suma contractului.",f_proiect_nume:"Denumire proiect",f_client_nume:"Numele clientului",s_tranz:"Toate tranzacțiile",s_tranz_h:"Fiecare mișcare de bani, de la cea mai nouă: de unde au plecat, unde au ajuns, cine a înregistrat-o. Apăsați pe un rând ca să vedeți înregistrarea și istoricul ei.",tz_cont:"Cont",rec_hist:"Istoricul înregistrării",rec_hist_none:"Fără istoric.",j_nochange:"Salvat fără modificări",f_contract_usd:"Contract în USD",pers_dir_h:"Din Casa EHL banii merg doar la un administrator.",p_adaug:"Adăugător",p_total:"Contract + adăugător",
  sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",
@@ -315,7 +315,7 @@ ru:{
  pontaj_paidby:"Выплатил",sal_descr:"Зарплата",gr_bani:"Причитается за месяц",gr_nosal:"оклад не задан",gr_none:"Выберите сотрудника.",gr_h:"Нажмите «День» за полный день или «½ дня» за половину. Отмечать можно только сегодня и прошедшие дни. Каждый день сохраняется сразу, с вашим именем; изменить день может только тот, кто его внёс.",gr_future:"Будущие дни не отмечаются: только сегодня и назад.",gr_remind_t:"График работы сегодня не открывался",gr_remind:"Отметьте дни ваших сотрудников, которые работали сегодня. Панель исчезнет после открытия графика.",
  reset_btn:"Удалить данные",reset_t:"Удаление всех данных",reset_h:"Удаляются все записи: поступления, расходы, выдачи, аренда, договоры, займы, проекты, сотрудники, зарплаты, график, история. Удаляются и учётные записи сотрудников-операторов. Отменить нельзя.",reset_keep:"Остаются только учётные записи директоров и настройки (валюты, категории, кассир).",reset_cod:"Ваш код доступа, для подтверждения",reset_go:"Удалить всё, безвозвратно",reset_busy:"Удаляется…",reset_done:"Данные удалены. Приложение перезапускается.",srv_reset_dir:"Удалять данные может только директор.",srv_reset_cod:"Код доступа неверный.",srv_sal_lock:"Выплаты зарплаты не меняются и не удаляются.",
  srv_grafic:"График можно вести только для сотрудников, которых создали вы.",srv_ore:"День отмечается полным (8 часов) или половиной (4 часа).",srv_gr_lock:"Оплаченные дни больше не меняются.",f_extra:"Премия (MDL)",f_extra_h:"Дополнительное вознаграждение за этот месяц, если сотрудник сделал что-то сверх. Входит в сумму к выплате.",
- op_ang:"Сотрудники",ang_n:"сотрудн.",f_aditional:"Дополнительно (EUR)",op_ang_h:"За выбранный сверху месяц: все дни сотрудника и кто их отметил, сумма за месяц, сколько и кем выплачено, остаток. Часы открывают график, шестерёнка карточку.",pontaj_lipsa:"табеля за этот месяц нет",gr_zile_s:"дн.",rest_total:"остаток за все месяцы",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
+ op_ang:"Сотрудники",ang_n:"сотрудн.",f_aditional:"Дополнительно",op_ang_h:"За выбранный сверху месяц: все дни сотрудника и кто их отметил, сумма за месяц, сколько и кем выплачено, остаток. Часы открывают график, шестерёнка карточку.",pontaj_lipsa:"табеля за этот месяц нет",gr_zile_s:"дн.",rest_total:"остаток за все месяцы",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
  f_adaug:"Дополнительно (MDL)",f_contract_eur:"Договор в EUR",f_contract_eur_sum:"Сумма договора (EUR)",f_contract_cash:"Из них наличными (EUR)",f_contract_tr:"Из них переводом (EUR)",contract_split:"Наличные + перевод должны давать сумму договора.",f_proiect_nume:"Название проекта",f_client_nume:"Имя клиента",s_tranz:"Все операции",s_tranz_h:"Каждое движение денег, новые сверху: откуда ушли, куда пришли, кто записал. Нажмите на строку, чтобы открыть запись и её историю.",tz_cont:"Счёт",rec_hist:"История записи",rec_hist_none:"Истории нет.",j_nochange:"Сохранено без изменений",f_contract_usd:"Договор в USD",pers_dir_h:"Из кассы EHL деньги идут только администратору.",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
  sess_other:"В аккаунт вошли на другом устройстве. Введите код, чтобы продолжить здесь.",
@@ -934,7 +934,7 @@ function calc(){
     return {id:p.id,nume:p.nume,client:p.client||"",status:p.status||"Activ",resp:respList(p),
       buget:bg,inc:inc,chelt:ch,rest:bg-ch,pct:bg>0?Math.min(100,ch/bg*100):0,
       contract:ct,adaug:n(p.adaugator),incCash:pi.cash,incTr:pi.tr,ramasContract:round2(ct+n(p.adaugator)-pi.cash-pi.tr),
-      contractEUR:n(p.contractEUR),contractCash:n(p.contractCash),contractTransfer:n(p.contractTransfer),incCashEur:pe.cash,incTrEur:pe.tr,ramasEur:round2(n(p.contractEUR)+n(p.adaugator)-pe.cash-pe.tr)};
+      contractEUR:n(p.contractEUR),contractCash:n(p.contractCash),contractTransfer:n(p.contractTransfer),incCashEur:pe.cash,incTrEur:pe.tr,aditEur:aditEur(p),ramasEur:round2(n(p.contractEUR)+aditEur(p)-pe.cash-pe.tr)};
   }).sort(function(a,b){return (a.status==="Finalizat"?1:0)-(b.status==="Finalizat"?1:0)||b.chelt-a.chelt});
   var defNames=S.proiecte.map(function(p){return String(p.nume||"").trim().toLowerCase()});
   C.perProiect=proiecteNume().map(function(p){
@@ -1000,13 +1000,15 @@ function projInc(nume){
     var b=o.byVal[cur]||(o.byVal[cur]={cash:0,tr:0});if(r.mod==="Transfer")b.tr=round2(b.tr+n(r.suma));else b.cash=round2(b.cash+n(r.suma))}});
   o.cash=round2(o.cash);o.tr=round2(o.tr);return o;
 }
+/* the project's "Adițional" in euro: entered in EUR, MDL or USD, converted at the rates of the day */
+function aditEur(p){var v=p.adaugatorValuta||"EUR";return round2(n(p.adaugator)*rateAzi(v)/(cursAzi("EUR")||1))}
 function projIncEur(nume){
   var o={cash:0,tr:0},rate=cursAzi("EUR")||1;
   if(String(nume||"").trim())S.incasari.forEach(function(r){if(sameP(r.proiect,nume)){var v=(r.valuta==="EUR")?n(r.suma):n(r.suma)*n(r.curs)/rate;if(r.mod==="Transfer")o.tr+=v;else o.cash+=v}});
   o.cash=round2(o.cash);o.tr=round2(o.tr);return o;
 }
 /* the contract of a project in lei: the MDL part, the extra work, and the EUR/USD parts at today's rate */
-function contractLei(p){return round2(n(p.sumaContract)+(n(p.adaugator)+n(p.contractEUR))*cursAzi("EUR")+n(p.contractUSD)*cursAzi("USD"))}
+function contractLei(p){return round2(n(p.sumaContract)+(aditEur(p)+n(p.contractEUR))*cursAzi("EUR")+n(p.contractUSD)*cursAzi("USD"))}
 /* The director's rule: money that is not in the till cannot be handed out. casaNeed says what a row takes from which
    shelf (nothing when it does not leave the till); casaErr refuses a row that takes more than the shelf holds.
    An edit that takes no more than the row already took always passes, so old rows stay correctable. */
@@ -1322,14 +1324,15 @@ var FORMS={
    {k:"contractEUR",t:"number",l:"f_contract_eur_sum",req:1,step:"0.01"},
    {k:"contractCash",t:"number",l:"f_contract_cash",step:"0.01",def:"0",half:1},
    {k:"contractTransfer",t:"number",l:"f_contract_tr",step:"0.01",def:"0",half:1},
-   {k:"adaugator",t:"number",l:"f_aditional",step:"0.01",def:"0"}, /* extra the client agreed beyond the contract, in euro */
+   {k:"adaugator",t:"number",l:"f_aditional",step:"0.01",def:"0",half:1}, /* extra the client agreed beyond the contract, in any currency */
+   {k:"adaugatorValuta",t:"select",l:"f_valuta",half:1,opts:opt(valute().map(function(v){return v.cod})),def:"EUR"},
    {k:"dataInceput",t:"date",l:"f_di",half:1,def:today()},
    {k:"termen",t:"date",l:"f_termen",half:1},
    {k:"status",t:"select",l:"f_status",req:1,opts:[{v:"Activ",l:T("st_activ")},{v:"Pauză",l:T("st_pauza")},{v:"Finalizat",l:T("st_final")}],def:"Activ"},
    {k:"nota",t:"text",l:"f_nota"}
  ]},calc:function(d){var pe=projIncEur(d.nume),ce=n(d.contractEUR);
    /* the contract in euro, the cash and the transfer part (paid / agreed), and what is still to come */
-   return [{l:T("f_contract"),v:money(ce)+" EUR"},{l:T("p_cash"),v:money(pe.cash)+" / "+money(n(d.contractCash))+" EUR"},{l:T("p_tr"),v:money(pe.tr)+" / "+money(n(d.contractTransfer))+" EUR"},{l:T("f_aditional"),v:money(n(d.adaugator))+" EUR"},{l:T("p_ramas"),v:money(round2(ce+n(d.adaugator)-pe.cash-pe.tr))+" EUR"}]}},
+   return [{l:T("f_contract"),v:money(ce)+" EUR"},{l:T("p_cash"),v:money(pe.cash)+" / "+money(n(d.contractCash))+" EUR"},{l:T("p_tr"),v:money(pe.tr)+" / "+money(n(d.contractTransfer))+" EUR"},{l:T("f_aditional"),v:money(n(d.adaugator))+" "+(d.adaugatorValuta||"EUR")+((d.adaugatorValuta||"EUR")!=="EUR"&&n(d.adaugator)?" = "+money(aditEur(d))+" EUR":"")},{l:T("p_ramas"),v:money(round2(ce+aditEur(d)-pe.cash-pe.tr))+" EUR"}]}},
 
  angajati:{title:"a_ang",icon:"user",fields:function(){return[
    {k:"nume",t:"text",l:"f_nume",req:1},
@@ -2310,7 +2313,7 @@ function vPanouEHL(){
       var note=p.buget>0?(T("p_cheltuit")+" "+money(p.chelt)+" / "+money(p.buget)):(T("p_cheltuit")+" "+money(p.chelt)+" · "+T("p_incasat")+" "+money(p.inc));
       /* the contract and the client's payments: cash and transfer apart, and what is still to come */
       var pay=p.contractEUR>0
-        ?[T("f_contract")+" "+money(p.contractEUR)+" EUR",T("p_cash")+" "+money(p.incCashEur)+" / "+money(p.contractCash)+" EUR",T("p_tr")+" "+money(p.incTrEur)+" / "+money(p.contractTransfer)+" EUR",p.adaug>0?T("f_aditional")+" "+money(p.adaug):"",T("p_ramas")+" "+money(p.ramasEur)+" EUR"].filter(Boolean).join(" · ")
+        ?[T("f_contract")+" "+money(p.contractEUR)+" EUR",T("p_cash")+" "+money(p.incCashEur)+" / "+money(p.contractCash)+" EUR",T("p_tr")+" "+money(p.incTrEur)+" / "+money(p.contractTransfer)+" EUR",p.aditEur>0?T("f_aditional")+" "+money(p.aditEur)+" EUR":"",T("p_ramas")+" "+money(p.ramasEur)+" EUR"].filter(Boolean).join(" · ")
         :((p.contract||p.adaug||p.incCash||p.incTr)?[p.contract?T("f_contract")+" "+money(p.contract):"",p.adaug?T("p_adaug")+" "+money(p.adaug):"",T("p_cash")+" "+money(p.incCash),T("p_tr")+" "+money(p.incTr),(p.contract||p.adaug)?T("p_ramas")+" "+money(p.ramasContract):""].filter(Boolean).join(" · "):"");
       return '<button type="button" class="tap row wrap" data-edit="proiecte" data-id="'+esc(p.id)+'">'
         +'<span class="l">'+esc(p.nume)+'<span class="s">'+esc(sub)+'</span><span class="s">'+esc(note)+'</span>'+(pay?'<span class="s">'+esc(pay)+'</span>':'')+'</span>'
