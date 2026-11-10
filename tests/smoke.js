@@ -517,6 +517,7 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="set"]')); await tick(); click($("#exitdir")); await tick(30);
   $("#pinv").value = "1111"; submit($("#pinf")); await tick(80);
   check($("#role").textContent === "EHL" && /Banii firmei/.test(text()) && $('[data-view="ehl"][aria-current="page"]'), "1111 opens the EHL account: badge EHL, the firm-wide view first");
+  check(window.document.body.classList.contains("ehl-mode") && $("#ttl").textContent === "Casa EHL · contul comun", "the EHL account is marked: dark header class and its own title");
   click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
   setField("destinatie", "Depus pe cont"); await tick();
   check(!$('[data-k="codEHL"]'), "inside the EHL account the code is not asked again");
