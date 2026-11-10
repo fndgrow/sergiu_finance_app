@@ -2152,7 +2152,7 @@ function vPanou(){
     .sort(function(a,b){return String(b.data).localeCompare(String(a.data))||String(b.ts||"").localeCompare(String(a.ts||""))});
   if(colabExp.length)h+='<div class="sec"><h2>'+esc(T("s_colab_exp"))+' <span class="cnt">'+colabExp.length+'</span></h2>'+rowsCardMore(colabExp.map(function(x){
     return '<button type="button" class="tap row" data-edit="'+x.col+'" data-id="'+esc(x.id)+'"><span class="l">'+esc(x.t)+'<span class="s">'+esc(x.s.filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(x.val)+'</span></button>';
-  }),8,true)+'</div>';
+  }),30,true)+'</div>'; /* the first thirty at once, the rest behind the button */
   /* money taken from the bank by transfer: who paid, how much; a tap lists what it was spent on */
   if(C.trPers.length)h+='<div class="sec"><h2>'+esc(T("s_tr"))+'</h2><div class="card rows">'+C.trPers.map(function(x){
     return '<button type="button" class="tap row person" data-colab="'+esc(x.nume)+'"><span class="av" style="--c:'+toneOf(x.nume)+'">'+esc(initials(x.nume))+'</span><span class="l"><span class="nm-row">'+esc(x.nume)+'</span></span>'
@@ -3051,6 +3051,7 @@ document.addEventListener("submit",function(ev){
   if(f.id==="resetf"){doReset(String(f.elements["cod"].value||"").trim());return;}
   var gateFail=function(e,dflt){
     gateBusy=false;
+    if(e&&e.stack&&!e.status&&!e.code){try{console.error("sign-in failed inside the app:",e.stack||e)}catch(x){}} /* a bug, not a wrong code: keep it visible */
     var srv=e&&e.response&&e.response.message;
     gateErr=netErr(e)?T("offline"):(((e&&e.status===429)||(e&&e.status===400))&&srv?srvT(srv):dflt);
     render();

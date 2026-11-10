@@ -11,12 +11,17 @@ const html = fs.readFileSync(path.join(APP, "index.html"), "utf8")
   .replace(/<link[^>]*>/g, "");
 const dom = new JSDOM(html, { url: "https://casieria.test/", runScripts: "outside-only", pretendToBeVisual: true });
 const { window } = dom;
+window.console.error = function () { const t = Array.from(arguments).join(" "); console.log("  WINDOW console.error:", t.slice(0, 700)); errors.push("console.error: " + t.slice(0, 200)); };
 const errors = [];
 window.addEventListener("error", e => errors.push("window error: " + (e.error && e.error.stack || e.message)));
 window.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {} });
 window.URL.createObjectURL = () => "blob:x"; window.URL.revokeObjectURL = () => {};
 Object.defineProperty(window.navigator, "serviceWorker", { value: undefined });
 let NET_DOWN = false;
+let LOSE_ANSWER = false; /* the request reaches the server, its answer does not come back */
+let KICKED = false;
+let DEBUG = false; /* the account was opened on another device: this one's token is dead */
+const PAROLA_DIRECTOR = false; /* as in the server hooks: the director's password is switched off for now */
 
 /* ---- fake server ---- */
 const store = {}; let seq = 1; const subs = [];
@@ -24,29 +29,63 @@ const newId = () => ("r" + String(seq++).padStart(14, "0"));
 const err = (status, message) => { const e = new Error(message); e.status = status; e.response = { message }; return e; };
 let currentUser = null;
 const isDir = () => currentUser && currentUser.rol === "Director";
-const canRead = (col) => { if (!currentUser) return false; if (col === "istoric" || col === "jurnal") return isDir(); return true; };
-function emit(col, action, record) { subs.forEach(s => { if (s.col === col && (s.topic === "*" || s.topic === record.id)) s.cb({ action, record: { ...record } }); }); }
+const canRead = (col) => { if (!currentUser) return false; if (col === "jurnal") return isDir(); return true; }; /* a list rule filters, it never refuses */
+/* what a signed-in user may read (the collection list/view rules): a director everything, a collaborator only what is his */
+const visible = (col, r) => {
+  if (!currentUser) return false; if (isDir()) return true;
+  const me = currentUser;
+  if (col === "utilizatori") return r.id === me.id;
+  if (["incasari", "contracte", "imprumuturi", "jurnal"].includes(col)) return false;
+  if (col === "istoric" || col === "angajati" || col === "grafic") return true; /* migration 17: employees, salaries and the schedule are shared */
+  if (col === "cheltuieli") return r.by === me.id || r.platitDe === me.nume;
+  if (col === "iesiri") return r.by === me.id || r.persoana === me.nume;
+  if (["chirii", "pontaj"].includes(col)) return r.by === me.id;
+  return true; /* proiecte, config */
+};
+function emit(col, action, record) { subs.forEach(s => { if (s.col === col && (s.topic === "*" || s.topic === record.id) && visible(col, record)) s.cb({ action, record: { ...record } }); }); }
 function collection(col) {
   return {
-    async getFullList(opts) {
+    async getFullList(opts) { if (DEBUG) console.log("   FAKE list", col, "user:", currentUser && currentUser.nume);
       if (NET_DOWN) throw err(0, "net");
       if (!canRead(col)) throw err(403, "forbidden");
       let items = Object.values(store[col] || {});
-      if (col === "utilizatori" && !isDir()) items = items.filter(u => u.id === currentUser.id);
-      if (col === "pontaj" && !isDir()) items = items.filter(r => r.by === currentUser.id);
+      items = items.filter(r => visible(col, r));
       if (opts && opts.filter) { const m = opts.filter.match(/created >= "([^"]+)" && created <= "([^"]+)"/); if (m) items = items.filter(r => r.created >= m[1] && r.created <= m[2]); }
       return items.map(r => ({ ...r }));
     },
-    async getOne(id) { if (NET_DOWN) throw err(0, "net"); const r = store[col] && store[col][id]; if (!r) throw err(404, "nf"); return { ...r }; },
+    async getOne(id) { if (DEBUG) console.log("   FAKE getOne", col, id, !!(store[col] && store[col][id])); if (NET_DOWN) throw err(0, "net"); if (KICKED) throw err(404, "The requested resource wasn't found."); /* a dead token is answered like a stranger */ const r = store[col] && store[col][id]; if (!r) throw err(404, "nf"); return { ...r }; },
     async create(data) {
       if (NET_DOWN) throw err(0, "net");
       if (!currentUser) throw err(403, "forbidden");
       if (col === "utilizatori" && !isDir()) throw err(403, "forbidden");
       if (col === "incasari" && !isDir()) throw err(403, "forbidden"); /* client incomes: director only */
+      if (col === "incasari") { /* money from a founder is confirmed with that founder's code */
+        const f = Object.values(store.utilizatori).find(u => u.rol === "Director" && String(u.nume).toLowerCase() === String(data.client || "").trim().toLowerCase());
+        if (f) { if (String(data.codFondator || "") !== f.cod) throw err(400, "Codul fondatorului este greșit."); data = { ...data, confirmat: f.nume + " · now" }; }
+        delete data.codFondator;
+      }
+      if (col === "cheltuieli" && isDir()) { /* the payer is the account itself, except a salary paid to a collaborator account */
+        const who = String(data.platitDe || "").trim(), isCollab = data.categorie === "Salarii" && Object.values(store.utilizatori).some(u => u.rol === "Operator" && u.nume === who);
+        if (!isCollab) data = { ...data, platitDe: currentUser.nume, sursa: "" };
+      }
+      if (col === "cheltuieli" && !isDir()) { /* a collaborator pays himself; cash cannot take his balance below zero (server hook) */
+        data = { ...data, platitDe: currentUser.nume };
+        if (data.mod !== "Transfer") {
+          data.sursa = "Avans";
+          const got = Object.values(store.iesiri || {}).filter(r => r.destinatie === "Dat persoanei" && r.persoana === currentUser.nume).reduce((a, r) => a + r.suma * r.curs, 0);
+          const spent = Object.values(store.cheltuieli || {}).filter(r => r.mod !== "Transfer" && r.platitDe === currentUser.nume).reduce((a, r) => a + r.suma, 0);
+          if (data.suma > got - spent + 0.004) throw err(400, "Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
+        }
+      }
+      store[col] = store[col] || {};
+      /* like PocketBase: the id sent by the client is kept, a taken one is refused on the "id" field */
+      if (data.id && store[col][data.id]) { const e = err(400, "Failed to create record."); e.response.data = { id: { code: "validation_not_unique", message: "Value must be unique." } }; throw e; }
       const now = new Date().toISOString().replace("T", " ");
-      const r = { ...data, id: newId(), created: now, updated: now, by: currentUser.id };
+      const r = { ...data, id: data.id || newId(), created: now, updated: now, by: currentUser.id };
       delete r.password; delete r.passwordConfirm;
-      store[col] = store[col] || {}; store[col][r.id] = r; emit(col, "create", r); return { ...r };
+      store[col][r.id] = r; emit(col, "create", r);
+      if (LOSE_ANSWER) throw err(0, "net");
+      return { ...r };
     },
     async update(id, data) {
       if (NET_DOWN) throw err(0, "net");
@@ -62,7 +101,7 @@ function collection(col) {
       const r = store[col] && store[col][id]; if (!r) throw err(404, "nf"); delete store[col][id]; emit(col, "delete", r); return true;
     },
     async subscribe(topic, cb) { const s = { col, topic, cb }; subs.push(s); return () => { const i = subs.indexOf(s); if (i >= 0) subs.splice(i, 1); }; },
-    async authRefresh() { if (!currentUser) throw err(401, "x"); return { token: "t", record: { ...currentUser } }; }
+    async authRefresh() { if (!currentUser || KICKED) throw err(401, "The request requires valid record authorization token."); return { token: "t", record: { ...currentUser } }; }
   };
 }
 class PocketBase {
@@ -85,9 +124,10 @@ class PocketBase {
       u = { id: newId(), nume: "Director", rol: "Director", cod, status: "Activ" }; store.utilizatori[u.id] = u; first = true;
       store.config = { c1: { id: "c1", valute: [{ cod: "MDL", curs: 1 }, { cod: "EUR", curs: 20.22 }, { cod: "USD", curs: 17.5 }], casier: "", categorii: ["Materiale", "Transport"] } };
     }
+    if (DEBUG) console.log("   FAKE login", cod, "found:", !!u, u && u.status, u && u.rol);
     if (!u || u.status === "Inactiv") throw err(401, "Cod greșit sau utilizator dezactivat.");
     const pub = { id: u.id, nume: u.nume, rol: u.rol, cod: u.cod, status: u.status, parolaSetata: !!u.parolaSetata };
-    if (u.rol !== "Director") return { token: "tok-" + u.id, first, record: pub };
+    if (u.rol !== "Director" || !PAROLA_DIRECTOR) return { token: "tok-" + u.id, first, record: pub };
     if (!u.parolaSetata) {
       if (!o.body.parolaNoua) return { needSetPassword: true, first, record: pub };
       if (o.body.parolaNoua.length < 6) throw err(400, "Parola trebuie să aibă cel puțin 6 caractere.");
@@ -126,12 +166,9 @@ const ls = (k) => window.localStorage.getItem(k);
   click($("#langbtn")); await tick();
   console.log("2. first launch: code becomes the director");
   $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
-  check($("#spf"), "director is asked to set a password");
-  $("#spf").elements["p1"].value = "secret12"; $("#spf").elements["p2"].value = "secret21"; submit($("#spf")); await tick(30);
-  check(/nu coincid/.test(text()), "mismatching passwords refused");
-  $("#spf").elements["p1"].value = "secret12"; $("#spf").elements["p2"].value = "secret12"; submit($("#spf")); await tick(60);
+  check($("#role").textContent === "Director" && !$("#spf") && !$("#pwf"), "director enters with the code alone (password switched off)");
   const dirId = Object.values(store.utilizatori)[0].id;
-  check(ls("ehl.cod") === "258000" && Number(ls("ehl.exp")) > Date.now(), "code and weekly expiry remembered for the director");
+  check(ls("ehl.cod") === null && ls("ehl.exp") === null && Number(ls("ehl.unlock")) > 0, "no remembered code or expiry; the time of entry is stamped");
   check(Object.values(store.utilizatori)[0].rol === "Director", "director user created");
   check($("#role").textContent === "Director", "role pill = Director");
   check($("#nav").children.length === 4, "director nav has 4 tabs");
@@ -178,7 +215,8 @@ const ls = (k) => window.localStorage.getItem(k);
   check($('[data-view="add"][aria-current="page"]'), "history back returns to the previous view");
   console.log("4c. clients come from projects; dates cannot be in the future");
   click($('[data-view="add"]')); await tick(); click($('[data-form="incasari"]')); await tick();
-  check($('[data-k="client"]').tagName === "INPUT", "no clients yet: the client field is free text");
+  const cs0 = $('[data-k="client"]');
+  check(cs0.tagName === "SELECT" && Array.from(cs0.options).some(o => o.value === "Sergiu" && /fondator/.test(o.textContent)), "before any client the list already offers the founder (the director) marked 'fondator'");
   click($("#closeSheet")); await tick();
   click($('[data-form="proiecte"]')); await tick();
   setField("nume", "Casa Test"); setField("client", "Client A"); submit($("#recf")); await tick(60);
@@ -196,8 +234,10 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="add"]')); await tick();
   click($('[data-form="incasari"]')); await tick();
   setField("client", "Client A"); setField("valuta", "EUR"); await tick(); setField("suma", "100"); submit($("#recf")); await tick(60);
+  click($('[data-form="incasari"]')); await tick(); /* lei in the till, so the director's cash expenses below have something to come out of */
+  setField("client", "Client A"); setField("suma", "20000"); submit($("#recf")); await tick(60);
   click($('[data-form="cheltuieli"]')); await tick();
-  setField("suma", "500"); setField("descriere", "Ciment"); setField("categorie", "Materiale"); setField("platitDe", "Ion Operator"); submit($("#recf")); await tick(60);
+  setField("suma", "500"); setField("descriere", "Ciment"); setField("pentru", "EHL"); setField("categorie", "Materiale"); submit($("#recf")); await tick(60);
   const inc = Object.values(store.incasari)[0];
   check(inc.curs === 20.22 && inc.suma === 100 && inc.by === dirId, "income EUR 100 at rate 20.22, author set by server");
   click($('[data-view="panou"]')); await tick();
@@ -214,25 +254,25 @@ const ls = (k) => window.localStorage.getItem(k);
   check((store.config.c1.categorii || []).indexOf("Materiale / Acoperiș") >= 0, "subcategory saved in settings as \"Materiale / Acoperiș\"");
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
   check(!$('[data-k="subcat"]'), "no subcategory field before a category with subcategories is chosen");
-  setField("categorie", "Materiale"); await tick();
+  setField("pentru", "EHL"); setField("categorie", "Materiale"); await tick();
   check($('[data-k="subcat"]'), "subcategory field appears for Materiale");
-  setField("suma", "300"); setField("descriere", "Țiglă metalică"); setField("subcat", "Acoperiș"); setField("platitDe", "Sergiu"); submit($("#recf")); await tick(60);
+  setField("suma", "300"); setField("descriere", "Țiglă metalică"); setField("subcat", "Acoperiș"); submit($("#recf")); await tick(60);
   check(Object.values(store.cheltuieli).some(r => r.categorie === "Materiale / Acoperiș" && r.suma === 300), "expense stored as \"Materiale / Acoperiș\"");
   click($('[data-view="panou"]')); await tick();
   check(window.document.querySelectorAll(".donut .seg").length === 1 && /Acoperiș 300,00/.test(text()), "donut still one Materiale slice, the subcategory listed under it with its amount");
   click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
   check(text().indexOf("Materiale / Acoperiș") >= 0, "register shows the full category name");
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
-  setField("suma", "10"); setField("categorie", "Diverse"); setField("platitDe", "Sergiu"); submit($("#recf")); await tick(30);
+  setField("suma", "10"); setField("pentru", "EHL"); setField("categorie", "Diverse"); submit($("#recf")); await tick(30);
   check($("#recf") && /obligatorii|cel puțin 3/.test($("#sheet").textContent), "expense without description is refused");
   click($("#closeSheet")); await tick();
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
-  setField("suma", "1200"); setField("descriere", "Vopsea din buzunar"); setField("categorie", "Materiale"); setField("platitDe", "Ion Operator"); setField("sursa", "Proprii"); submit($("#recf")); await tick(60);
-  click($('[data-view="panou"]')); await tick(); check(/Ion Operator/.test(text()), "collaborator report lists Ion Operator");
-  check(/Firma îi datorează/.test(text()) && /1[ .]?700,00/.test(text()) && /din banii proprii 1[ .]?200,00/.test(text()), "Ion: company owes 1 700 (500 advance-less + 1 200 own money), own-money total shown");
-  click(window.document.querySelector('[data-colab="Ion Operator"]')); await tick();
-  check(/Vopsea din buzunar/.test($("#sheet").textContent) && /din banii proprii/.test($("#sheet").textContent) && /Cheltuit pentru firmă/.test($("#sheet").textContent), "collaborator detail sheet lists the expense with its source");
-  click($("#closeSheet")); await tick();
+  check(!$('[data-k="platitDe"]') && !$('[data-k="sursa"]') && /din casă/.test($("#sheet").textContent), "the director's expense form has no payer or source: he pays from the till");
+  setField("suma", "1200"); setField("descriere", "Vopsea din buzunar"); setField("pentru", "EHL"); setField("categorie", "Materiale"); submit($("#recf")); await tick(60);
+  const vop = Object.values(store.cheltuieli).find(r => r.descriere === "Vopsea din buzunar");
+  check(vop && vop.platitDe === "Sergiu" && !vop.sursa, "the director's expense names him as the payer, with no advance source");
+  click($('[data-view="panou"]')); await tick();
+  check(!/Raport pe colaborator[sS]*Ion Operator/.test(text()) || !window.document.querySelector('[data-colab="Ion Operator"]'), "Ion Operator is not a collaborator with money yet (the director paid from the till)");
 
   console.log("6. registers, salaries, journal, settings render");
   for (const tab of ["incasari", "cheltuieli", "iesiri", "proiecte", "chirii", "contracte", "imprumuturi", "salarii", "jurnal"]) {
@@ -245,61 +285,218 @@ const ls = (k) => window.localStorage.getItem(k);
   NET_DOWN = true; window.dispatchEvent(new window.Event("offline")); await tick();
   click($('[data-view="add"]')); await tick();
   click($('[data-form="cheltuieli"]')); await tick();
-  setField("suma", "70"); setField("descriere", "Taxi"); setField("categorie", "Transport"); setField("platitDe", "Sergiu"); submit($("#recf")); await tick(60);
+  setField("suma", "70"); setField("descriere", "Taxi"); setField("pentru", "EHL"); setField("categorie", "Transport"); submit($("#recf")); await tick(60);
   check(/Fără conexiune/.test(text()) && /așteaptă trimiterea/.test(text()), "offline note + pending count shown");
-  const q = JSON.parse(ls("ehl.queue") || "[]");
+  const q = JSON.parse(ls("ehl.queue." + dirId) || "[]");
   check(q.length === 2 && q[0].op === "create" && q[0].col === "cheltuieli" && q[1].col === "jurnal", "queue holds the expense and its journal entry");
   const tmpId = q[0].id;
   click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
   check(/70,00/.test(text()), "queued expense visible in the register");
   click($('[data-edit="cheltuieli"][data-id="' + tmpId + '"]')); await tick();
   setField("suma", "75"); submit($("#recf")); await tick(40);
-  const q2 = JSON.parse(ls("ehl.queue"));
+  const q2 = JSON.parse(ls("ehl.queue." + dirId));
   check(q2.filter(o => o.col === "cheltuieli").length === 1 && q2[0].data.suma === 75, "edit folded into the unsent create");
   NET_DOWN = false; window.dispatchEvent(new window.Event("online")); await tick(200);
-  check(JSON.parse(ls("ehl.queue") || "[]").length === 0, "queue flushed");
+  check(JSON.parse(ls("ehl.queue." + dirId) || "[]").length === 0, "queue flushed");
   check(Object.values(store.cheltuieli).some(r => r.suma === 75), "server received the expense (75)");
   click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
   check(!Array.from(window.document.querySelectorAll('[data-edit="cheltuieli"]')).some(b => b.dataset.id.indexOf("tmp") === 0), "temp id replaced by the server id");
+
+  console.log("7a. a create whose answer was lost is not sent twice");
+  click($('[data-view="add"]')); await tick();
+  click($('[data-form="cheltuieli"]')); await tick();
+  setField("suma", "33"); setField("descriere", "Vopsea"); setField("pentru", "EHL"); setField("categorie", "Materiale"); 
+  LOSE_ANSWER = true; submit($("#recf")); await tick(60); LOSE_ANSWER = false;
+  check(JSON.parse(ls("ehl.queue." + dirId) || "[]").some(o => o.col === "cheltuieli" && o.op === "create"), "the unanswered create waits in the queue");
+  window.dispatchEvent(new window.Event("online")); await tick(200);
+  check(Object.values(store.cheltuieli).filter(r => r.descriere === "Vopsea").length === 1, "the server holds the expense once");
+  check(JSON.parse(ls("ehl.queue." + dirId) || "[]").length === 0 && JSON.parse(ls("ehl.failed." + dirId) || "[]").length === 0, "queue empty, nothing marked as rejected");
+  check(Object.values(store.jurnal).filter(j => j.data && j.data.descriere === "Vopsea").length === 1, "one journal entry for it");
+
+  console.log("7e. money from a founder is confirmed with the founder's code");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="incasari"]')); await tick();
+  check(!$('[data-k="codFondator"]'), "no code field while the source is not a founder");
+  setField("client", "Sergiu"); await tick();
+  const cf = $('[data-k="codFondator"]');
+  check(cf && cf.type === "password", "choosing the founder shows the code field (masked)");
+  setField("suma", "500"); setField("codFondator", "1111"); submit($("#recf")); await tick(60);
+  check($("#recf") && /Codul fondatorului este greșit/.test($("#sheet").textContent) && !Object.values(store.incasari).some(r => r.client === "Sergiu"), "a wrong code is refused, nothing saved");
+  setField("codFondator", "258000"); submit($("#recf")); await tick(80);
+  const fin = Object.values(store.incasari).find(r => r.client === "Sergiu");
+  check(fin && fin.suma === 500 && /^Sergiu/.test(fin.confirmat || "") && !("codFondator" in fin), "the right code saves it, marked as confirmed by Sergiu, the code itself is not stored");
+  check(!Object.values(store.jurnal).some(j => j.data && j.data.codFondator), "the code never reaches the history");
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="incasari"]')); await tick();
+  check(/confirmat de Sergiu/.test(text()), "the income register shows who confirmed it");
+  click($('[data-view="panou"]')); await tick();
+  check(/Datorii către fondatori/.test(text()) && /Împrumutat de la fondatori\s*500,00/.test(text()), "the dashboard shows the founder's money as a debt of the firm (500)");
+  const dsecs = Array.from(window.document.querySelectorAll("#app .dash-grid>.sec"));
+  check(dsecs[1] && /Datorii către fondatori/.test(dsecs[1].textContent) && /Datorie\s*500,00/.test(dsecs[1].textContent) && /Sergiu/.test(dsecs[1].textContent), "the founders report stands on its own right under the totals, per founder");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
+  setField("destinatie", "Restituire fondator"); await tick(); setField("suma", "200"); setField("persoana", "Sergiu"); submit($("#recf")); await tick(80);
+  click($('[data-view="panou"]')); await tick();
+  check(/Datorie\s*300,00/.test(text()) && /Restituit\s*200,00/.test(text()), "a 'Restituire fondator' outflow brings the debt down to 300");
+  const clSec = Array.from(window.document.querySelectorAll("#app .sec")).find(s => /Sold pe client/.test((s.querySelector("h2") || {}).textContent || ""));
+  check(clSec && /Client A/.test(clSec.textContent) && !/Sergiu/.test(clSec.textContent), "the founder is not listed among the clients");
+
+  console.log("7d. every register row names who entered it");
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
+  check(/introdus de Sergiu/.test(text()), "expense rows show the author's name");
+
+  console.log("7c. money that is not in the till cannot be handed out");
+  const iesN = () => Object.values(store.iesiri || {}).length, ies0 = iesN();
+  click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
+  const pSel = $('[data-k="persoana"]');
+  const pOpts = Array.from(window.document.querySelectorAll("#dl-persoana option")).map(o => o.value);
+  check(pSel.tagName === "INPUT" && pSel.getAttribute("list") === "dl-persoana" && ["Sergiu", "Ion Operator"].every(n => pOpts.includes(n)), "the person field suggests the director and the operator and still accepts a typed name");
+  setField("valuta", "USD"); await tick(); setField("suma", "50"); setField("persoana", "Ion Operator"); submit($("#recf")); await tick(60);
+  check($("#recf") && /nu sunt destui bani/.test($("#sheet").textContent) && iesN() === ies0, "an outflow from an empty USD shelf is refused, nothing is saved");
+  click($("#closeSheet")); await tick(60);
+
+  console.log("7j. a transfer expense is paid from the bank, with a report of who paid and for what");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
+  setField("destinatie", "Depus pe cont"); await tick(); setField("suma", "300"); submit($("#recf")); await tick(80);
+  click($('[data-form="cheltuieli"]')); await tick();
+  setField("pentru", "EHL"); setField("suma", "120"); setField("descriere", "Ciment prin bancă"); setField("categorie", "Materiale"); setField("mod", "Transfer"); await tick();
+  submit($("#recf")); await tick(80);
+  const trE = Object.values(store.cheltuieli).find(r => r.descriere === "Ciment prin bancă");
+  check(trE && trE.mod === "Transfer" && trE.platitDe === "Sergiu", "the transfer expense is saved (the account held 300)");
+  click($('[data-view="panou"]')); await tick();
+  const trSec = Array.from(window.document.querySelectorAll("#app .sec")).find(s => /Cheltuieli din cont \(transfer\)/.test((s.querySelector("h2") || {}).textContent || ""));
+  check(trSec && /Sergiu/.test(trSec.textContent) && /120,00/.test(trSec.textContent), "the dashboard reports who paid from the bank and how much");
+  check(/Pe conts*180,00/.test(text()), "the account went down by the transfer (300 - 120 = 180)");
+  click(trSec.querySelector('[data-colab="Sergiu"]')); await tick();
+  check(/Plătit prin transfer \(din cont\)/.test($("#sheet").textContent) && /Ciment prin bancă/.test($("#sheet").textContent), "a tap lists what the transfers were spent on");
+  click($("#closeSheet")); await tick(60);
+
+  console.log("7i. an expense is for a project, for EHL or for something else");
+  const chCount = () => Object.values(store.cheltuieli).length, chBefore = chCount();
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  check($('[data-k="pentru"]').value === "Proiect" && $('[data-k="proiect"]') && $('[data-k="client"]'), "a new expense starts as 'Proiect' and asks for the project");
+  setField("suma", "15"); setField("descriere", "Șuruburi"); setField("categorie", "Materiale"); submit($("#recf")); await tick(60);
+  check($("#recf") && chCount() === chBefore, "for a project the project must be chosen: nothing saved without it");
+  setField("proiect", "Casa Test"); await tick(); submit($("#recf")); await tick(80);
+  const chP = Object.values(store.cheltuieli).find(r => r.descriere === "Șuruburi");
+  check(chP && chP.pentru === "Proiect" && chP.proiect === "Casa Test" && chP.client === "Client A", "saved on the project, with its client");
+  click($('[data-form="cheltuieli"]')); await tick();
+  setField("pentru", "EHL"); await tick();
+  check(!$('[data-k="proiect"]') && !$('[data-k="client"]'), "'EHL' hides the project and the client");
+  setField("suma", "25"); setField("descriere", "Hârtie birou"); setField("categorie", "Birou"); submit($("#recf")); await tick(80);
+  const chE = Object.values(store.cheltuieli).find(r => r.descriere === "Hârtie birou");
+  check(chE && chE.pentru === "EHL" && !chE.proiect && !chE.client, "an EHL expense is saved without project or client");
+  click($('[data-view="panou"]')); await tick();
+  check(/Cheltuieli: proiecte, EHL, altele/.test(text()) && /EHL \(firma\)/.test(text()), "the dashboard splits expenses into projects, EHL and other");
+
+  console.log("7h. a project shows its contract and what the client paid, cash and transfer apart");
+  const prj = Object.values(store.proiecte).find(p => p.nume === "Casa Test");
+  const paid = (mod) => Object.values(store.incasari).filter(r => r.proiect === "Casa Test" && r.mod === mod).reduce((a, r) => a + r.suma * r.curs, 0);
+  const ro = (v) => new Intl.NumberFormat("ro-RO", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+  click($('[data-view="add"]')); await tick(); click($('[data-form="incasari"]')); await tick();
+  setField("proiect", "Casa Test"); await tick(); setField("suma", "1000"); submit($("#recf")); await tick(80);
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="proiecte"]')); await tick();
+  click($('[data-edit="proiecte"][data-id="' + prj.id + '"]')); await tick();
+  setField("sumaContract", "50000"); setField("adaugator", "5000"); await tick();
+  const boxes = Array.from(window.document.querySelectorAll("#sheet .calcbox")).map(b => b.textContent);
+  check(boxes.length === 4 && boxes[0].includes("55.000,00") && boxes[1].includes(ro(paid("Numerar"))) && boxes[2].includes(ro(paid("Transfer"))) && boxes[3].includes(ro(55000 - paid("Numerar") - paid("Transfer"))) && paid("Numerar") >= 1000, "the project card shows contract + extra 55.000, cash " + ro(paid("Numerar")) + ", transfer " + ro(paid("Transfer")) + " and what is left");
+  submit($("#recf")); await tick(80);
+  check(store.proiecte[prj.id].sumaContract === 50000 && store.proiecte[prj.id].adaugator === 5000, "the contract sum and the extra are saved on the project");
+  click($('[data-view="panou"]')); await tick();
+  check(new RegExp("Sumă contract 50.000,00 · Adăugător 5.000,00 · Încasat cash " + ro(paid("Numerar")).replace(/\./g, "\\.") + " · Încasat transfer").test(text()), "the dashboard lists them on the project row");
+
+  console.log("7g. the bank account holds lei only");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="incasari"]')); await tick();
+  setField("valuta", "EUR"); await tick(); setField("mod", "Transfer"); await tick();
+  const vs = $('[data-k="valuta"]');
+  check(vs.value === "MDL" && vs.disabled && $('[data-k="curs"]').value === "1", "a transfer income fixes the currency to MDL at rate 1");
+  click($("#closeSheet")); await tick(60);
+  click($('[data-form="iesiri"]')); await tick();
+  setField("valuta", "USD"); await tick(); setField("destinatie", "Depus pe cont"); await tick();
+  check($('[data-k="valuta"]').value === "USD" && !$('[data-k="valuta"]').disabled && /Pe cont intră/.test($("#sheet").textContent), "a deposit may come from any currency shelf; the form shows the lei the account receives");
+  click($("#closeSheet")); await tick(60);
+
+  console.log("7f. the bank account may go below zero; the dashboard shows the minus and the payments behind it");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  setField("suma", "500"); setField("descriere", "Excavator"); setField("pentru", "EHL"); setField("categorie", "Materiale"); setField("mod", "Transfer"); await tick();
+  submit($("#recf")); await tick(80);
+  check(!$("#recf") && Object.values(store.cheltuieli).some(r => r.descriere === "Excavator" && r.mod === "Transfer"), "a transfer above the account (180) is saved all the same");
+  click($('[data-view="panou"]')); await tick();
+  const minSec = Array.from(window.document.querySelectorAll("#app .sec")).find(s => /Contul este în minus/.test((s.querySelector("h2") || {}).textContent || ""));
+  check(/Pe cont\s*-320,00/.test(text()) && minSec && /De achitat pe cont\s*320,00/.test(minSec.textContent) && /Excavator/.test(minSec.textContent) && !/Ciment prin bancă/.test(minSec.textContent), "the account shows -320 and the report names the payment that took it below zero");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
+  setField("destinatie", "Depus pe cont"); await tick(); setField("suma", "320"); submit($("#recf")); await tick(80);
+  click($('[data-view="panou"]')); await tick();
+  check(/Pe cont\s*0,00/.test(text()) && !/Contul este în minus/.test(text()), "a deposit of 320 clears the minus and the report disappears");
+
+  console.log("7b. a salary change counts from its date; earlier months keep the old salary");
+  const dNow = new Date(), todayStr = dNow.getFullYear() + "-" + String(dNow.getMonth() + 1).padStart(2, "0") + "-" + String(dNow.getDate()).padStart(2, "0");
+  const emp = Object.values(store.angajati).find(a => a.nume === "Ion Operator");
+  const h0 = Object.values(store.istoric).find(h => h.angajat === "Ion Operator");
+  h0.dinData = "2026-01-01"; emit("istoric", "update", h0); await tick();
+  const hs = () => Object.values(store.istoric).filter(h => h.angajat === "Ion Operator");
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="salarii"]')); await tick();
+  click($('[data-edit="angajati"][data-id="' + emp.id + '"]')); await tick();
+  check($('[data-k="salariu"]').value === "12000" && $('[data-k="dinSal"]') && $('[data-k="dinSal"]').value === todayStr, "employee form shows the salary and the date it applies from (today)");
+  setField("salariu", "15000"); submit($("#recf")); await tick(80);
+  check(hs().length === 2 && hs().some(h => h.salariu === 12000 && h.dinData === "2026-01-01") && hs().some(h => h.salariu === 15000 && h.dinData === todayStr), "the raise is a new history row dated today; the old row is untouched");
+  click($('[data-edit="angajati"][data-id="' + emp.id + '"]')); await tick();
+  check($('[data-k="salariu"]').value === "15000", "the form now shows the new salary");
+  setField("salariu", "16000"); submit($("#recf")); await tick(80);
+  check(hs().length === 2 && hs().some(h => h.salariu === 16000 && h.dinData === todayStr), "a second change for the same date corrects that row");
+  click($('[data-edit="angajati"][data-id="' + emp.id + '"]')); await tick();
+  setField("status", "Activ"); submit($("#recf")); await tick(80);
+  check(hs().length === 2, "saving without a salary change writes no history");
 
   console.log("8. logout, login as operator");
   click($('[data-view="set"]')); await tick();
   click($("#exitdir")); await tick(30);
   check($("#pinf") && !ls("ehl.cache"), "locked again, cache cleared");
   $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
-  check($("#pwf"), "director asked for password on re-login");
-  $("#pwf").elements["p"].value = "wrong"; submit($("#pwf")); await tick(40);
-  check(/greșită/.test(text()) && $("#pwf"), "wrong password rejected");
-  $("#pwf").elements["p"].value = "secret12"; submit($("#pwf")); await tick(80);
-  check($("#role").textContent === "Director", "director back in with password");
-  console.log("8b. weekly expiry: the code is asked, then the password");
-  window.localStorage.setItem("ehl.exp", String(Date.now() - 1000)); window.document.dispatchEvent(new window.Event("visibilitychange")); await tick(40);
-  check($("#pinf") && /săptămână/.test(text()) && !$("#pwf"), "after a week the code screen comes first, with the weekly note");
-  $("#pinv").value = "1111"; submit($("#pinf")); await tick(); check($("#pinf") && /greșit/.test(text()), "wrong code refused without touching the server");
-  $("#pinv").value = "258000"; submit($("#pinf")); await tick(); check($("#pwf") && /Sergiu/.test(text()), "right code leads to the password screen for the director");
-  $("#pwf").elements["p"].value = "secret12"; submit($("#pwf")); await tick(80);
-  check($("#role").textContent === "Director", "director continues after weekly password");
-  console.log("8c. change password in settings");
+  check($("#role").textContent === "Director" && !$("#pwf"), "director back in with the code alone");
   click($('[data-view="set"]')); await tick();
-  $("#pwchg").elements["veche"].value = "secret12"; $("#pwchg").elements["noua"].value = "secret99"; $("#pwchg").elements["noua2"].value = "secret99"; submit($("#pwchg")); await tick(40);
-  check(store.utilizatori[dirId].parola === "secret99", "password changed");
-  console.log("8d. lock screen after the app sat in the background");
+  check(!$("#pwchg"), "no password card in settings while the password is off");
+  console.log("8b. renaming a person renames them in every register");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  setField("suma", "10"); setField("descriere", "Cuie mici"); setField("pentru", "EHL"); setField("categorie", "Materiale"); submit($("#recf")); await tick(60);
+  click($('[data-view="set"]')); await tick(); click($('[data-edit="utilizatori"][data-id="' + op.id + '"]')); await tick();
+  setField("nume", "Ion Popescu"); submit($("#recf")); await tick(150);
+  const paidBy = (nm) => Object.values(store.cheltuieli).filter(r => r.platitDe === nm).length;
+  const nIon = paidBy("Ion Operator") + paidBy("Ion Popescu"); /* every expense he paid so far, whichever name it carried */
+  check(store.utilizatori[op.id].nume === "Ion Popescu" && paidBy("Ion Popescu") === nIon && paidBy("Ion Operator") === 0, "his expenses, if any, now name Ion Popescu (" + nIon + ")");
+  check(Object.values(store.angajati).some(a => a.nume === "Ion Popescu") && !Object.values(store.angajati).some(a => a.nume === "Ion Operator") && Object.values(store.istoric).every(h => h.angajat !== "Ion Operator"), "the employee and the salary history follow the new name");
+  click($('[data-edit="utilizatori"][data-id="' + op.id + '"]')); await tick();
+  setField("nume", "Ion Operator"); submit($("#recf")); await tick(150);
+  check(paidBy("Ion Operator") === nIon && paidBy("Ion Popescu") === 0 && Object.values(store.angajati).some(a => a.nume === "Ion Operator"), "renaming back restores the old name everywhere");
+  console.log("8c. a deactivated user leaves the list for the archive and can be restored");
+  click($('[data-view="set"]')); await tick(); click($('[data-form="utilizatori"]')); await tick();
+  setField("nume", "Temp Om"); setField("cod", "7777"); submit($("#recf")); await tick(80);
+  const tmpU = Object.values(store.utilizatori).find(u => u.nume === "Temp Om");
+  click($('[data-edit="utilizatori"][data-id="' + tmpU.id + '"]')); await tick();
+  setField("status", "Inactiv"); submit($("#recf")); await tick(80);
+  const archRow = () => Array.from(window.document.querySelectorAll('[data-restore="' + tmpU.id + '"]'));
+  check(store.utilizatori[tmpU.id].status === "Inactiv" && !window.document.querySelector('.user-row[data-edit="utilizatori"][data-id="' + tmpU.id + '"]') && archRow().length === 1 && /Arhivă/.test(text()), "deactivated user is out of the list and in the archive");
+  click(archRow()[0]); await tick(80);
+  check(store.utilizatori[tmpU.id].status === "Activ" && archRow().length === 0 && window.document.querySelector('.user-row[data-edit="utilizatori"][data-id="' + tmpU.id + '"]'), "restore puts the user back in the list");
+  click($('[data-edit="utilizatori"][data-id="' + tmpU.id + '"]')); await tick();
+  setField("status", "Inactiv"); submit($("#recf")); await tick(80);
+
+  console.log("8d. lock screen: not after a short absence, yes when the last entry is older than 2 days");
   click($('[data-view="reg"]')); await tick();
   Object.defineProperty(window.document, "visibilityState", { value: "hidden", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange"));
-  const realNow = window.Date.now; window.Date.now = () => realNow() + 11 * 60 * 1000;
   Object.defineProperty(window.document, "visibilityState", { value: "visible", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange")); await tick(40);
-  check($("#pinf") && /Sergiu/.test(text()) && !$("#nav").children.length && $("#gateother"), "code asked again after 10 minutes away, session kept, 'other user' offered");
+  check(!$("#pinf") && $("#role").textContent === "Director", "a short absence does not lock the screen");
+  window.localStorage.setItem("ehl.unlock", String(Date.now() - 3 * 24 * 3600 * 1000));
+  Object.defineProperty(window.document, "visibilityState", { value: "hidden", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange"));
+  Object.defineProperty(window.document, "visibilityState", { value: "visible", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange")); await tick(40);
+  check($("#pinf") && /Sergiu/.test(text()) && !$("#nav").children.length && $("#gateother"), "code asked again when the last entry is older than 2 days, session kept, 'other user' offered");
   $("#pinv").value = "0000"; submit($("#pinf")); await tick(); check($("#pinf") && /greșit/.test(text()), "wrong code keeps the lock");
   $("#pinv").value = "258000"; submit($("#pinf")); await tick(40);
   check($("#role").textContent === "Director" && $('[data-view="reg"][aria-current="page"]'), "right code unlocks and returns to the screen that was open (registers)");
-  window.Date.now = realNow;
   click($('[data-view="set"]')); await tick();
   click($("#exitdir")); await tick(30);
   $("#pinv").value = "4141"; submit($("#pinf")); await tick(80);
   check($("#role").textContent === "Operator", "role pill = Operator");
   check($("#nav").children.length === 3, "operator nav has 3 tabs");
   click($('[data-form="cheltuieli"]')); await tick();
-  check(window.document.querySelector('[data-k="platitDe"]').value === "Ion Operator", "Plătit de defaults to operator name");
+  check(!$('[data-k="platitDe"]') && !$('[data-k="sursa"]') && /Disponibil din avansul meu/.test($("#sheet").textContent), "a collaborator's expense has no payer or source choice: he pays, from his advance, and sees what is left");
   check(!$("#delbtn"), "operator has no delete button");
   check($('[data-k="client"]').tagName === "SELECT", "operator picks the client from a list, cannot type a new one");
   check(!$('[data-form="contracte"]'), "operator has no Contract card (clients are created by the director)");
@@ -307,9 +504,13 @@ const ls = (k) => window.localStorage.getItem(k);
   console.log("8e. an operator edits his own row for 15 days, then it opens read-only");
   click($("#closeSheet")); await tick(); click($('[data-view="add"]')); await tick();
   click($('[data-form="cheltuieli"]')); await tick();
-  setField("suma", "40"); setField("descriere", "Cuie"); setField("categorie", "Diverse"); submit($("#recf")); await tick(60);
+  setField("suma", "40"); setField("descriere", "Cuie"); setField("pentru", "EHL"); setField("categorie", "Diverse"); submit($("#recf")); await tick(60);
+  check($("#recf") && /Nu aveți destui bani din avans/.test($("#sheet").textContent) && !Object.values(store.cheltuieli).some(r => r.descriere === "Cuie"), "with no money from the director a cash expense is refused: he cannot go below zero");
+  const adv = { id: "adv000000000001", data: "2026-11-01", destinatie: "Dat persoanei", valuta: "MDL", curs: 1, suma: 100000, persoana: "Ion Operator", sursa: "Casa", platitDe: "", by: dirId, created: new Date().toISOString().replace("T", " "), updated: "" };
+  store.iesiri[adv.id] = adv; emit("iesiri", "create", adv); await tick(40); /* the director hands him 100 000 */
+  submit($("#recf")); await tick(80);
   const own = Object.values(store.cheltuieli).find(r => r.descriere === "Cuie");
-  check(own && own.by === op.id, "operator's expense saved under his name");
+  check(own && own.by === op.id && own.platitDe === "Ion Operator" && own.sursa === "Avans", "with an advance it is saved: paid by him, from his advance");
   click($('[data-view="mine"]')); await tick(); click($('[data-edit="cheltuieli"][data-id="' + own.id + '"]')); await tick();
   check($("#savebtn") && !$('[data-k="suma"]').disabled, "a fresh own row is editable");
   click($("#closeSheet")); await tick();
@@ -320,10 +521,50 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-form="cheltuieli"]')); await tick();
   click($("#closeSheet")); await tick();
   click($('[data-view="add"]')); await tick();
-  check(/Soldul meu/.test(text()) && /Firma îi datorează/.test(text()), "operator sees own balance card (company owes)");
+  check(/Soldul meu/.test(text()) && /Are în mână bani ai firmei/.test(text()), "operator sees own balance card (he holds the firm's money)");
   click($('[data-form="pontaj"]')); await tick();
   check(!/MDL/.test($("#sheet").textContent), "operator sees no salary preview in timesheet form");
   click($("#closeSheet")); await tick();
+
+  console.log("8f. an operator adds an employee, with a salary (employees are shared since 9 November)");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="angajati"]')); await tick();
+  check($("#recf") && $('[data-k="salariu"]'), "the collaborator's employee form offers the salary");
+  setField("nume", "Vasile Nou"); setField("salariu", "9000"); submit($("#recf")); await tick(80);
+  check(!$("#recf") && Object.values(store.angajati).filter(a => a.nume === "Vasile Nou").length === 1 && Object.values(store.istoric).some(h => h.angajat === "Vasile Nou" && h.salariu === 9000 && h.by === op.id), "employee saved once, with his salary row written by the collaborator, form closed");
+  const dNow2 = new Date(), curMonthStr = dNow2.getFullYear() + "-" + String(dNow2.getMonth() + 1).padStart(2, "0");
+  console.log("8g. the timesheet offers every working employee (directors left out); a collaborator may fill anyone's");
+  click($('[data-form="pontaj"]')); await tick();
+  const angSel = $('[data-k="angajat"]'), angOpts = Array.from(angSel.options).map(o => o.value);
+  check(angSel.tagName === "SELECT" && angOpts.includes("Vasile Nou") && angOpts.includes("Ion Operator") && !angOpts.includes("Sergiu"), "the employee list holds the employees and not the director");
+  setField("angajat", "Vasile Nou"); await tick(); setField("z1", "10"); setField("z2", "12"); submit($("#recf")); await tick(80);
+  check(!$("#recf") && Object.values(store.pontaj).some(p => p.angajat === "Vasile Nou" && p.z1 === 10 && p.by === op.id), "a timesheet for an employee is saved under the collaborator");
+  click($('[data-form="pontaj"]')); await tick();
+  setField("angajat", "Vasile Nou"); await tick(); setField("z1", "5"); submit($("#recf")); await tick(80);
+  const vn = Object.values(store.pontaj).filter(r => r.angajat === "Vasile Nou" && r.luna === curMonthStr);
+  check(!$("#recf") && vn.length === 1 && vn[0].z1 === 5, "choosing the same employee and month again opens the existing timesheet: one row, now with 5 days");
+
+  console.log("8h. a collaborator records expenses only: no till outflow for him");
+  click($('[data-view="add"]')); await tick();
+  check(!$('[data-form="iesiri"]') && $('[data-form="cheltuieli"]'), "the operator has the Expense card and no 'Ieșire din casă' card");
+  check(!$('[data-form="imprumuturi"]'), "the operator has no Loan card either (loans are the founder's)");
+
+  console.log("8i. one session per account: a sign-in elsewhere ends this one");
+  KICKED = true; window.document.dispatchEvent(new window.Event("visibilitychange")); await tick(60);
+  check($("#pinf") && /alt dispozitiv/.test(text()) && !$("#nav").children.length, "the device is signed out with the 'opened on another device' note");
+  KICKED = false; $("#pinv").value = "4141"; submit($("#pinf")); await tick(80);
+  check($("#role").textContent === "Operator", "entering the code signs this device in again");
+
+  console.log("8j. the collaborator's own dashboard: his money only, nothing of the firm's");
+  click($('[data-view="panou"]')); await tick();
+  check(/Primit de la director/.test(text()) && /Cheltuit numerar/.test(text()) && /Ce am introdus eu/.test(text()), "his dashboard shows what he received, what he spent and the operations he entered");
+  check(!/Banii firmei|Datorii către fondatori|Sold pe client/.test(text()), "no firm totals, clients or founders on it");
+  const opCache = JSON.parse(ls("ehl.cache") || "{}");
+  check(opCache.incasari && opCache.incasari.length === 0 && opCache.cheltuieli.length > 0 && opCache.cheltuieli.every(r => r.by === op.id || r.platitDe === "Ion Operator"), "his phone holds no incomes and only his own expenses (" + (opCache.cheltuieli || []).length + ")");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  setField("pentru", "EHL"); setField("suma", "999999"); setField("descriere", "Macara"); setField("categorie", "Materiale"); setField("mod", "Transfer"); await tick();
+  submit($("#recf")); await tick(80);
+  const mac = Object.values(store.cheltuieli).find(r => r.descriere === "Macara");
+  check(!$("#recf") && mac && mac.mod === "Transfer" && mac.platitDe === "Ion Operator", "his transfer is accepted even when the account cannot cover it (the account goes below zero)");
 
   console.log("9. deactivating the operator kicks the device out");
   store.utilizatori[op.id].status = "Inactiv"; emit("utilizatori", "update", store.utilizatori[op.id]); await tick(30);
