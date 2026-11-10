@@ -158,7 +158,7 @@ ro:{
  srv_grafic:"Graficul se face doar pentru angajații creați de dumneavoastră.",srv_ore:"Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).",srv_gr_lock:"Zilele achitate nu se mai schimbă.",f_extra:"Extra (MDL)",f_extra_h:"Remunerare suplimentară pentru luna aceasta, dacă angajatul a făcut ceva în plus. Intră în suma de achitat.",
  op_ang:"Angajați",op_ang_h:"Pentru luna aleasă sus: toate zilele angajatului și de cine au fost bifate, suma lunii, cât s-a achitat și de cine, restul. Ceasul deschide graficul, rotița fișa.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
- f_adaug:"Adăugător (MDL)",f_contract_eur:"Contract în EUR",s_tranz:"Toate tranzacțiile",s_tranz_h:"Fiecare mișcare de bani, de la cea mai nouă: de unde au plecat, unde au ajuns, cine a înregistrat-o. Apăsați pe un rând ca să vedeți înregistrarea și istoricul ei.",tz_cont:"Cont",rec_hist:"Istoricul înregistrării",rec_hist_none:"Fără istoric.",j_nochange:"Salvat fără modificări",f_contract_usd:"Contract în USD",pers_dir_h:"Din Casa EHL banii merg doar la un administrator.",p_adaug:"Adăugător",p_total:"Contract + adăugător",
+ f_adaug:"Adăugător (MDL)",f_contract_eur:"Contract în EUR",f_proiect_nume:"Numele proiectului",f_client_nume:"Numele clientului",s_tranz:"Toate tranzacțiile",s_tranz_h:"Fiecare mișcare de bani, de la cea mai nouă: de unde au plecat, unde au ajuns, cine a înregistrat-o. Apăsați pe un rând ca să vedeți înregistrarea și istoricul ei.",tz_cont:"Cont",rec_hist:"Istoricul înregistrării",rec_hist_none:"Fără istoric.",j_nochange:"Salvat fără modificări",f_contract_usd:"Contract în USD",pers_dir_h:"Din Casa EHL banii merg doar la un administrator.",p_adaug:"Adăugător",p_total:"Contract + adăugător",
  sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",
  op_primit:"Primit de la director",op_primit_dir:"Luat din Casa EHL",op_dat:"Dat mai departe",op_adv_dir:"Bani luați din Casa EHL",nav_ehl:"EHL",app_ehl:"Casa EHL · contul comun",op_chn:"Cheltuit numerar",op_prop:"Din banii mei",op_tr:"Prin transfer (din cont)",op_adv:"Bani primiți de la director",op_proj:"Cheltuieli pe proiect",
  cont_intra:"Pe cont intră",
@@ -317,7 +317,7 @@ ru:{
  srv_grafic:"График можно вести только для сотрудников, которых создали вы.",srv_ore:"День отмечается полным (8 часов) или половиной (4 часа).",srv_gr_lock:"Оплаченные дни больше не меняются.",f_extra:"Премия (MDL)",f_extra_h:"Дополнительное вознаграждение за этот месяц, если сотрудник сделал что-то сверх. Входит в сумму к выплате.",
  op_ang:"Сотрудники",op_ang_h:"За выбранный сверху месяц: все дни сотрудника и кто их отметил, сумма за месяц, сколько и кем выплачено, остаток. Часы открывают график, шестерёнка карточку.",pontaj_lipsa:"табеля за этот месяц нет",gr_zile_s:"дн.",rest_total:"остаток за все месяцы",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
- f_adaug:"Дополнительно (MDL)",f_contract_eur:"Договор в EUR",s_tranz:"Все операции",s_tranz_h:"Каждое движение денег, новые сверху: откуда ушли, куда пришли, кто записал. Нажмите на строку, чтобы открыть запись и её историю.",tz_cont:"Счёт",rec_hist:"История записи",rec_hist_none:"Истории нет.",j_nochange:"Сохранено без изменений",f_contract_usd:"Договор в USD",pers_dir_h:"Из кассы EHL деньги идут только администратору.",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
+ f_adaug:"Дополнительно (MDL)",f_contract_eur:"Договор в EUR",f_proiect_nume:"Название проекта",f_client_nume:"Имя клиента",s_tranz:"Все операции",s_tranz_h:"Каждое движение денег, новые сверху: откуда ушли, куда пришли, кто записал. Нажмите на строку, чтобы открыть запись и её историю.",tz_cont:"Счёт",rec_hist:"История записи",rec_hist_none:"Истории нет.",j_nochange:"Сохранено без изменений",f_contract_usd:"Договор в USD",pers_dir_h:"Из кассы EHL деньги идут только администратору.",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
  sess_other:"В аккаунт вошли на другом устройстве. Введите код, чтобы продолжить здесь.",
  op_primit:"Получено от директора",op_primit_dir:"Взято из кассы EHL",op_dat:"Передано дальше",op_adv_dir:"Деньги, взятые из кассы EHL",nav_ehl:"EHL",app_ehl:"Касса EHL · общий счёт",op_chn:"Потрачено наличными",op_prop:"Из своих денег",op_tr:"Переводом (со счёта)",op_adv:"Деньги, полученные от директора",op_proj:"Расходы по проектам",
  cont_intra:"На счёт поступит",
@@ -1276,8 +1276,9 @@ var FORMS={
  ]}},
 
  proiecte:{title:"a_proj",icon:"folder",fields:function(){return[
-   {k:"nume",t:"text",l:"f_nume",req:1},
-   {k:"client",t:"text",l:"f_client",list:clienti()},
+   /* a project is named after the work and the client; both are required */
+   {k:"nume",t:"text",l:"f_proiect_nume",req:1},
+   {k:"client",t:"text",l:"f_client_nume",req:1,list:clienti()},
    {k:"sumaContract",t:"number",l:"f_contract_mdl",step:"0.01",def:"0",half:1},
    {k:"adaugator",t:"number",l:"f_adaug",step:"0.01",def:"0",half:1},
    /* the contract may be paid partly in euro and dollars, cash or by transfer */
