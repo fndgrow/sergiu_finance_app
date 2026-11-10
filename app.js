@@ -158,7 +158,7 @@ ro:{
  srv_grafic:"Graficul se face doar pentru angajații creați de dumneavoastră.",srv_ore:"Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).",srv_gr_lock:"Zilele achitate nu se mai schimbă.",f_extra:"Extra (MDL)",f_extra_h:"Remunerare suplimentară pentru luna aceasta, dacă angajatul a făcut ceva în plus. Intră în suma de achitat.",
  op_ang:"Angajați",op_ang_h:"Pentru luna aleasă sus: toate zilele angajatului și de cine au fost bifate, suma lunii, cât s-a achitat și de cine, restul. Ceasul deschide graficul, rotița fișa.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
- f_adaug:"Adăugător (MDL)",f_contract_eur:"Contract în EUR",f_proiect_nume:"Denumire proiect",f_client_nume:"Numele clientului",s_tranz:"Toate tranzacțiile",s_tranz_h:"Fiecare mișcare de bani, de la cea mai nouă: de unde au plecat, unde au ajuns, cine a înregistrat-o. Apăsați pe un rând ca să vedeți înregistrarea și istoricul ei.",tz_cont:"Cont",rec_hist:"Istoricul înregistrării",rec_hist_none:"Fără istoric.",j_nochange:"Salvat fără modificări",f_contract_usd:"Contract în USD",pers_dir_h:"Din Casa EHL banii merg doar la un administrator.",p_adaug:"Adăugător",p_total:"Contract + adăugător",
+ f_adaug:"Adăugător (MDL)",f_contract_eur:"Contract în EUR",f_contract_eur_sum:"Suma contractului (EUR)",f_contract_cash:"Din care cash (EUR)",f_contract_tr:"Din care transfer (EUR)",contract_split:"Cash + transfer trebuie să dea suma contractului.",f_proiect_nume:"Denumire proiect",f_client_nume:"Numele clientului",s_tranz:"Toate tranzacțiile",s_tranz_h:"Fiecare mișcare de bani, de la cea mai nouă: de unde au plecat, unde au ajuns, cine a înregistrat-o. Apăsați pe un rând ca să vedeți înregistrarea și istoricul ei.",tz_cont:"Cont",rec_hist:"Istoricul înregistrării",rec_hist_none:"Fără istoric.",j_nochange:"Salvat fără modificări",f_contract_usd:"Contract în USD",pers_dir_h:"Din Casa EHL banii merg doar la un administrator.",p_adaug:"Adăugător",p_total:"Contract + adăugător",
  sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",
  op_primit:"Primit de la director",op_primit_dir:"Luat din Casa EHL",op_dat:"Dat mai departe",op_adv_dir:"Bani luați din Casa EHL",nav_ehl:"EHL",app_ehl:"Casa EHL · contul comun",op_chn:"Cheltuit numerar",op_prop:"Din banii mei",op_tr:"Prin transfer (din cont)",op_adv:"Bani primiți de la director",op_proj:"Cheltuieli pe proiect",
  cont_intra:"Pe cont intră",
@@ -317,7 +317,7 @@ ru:{
  srv_grafic:"График можно вести только для сотрудников, которых создали вы.",srv_ore:"День отмечается полным (8 часов) или половиной (4 часа).",srv_gr_lock:"Оплаченные дни больше не меняются.",f_extra:"Премия (MDL)",f_extra_h:"Дополнительное вознаграждение за этот месяц, если сотрудник сделал что-то сверх. Входит в сумму к выплате.",
  op_ang:"Сотрудники",op_ang_h:"За выбранный сверху месяц: все дни сотрудника и кто их отметил, сумма за месяц, сколько и кем выплачено, остаток. Часы открывают график, шестерёнка карточку.",pontaj_lipsa:"табеля за этот месяц нет",gr_zile_s:"дн.",rest_total:"остаток за все месяцы",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
- f_adaug:"Дополнительно (MDL)",f_contract_eur:"Договор в EUR",f_proiect_nume:"Название проекта",f_client_nume:"Имя клиента",s_tranz:"Все операции",s_tranz_h:"Каждое движение денег, новые сверху: откуда ушли, куда пришли, кто записал. Нажмите на строку, чтобы открыть запись и её историю.",tz_cont:"Счёт",rec_hist:"История записи",rec_hist_none:"Истории нет.",j_nochange:"Сохранено без изменений",f_contract_usd:"Договор в USD",pers_dir_h:"Из кассы EHL деньги идут только администратору.",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
+ f_adaug:"Дополнительно (MDL)",f_contract_eur:"Договор в EUR",f_contract_eur_sum:"Сумма договора (EUR)",f_contract_cash:"Из них наличными (EUR)",f_contract_tr:"Из них переводом (EUR)",contract_split:"Наличные + перевод должны давать сумму договора.",f_proiect_nume:"Название проекта",f_client_nume:"Имя клиента",s_tranz:"Все операции",s_tranz_h:"Каждое движение денег, новые сверху: откуда ушли, куда пришли, кто записал. Нажмите на строку, чтобы открыть запись и её историю.",tz_cont:"Счёт",rec_hist:"История записи",rec_hist_none:"Истории нет.",j_nochange:"Сохранено без изменений",f_contract_usd:"Договор в USD",pers_dir_h:"Из кассы EHL деньги идут только администратору.",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
  sess_other:"В аккаунт вошли на другом устройстве. Введите код, чтобы продолжить здесь.",
  op_primit:"Получено от директора",op_primit_dir:"Взято из кассы EHL",op_dat:"Передано дальше",op_adv_dir:"Деньги, взятые из кассы EHL",nav_ehl:"EHL",app_ehl:"Касса EHL · общий счёт",op_chn:"Потрачено наличными",op_prop:"Из своих денег",op_tr:"Переводом (со счёта)",op_adv:"Деньги, полученные от директора",op_proj:"Расходы по проектам",
  cont_intra:"На счёт поступит",
@@ -917,10 +917,11 @@ function calc(){
   C.proiecte=S.proiecte.map(function(p){
     var inc=sum(S.incasari,function(r){return sameP(r.proiect,p.nume)?n(r.suma)*n(r.curs):0});
     var ch=sum(S.cheltuieli,function(r){return sameP(r.proiect,p.nume)?n(r.suma):0});
-    var bg=n(p.buget),pi=projInc(p.nume),ct=round2(n(p.sumaContract)+n(p.contractEUR)*cursAzi("EUR")+n(p.contractUSD)*cursAzi("USD"));
+    var bg=n(p.buget),pi=projInc(p.nume),pe=projIncEur(p.nume),ct=round2(n(p.sumaContract)+n(p.contractEUR)*cursAzi("EUR")+n(p.contractUSD)*cursAzi("USD"));
     return {id:p.id,nume:p.nume,client:p.client||"",status:p.status||"Activ",resp:respList(p),
       buget:bg,inc:inc,chelt:ch,rest:bg-ch,pct:bg>0?Math.min(100,ch/bg*100):0,
-      contract:ct,adaug:n(p.adaugator),incCash:pi.cash,incTr:pi.tr,ramasContract:round2(ct+n(p.adaugator)-pi.cash-pi.tr)};
+      contract:ct,adaug:n(p.adaugator),incCash:pi.cash,incTr:pi.tr,ramasContract:round2(ct+n(p.adaugator)-pi.cash-pi.tr),
+      contractEUR:n(p.contractEUR),contractCash:n(p.contractCash),contractTransfer:n(p.contractTransfer),incCashEur:pe.cash,incTrEur:pe.tr,ramasEur:round2(n(p.contractEUR)-pe.cash-pe.tr)};
   }).sort(function(a,b){return (a.status==="Finalizat"?1:0)-(b.status==="Finalizat"?1:0)||b.chelt-a.chelt});
   var defNames=S.proiecte.map(function(p){return String(p.nume||"").trim().toLowerCase()});
   C.perProiect=proiecteNume().map(function(p){
@@ -984,6 +985,11 @@ function projInc(nume){
   var o={cash:0,tr:0,byVal:{}};
   if(String(nume||"").trim())S.incasari.forEach(function(r){if(sameP(r.proiect,nume)){var v=n(r.suma)*n(r.curs),cur=r.valuta||"MDL";if(r.mod==="Transfer")o.tr+=v;else o.cash+=v;
     var b=o.byVal[cur]||(o.byVal[cur]={cash:0,tr:0});if(r.mod==="Transfer")b.tr=round2(b.tr+n(r.suma));else b.cash=round2(b.cash+n(r.suma))}});
+  o.cash=round2(o.cash);o.tr=round2(o.tr);return o;
+}
+function projIncEur(nume){
+  var o={cash:0,tr:0},rate=cursAzi("EUR")||1;
+  if(String(nume||"").trim())S.incasari.forEach(function(r){if(sameP(r.proiect,nume)){var v=(r.valuta==="EUR")?n(r.suma):n(r.suma)*n(r.curs)/rate;if(r.mod==="Transfer")o.tr+=v;else o.cash+=v}});
   o.cash=round2(o.cash);o.tr=round2(o.tr);return o;
 }
 /* the contract of a project in lei: the MDL part, the extra work, and the EUR/USD parts at today's rate */
@@ -1276,26 +1282,20 @@ var FORMS={
  ]}},
 
  proiecte:{title:"a_proj",icon:"folder",fields:function(){return[
-   /* a project is named after the work and the client; both are required */
+   /* a project is named after the work and the client; the contract is always in euro and is split into what the
+      client pays in cash and what by transfer; the responsible is the account that creates it */
    {k:"nume",t:"text",l:"f_proiect_nume",req:1},
    {k:"client",t:"text",l:"f_client_nume",req:1,list:clienti()},
-   {k:"sumaContract",t:"number",l:"f_contract_mdl",step:"0.01",def:"0",half:1},
-   {k:"adaugator",t:"number",l:"f_adaug",step:"0.01",def:"0",half:1},
-   /* the contract may be paid partly in euro and dollars, cash or by transfer */
-   {k:"contractEUR",t:"number",l:"f_contract_eur",step:"0.01",def:"0",half:1},
-   {k:"contractUSD",t:"number",l:"f_contract_usd",step:"0.01",def:"0",half:1},
-   {k:"responsabili",t:"multi",l:"f_resp",opts:oameni()},
-   {k:"buget",t:"number",l:"f_buget",step:"0.01",def:"0"},
+   {k:"contractEUR",t:"number",l:"f_contract_eur_sum",req:1,step:"0.01"},
+   {k:"contractCash",t:"number",l:"f_contract_cash",step:"0.01",def:"0",half:1},
+   {k:"contractTransfer",t:"number",l:"f_contract_tr",step:"0.01",def:"0",half:1},
    {k:"dataInceput",t:"date",l:"f_di",half:1,def:today()},
    {k:"termen",t:"date",l:"f_termen",half:1},
    {k:"status",t:"select",l:"f_status",req:1,opts:[{v:"Activ",l:T("st_activ")},{v:"Pauză",l:T("st_pauza")},{v:"Finalizat",l:T("st_final")}],def:"Activ"},
    {k:"nota",t:"text",l:"f_nota"}
- ]},calc:function(d){var pi=projInc(d.nume),ct=contractLei(d);
-   /* the contract with its extra work in lei, what the client has paid so far (cash and transfer apart), and each
-      foreign currency of the contract: paid / agreed */
-   var out=[{l:T("p_total"),v:money(ct)+" MDL"},{l:T("p_cash"),v:money(pi.cash)},{l:T("p_tr"),v:money(pi.tr)},{l:T("p_ramas"),v:money(ct-pi.cash-pi.tr)}];
-   ["EUR","USD"].forEach(function(v){var agreed=n(d["contract"+v]),got=pi.byVal[v]?round2(pi.byVal[v].cash+pi.byVal[v].tr):0;if(agreed||got)out.push({l:v,v:money(got)+" / "+money(agreed)})});
-   return out}},
+ ]},calc:function(d){var pe=projIncEur(d.nume),ce=n(d.contractEUR);
+   /* the contract in euro, the cash and the transfer part (paid / agreed), and what is still to come */
+   return [{l:T("f_contract"),v:money(ce)+" EUR"},{l:T("p_cash"),v:money(pe.cash)+" / "+money(n(d.contractCash))+" EUR"},{l:T("p_tr"),v:money(pe.tr)+" / "+money(n(d.contractTransfer))+" EUR"},{l:T("p_ramas"),v:money(round2(ce-pe.cash-pe.tr))+" EUR"}]}},
 
  angajati:{title:"a_ang",icon:"user",fields:function(){return[
    {k:"nume",t:"text",l:"f_nume",req:1},
@@ -1627,7 +1627,7 @@ function buildWb(luna,doar){
 
   if(C.proiecte.length)wsAdd(wb,T("r_proj"),[
     {h:T("f_nume"),k:"nume",w:26},{h:T("f_client"),k:"client",w:22},{h:T("f_resp"),k:"resp",w:28},
-    {h:T("f_status"),k:"status",w:13},{h:T("p_buget"),k:"buget",w:15,fmt:FMT_M},
+    {h:T("f_status"),k:"status",w:13},{h:T("f_contract_eur_sum"),k:"contractEUR",w:16,fmt:FMT_M},{h:T("f_contract_cash"),k:"contractCash",w:16,fmt:FMT_M},{h:T("f_contract_tr"),k:"contractTransfer",w:16,fmt:FMT_M},
     {h:T("p_cheltuit"),k:"chelt",w:15,fmt:FMT_M},{h:T("p_incasat"),k:"inc",w:15,fmt:FMT_M},
     {h:T("p_rest"),k:"rest",w:15,fmt:FMT_M},{h:"%",k:"pct",w:9,fmt:FMT_P}],
     C.proiecte.map(function(p){return {nume:p.nume,client:p.client,resp:p.resp.join(", ")||T("p_niciunul"),
@@ -2261,7 +2261,9 @@ function vPanouEHL(){
       var right=p.buget>0?money(p.rest):money(p.chelt);
       var note=p.buget>0?(T("p_cheltuit")+" "+money(p.chelt)+" / "+money(p.buget)):(T("p_cheltuit")+" "+money(p.chelt)+" · "+T("p_incasat")+" "+money(p.inc));
       /* the contract and the client's payments: cash and transfer apart, and what is still to come */
-      var pay=(p.contract||p.adaug||p.incCash||p.incTr)?[p.contract?T("f_contract")+" "+money(p.contract):"",p.adaug?T("p_adaug")+" "+money(p.adaug):"",T("p_cash")+" "+money(p.incCash),T("p_tr")+" "+money(p.incTr),(p.contract||p.adaug)?T("p_ramas")+" "+money(p.ramasContract):""].filter(Boolean).join(" · "):"";
+      var pay=p.contractEUR>0
+        ?[T("f_contract")+" "+money(p.contractEUR)+" EUR",T("p_cash")+" "+money(p.incCashEur)+" / "+money(p.contractCash)+" EUR",T("p_tr")+" "+money(p.incTrEur)+" / "+money(p.contractTransfer)+" EUR",T("p_ramas")+" "+money(p.ramasEur)+" EUR"].join(" · ")
+        :((p.contract||p.adaug||p.incCash||p.incTr)?[p.contract?T("f_contract")+" "+money(p.contract):"",p.adaug?T("p_adaug")+" "+money(p.adaug):"",T("p_cash")+" "+money(p.incCash),T("p_tr")+" "+money(p.incTr),(p.contract||p.adaug)?T("p_ramas")+" "+money(p.ramasContract):""].filter(Boolean).join(" · "):"");
       return '<button type="button" class="tap row wrap" data-edit="proiecte" data-id="'+esc(p.id)+'">'
         +'<span class="l">'+esc(p.nume)+'<span class="s">'+esc(sub)+'</span><span class="s">'+esc(note)+'</span>'+(pay?'<span class="s">'+esc(pay)+'</span>':'')+'</span>'
         +'<span class="r '+(over?"neg":(p.buget>0?"pos":""))+'">'+right+'</span>'+bar+'</button>';
@@ -2412,7 +2414,7 @@ var REGDEF={
  contracte:{t:"r_contr",main:function(r){return r.client||"—"},sub:function(r){return r.nota||""},
    amt:function(r){return money(n(r.sumaContract))+" MDL"},cls:function(){return ""},meta:function(){return ""}},
  proiecte:{t:"r_proj",main:function(r){return r.nume||"—"},
-   sub:function(r){var pi=projInc(r.nume);return [r.client,respList(r).join(", ")||T("p_niciunul"),n(r.sumaContract)?T("f_contract")+" "+money(n(r.sumaContract)):"",n(r.adaugator)?T("p_adaug")+" "+money(n(r.adaugator)):"",(pi.cash||pi.tr)?T("p_cash")+" "+money(pi.cash)+", "+T("p_tr")+" "+money(pi.tr):""].filter(Boolean).join(" · ")},
+   sub:function(r){var pi=projInc(r.nume);return [r.client,respList(r).join(", ")||T("p_niciunul"),n(r.contractEUR)?T("f_contract")+" "+money(n(r.contractEUR))+" EUR":(n(r.sumaContract)?T("f_contract")+" "+money(n(r.sumaContract)):""),n(r.adaugator)?T("p_adaug")+" "+money(n(r.adaugator)):"",(pi.cash||pi.tr)?T("p_cash")+" "+money(pi.cash)+", "+T("p_tr")+" "+money(pi.tr):""].filter(Boolean).join(" · ")},
    amt:function(r){return n(r.buget)?money(n(r.buget))+" MDL":"—"},
    cls:function(r){return r.status==="Finalizat"?"":"pos"},
    meta:function(r){return r.status==="Finalizat"?T("st_final"):(r.status==="Pauză"?T("st_pauza"):T("st_activ"))}},
@@ -2793,6 +2795,10 @@ function submitForm(){
   if(short.length){st.err=T("descr_short");drawSheet();return;}
   var fut=fields.filter(function(f){return f.noFuture&&String(st.data[f.k]||"")>today()});
   if(fut.length){st.err=T("date_future");drawSheet();return;}
+  if(st.col==="proiecte"){
+    var ceP=n(st.data.contractEUR),ccP=n(st.data.contractCash),ctP=n(st.data.contractTransfer);
+    if(ceP>0&&round2(ccP+ctP)!==round2(ceP)){st.err=T("contract_split");drawSheet();return;}
+  }
   if(st.col==="pontaj"){
     var z1=n(st.data.z1),z2=n(st.data.z2);
     if(!(graficOre(st.data.angajat,st.data.luna).n>0)&&!dPlin(st.data).complet&&(z1<0||z1>15||z2<0||z2>16)){st.err=T("pontaj_zile");drawSheet();return;}
@@ -2868,6 +2874,7 @@ function submitForm(){
     if(b.valuta==="MDL"&&("curs" in b))b.curs=1; /* lei never carry a rate */
     if(col==="iesiri"){delete b.din;if(!st.id){if(ieseDinAvans(null,d)){b.sursa="Avans";b.platitDe=meName();delete b.codEHL}else{b.sursa="Casa";b.platitDe=""}}else delete b.codEHL}
     if(col==="chirii"&&!st.id){if(!isCasierMe()){b.sursa="Avans";b.platitDe=meName()}else{b.sursa="Casa";b.platitDe=""}} /* the server sets the same */
+    if(col==="proiecte"&&!st.id)b.responsabili=meName(); /* the project belongs to the account that created it */
     p=saveDoc(col,b,st.id);
     if(col==="pontaj"){b.complet=!!d.complet;}
     if(col==="pontaj"&&d.achitat){
@@ -3130,6 +3137,7 @@ document.addEventListener("change",function(ev){
   sheetState.data[k]=(el.type==="checkbox")?el.checked:el.value;
   if(k==="valuta"){sheetState.data.curs=String(cursAzi(el.value));drawSheet();return;}
   if(k==="proiect"){var pj=S.proiecte.filter(function(p){return sameP(p.nume,el.value)})[0];if(pj&&pj.client){sheetState.data.client=pj.client;drawSheet();}return;}
+  if(sheetState.col==="proiecte"&&(k==="contractEUR"||k==="contractCash")){var pd=sheetState.data;pd.contractTransfer=String(Math.max(0,round2(n(pd.contractEUR)-n(pd.contractCash))));drawSheet();return;} /* the transfer part is what is left of the contract */
   if(sheetState.col==="iesiri"&&isDir&&!sheetState.id&&(k==="persoana"||k==="destinatie")){
     /* to a director, to the bank, a loan, back to a founder or "other": from the EHL till; to a collaborator or a salary: from my account */
     var dd=sheetState.data,toPerson=dd.destinatie==="Dat persoanei"&&String(dd.persoana||"").trim()&&!fondatorOf(dd.persoana);
