@@ -164,7 +164,7 @@ ro:{
  cont_intra:"Pe cont intră",
  s_cont_minus:"Contul este în minus",l_cont_achitat:"De achitat pe cont",cont_minus_h:"Plățile prin transfer au depășit banii de pe cont. Mai jos sunt plățile care au dus contul în minus. Acoperiți-l cu o încasare prin transfer sau cu Ieșire din casă → Depus pe cont.",
  srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",din_casa:"din casă",
- s_colab_exp:"Cheltuielile colaboratorilor",s_tr:"Cheltuieli din cont (transfer)",tr_h:"La transfer banii se iau din contul bancar, nu de la persoană. Apăsați pe un nume ca să vedeți pe ce s-au cheltuit.",colab_tr:"Plătit prin transfer (din cont)",
+ s_colab_exp:"Cheltuielile și chiriile colaboratorilor",s_tr:"Cheltuieli din cont (transfer)",tr_h:"La transfer banii se iau din contul bancar, nu de la persoană. Apăsați pe un nume ca să vedeți pe ce s-au cheltuit.",colab_tr:"Plătit prin transfer (din cont)",
  avans_lipsa:"Nu aveți destui bani din avans: disponibil {s} MDL. Cereți mai întâi bani de la director.",avans_disp:"Disponibil din avansul meu",din_avans:"din avansul lui",colab_gave:"Ieșiri făcute din avans",
  f_pentru:"Cheltuiala este pentru",pt_proiect:"Proiect",pt_proiecte:"Proiecte",pt_ehl:"EHL (firma)",pt_alte:"Altele",s_pentru:"Cheltuieli: proiecte, EHL, altele",
  fond_h:"Banii puși de un fondator sunt un împrumut către firmă: datoria crește cu fiecare încasare de la el și scade prin Ieșire din casă → Restituire fondator."
@@ -323,7 +323,7 @@ ru:{
  cont_intra:"На счёт поступит",
  s_cont_minus:"Счёт в минусе",l_cont_achitat:"Нужно внести на счёт",cont_minus_h:"Платежи переводом превысили деньги на счёте. Ниже — платежи, которые увели счёт в минус. Покройте его поступлением переводом или Выдачей из кассы → Внесено на счёт.",
  srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",din_casa:"из кассы",
- s_colab_exp:"Расходы сотрудников",s_tr:"Расходы со счёта (перевод)",tr_h:"При переводе деньги берутся с банковского счёта, а не у человека. Нажмите на имя, чтобы увидеть, на что они потрачены.",colab_tr:"Оплачено переводом (со счёта)",
+ s_colab_exp:"Расходы и аренда сотрудников",s_tr:"Расходы со счёта (перевод)",tr_h:"При переводе деньги берутся с банковского счёта, а не у человека. Нажмите на имя, чтобы увидеть, на что они потрачены.",colab_tr:"Оплачено переводом (со счёта)",
  avans_lipsa:"В вашем авансе недостаточно денег: доступно {s} MDL. Сначала получите деньги у директора.",avans_disp:"Доступно из моего аванса",din_avans:"из аванса:",colab_gave:"Выдачи из аванса",
  f_pentru:"Расход относится к",pt_proiect:"Проект",pt_proiecte:"Проекты",pt_ehl:"EHL (фирма)",pt_alte:"Прочее",s_pentru:"Расходы: проекты, EHL, прочее",
  fond_h:"Деньги, внесённые учредителем, — это заём фирме: долг растёт с каждым поступлением от него и уменьшается через Выдачу из кассы → Возврат учредителю."
@@ -2142,11 +2142,12 @@ function vPanou(){
 
   if(C.colab.length)h+='<div class="sec"><h2>'+esc(T("s_colab"))+'</h2><div class="card rows">'+C.colab.map(function(x){return colabRow(x)}).join("")+'</div></div>';
   /* every expense the collaborators recorded, newest first: the director sees them all without opening the registers */
-  var colabExp=S.cheltuieli.filter(function(r){var u=S.utilizatori.filter(function(x){return x.id===r.by})[0];return !!(u&&u.rol!=="Director")})
+  var byColab=function(r){var u=S.utilizatori.filter(function(x){return x.id===r.by})[0];return !!(u&&u.rol!=="Director")};
+  var colabExp=S.cheltuieli.filter(byColab).map(function(r){var pt=pentruOf(r);return {col:"cheltuieli",id:r.id,data:r.data,ts:r.ts,t:r.descriere||catLabel(r.categorie)||"—",s:[shortDate(r.data),byName(r),catLabel(r.categorie),pt==="Proiect"?r.proiect:(pt==="EHL"?T("pt_ehl"):T("pt_alte")),r.mod==="Transfer"?T("transfer"):T("numerar")],val:n(r.suma)}})
+    .concat(S.chirii.filter(byColab).map(function(r){return {col:"chirii",id:r.id,data:r.dataInceput,ts:r.ts,t:T("a_chirie")+" · "+(r.locatia||"—"),s:[shortDate(r.dataInceput),byName(r),r.chirias,r.mod==="Transfer"?T("transfer"):T("numerar")],val:round2(chirieTotal(r)*n(r.curs))}}))
     .sort(function(a,b){return String(b.data).localeCompare(String(a.data))||String(b.ts||"").localeCompare(String(a.ts||""))});
-  if(colabExp.length)h+='<div class="sec"><h2>'+esc(T("s_colab_exp"))+' <span class="cnt">'+colabExp.length+'</span></h2>'+rowsCardMore(colabExp.map(function(r){
-    var pt=pentruOf(r);
-    return '<button type="button" class="tap row" data-edit="cheltuieli" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.descriere||catLabel(r.categorie)||"—")+'<span class="s">'+esc([shortDate(r.data),byName(r),catLabel(r.categorie),pt==="Proiect"?r.proiect:(pt==="EHL"?T("pt_ehl"):T("pt_alte")),r.mod==="Transfer"?T("transfer"):T("numerar")].filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(n(r.suma))+'</span></button>';
+  if(colabExp.length)h+='<div class="sec"><h2>'+esc(T("s_colab_exp"))+' <span class="cnt">'+colabExp.length+'</span></h2>'+rowsCardMore(colabExp.map(function(x){
+    return '<button type="button" class="tap row" data-edit="'+x.col+'" data-id="'+esc(x.id)+'"><span class="l">'+esc(x.t)+'<span class="s">'+esc(x.s.filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(x.val)+'</span></button>';
   }),8,true)+'</div>';
   /* money taken from the bank by transfer: who paid, how much; a tap lists what it was spent on */
   if(C.trPers.length)h+='<div class="sec"><h2>'+esc(T("s_tr"))+'</h2><div class="card rows">'+C.trPers.map(function(x){
