@@ -197,6 +197,13 @@ onRecordDeleteRequest((e) => {
 
 /* ---- users: random credentials, numeric codes, no self-lockout ---- */
 onRecordCreateRequest((e) => {
+  /* only the EHL account makes users, and it makes collaborators: the body carries the signed-in director's EHL code as proof */
+  var body = e.requestInfo().body || {}, who = e.auth;
+  if (!who || who.getString("rol") !== "Director" || !who.getString("codEHL") || String(body.ehlCod || "").trim() !== who.getString("codEHL")) {
+    throw new BadRequestError("Colaboratorii se creează doar din contul EHL.");
+  }
+  e.record.set("rol", "Operator");
+  e.record.set("codEHL", "");
   var cod = String(e.record.getString("cod") || "").trim();
   if (!/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Codul trebuie să aibă 4–8 cifre.");
   e.record.set("cod", cod);
@@ -218,6 +225,10 @@ onRecordUpdateRequest((e) => {
   var codEHL = String(e.record.getString("codEHL") || "").trim();
   if (codEHL && !/^[0-9]{4,8}$/.test(codEHL)) throw new BadRequestError("Codul EHL trebuie să aibă 4–8 cifre.");
   e.record.set("codEHL", codEHL);
+  /* the administrators are fixed (Sergiu and Grigore): nobody is promoted or demoted */
+  if (e.record.original && e.record.getString("rol") !== e.record.original().getString("rol")) {
+    throw new BadRequestError("Rolul nu se schimbă: administratorii sunt Sergiu și Grigore.");
+  }
   if (e.auth && e.auth.id === e.record.id) {
     if (e.record.getString("status") === "Inactiv" || e.record.getString("rol") !== "Director") {
       throw new BadRequestError("Nu vă puteți dezactiva sau retrograda propriul cont.");

@@ -88,7 +88,7 @@ ro:{
  j_exp:"Descarcă Excel",j_exp_h:"Un fișier .xlsx gata de citit: panou, toate registrele și istoricul, fiecare pe foaia lui, cu filtre și totaluri.",
  exported:"Descărcat",exp_no:"Descărcarea nu este disponibilă aici.",exp_work:"Se pregătește…",
  exp_t:"Export Excel",exp_tot:"Toate datele",exp_luna:"Doar luna aleasă",exp_btn:"Descarcă .xlsx",
- a_user:"Utilizator",a_user_d:"Acces pentru un angajat nou",r_user:"Utilizatori",
+ a_user:"Utilizator",u_ehl_only:"Colaboratorii se creează doar din contul EHL. Administratorii sunt Sergiu și Grigore.",a_user_d:"Acces pentru un angajat nou",r_user:"Utilizatori",
  f_rol:"Rol",rol_op:"Operator",rol_dir:"Director",f_cod:"Cod de acces",
  f_cod_h:"4–8 cifre pe care i le dați angajatului. Cu ele intră în aplicație de pe telefonul lui.",
  also_ang:"Îl trec și la angajați, cu salariu",
@@ -247,7 +247,7 @@ ru:{
  j_exp:"Скачать Excel",j_exp_h:"Готовый .xlsx: сводка, все журналы и история — каждый на своём листе, с фильтрами и итогами.",
  exported:"Скачано",exp_no:"Скачивание здесь недоступно.",exp_work:"Готовлю файл…",
  exp_t:"Выгрузка в Excel",exp_tot:"Все данные",exp_luna:"Только выбранный месяц",exp_btn:"Скачать .xlsx",
- a_user:"Пользователь",a_user_d:"Доступ новому сотруднику",r_user:"Пользователи",
+ a_user:"Пользователь",u_ehl_only:"Колабораторов создают только из аккаунта EHL. Администраторы — Sergiu и Grigore.",a_user_d:"Доступ новому сотруднику",r_user:"Пользователи",
  f_rol:"Роль",rol_op:"Оператор",rol_dir:"Директор",f_cod:"Код доступа",
  f_cod_h:"4–8 цифр, которые вы даёте сотруднику. По ним он входит со своего телефона.",
  also_ang:"Добавить и в сотрудники, с окладом",
@@ -885,7 +885,16 @@ function calc(){
     /* what he handed on from his advance: outflows he recorded himself (paid from his money, not from the till) */
     var dat=sum(S.iesiri,function(r){return dinAvans(r)&&sameP(r.platitDe,p)?n(r.suma)*n(r.curs):0});
     var chr=sum(S.chirii,function(r){return dinAvans(r)&&r.mod==="Numerar"&&sameP(r.platitDe,p)?chirieTotal(r)*n(r.curs):0}); /* cash rents he paid from his advance */
-    return {nume:p,primit:primit,cheltuit:round2(chn+dat+chr),ramas:round2(primit-chn-dat-chr),transfer:cht,proprii:prop,dat:dat,chirii:chr};
+    /* the same balance per currency: what he received in each, minus what he handed on or paid in it; cash expenses are in lei */
+    var val={},mov={};vals.forEach(function(v){
+      var got=sum(S.iesiri,function(r){return r.destinatie==="Dat persoanei"&&sameP(r.persoana,p)&&(r.valuta||"MDL")===v?n(r.suma):0});
+      mov[v]=v==="MDL"||got>0; /* a currency is listed once something came in it (lei always) */
+      val[v]=round2(got
+        -sum(S.iesiri,function(r){return dinAvans(r)&&sameP(r.platitDe,p)&&(r.valuta||"MDL")===v?n(r.suma):0})
+        -sum(S.chirii,function(r){return dinAvans(r)&&r.mod==="Numerar"&&sameP(r.platitDe,p)&&(r.valuta||"MDL")===v?chirieTotal(r):0})
+        -(v==="MDL"?chn:0));
+    });
+    return {nume:p,primit:primit,cheltuit:round2(chn+dat+chr),ramas:round2(primit-chn-dat-chr),transfer:cht,proprii:prop,dat:dat,chirii:chr,val:val,mov:mov};
   }).filter(function(x){return x.primit||x.cheltuit}); /* transfers are not his money: they have their own report (C.trPers) */
   var dnames=fondatoriToti();
   C.dirs=C.colab.filter(function(x){return dnames.some(function(f){return sameP(f,x.nume)})}); /* the administrators' accounts: fed from the EHL till */
@@ -968,15 +977,15 @@ function calc(){
   C.salRest=C.salCastigat-C.salPlatit;
 
   // loans
-  C.imprTotal=sum(S.imprumuturi,function(r){return n(r.suma)});
-  C.imprRestituit=sum(S.imprumuturi,function(r){return r.status==="Achitat"?n(r.suma):0});
+  C.imprTotal=sum(S.imprumuturi,imprLei);
+  C.imprRestituit=sum(S.imprumuturi,function(r){return r.status==="Achitat"?imprLei(r):0});
   C.imprRamas=C.imprTotal-C.imprRestituit;
   var td=today();
   C.imprRestante=S.imprumuturi.filter(function(r){return r.status!=="Achitat"&&r.termen&&r.termen<td}).length;
   C.imprNeachitate=S.imprumuturi.filter(function(r){return r.status!=="Achitat"}).length;
   C.imprPers=uniq(S.imprumuturi.map(function(r){return r.persoana})).map(function(p){
-    return {nume:p,total:sum(S.imprumuturi,function(r){return sameP(r.persoana,p)?n(r.suma):0}),
-      ramas:sum(S.imprumuturi,function(r){return sameP(r.persoana,p)&&r.status!=="Achitat"?n(r.suma):0})};
+    return {nume:p,total:sum(S.imprumuturi,function(r){return sameP(r.persoana,p)?imprLei(r):0}),
+      ramas:sum(S.imprumuturi,function(r){return sameP(r.persoana,p)&&r.status!=="Achitat"?imprLei(r):0})};
   }).filter(function(x){return x.total>0});
 
   return C;
@@ -1002,7 +1011,7 @@ function contractLei(p){return round2(n(p.sumaContract)+n(p.adaugator)+n(p.contr
 function casaNeed(col,d){
   if(col==="iesiri")return (dinAvans(d)||(d.destinatie==="Dat persoanei"&&isTillPayer(d.persoana)))?null:{v:d.valuta||"MDL",s:n(d.suma)};
   if(col==="chirii")return (d.mod==="Numerar"&&!dinAvans(d))?{v:d.valuta||"MDL",s:chirieTotal(d)}:null;
-  if(col==="imprumuturi")return d.dinCasa?{v:"MDL",s:n(d.suma)}:null;
+  if(col==="imprumuturi")return d.dinCasa?{v:d.valuta||"MDL",s:n(d.suma)}:null;
   return null;
 }
 /* An outflow recorded by a collaborator is paid from the money the director gave him (his advance), never from the
@@ -1011,6 +1020,7 @@ function casaNeed(col,d){
 function isCasierMe(){return !!(casier()&&sameP(meName(),casier()))}
 function dinAvans(r){return !!(r&&r.sursa==="Avans"&&String(r.platitDe||"").trim())}
 function ieseDinAvans(id,d){var old=id?(S.iesiri||[]).filter(function(r){return r.id===id})[0]:null;if(old)return dinAvans(old);if(isCasierMe())return false;return !isDir||!!(d&&d.din==="Avans")}
+function imprLei(r){return round2(n(r.suma)*(n(r.curs)||1))} /* a loan in lei: old loans have no rate and are lei */
 function soldAvans(nume){var C=calc(),x=C.colab.concat(C.dirs||[]).filter(function(c){return sameP(c.nume,nume)})[0];return x?x.ramas:0} /* a collaborator's advance or a director's own account */
 /* a collaborator cannot hand out more than he holds; an edit that takes no more than before always passes */
 function avansErr(col,d,id){
@@ -1024,7 +1034,7 @@ function avansErr(col,d,id){
     var frr=round2(soldAvans(meName())+bkr);
     return ndr>frr+0.004?T(isDir?"cont_meu_lipsa":"avans_lipsa").replace("{s}",money(Math.max(0,frr))):"";
   }
-  else if(col==="imprumuturi"){if(id||!d.dinCasa||isCasierMe())return "";need=n(d.suma);} /* a loan is handed out of the lender's own account */
+  else if(col==="imprumuturi"){if(id||!d.dinCasa||isCasierMe())return "";need=n(d.suma)*(n(d.curs)||1);} /* a loan is handed out of the lender's own account */
   else if(col==="cheltuieli"){
     /* cash is his own pocket of the firm's money: it cannot go below zero. A transfer is paid by the firm's account. */
     if(isCasierMe()||d.mod==="Transfer")return "";
@@ -1223,7 +1233,10 @@ var FORMS={
  imprumuturi:{title:"a_impr",icon:"clock",fields:function(){return[
    {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
    {k:"persoana",t:"text",l:"f_pers",req:1,list:persoane()},
-   {k:"suma",t:"number",l:"f_sumamdl",req:1,step:"0.01"},
+   /* a loan may be in lei, euro or dollars; the rate of the day turns it into lei for the books */
+   {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs"},
+   {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1",lockIf:function(d){return d.valuta==="MDL"}},
+   {k:"suma",t:"number",l:"f_suma",req:1,step:"0.01"},
    {k:"termen",t:"date",l:"f_termen"},
    {k:"status",t:"select",l:"f_status",req:1,opts:[{v:"Neachitat",l:T("neachitat")},{v:"Achitat",l:T("achitat")}],def:"Neachitat"},
    {k:"dinCasa",t:"checkbox",l:"impr_cash",hint:"impr_cash_h",newOnly:1,showIf:function(){return isDir}}, /* only a director takes money out of the till */
@@ -1276,7 +1289,7 @@ var FORMS={
 
  utilizatori:{title:"a_user",icon:"userplus",fields:function(){return[
    {k:"nume",t:"text",l:"f_nume",req:1},
-   {k:"rol",t:"select",l:"f_rol",req:1,opts:[{v:"Operator",l:T("rol_op")},{v:"Director",l:T("rol_dir")}],def:"Operator"},
+   {k:"rol",t:"select",l:"f_rol",req:1,opts:[{v:"Operator",l:T("rol_op")},{v:"Director",l:T("rol_dir")}],def:"Operator",showIf:function(){return false}}, /* never shown: new users are collaborators, the administrators are fixed */
    {k:"cod",t:"text",l:"f_cod",req:1,hint:"f_cod_h",def:codNou()},
    {k:"codEHL",t:"text",l:"f_codehl_set",hint:"f_codehl_set_h",showIf:function(d){return d.rol==="Director"}},
    {k:"status",t:"select",l:"f_status",req:1,opts:[{v:"Activ",l:T("activ")},{v:"Inactiv",l:T("u_inactiv")}],def:"Activ"},
@@ -1678,11 +1691,12 @@ function buildWb(luna,doar){
 
   if(S.imprumuturi.length)wsAdd(wb,T("r_impr"),[
     {h:T("f_data"),k:"data",w:12,fmt:FMT_D},{h:T("f_pers"),k:"persoana",w:24},
-    {h:T("f_sumamdl"),k:"suma",w:15,fmt:FMT_M},{h:T("f_termen"),k:"termen",w:12,fmt:FMT_D},
+    {h:T("f_valuta"),k:"valuta",w:9,align:"center"},{h:T("f_curs"),k:"curs",w:10,fmt:'#,##0.0000'},{h:T("f_suma"),k:"suma",w:14,fmt:FMT_M},
+    {h:T("f_sumamdl"),k:"mdl",w:15,fmt:FMT_M},{h:T("f_termen"),k:"termen",w:12,fmt:FMT_D},
     {h:T("f_status"),k:"status",w:14},{h:T("f_nota"),k:"nota",w:28}],
-    S.imprumuturi.map(function(r){return {data:xd(r.data),persoana:r.persoana,suma:n(r.suma),
+    S.imprumuturi.map(function(r){return {data:xd(r.data),persoana:r.persoana,valuta:r.valuta||"MDL",curs:n(r.curs)||1,suma:n(r.suma),mdl:imprLei(r),
       termen:xd(r.termen),status:r.status==="Achitat"?T("achitat"):T("neachitat"),nota:r.nota}}),
-    {data:T("l_total"),suma:C.imprTotal});
+    {data:T("l_total"),mdl:C.imprTotal});
 
   if(JUR.rows&&JUR.rows.length)wsAdd(wb,T("r_jur"),[
     {h:T("f_data"),k:"zi",w:12,fmt:FMT_D},{h:(lang==="ru"?"Время":"Ora"),k:"ora",w:9,align:"center"},
@@ -1874,6 +1888,11 @@ function tile(k,v,u,cls,big,ic,sub){
   return '<div class="tile'+(big?" big":"")+'"><span class="k">'+(ic?'<span class="t-ic '+(cls||"")+'">'+icon(ic)+'</span>':'')+esc(k)+'</span><span class="v '+(cls||"")+'">'+v+unit+'</span>'+(sub?'<span class="t-sub">'+sub+'</span>':'')+'</div>';
 }
 /* what the till holds in each currency, for the till tile (the total above it is in lei at today's rates) */
+/* a person's balance in each currency, for the "Soldul meu" tile */
+function soldPeValute(nume){
+  var C=calc(),x=C.colab.concat(C.dirs||[]).filter(function(c){return sameP(c.nume,nume)})[0];if(!x||!x.val)return "";
+  return C.vals.filter(function(v){return x.mov[v]||x.val[v]}).map(function(v){return '<span class="t-cur'+(x.val[v]<0?" neg":"")+'">'+curBadge(v,false)+money(x.val[v])+' '+esc(v)+'</span>'}).join("");
+}
 function casaPeValute(C){
   return C.vals.map(function(v){return '<span class="t-cur'+(C.ramas[v]<0?" neg":"")+'">'+curBadge(v,false)+money(C.ramas[v])+' '+esc(v)+'</span>'}).join("");
 }
@@ -1988,6 +2007,7 @@ function flowSvg(months){
 function colabRow(x){
   var state=x.ramas<0?T("colab_owed"):(x.ramas>0?T("colab_has"):T("colab_zero"));
   var sub=T("l_primit")+" "+money(x.primit)+" · "+T("l_cheltuit")+" "+money(x.cheltuit)+(x.proprii?" · "+T("colab_proprii")+" "+money(x.proprii):"");
+  if(x.val&&x.mov){var cur=Object.keys(x.val).filter(function(v){return v!=="MDL"&&(x.mov[v]||x.val[v])});if(cur.length)sub+=" · "+cur.map(function(v){return money(x.val[v])+" "+v}).join(" · ")+" · "+money(x.val.MDL)+" MDL";}
   var tone=x.ramas<0?"neg":(x.ramas>0?"warnc":"pos");
   /* initials on a tint picked from the name, so a person keeps the same colour; the state sits right of the name */
   return '<button type="button" class="tap row person" data-colab="'+esc(x.nume)+'"><span class="av" style="--c:'+toneOf(x.nume)+'">'+esc(initials(x.nume))+'</span><span class="l"><span class="nm-row">'+esc(x.nume)+'<span class="tagc '+tone+'">'+esc(state)+'</span></span></span>'
@@ -2117,7 +2137,7 @@ function vPanouOp(){
     var sold=soldAvans(me); /* taken minus everything paid out of the account, cash rents included: the same figure as on the EHL tab */
     var h=vOverview()+'<div class="dash-grid">';
     h+='<div class="sec sec-wide"><div class="tiles">'
-      +tile(sold<0?T("colab_owed"):T("my_sold"),money(Math.abs(sold)),"MDL",sold<0?"neg":"",1,"wallet")
+      +tile(sold<0?T("colab_owed"):T("my_sold"),money(Math.abs(sold)),"MDL",sold<0?"neg":"",1,"wallet",soldPeValute(me))
       +tile(T(isDir?"op_primit_dir":"op_primit"),money(primit),"MDL","pos",0,"inArrow")
       +tile(T("op_chn"),money(chn),"MDL","neg",0,"cash")
       +(dat>0?tile(T("op_dat"),money(dat),"MDL","neg",0,"send"):"")
@@ -2150,7 +2170,7 @@ function vTranzactii(){
     rows.push({col:"iesiri",id:r.id,data:r.data,ts:r.ts,t:from+" → "+to,s:[shortDate(r.data),r.luna?monthName(r.luna):"",r.nota,who(r)?T("by_lbl")+" "+who(r):""],val:round2(n(r.suma)*n(r.curs)),sign:dinAvans(r)?"warnc":"neg",amt:money(n(r.suma))+" "+(r.valuta||"MDL")})});
   S.cheltuieli.forEach(function(r){var pt=pentruOf(r);rows.push({col:"cheltuieli",id:r.id,data:r.data,ts:r.ts,t:(r.mod==="Transfer"?T("tz_cont"):(r.platitDe||"—"))+" → "+(r.descriere||catLabel(r.categorie)||"—"),s:[shortDate(r.data),catLabel(r.categorie),pt==="Proiect"?r.proiect:(pt==="EHL"?T("pt_ehl"):T("pt_alte")),who(r)?T("by_lbl")+" "+who(r):""],val:n(r.suma),sign:"neg",amt:money(n(r.suma))+" MDL"})});
   S.chirii.forEach(function(r){rows.push({col:"chirii",id:r.id,data:r.dataInceput,ts:r.ts,t:(r.mod==="Transfer"?T("tz_cont"):(dinAvans(r)?r.platitDe:T("din_casa_ehl")))+" → "+T("a_chirie")+" · "+(r.locatia||"—"),s:[shortDate(r.dataInceput),r.chirias,who(r)?T("by_lbl")+" "+who(r):""],val:round2(chirieTotal(r)*n(r.curs)),sign:"neg",amt:money(chirieTotal(r))+" "+(r.valuta||"MDL")})});
-  S.imprumuturi.forEach(function(r){rows.push({col:"imprumuturi",id:r.id,data:r.data,ts:r.ts,t:T("a_impr")+" → "+(r.persoana||"—"),s:[shortDate(r.data),r.status==="Achitat"?T("achitat"):T("neachitat"),r.nota,who(r)?T("by_lbl")+" "+who(r):""],val:n(r.suma),sign:"warnc",amt:money(n(r.suma))+" MDL"})});
+  S.imprumuturi.forEach(function(r){rows.push({col:"imprumuturi",id:r.id,data:r.data,ts:r.ts,t:T("a_impr")+" → "+(r.persoana||"—"),s:[shortDate(r.data),r.status==="Achitat"?T("achitat"):T("neachitat"),r.nota,who(r)?T("by_lbl")+" "+who(r):""],val:imprLei(r),sign:"warnc",amt:money(n(r.suma))+" "+esc(r.valuta||"MDL")})});
   if(!rows.length)return "";
   rows.sort(function(a,b){return String(b.data||"").localeCompare(String(a.data||""))||String(b.ts||"").localeCompare(String(a.ts||""))});
   return '<div class="sec sec-wide"><h2>'+esc(T("s_tranz"))+' <span class="cnt">'+rows.length+'</span></h2>'+rowsCardMore(rows.map(function(x){
@@ -2335,7 +2355,8 @@ function vPin(){
   return h;
 }
 function vUsers(){
-  var h='<div class="sec"><div class="sec-h"><h2>'+esc(T("r_user"))+'</h2><div class="sec-act"><button class="btn sm ghost exit-top" id="exitdir" type="button">'+icon("users")+esc(T("logout"))+'</button><button class="btn sm danger" id="resetAll" type="button" title="'+esc(T("reset_h"))+'">'+icon("trash")+esc(T("reset_btn"))+'</button><button class="btn sm" type="button" data-form="utilizatori">'+icon("userplus")+esc(T("a_user"))+'</button></div></div>';
+  var h='<div class="sec"><div class="sec-h"><h2>'+esc(T("r_user"))+'</h2><div class="sec-act"><button class="btn sm ghost exit-top" id="exitdir" type="button">'+icon("users")+esc(T("logout"))+'</button><button class="btn sm danger" id="resetAll" type="button" title="'+esc(T("reset_h"))+'">'+icon("trash")+esc(T("reset_btn"))+'</button>'+(ehlMode()?'<button class="btn sm" type="button" data-form="utilizatori">'+icon("userplus")+esc(T("a_user"))+'</button>':'')+'</div></div>'
+    +(ehlMode()?'':'<p class="hint" style="margin:-4px 0 10px">'+esc(T("u_ehl_only"))+'</p>');
   /* only the active users here; the deactivated ones wait in the archive (vArhiva), nothing of theirs is lost */
   var act=S.utilizatori.filter(function(u){return u.status!=="Inactiv"});
   if(!act.length){
@@ -2381,7 +2402,7 @@ function vAdd(){
   var h=statusNote()+'<div class="add-layout"><div class="add-main">'+vWho()+vMyBalance();
   var order=["cheltuieli","grafic","pontaj","chirii","angajati"]; /* client incomes, contracts, clients, till outflows and loans are the director's */
   /* the EHL account records the firm's money and its projects; an administrator records what he spends from his own account */
-  if(isDir)order=ehlMode()?["incasari","iesiri","proiecte","utilizatori"]:["cheltuieli","iesiri","chirii","imprumuturi","grafic","pontaj","angajati","utilizatori"];
+  if(isDir)order=ehlMode()?["incasari","iesiri","proiecte","utilizatori"]:["cheltuieli","iesiri","chirii","imprumuturi","grafic","pontaj","angajati"]; /* users are made in the EHL account only */
   var desc={incasari:"a_inc_d",cheltuieli:"a_chelt_d",iesiri:"a_ies_d",chirii:"a_chirie_d",
     imprumuturi:"a_impr_d",contracte:"a_contr_d",pontaj:"a_pontaj_d",grafic:"a_grafic_d",angajati:"a_ang_d",proiecte:"a_proj_d",utilizatori:"a_user_d"};
   h+='<div class="sec"><h2>'+esc(T("add_t"))+'</h2><div class="grid2">'+order.map(function(k,i){
@@ -2423,7 +2444,7 @@ var REGDEF={
    meta:function(r){return r.status==="Finalizat"?T("st_final"):(r.status==="Pauză"?T("st_pauza"):T("st_activ"))}},
  imprumuturi:{t:"r_impr",main:function(r){return r.persoana||"—"},
    sub:function(r){return [r.status==="Achitat"?T("achitat"):T("neachitat"),r.termen?T("f_termen")+" "+r.termen:"",r.nota].filter(Boolean).join(" · ")},
-   amt:function(r){return money(n(r.suma))+" MDL"},cls:function(r){return r.status==="Achitat"?"pos":"warnc"},
+   amt:function(r){return money(n(r.suma))+" "+curBadge(r.valuta||"MDL",false)},cls:function(r){return r.status==="Achitat"?"pos":"warnc"},
    meta:function(r){return r.data}}
 };
 /* table view of the registers: the title of the main column, an icon per record, the "who and how" cell and the amount in lei */
@@ -2434,7 +2455,7 @@ var REGTBL={
  iesiri:{th:"f_dest",ic:function(r){return DEST_IC[r.destinatie]||DEST_IC.Alte},how:function(r){return ["",r.persoana||""]},mdl:function(r){return n(r.suma)*n(r.curs)}},
  chirii:{th:"f_loc",ic:function(){return ["home","var(--s4)"]},how:function(r){return [r.mod==="Numerar"?T("numerar"):T("transfer"),r.chirias||""]},mdl:function(r){return chirieTotal(r)*n(r.curs)}},
  proiecte:{th:"f_proiect",ic:function(){return ["folder","var(--s1)"]},how:function(r){return [REGDEF.proiecte.meta(r),""]},mdl:null},
- imprumuturi:{th:"f_pers",ic:function(r){return ["clock",r.status==="Achitat"?"var(--pos)":"var(--warn)"]},how:function(r){return [r.status==="Achitat"?T("achitat"):T("neachitat"),""]},mdl:function(r){return n(r.suma)}}
+ imprumuturi:{th:"f_pers",ic:function(r){return ["clock",r.status==="Achitat"?"var(--pos)":"var(--warn)"]},how:function(r){return [r.status==="Achitat"?T("achitat"):T("neachitat"),(r.valuta&&r.valuta!=="MDL")?money(imprLei(r))+" MDL":""]},mdl:imprLei}
 };
 var REG_IC={incasari:"inArrow",cheltuieli:"outArrow",iesiri:"send",proiecte:"folder",chirii:"home",contracte:"file",imprumuturi:"clock",salarii:"users",jurnal:"list"};
 function regLabel(k){return k==="salarii"?T("r_sal"):(k==="jurnal"?T("r_jur"):T(REGDEF[k].t))}
@@ -2662,6 +2683,7 @@ function vSet(){
 var sheetState=null;
 function openForm(col,id){
   var def=FORMS[col];if(!def)return;
+  if(col==="utilizatori"&&!id&&!ehlMode()){toast(T("u_ehl_only"));return;} /* users are made in the EHL account only */
   var rec=id?S[col].filter(function(r){return r.id===id})[0]:null;
   var data={};
   def.fields().forEach(function(f){data[f.k]=rec?(rec[f.k]!=null?rec[f.k]:""):(f.def!=null?f.def:"")});
@@ -2829,7 +2851,8 @@ function submitForm(){
   var d=st.data,col=st.col,p;
   if(col==="cheltuieli"&&d.categorie)d.categorie=catRaw(d.categorie);
   if(col==="utilizatori"){
-    var ub={nume:String(d.nume).trim(),rol:d.rol,cod:String(d.cod).trim(),codEHL:d.rol==="Director"?String(d.codEHL||"").trim():"",status:d.status};
+    var ub={nume:String(d.nume).trim(),rol:st.id?d.rol:"Operator",cod:String(d.cod).trim(),codEHL:d.rol==="Director"?String(d.codEHL||"").trim():"",status:d.status};
+    if(!st.id)ub.ehlCod=ehlCod(); /* the EHL code proves the user is made from the EHL account; the server checks it */
     if(ub.codEHL&&!/^\d{4,8}$/.test(ub.codEHL)){st.err=T("codehl_fmt");if(btn){btn.disabled=false;btn.textContent=T("save")}drawSheet();return;}
     var dup=S.utilizatori.filter(function(u){return u.id!==st.id&&String(u.cod)===ub.cod})[0];
     if(dup||!/^\d{4,8}$/.test(ub.cod)){st.err=T("cod_bad");if(btn){btn.disabled=false;btn.textContent=T("save")}drawSheet();return;}
@@ -2859,9 +2882,9 @@ function submitForm(){
       return saveDoc("istoric",{angajat:body.nume,salariu:sal,dinData:din},same?same.id:null);
     });
   }else if(col==="imprumuturi"){
-    var ib={data:d.data,persoana:String(d.persoana).trim(),suma:n(d.suma),termen:d.termen,status:d.status,nota:d.nota};
+    var ib={data:d.data,persoana:String(d.persoana).trim(),suma:n(d.suma),valuta:d.valuta||"MDL",curs:(d.valuta||"MDL")==="MDL"?1:(n(d.curs)||1),termen:d.termen,status:d.status,nota:d.nota};
     p=saveDoc("imprumuturi",ib,st.id).then(function(){
-      if(!st.id&&d.dinCasa)return saveDoc("iesiri",{sursa:"Avans",platitDe:meName(),data:d.data,destinatie:"Împrumut",valuta:"MDL",curs:1,
+      if(!st.id&&d.dinCasa)return saveDoc("iesiri",{sursa:"Avans",platitDe:meName(),data:d.data,destinatie:"Împrumut",valuta:ib.valuta,curs:ib.curs,
         suma:n(d.suma),persoana:ib.persoana,nota:(lang==="ru"?"Заём":"Împrumut")+" — "+ib.persoana});
     });
   }else{

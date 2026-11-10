@@ -59,6 +59,10 @@ function collection(col) {
       if (NET_DOWN) throw err(0, "net");
       if (!currentUser) throw err(403, "forbidden");
       if (col === "utilizatori" && !isDir()) throw err(403, "forbidden");
+      if (col === "utilizatori") { /* made from the EHL account only, and always a collaborator */
+        if (String(data.ehlCod || "") !== String(currentUser.codEHL || "")) throw err(400, "Colaboratorii se creează doar din contul EHL.");
+        delete data.ehlCod; data.rol = "Operator"; data.codEHL = "";
+      }
       if (col === "incasari" && !isDir()) throw err(403, "forbidden"); /* client incomes: director only */
       if (col === "incasari") { /* money from a founder is confirmed with that founder's code */
         const f = Object.values(store.utilizatori).find(u => u.rol === "Director" && String(u.nume).toLowerCase() === String(data.client || "").trim().toLowerCase());
@@ -103,6 +107,7 @@ function collection(col) {
       if (NET_DOWN) throw err(0, "net");
       const r = store[col] && store[col][id]; if (!r) throw err(404, "nf");
       if (col === "utilizatori" && !isDir()) throw err(403, "forbidden");
+      if (col === "utilizatori" && data.rol && data.rol !== r.rol) throw err(400, "Rolul nu se schimbă: administratorii sunt Sergiu și Grigore.");
       if (col !== "utilizatori" && col !== "config" && !isDir() && r.by !== currentUser.id) throw err(403, "forbidden");
       if (col !== "utilizatori" && col !== "config" && !isDir() && Date.now() - Date.parse(r.created.replace(" ", "T")) > 15 * 86400000) throw err(400, "Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.");
       Object.assign(r, data, { updated: new Date().toISOString().replace("T", " ") }); emit(col, "update", r); return { ...r };
@@ -192,13 +197,18 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="ehl"]')); await tick(); check(/Banii firmei/.test(text()), "the EHL tab shows the firm-wide dashboard");
   click($('[data-view="set"]')); await tick(); check((window.document.querySelector('[name="cod1"]')||{}).value === "EUR", "config (EUR rate) loaded from server"); click($('[data-view="ehl"]')); await tick();
 
-  console.log("3. add a user (operator) with employee + salary");
+  console.log("3. add a user (operator) with employee + salary — from the EHL account only");
+  click($('[data-view="set"]')); await tick();
+  check(!$('[data-form="utilizatori"]') && /doar din contul EHL/.test(text()), "the administrator account has no button to add users, a note says they are made in EHL");
+  await asEHL();
   click($('[data-view="set"]')); await tick();
   click($('[data-form="utilizatori"]')); await tick();
+  check(!$('[data-k="rol"]'), "no role to choose: a new user is a collaborator");
   setField("nume", "Ion Operator"); setField("cod", "4141"); setField("caAngajat", true); await tick(); setField("salariu", "12000");
   submit($("#recf")); await tick(80);
   const op = Object.values(store.utilizatori).find(u => u.nume === "Ion Operator");
-  check(op && op.cod === "4141" && !("password" in op), "user created, password stripped by server");
+  check(op && op.cod === "4141" && op.rol === "Operator" && !("password" in op), "collaborator created, password stripped by server");
+  await asAdmin();
   check(Object.values(store.angajati || {}).some(a => a.nume === "Ion Operator"), "employee created");
   check(Object.values(store.istoric || {}).some(h => h.salariu === 12000), "salary history created");
   check(Object.values(store.jurnal || {}).length >= 3, "journal entries written (" + Object.values(store.jurnal || {}).length + ")");
@@ -209,8 +219,7 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("nume", "Sergiu"); submit($("#recf")); await tick(60);
   check(store.utilizatori[dirId].nume === "Sergiu" && $("#role").textContent === "Director", "renamed, still director");
   click($('[data-edit="utilizatori"][data-id="' + dirId + '"]')); await tick();
-  setField("rol", "Operator"); submit($("#recf")); await tick(40);
-  check(/propriul cont/.test($("#sheet").textContent || ""), "self-demotion blocked with message");
+  check(!$('[data-k="rol"]') && $('[data-k="codEHL"]'), "the role is not editable (the administrators are fixed); the director's EHL code is");
   click($("#closeSheet")); await tick();
 
   await asEHL();
@@ -266,7 +275,7 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="ehl"]')); await tick();
   check(/Conturile administratorilor/.test(text()) && /Sergiu/.test(text()), "the EHL tab shows the administrators' accounts");
   click($('[data-view="panou"]')); await tick();
-  check(/Luat din Casa EHL\s*15\.000,00/.test(text()) && /Soldul meu\s*15\.000,00/.test(text()) && !/Banii firmei|Datorii către fondatori/.test(text()), "the director's own Panou shows what he took from Casa EHL and his balance, not the firm's figures");
+  check(/Luat din Casa EHL\s*15\.000,00/.test(text()) && /Soldul meu\s*15\.000,00/.test(text()) && /15\.000,00 MDL/.test($(".tile.big").textContent) && !/EUR|USD/.test($(".tile.big").textContent) && !/Banii firmei|Datorii către fondatori/.test(text()), "the director's own Panou shows what he took from Casa EHL and his balance, not the firm's figures");
   await asAdmin();
   check(!$('[data-form="incasari"]') && !$('[data-form="proiecte"]') && $('[data-form="cheltuieli"]') && $('[data-form="chirii"]'), "the administrator account records spending, not incomes or projects");
   click($('[data-form="cheltuieli"]')); await tick();
@@ -520,9 +529,10 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("nume", "Ion Operator"); submit($("#recf")); await tick(150);
   check(paidBy("Ion Operator") === nIon && paidBy("Ion Popescu") === 0 && Object.values(store.angajati).some(a => a.nume === "Ion Operator"), "renaming back restores the old name everywhere");
   console.log("8c. a deactivated user leaves the list for the archive and can be restored");
-  click($('[data-view="set"]')); await tick(); click($('[data-form="utilizatori"]')); await tick();
+  await asEHL(); click($('[data-view="set"]')); await tick(); click($('[data-form="utilizatori"]')); await tick();
   setField("nume", "Temp Om"); setField("cod", "7777"); submit($("#recf")); await tick(80);
   const tmpU = Object.values(store.utilizatori).find(u => u.nume === "Temp Om");
+  await asAdmin(); click($('[data-view="set"]')); await tick();
   click($('[data-edit="utilizatori"][data-id="' + tmpU.id + '"]')); await tick();
   setField("status", "Inactiv"); submit($("#recf")); await tick(80);
   const archRow = () => Array.from(window.document.querySelectorAll('[data-restore="' + tmpU.id + '"]'));
@@ -640,6 +650,17 @@ const ls = (k) => window.localStorage.getItem(k);
   console.log("10. wrong code rejected");
   $("#pinv").value = "000000"; submit($("#pinf")); await tick(50);
   check($("#pinf") && /greșit/.test(text()), "wrong code shows error and stays locked");
+
+  console.log("11. a loan may be in euro or dollars: the currency and the rate are kept, the books count it in lei");
+  $("#pinv").value = "258000"; submit($("#pinf")); await tick(80); /* the administrator signs in on the locked device */
+  click($('[data-view="add"]')); await tick(); click($('[data-form="imprumuturi"]')); await tick();
+  setField("persoana", "Vasile Creditat"); setField("valuta", "EUR"); await tick();
+  check($('[data-k="curs"]').value === "20.22", "choosing EUR fills in the rate of the day, 20,22");
+  setField("suma", "100"); submit($("#recf")); await tick(80);
+  const ln = Object.values(store.imprumuturi || {}).find(r => r.persoana === "Vasile Creditat");
+  check(ln && ln.valuta === "EUR" && ln.curs === 20.22 && ln.suma === 100, "the loan is saved as 100 EUR at 20,22");
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="imprumuturi"]')); await tick();
+  check(/100,00/.test(text()) && /2\.022,00 MDL/.test(text()), "the register shows the 100 EUR and its 2.022,00 lei");
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
