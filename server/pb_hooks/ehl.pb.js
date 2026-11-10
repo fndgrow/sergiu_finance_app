@@ -299,6 +299,23 @@ onRecordCreateRequest((e) => {
   } else {
     e.record.set("confirmat", "");
   }
+  /* an income on a project cannot exceed its contract + additional, in euro at the settings' rates */
+  var pj = String(e.record.getString("proiect") || "").trim();
+  if (pj) {
+    var pr = null; try { pr = $app.findFirstRecordByFilter("proiecte", "nume = {:n}", { n: pj }); } catch (err) { pr = null; }
+    if (pr && pr.getFloat("contractEUR") > 0) {
+      var rates = { MDL: 1 };
+      try { JSON.parse($app.findFirstRecordByFilter("config", "id != ''").getString("valute") || "[]").forEach(function (v) { rates[String(v.cod)] = Number(v.curs) || 1; }); } catch (err) {}
+      var rEur = rates.EUR || 1;
+      var toEur = function (val, suma, curs) { return String(val || "MDL") === "EUR" ? Number(suma) : Number(suma) * (Number(curs) || 1) / rEur; };
+      var av = String(pr.getString("adaugatorValuta") || "EUR");
+      var lim = pr.getFloat("contractEUR") + pr.getFloat("adaugator") * (av === "MDL" ? 1 : (rates[av] || 1)) / rEur;
+      var got = 0;
+      try { $app.findRecordsByFilter("incasari", "proiect = {:n} && id != {:id}", "", 0, 0, { n: pj, id: String(e.record.id || "") }).forEach(function (r) { got += toEur(r.getString("valuta"), r.getFloat("suma"), r.getFloat("curs")); }); } catch (err) {}
+      var left = Math.round((lim - got) * 100) / 100, now = toEur(e.record.getString("valuta"), e.record.getFloat("suma"), e.record.getFloat("curs"));
+      if (now > left + 0.005) throw new BadRequestError("Suma depășește contractul proiectului. Mai pot fi încasați " + Math.max(0, left).toFixed(2) + " EUR.");
+    }
+  }
   e.next();
 }, "incasari");
 onRecordUpdateRequest((e) => {
@@ -311,6 +328,23 @@ onRecordUpdateRequest((e) => {
     e.record.set("confirmat", f.getString("nume") + " · " + new Date().toISOString().slice(0, 16).replace("T", " "));
   } else {
     e.record.set("confirmat", "");
+  }
+  /* an income on a project cannot exceed its contract + additional, in euro at the settings' rates */
+  var pj = String(e.record.getString("proiect") || "").trim();
+  if (pj) {
+    var pr = null; try { pr = $app.findFirstRecordByFilter("proiecte", "nume = {:n}", { n: pj }); } catch (err) { pr = null; }
+    if (pr && pr.getFloat("contractEUR") > 0) {
+      var rates = { MDL: 1 };
+      try { JSON.parse($app.findFirstRecordByFilter("config", "id != ''").getString("valute") || "[]").forEach(function (v) { rates[String(v.cod)] = Number(v.curs) || 1; }); } catch (err) {}
+      var rEur = rates.EUR || 1;
+      var toEur = function (val, suma, curs) { return String(val || "MDL") === "EUR" ? Number(suma) : Number(suma) * (Number(curs) || 1) / rEur; };
+      var av = String(pr.getString("adaugatorValuta") || "EUR");
+      var lim = pr.getFloat("contractEUR") + pr.getFloat("adaugator") * (av === "MDL" ? 1 : (rates[av] || 1)) / rEur;
+      var got = 0;
+      try { $app.findRecordsByFilter("incasari", "proiect = {:n} && id != {:id}", "", 0, 0, { n: pj, id: String(e.record.id || "") }).forEach(function (r) { got += toEur(r.getString("valuta"), r.getFloat("suma"), r.getFloat("curs")); }); } catch (err) {}
+      var left = Math.round((lim - got) * 100) / 100, now = toEur(e.record.getString("valuta"), e.record.getFloat("suma"), e.record.getFloat("curs"));
+      if (now > left + 0.005) throw new BadRequestError("Suma depășește contractul proiectului. Mai pot fi încasați " + Math.max(0, left).toFixed(2) + " EUR.");
+    }
   }
   e.next();
 }, "incasari");
