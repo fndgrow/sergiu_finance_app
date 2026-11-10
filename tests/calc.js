@@ -22,8 +22,8 @@ const store = {
   utilizatori: { [DIR.id]: DIR },
   config: { c1: { id: "c1", valute: [{ cod: "MDL", curs: 1 }, { cod: "EUR", curs: 20 }, { cod: "USD", curs: 18 }], casier: "Casier", categorii: ["Materiale", "Transport"] } },
   incasari: {
-    i1: { id: "i1", data: D, client: "A", valuta: "MDL", curs: 1, suma: 100000, mod: "Numerar" },
-    i2: { id: "i2", data: D, client: "A", valuta: "EUR", curs: 19.5, suma: 2000, mod: "Numerar" },   /* 39 000 MDL at row rate */
+    i1: { id: "i1", data: D, client: "A", proiect: "Casa A", valuta: "MDL", curs: 1, suma: 100000, mod: "Numerar" },
+    i2: { id: "i2", data: D, client: "A", proiect: "Casa A", valuta: "EUR", curs: 19.5, suma: 2000, mod: "Numerar" },   /* 39 000 MDL at row rate */
     i3: { id: "i3", data: D, client: "B", valuta: "USD", curs: 17, suma: 1000, mod: "Transfer" }    /* 17 000 MDL to the bank */
   },
   iesiri: {
@@ -48,7 +48,7 @@ const store = {
   istoric: { h1: { id: "h1", angajat: "Ion", salariu: 12000, dinData: "2026-01-01" } },
   pontaj: { p1: { id: "p1", luna: "2026-10", angajat: "Ion", z1: 11, z2: 13 } }, /* the firm counts 24 working days in every month: 12000/24*24 = 12 000 */
   imprumuturi: { l1: { id: "l1", data: D, persoana: "Vasile", suma: 8000, termen: "2026-10-01", status: "Neachitat" }, l2: { id: "l2", data: D, persoana: "Vasile", suma: 2000, status: "Achitat" } },
-  proiecte: {}, jurnal: {}
+  proiecte: { p1: { id: "p1", nume: "Casa A", client: "A", sumaContract: 200000, adaugator: 0, status: "Activ" } }, /* the contract lives on the project */ jurnal: {}
 };
 /* expected, by hand:
    MDL shelf: 100 000 - 20 000 (deposit) - 7 000 (salary) - 300 (other) - 1 500 (cashier cash expense) = 71 200

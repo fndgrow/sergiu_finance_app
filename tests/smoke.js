@@ -67,7 +67,12 @@ function collection(col) {
       if (col === "chirii" && isDir()) data = { ...data, sursa: "Avans", platitDe: currentUser.nume };
       if (col === "iesiri" && isDir()) { /* a director: from the EHL till with his EHL code, or from his own account */
         if (data.sursa === "Avans") data = { ...data, platitDe: currentUser.nume };
-        else { if (!data.codEHL || data.codEHL !== currentUser.codEHL) throw err(400, "Codul EHL este greșit."); data = { ...data, sursa: "Casa", platitDe: "" }; }
+        else {
+          if (!data.codEHL || data.codEHL !== currentUser.codEHL) throw err(400, "Codul EHL este greșit.");
+          const okDest = data.destinatie === "Depus pe cont" || data.destinatie === "Restituire fondator" || (data.destinatie === "Dat persoanei" && Object.values(store.utilizatori).some(u => u.rol === "Director" && u.nume === String(data.persoana || "").trim()));
+          if (!okDest) throw err(400, "Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.");
+          data = { ...data, sursa: "Casa", platitDe: "" };
+        }
         delete data.codEHL;
       }
       if (col === "cheltuieli" && isDir()) { /* the payer is the account itself, except a salary paid to a collaborator account */
@@ -176,6 +181,8 @@ const ls = (k) => window.localStorage.getItem(k);
   check($("#role").textContent === "Director" && !$("#spf") && !$("#pwf"), "director enters with the code alone (password switched off)");
   const dirId = Object.values(store.utilizatori)[0].id;
   store.utilizatori[dirId].codEHL = "1111"; emit("utilizatori", "update", store.utilizatori[dirId]); await tick(30); /* his EHL access code */
+  const asMode = async (code) => { click($('[data-view="set"]')); await tick(); click($("#exitdir")); await tick(30); $("#pinv").value = code; submit($("#pinf")); await tick(80); click($('[data-view="add"]')); await tick(); };
+  const asEHL = () => asMode("1111"), asAdmin = () => asMode("258000"); /* incomes, projects and the till are the EHL account's; spending is the administrator's */
   check(ls("ehl.cod") === null && ls("ehl.exp") === null && Number(ls("ehl.unlock")) > 0, "no remembered code or expiry; the time of entry is stamped");
   check(Object.values(store.utilizatori)[0].rol === "Director", "director user created");
   check($("#role").textContent === "Director", "role pill = Director");
@@ -205,6 +212,7 @@ const ls = (k) => window.localStorage.getItem(k);
   check(/propriul cont/.test($("#sheet").textContent || ""), "self-demotion blocked with message");
   click($("#closeSheet")); await tick();
 
+  await asEHL();
   console.log("4a. desktop date picker");
   click($('[data-view="add"]')); await tick(); click($('[data-form="incasari"]')); await tick();
   const real=$('[data-k="data"]'), show=real && real.parentNode.querySelector(".dp-show");
@@ -245,20 +253,21 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("client", "Client A"); setField("valuta", "EUR"); await tick(); setField("suma", "100"); submit($("#recf")); await tick(60);
   click($('[data-form="incasari"]')); await tick(); /* lei in the till, so the director's cash expenses below have something to come out of */
   setField("client", "Client A"); setField("suma", "20000"); submit($("#recf")); await tick(60);
-  console.log("5x. the EHL till: a director takes money into his own account only with his EHL code");
+  console.log("5x. the EHL till: the EHL account moves money into an administrator's account");
   click($('[data-form="iesiri"]')); await tick();
+  const pSel5 = $('[data-k="persoana"]');
+  check(!$('[data-k="din"]') && !$('[data-k="codEHL"]') && pSel5.tagName === "SELECT" && Array.from(pSel5.options).some(o => o.value === "Sergiu") && !Array.from(pSel5.options).some(o => o.value === "Ion Operator"), "inside the EHL account the money comes from the till by itself, no code is asked, and the person is picked among the administrators only");
+  check(Array.from($('[data-k="destinatie"]').options).map(o => o.value).join() === "Dat persoanei,Depus pe cont,Restituire fondator", "from Casa EHL only: to an administrator, to the bank, back to a founder");
   setField("persoana", "Sergiu"); await tick();
-  check($('[data-k="din"]') && $('[data-k="din"]').value === "Casa" && $('[data-k="codEHL"]'), "to a director the money comes from the EHL till and the EHL code is asked");
-  setField("suma", "15000"); setField("codEHL", "9999"); submit($("#recf")); await tick(60);
-  check($("#recf") && /Codul EHL este greșit/.test($("#sheet").textContent) && !Object.values(store.iesiri || {}).length, "a wrong EHL code is refused, nothing saved");
-  setField("codEHL", "1111"); submit($("#recf")); await tick(80);
+  setField("suma", "15000"); submit($("#recf")); await tick(80);
   const self15 = Object.values(store.iesiri).find(r => r.persoana === "Sergiu");
   check(!$("#recf") && self15 && self15.suma === 15000 && self15.sursa === "Casa" && !("codEHL" in self15), "with the right code 15 000 move from the EHL till to his account; the code is not stored");
   click($('[data-view="ehl"]')); await tick();
   check(/Conturile administratorilor/.test(text()) && /Sergiu/.test(text()), "the EHL tab shows the administrators' accounts");
   click($('[data-view="panou"]')); await tick();
   check(/Luat din Casa EHL\s*15\.000,00/.test(text()) && /Soldul meu\s*15\.000,00/.test(text()) && !/Banii firmei|Datorii către fondatori/.test(text()), "the director's own Panou shows what he took from Casa EHL and his balance, not the firm's figures");
-  click($('[data-view="add"]')); await tick();
+  await asAdmin();
+  check(!$('[data-form="incasari"]') && !$('[data-form="proiecte"]') && $('[data-form="cheltuieli"]') && $('[data-form="chirii"]'), "the administrator account records spending, not incomes or projects");
   click($('[data-form="cheltuieli"]')); await tick();
   setField("suma", "500"); setField("descriere", "Ciment"); setField("pentru", "EHL"); setField("categorie", "Materiale"); submit($("#recf")); await tick(60);
   const inc = Object.values(store.incasari)[0];
@@ -298,7 +307,7 @@ const ls = (k) => window.localStorage.getItem(k);
   check(!/Raport pe colaborator[sS]*Ion Operator/.test(text()) || !window.document.querySelector('[data-colab="Ion Operator"]'), "Ion Operator is not a collaborator with money yet (the director paid from the till)");
 
   console.log("6. registers, salaries, journal, settings render");
-  for (const tab of ["incasari", "cheltuieli", "iesiri", "proiecte", "chirii", "contracte", "imprumuturi", "salarii", "jurnal"]) {
+  for (const tab of ["incasari", "cheltuieli", "iesiri", "proiecte", "chirii", "imprumuturi", "salarii", "jurnal"]) {
     click($('[data-view="reg"]')); await tick(); click($('[data-tab="' + tab + '"]')); await tick();
     check(text().length > 20, "register tab " + tab);
   }
@@ -336,6 +345,8 @@ const ls = (k) => window.localStorage.getItem(k);
   check(JSON.parse(ls("ehl.queue." + dirId) || "[]").length === 0 && JSON.parse(ls("ehl.failed." + dirId) || "[]").length === 0, "queue empty, nothing marked as rejected");
   check(Object.values(store.jurnal).filter(j => j.data && j.data.descriere === "Vopsea").length === 1, "one journal entry for it");
 
+  await asEHL();
+  check(!$('[data-form="cheltuieli"]') && !$('[data-form="chirii"]') && !$('[data-form="grafic"]') && !$('[data-form="angajati"]') && !$('[data-form="imprumuturi"]'), "the EHL account has no expense, rent, schedule, employee or loan card");
   console.log("7e. money from a founder is confirmed with the founder's code");
   click($('[data-view="add"]')); await tick(); click($('[data-form="incasari"]')); await tick();
   check(!$('[data-k="codFondator"]'), "no code field while the source is not a founder");
@@ -355,7 +366,7 @@ const ls = (k) => window.localStorage.getItem(k);
   const dsecs = Array.from(window.document.querySelectorAll("#app .dash-grid>.sec"));
   check(dsecs[1] && /Datorii către fondatori/.test(dsecs[1].textContent) && /Datorie\s*500,00/.test(dsecs[1].textContent) && /Sergiu/.test(dsecs[1].textContent), "the founders report stands on its own right under the totals, per founder");
   click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
-  setField("destinatie", "Restituire fondator"); await tick(); setField("suma", "200"); setField("persoana", "Sergiu"); await tick(); setField("codEHL", "1111"); submit($("#recf")); await tick(80);
+  setField("destinatie", "Restituire fondator"); await tick(); setField("suma", "200"); setField("persoana", "Sergiu"); await tick(); submit($("#recf")); await tick(80);
   click($('[data-view="ehl"]')); await tick();
   check(/Datorie\s*300,00/.test(text()) && /Restituit\s*200,00/.test(text()), "a 'Restituire fondator' outflow brings the debt down to 300");
   const clSec = Array.from(window.document.querySelectorAll("#app .sec")).find(s => /Sold pe client/.test((s.querySelector("h2") || {}).textContent || ""));
@@ -370,14 +381,15 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
   const pSel = $('[data-k="persoana"]');
   const pOpts = Array.from(window.document.querySelectorAll("#dl-persoana option")).map(o => o.value);
-  check(pSel.tagName === "INPUT" && pSel.getAttribute("list") === "dl-persoana" && ["Sergiu", "Ion Operator"].every(n => pOpts.includes(n)), "the person field suggests the director and the operator and still accepts a typed name");
-  setField("valuta", "USD"); await tick(); setField("suma", "50"); setField("persoana", "Ion Operator"); await tick(); setField("din", "Casa"); await tick(); setField("codEHL", "1111"); submit($("#recf")); await tick(60);
+  check(pSel.tagName === "SELECT" && Array.from(pSel.options).some(o => o.value === "Sergiu") && !Array.from(pSel.options).some(o => o.value === "Ion Operator"), "in the EHL account the person is picked among the administrators only");
+  setField("valuta", "USD"); await tick(); setField("suma", "50"); setField("persoana", "Sergiu"); await tick(); submit($("#recf")); await tick(60);
   check($("#recf") && /nu sunt destui bani/.test($("#sheet").textContent) && iesN() === ies0, "an outflow from an empty USD shelf is refused, nothing is saved");
   click($("#closeSheet")); await tick(60);
 
   console.log("7j. a transfer expense is paid from the bank, with a report of who paid and for what");
   click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
-  setField("destinatie", "Depus pe cont"); await tick(); setField("suma", "300"); setField("codEHL", "1111"); submit($("#recf")); await tick(80);
+  setField("destinatie", "Depus pe cont"); await tick(); setField("suma", "300"); submit($("#recf")); await tick(80);
+  await asAdmin();
   click($('[data-form="cheltuieli"]')); await tick();
   setField("pentru", "EHL"); setField("suma", "120"); setField("descriere", "Ciment prin bancă"); setField("categorie", "Materiale"); setField("mod", "Transfer"); await tick();
   submit($("#recf")); await tick(80);
@@ -409,6 +421,7 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="ehl"]')); await tick();
   check(/Cheltuieli: proiecte, EHL, altele/.test(text()) && /EHL \(firma\)/.test(text()), "the dashboard splits expenses into projects, EHL and other");
 
+  await asEHL();
   console.log("7h. a project shows its contract and what the client paid, cash and transfer apart");
   const prj = Object.values(store.proiecte).find(p => p.nume === "Casa Test");
   const paid = (mod) => Object.values(store.incasari).filter(r => r.proiect === "Casa Test" && r.mod === mod).reduce((a, r) => a + r.suma * r.curs, 0);
@@ -436,6 +449,7 @@ const ls = (k) => window.localStorage.getItem(k);
   check($('[data-k="valuta"]').value === "USD" && !$('[data-k="valuta"]').disabled && /Pe cont intră/.test($("#sheet").textContent), "a deposit may come from any currency shelf; the form shows the lei the account receives");
   click($("#closeSheet")); await tick(60);
 
+  await asAdmin();
   console.log("7f. the bank account may go below zero; the dashboard shows the minus and the payments behind it");
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
   setField("suma", "500"); setField("descriere", "Excavator"); setField("pentru", "EHL"); setField("categorie", "Materiale"); setField("mod", "Transfer"); await tick();
@@ -445,7 +459,9 @@ const ls = (k) => window.localStorage.getItem(k);
   const minSec = Array.from(window.document.querySelectorAll("#app .sec")).find(s => /Contul este în minus/.test((s.querySelector("h2") || {}).textContent || ""));
   check(/Pe cont\s*-320,00/.test(text()) && minSec && /De achitat pe cont\s*320,00/.test(minSec.textContent) && /Excavator/.test(minSec.textContent) && !/Ciment prin bancă/.test(minSec.textContent), "the account shows -320 and the report names the payment that took it below zero");
   click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
-  setField("destinatie", "Depus pe cont"); await tick(); setField("suma", "320"); setField("codEHL", "1111"); submit($("#recf")); await tick(80);
+  setField("destinatie", "Depus pe cont"); await tick(); setField("suma", "320"); setField("codEHL", "9999"); submit($("#recf")); await tick(60);
+  check($("#recf") && /Codul EHL este greșit/.test($("#sheet").textContent), "in the administrator account a wrong EHL code is refused");
+  setField("codEHL", "1111"); submit($("#recf")); await tick(80);
   click($('[data-view="ehl"]')); await tick();
   check(/Pe cont\s*0,00/.test(text()) && !/Contul este în minus/.test(text()), "a deposit of 320 clears the minus and the report disappears");
 

@@ -312,6 +312,10 @@ onRecordCreateRequest((e) => {
         if (e.auth.getString("rol") === "Director" && !(cas && me.toLowerCase() === cas)) {
           var ce = String((e.requestInfo().body || {}).codEHL || "").trim();
           if (!ce || ce !== String(e.auth.getString("codEHL") || "")) throw new BadRequestError("Codul EHL este greșit.");
+          /* out of the common till the money reaches only an administrator, the bank or a founder it is owed to */
+          var dest = e.record.getString("destinatie"), okDest = dest === "Depus pe cont" || dest === "Restituire fondator";
+          if (dest === "Dat persoanei") { try { okDest = $app.countRecords("utilizatori", $dbx.exp("rol = 'Director' AND TRIM(nume) = {:n}", { n: String(e.record.getString("persoana") || "").trim() })) > 0; } catch (err) { okDest = false; } }
+          if (!okDest) throw new BadRequestError("Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.");
         }
         e.record.set("sursa", "Casa"); e.record.set("platitDe", "");
       }
