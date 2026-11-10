@@ -50,7 +50,8 @@ function collection(col) {
       if (!canRead(col)) throw err(403, "forbidden");
       let items = Object.values(store[col] || {});
       items = items.filter(r => visible(col, r));
-      if (opts && opts.filter) { const m = opts.filter.match(/created >= "([^"]+)" && created <= "([^"]+)"/); if (m) items = items.filter(r => r.created >= m[1] && r.created <= m[2]); }
+      if (opts && opts.filter) { const m = opts.filter.match(/created >= "([^"]+)" && created <= "([^"]+)"/); if (m) items = items.filter(r => r.created >= m[1] && r.created <= m[2]);
+        const mr = opts.filter.match(/^ref = "([^"]+)"$/); if (mr) items = items.filter(r => r.ref === mr[1]); }
       return items.map(r => ({ ...r }));
     },
     async getOne(id) { if (DEBUG) console.log("   FAKE getOne", col, id, !!(store[col] && store[col][id])); if (NET_DOWN) throw err(0, "net"); if (KICKED) throw err(404, "The requested resource wasn't found."); /* a dead token is answered like a stranger */ const r = store[col] && store[col][id]; if (!r) throw err(404, "nf"); return { ...r }; },
@@ -371,6 +372,14 @@ const ls = (k) => window.localStorage.getItem(k);
   check(/Datorie\s*300,00/.test(text()) && /Restituit\s*200,00/.test(text()), "a 'Restituire fondator' outflow brings the debt down to 300");
   const clSec = Array.from(window.document.querySelectorAll("#app .sec")).find(s => /Sold pe client/.test((s.querySelector("h2") || {}).textContent || ""));
   check(clSec && /Client A/.test(clSec.textContent) && !/Sergiu/.test(clSec.textContent), "the founder is not listed among the clients");
+
+  console.log("7k. the EHL tab lists every movement of money; a record carries its history");
+  click($('[data-view="ehl"]')); await tick();
+  const tzSec = Array.from(window.document.querySelectorAll("#app .sec")).find(s => /Toate tranzacțiile/.test((s.querySelector("h2") || {}).textContent || ""));
+  check(tzSec && /Casa EHL → Dat persoanei · Sergiu/.test(tzSec.textContent) && /Vopsea/.test(tzSec.textContent) && /introdus de Sergiu/.test(tzSec.textContent), "the list shows the till → administrator move and the expenses, each with who recorded it");
+  click(tzSec.querySelector('[data-edit="iesiri"]')); await tick(80);
+  check($("#rec-hist") && /Istoricul înregistrării/.test($("#sheet").textContent) && /Adăugat/.test($("#sheet").textContent) && /Sergiu/.test($("#rec-hist").textContent), "the record's form shows its history: created, by whom, when");
+  click($("#closeSheet")); await tick(60);
 
   console.log("7d. every register row names who entered it");
   click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();

@@ -158,7 +158,7 @@ ro:{
  srv_grafic:"Graficul se face doar pentru angajații creați de dumneavoastră.",srv_ore:"Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).",srv_gr_lock:"Zilele achitate nu se mai schimbă.",f_extra:"Extra (MDL)",f_extra_h:"Remunerare suplimentară pentru luna aceasta, dacă angajatul a făcut ceva în plus. Intră în suma de achitat.",
  op_ang:"Angajați",op_ang_h:"Pentru luna aleasă sus: toate zilele angajatului și de cine au fost bifate, suma lunii, cât s-a achitat și de cine, restul. Ceasul deschide graficul, rotița fișa.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
- f_adaug:"Adăugător (MDL)",f_contract_eur:"Contract în EUR",f_contract_usd:"Contract în USD",pers_dir_h:"Din Casa EHL banii merg doar la un administrator.",p_adaug:"Adăugător",p_total:"Contract + adăugător",
+ f_adaug:"Adăugător (MDL)",f_contract_eur:"Contract în EUR",s_tranz:"Toate tranzacțiile",s_tranz_h:"Fiecare mișcare de bani, de la cea mai nouă: de unde au plecat, unde au ajuns, cine a înregistrat-o. Apăsați pe un rând ca să vedeți înregistrarea și istoricul ei.",tz_cont:"Cont",rec_hist:"Istoricul înregistrării",rec_hist_none:"Fără istoric.",j_nochange:"Salvat fără modificări",f_contract_usd:"Contract în USD",pers_dir_h:"Din Casa EHL banii merg doar la un administrator.",p_adaug:"Adăugător",p_total:"Contract + adăugător",
  sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",
  op_primit:"Primit de la director",op_primit_dir:"Luat din Casa EHL",op_dat:"Dat mai departe",op_adv_dir:"Bani luați din Casa EHL",nav_ehl:"EHL",app_ehl:"Casa EHL · contul comun",op_chn:"Cheltuit numerar",op_prop:"Din banii mei",op_tr:"Prin transfer (din cont)",op_adv:"Bani primiți de la director",op_proj:"Cheltuieli pe proiect",
  cont_intra:"Pe cont intră",
@@ -317,7 +317,7 @@ ru:{
  srv_grafic:"График можно вести только для сотрудников, которых создали вы.",srv_ore:"День отмечается полным (8 часов) или половиной (4 часа).",srv_gr_lock:"Оплаченные дни больше не меняются.",f_extra:"Премия (MDL)",f_extra_h:"Дополнительное вознаграждение за этот месяц, если сотрудник сделал что-то сверх. Входит в сумму к выплате.",
  op_ang:"Сотрудники",op_ang_h:"За выбранный сверху месяц: все дни сотрудника и кто их отметил, сумма за месяц, сколько и кем выплачено, остаток. Часы открывают график, шестерёнка карточку.",pontaj_lipsa:"табеля за этот месяц нет",gr_zile_s:"дн.",rest_total:"остаток за все месяцы",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
- f_adaug:"Дополнительно (MDL)",f_contract_eur:"Договор в EUR",f_contract_usd:"Договор в USD",pers_dir_h:"Из кассы EHL деньги идут только администратору.",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
+ f_adaug:"Дополнительно (MDL)",f_contract_eur:"Договор в EUR",s_tranz:"Все операции",s_tranz_h:"Каждое движение денег, новые сверху: откуда ушли, куда пришли, кто записал. Нажмите на строку, чтобы открыть запись и её историю.",tz_cont:"Счёт",rec_hist:"История записи",rec_hist_none:"Истории нет.",j_nochange:"Сохранено без изменений",f_contract_usd:"Договор в USD",pers_dir_h:"Из кассы EHL деньги идут только администратору.",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
  sess_other:"В аккаунт вошли на другом устройстве. Введите код, чтобы продолжить здесь.",
  op_primit:"Получено от директора",op_primit_dir:"Взято из кассы EHL",op_dat:"Передано дальше",op_adv_dir:"Деньги, взятые из кассы EHL",nav_ehl:"EHL",app_ehl:"Касса EHL · общий счёт",op_chn:"Потрачено наличными",op_prop:"Из своих денег",op_tr:"Переводом (со счёта)",op_adv:"Деньги, полученные от директора",op_proj:"Расходы по проектам",
  cont_intra:"На счёт поступит",
@@ -1805,7 +1805,7 @@ function dashBlocks(){
 }
 function openMenu(){
   if(view!=="ehl"){view="ehl";histPush({v:view});render();} /* the quick-jump menu lists the blocks of the EHL tab */
-  if(!MENU_IC){MENU_IC={};[["ov_chelt","outArrow"],["ov_flux","chart"],["s_totals","wallet"],["s_cont_minus","bank"],["s_bani","wallet"],["s_casa","cash"],["s_colab","users"],["s_colab_exp","outArrow"],["s_tr","bank"],["s_client","user"],["s_categ","tag"],["s_proiecte","folder"],["p_alte","folder"],["s_contr","file"],["s_sal","users"],["s_impr","clock"],["s_fond","user"],["s_chirii","home"]].forEach(function(p){MENU_IC[p[0]]=p[1]})}
+  if(!MENU_IC){MENU_IC={};[["ov_chelt","outArrow"],["ov_flux","chart"],["s_totals","wallet"],["s_cont_minus","bank"],["s_bani","wallet"],["s_casa","cash"],["s_colab","users"],["s_colab_exp","outArrow"],["s_tranz","list"],["s_tr","bank"],["s_client","user"],["s_categ","tag"],["s_proiecte","folder"],["p_alte","folder"],["s_contr","file"],["s_sal","users"],["s_impr","clock"],["s_fond","user"],["s_chirii","home"]].forEach(function(p){MENU_IC[p[0]]=p[1]})}
   var byLbl={};Object.keys(MENU_IC).forEach(function(k){byLbl[T(k)]=MENU_IC[k]});
   var m=$("#menu");if(!m)return;
   m.innerHTML='<div class="menu-bg" data-menu-close="1"></div><div class="menu-p" role="dialog" aria-label="'+esc(T("menu_t"))+'"><div class="menu-h"><b>'+esc(T("menu_t"))+'</b><button type="button" class="x" data-menu-close="1" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div><div class="menu-g">'
@@ -2136,6 +2136,42 @@ function vPanouOp(){
     return h+mineList(15)+'</div>';
   });
 }
+/* Every movement of money in the firm, newest first: where it came from, where it went, who recorded it. The EHL
+   account sees the whole chain — till → administrator → collaborator → expense — in one place; a tap opens the row. */
+function vTranzactii(){
+  var rows=[];
+  var who=function(r){return byName(r)||""};
+  S.incasari.forEach(function(r){rows.push({col:"incasari",id:r.id,data:r.data,ts:r.ts,t:T("a_inc")+" · "+(r.client||"—")+(r.proiect?" · "+r.proiect:""),s:[shortDate(r.data),(r.mod==="Transfer"?T("tz_cont"):T("din_casa_ehl")),r.descriere,who(r)?T("by_lbl")+" "+who(r):""],val:round2(n(r.suma)*n(r.curs)),sign:"pos",amt:money(n(r.suma))+" "+(r.valuta||"MDL")})});
+  S.iesiri.forEach(function(r){var from=dinAvans(r)?r.platitDe:T("din_casa_ehl"),to=REGDEF.iesiri.main(r)+(r.persoana?" · "+r.persoana:"");
+    rows.push({col:"iesiri",id:r.id,data:r.data,ts:r.ts,t:from+" → "+to,s:[shortDate(r.data),r.luna?monthName(r.luna):"",r.nota,who(r)?T("by_lbl")+" "+who(r):""],val:round2(n(r.suma)*n(r.curs)),sign:dinAvans(r)?"warnc":"neg",amt:money(n(r.suma))+" "+(r.valuta||"MDL")})});
+  S.cheltuieli.forEach(function(r){var pt=pentruOf(r);rows.push({col:"cheltuieli",id:r.id,data:r.data,ts:r.ts,t:(r.mod==="Transfer"?T("tz_cont"):(r.platitDe||"—"))+" → "+(r.descriere||catLabel(r.categorie)||"—"),s:[shortDate(r.data),catLabel(r.categorie),pt==="Proiect"?r.proiect:(pt==="EHL"?T("pt_ehl"):T("pt_alte")),who(r)?T("by_lbl")+" "+who(r):""],val:n(r.suma),sign:"neg",amt:money(n(r.suma))+" MDL"})});
+  S.chirii.forEach(function(r){rows.push({col:"chirii",id:r.id,data:r.dataInceput,ts:r.ts,t:(r.mod==="Transfer"?T("tz_cont"):(dinAvans(r)?r.platitDe:T("din_casa_ehl")))+" → "+T("a_chirie")+" · "+(r.locatia||"—"),s:[shortDate(r.dataInceput),r.chirias,who(r)?T("by_lbl")+" "+who(r):""],val:round2(chirieTotal(r)*n(r.curs)),sign:"neg",amt:money(chirieTotal(r))+" "+(r.valuta||"MDL")})});
+  S.imprumuturi.forEach(function(r){rows.push({col:"imprumuturi",id:r.id,data:r.data,ts:r.ts,t:T("a_impr")+" → "+(r.persoana||"—"),s:[shortDate(r.data),r.status==="Achitat"?T("achitat"):T("neachitat"),r.nota,who(r)?T("by_lbl")+" "+who(r):""],val:n(r.suma),sign:"warnc",amt:money(n(r.suma))+" MDL"})});
+  if(!rows.length)return "";
+  rows.sort(function(a,b){return String(b.data||"").localeCompare(String(a.data||""))||String(b.ts||"").localeCompare(String(a.ts||""))});
+  return '<div class="sec sec-wide"><h2>'+esc(T("s_tranz"))+' <span class="cnt">'+rows.length+'</span></h2>'+rowsCardMore(rows.map(function(x){
+    return '<button type="button" class="tap row" data-edit="'+x.col+'" data-id="'+esc(x.id)+'"><span class="l">'+esc(x.t)+'<span class="s">'+esc(x.s.filter(Boolean).join(" · "))+'</span></span><span class="r '+x.sign+'">'+esc(x.amt)+'</span></button>';
+  }),30,true)+'<p class="hint" style="margin-top:8px">'+esc(T("s_tranz_h"))+'</p></div>';
+}
+/* The history of one record, under its form: every journal entry that names it — who created it and when, who
+   changed which fields from what to what, who deleted it. Directors only (the journal is theirs). */
+function loadRecHist(col,id){
+  var box=$("#rec-hist");if(!box||!PB||!isDir)return;
+  PB.collection("jurnal").getFullList({batch:500,requestKey:null,sort:"created",filter:'ref = "'+String(id).replace(/"/g,"")+'"'}).then(function(items){
+    box=$("#rec-hist");if(!box||!sheetState||sheetState.id!==id)return;
+    var skip={id:1,by:1,ts:1,created:1,updated:1,collectionId:1,collectionName:1,expand:1,codFondator:1,codEHL:1,din:1};
+    var prev=null,rows=items.map(function(e){
+      var d=e.data;if(typeof d==="string"){try{d=JSON.parse(d)}catch(x){d={}}}d=d||{};
+      var what="";
+      if(e.act==="edit"&&prev){var ch=[];Object.keys(d).forEach(function(k){if(skip[k])return;var a=prev[k],b=d[k];if(String(a==null?"":a)!==String(b==null?"":b))ch.push(k+": "+(a==null||a===""?"—":a)+" → "+(b==null||b===""?"—":b))});what=ch.length?ch.join("; "):T("j_nochange")}
+      else if(e.act==="del")what=T("j_del");
+      else what=T("j_add")+(d.suma!=null?" · "+money(n(d.suma))+" "+(d.valuta||"MDL"):"");
+      if(e.act!=="del")prev=d;
+      return '<div class="row"><span class="l">'+esc(what)+'<span class="s">'+esc(localTs(e.created)+(e.nume?" · "+e.nume:""))+'</span></span></div>';
+    });
+    box.innerHTML='<h2>'+esc(T("rec_hist"))+'</h2>'+(rows.length?'<div class="card rows">'+rows.join("")+'</div>':'<div class="card"><div class="empty">'+esc(T("rec_hist_none"))+'</div></div>');
+  }).catch(function(){});
+}
 /* everything this user entered, newest first (the full list is on "Ale mele") */
 function mineList(max){
   var all=[];
@@ -2195,6 +2231,7 @@ function vPanouEHL(){
   if(colabExp.length)h+='<div class="sec"><h2>'+esc(T("s_colab_exp"))+' <span class="cnt">'+colabExp.length+'</span></h2>'+rowsCardMore(colabExp.map(function(x){
     return '<button type="button" class="tap row" data-edit="'+x.col+'" data-id="'+esc(x.id)+'"><span class="l">'+esc(x.t)+'<span class="s">'+esc(x.s.filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(x.val)+'</span></button>';
   }),30,true)+'</div>'; /* the first thirty at once, the rest behind the button */
+  h+=vTranzactii();
   /* money taken from the bank by transfer: who paid, how much; a tap lists what it was spent on */
   if(C.trPers.length)h+='<div class="sec"><h2>'+esc(T("s_tr"))+'</h2><div class="card rows">'+C.trPers.map(function(x){
     return '<button type="button" class="tap row person" data-colab="'+esc(x.nume)+'"><span class="av" style="--c:'+toneOf(x.nume)+'">'+esc(initials(x.nume))+'</span><span class="l"><span class="nm-row">'+esc(x.nume)+'</span></span>'
@@ -2697,7 +2734,8 @@ function drawSheet(){
     +'<div class="form-act"><button class="btn" type="submit" id="savebtn">'+esc(T("save"))+'</button>'
     +((st.id&&st.col==="angajati"&&rec0&&rec0.by===ME&&st.data.status!=="Inactiv")?'<button class="btn danger" type="button" id="deact" title="'+esc(T("ang_deact_h"))+'">'+icon("trash")+'<span>'+esc(T("ang_deact"))+'</span></button>':'')
     +((st.id&&isDir&&st.col!=="angajati"&&rec0&&rec0.by===ME&&!salPay)?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
-    +'</div></form>'+dls+'</div></div>';
+    +'</div></form>'+(st.id&&isDir?'<div class="sec" id="rec-hist"><h2>'+esc(T("rec_hist"))+'</h2><div class="card"><div class="empty">'+esc(T("j_loading"))+'</div></div></div>':'')+dls+'</div></div>';
+  if(st.id&&isDir)loadRecHist(st.col,st.id);
   document.body.style.overflow="hidden";
   if(lockedOld){var sb=$("#savebtn");if(sb){var nt=document.createElement("p");nt.className="note";nt.textContent=T("lock_old");sb.parentNode.replaceChild(nt,sb);}
     Array.prototype.forEach.call($("#recf").querySelectorAll("input,select,textarea,button[data-pick]"),function(el){el.disabled=true});}
