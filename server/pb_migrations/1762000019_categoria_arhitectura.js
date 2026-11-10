@@ -7,12 +7,17 @@ function arhCats(cfg) {
   return cats.map(function (c) { return String(c); });
 }
 migrate((app) => {
-  var cfg = app.findFirstRecordByFilter("config", "id != ''");
+  /* an empty database (a fresh install) has no settings record yet: the first sign-in creates it with the defaults */
+  var cfg = null;
+  try { cfg = app.findFirstRecordByFilter("config", "id != ''"); } catch (e) { cfg = null; }
+  if (!cfg) return;
   var cats = arhCats(cfg);
   var has = cats.some(function (c) { return c.trim().toLowerCase().replace("ă", "a") === "arhitectura"; });
   if (!has) { cats.push("Arhitectură"); cfg.set("categorii", cats); app.save(cfg); }
 }, (app) => {
-  var cfg = app.findFirstRecordByFilter("config", "id != ''");
+  var cfg = null;
+  try { cfg = app.findFirstRecordByFilter("config", "id != ''"); } catch (e) { cfg = null; }
+  if (!cfg) return;
   cfg.set("categorii", arhCats(cfg).filter(function (c) { return c.trim() !== "Arhitectură"; }));
   app.save(cfg);
 });

@@ -807,7 +807,7 @@ function calc(){
     C.iesImpr[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Împrumut"&&r.valuta===v?n(r.suma):0});
     C.iesAlte[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Alte"&&r.valuta===v?n(r.suma):0});
     C.iesFond[v]=sum(S.iesiri,function(r){return !dinAvans(r)&&r.destinatie==="Restituire fondator"&&r.valuta===v?n(r.suma):0});
-    C.iesChirii[v]=sum(S.chirii,function(r){return r.mod==="Numerar"&&r.valuta===v?chirieTotal(r):0});
+    C.iesChirii[v]=sum(S.chirii,function(r){return !dinAvans(r)&&r.mod==="Numerar"&&r.valuta===v?chirieTotal(r):0}); /* a collaborator's cash rent comes out of his advance */
     C.iesCheltCasier[v]=(v==="MDL")?sum(S.cheltuieli,function(r){return r.mod==="Numerar"&&isTillPayer(r.platitDe)?n(r.suma):0}):0;
   });
   C.iesTotal={};C.ramas={};C.ramasMDL={};C.casaMDL=0;
@@ -834,7 +834,7 @@ function calc(){
 
   // collaborators
   var names=uniq(S.iesiri.filter(function(r){return r.destinatie==="Dat persoanei"}).map(function(r){return r.persoana})
-    .concat(S.cheltuieli.filter(function(r){return r.mod==="Numerar"}).map(function(r){return r.platitDe}),S.iesiri.filter(dinAvans).map(function(r){return r.platitDe})))
+    .concat(S.cheltuieli.filter(function(r){return r.mod==="Numerar"}).map(function(r){return r.platitDe}),S.iesiri.filter(dinAvans).map(function(r){return r.platitDe}),S.chirii.filter(dinAvans).map(function(r){return r.platitDe})))
     .filter(function(p){return !isTillPayer(p)});
   C.colab=names.map(function(p){
     var primit=sum(S.iesiri,function(r){return r.destinatie==="Dat persoanei"&&sameP(r.persoana,p)?n(r.suma)*n(r.curs):0});
@@ -843,7 +843,8 @@ function calc(){
     var prop=sum(S.cheltuieli,function(r){return r.mod==="Numerar"&&r.sursa==="Proprii"&&sameP(r.platitDe,p)?n(r.suma):0});
     /* what he handed on from his advance: outflows he recorded himself (paid from his money, not from the till) */
     var dat=sum(S.iesiri,function(r){return dinAvans(r)&&sameP(r.platitDe,p)?n(r.suma)*n(r.curs):0});
-    return {nume:p,primit:primit,cheltuit:round2(chn+dat),ramas:round2(primit-chn-dat),transfer:cht,proprii:prop,dat:dat};
+    var chr=sum(S.chirii,function(r){return dinAvans(r)&&r.mod==="Numerar"&&sameP(r.platitDe,p)?chirieTotal(r)*n(r.curs):0}); /* cash rents he paid from his advance */
+    return {nume:p,primit:primit,cheltuit:round2(chn+dat+chr),ramas:round2(primit-chn-dat-chr),transfer:cht,proprii:prop,dat:dat,chirii:chr};
   }).filter(function(x){return x.primit||x.cheltuit}); /* transfers are not his money: they have their own report (C.trPers) */
   C.colabRamas=sum(C.colab,function(x){return x.ramas});
   /* expenses by transfer are paid from the bank account, not from the person: reported apart, by who paid and how much */
@@ -948,7 +949,7 @@ function projInc(nume){
    An edit that takes no more than the row already took always passes, so old rows stay correctable. */
 function casaNeed(col,d){
   if(col==="iesiri")return (dinAvans(d)||(d.destinatie==="Dat persoanei"&&isTillPayer(d.persoana)))?null:{v:d.valuta||"MDL",s:n(d.suma)};
-  if(col==="chirii")return d.mod==="Numerar"?{v:d.valuta||"MDL",s:chirieTotal(d)}:null;
+  if(col==="chirii")return (d.mod==="Numerar"&&!dinAvans(d))?{v:d.valuta||"MDL",s:chirieTotal(d)}:null;
   if(col==="imprumuturi")return d.dinCasa?{v:"MDL",s:n(d.suma)}:null;
   return null;
 }
@@ -963,6 +964,14 @@ function soldAvans(nume){var x=calc().colab.filter(function(c){return sameP(c.nu
 function avansErr(col,d,id){
   var need=0,old=null;
   if(col==="iesiri"){if(!ieseDinAvans(id))return "";need=n(d.suma)*n(d.curs);old=id?S.iesiri.filter(function(r){return r.id===id})[0]:null;}
+  else if(col==="chirii"){
+    /* a collaborator's cash rent comes out of his advance and cannot take it below zero */
+    if(isDir||isCasierMe()||d.mod==="Transfer")return "";
+    var or=id?S.chirii.filter(function(r){return r.id===id})[0]:null,bkr=(or&&dinAvans(or)&&or.mod!=="Transfer")?round2(chirieTotal(or)*n(or.curs)):0,ndr=round2(chirieTotal(d)*n(d.curs));
+    if(!(ndr>0)||(bkr&&ndr<=bkr))return "";
+    var frr=round2(soldAvans(meName())+bkr);
+    return ndr>frr+0.004?T("avans_lipsa").replace("{s}",money(Math.max(0,frr))):"";
+  }
   else if(col==="imprumuturi"){if(id||!d.dinCasa||isDir||isCasierMe())return "";need=n(d.suma);}
   else if(col==="cheltuieli"){
     /* cash is his own pocket of the firm's money: it cannot go below zero. A transfer is paid by the firm's account. */
@@ -1152,7 +1161,10 @@ var FORMS={
    {k:"avarii",t:"number",l:"f_avarii",half:1,step:"0.01"},
    {k:"nota",t:"text",l:"f_nota"}
  ]},calc:function(d){var t=n(d.chirie)+n(d.gaj)+n(d.comunale)+n(d.avarii);
-   return [{l:T("tot"),v:money(t)+" "+(d.valuta||"")},{l:T("eq"),v:money(t*n(d.curs))+" MDL"}]}},
+   var out=[{l:T("tot"),v:money(t)+" "+(d.valuta||"")},{l:T("eq"),v:money(t*n(d.curs))+" MDL"}];
+   /* a collaborator pays the rent from his advance (cash) or from the firm's account (transfer) */
+   if(!isDir&&!isCasierMe())out.push(d.mod==="Transfer"?{l:T("f_mod"),v:T("op_tr_h")}:{l:T("avans_disp"),v:money(soldAvans(meName()))+" MDL"});
+   return out}},
 
  imprumuturi:{title:"a_impr",icon:"clock",fields:function(){return[
    {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
@@ -1922,7 +1934,9 @@ function openColab(name){
   var C=calc(),x=C.colab.filter(function(c){return sameP(c.nume,name)})[0]||{nume:name,primit:0,cheltuit:0,ramas:0,transfer:0,proprii:0};
   var got=S.iesiri.filter(function(r){return r.destinatie==="Dat persoanei"&&sameP(r.persoana,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
   var spent=S.cheltuieli.filter(function(r){return r.mod==="Numerar"&&sameP(r.platitDe,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
-  var gave=S.iesiri.filter(function(r){return dinAvans(r)&&sameP(r.platitDe,name)}).sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
+  var gave=S.iesiri.filter(function(r){return dinAvans(r)&&sameP(r.platitDe,name)})
+    .concat(S.chirii.filter(function(r){return dinAvans(r)&&r.mod==="Numerar"&&sameP(r.platitDe,name)}).map(function(r){return {col:"chirii",id:r.id,data:r.dataInceput,persoana:r.locatia,nota:r.chirias,suma:chirieTotal(r),curs:r.curs}}))
+    .sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
   var h='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(name)+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div>';
   h+='<div class="tiles"><div class="tile big" style="background:'+(x.ramas<0?"var(--neg)":"var(--accent)")+'"><span class="k">'+esc(x.ramas<0?T("colab_owed"):T("colab_has"))+'</span><span class="v">'+money(Math.abs(x.ramas))+'<span class="u">MDL</span></span></div>'
     +tile(T("l_primit"),money(x.primit),"MDL")+tile(T("l_cheltuit"),money(x.cheltuit),"MDL")+'</div>';
@@ -1936,7 +1950,7 @@ function openColab(name){
     return '<button type="button" class="tap row" data-edit="cheltuieli" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.descriere||catLabel(r.categorie)||"—")+'<span class="s">'+esc([r.data,catLabel(r.categorie),pt==="Proiect"?r.proiect:(pt==="EHL"?T("pt_ehl"):T("pt_alte"))].filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(n(r.suma))+'</span></button>';
   }).join("")+r2(T("l_total"),money(trs.reduce(function(a,r){return a+n(r.suma)},0)),null,"neg",1)+'</div></div>';
   if(gave.length)h+='<div class="sec"><h2>'+esc(T("colab_gave"))+'</h2><div class="card rows">'+gave.map(function(r){
-    return '<button type="button" class="tap row" data-edit="iesiri" data-id="'+esc(r.id)+'"><span class="l">'+esc(REGDEF.iesiri.main(r))+'<span class="s">'+esc([r.data,r.persoana,r.nota].filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(n(r.suma)*n(r.curs))+'</span></button>';
+    return '<button type="button" class="tap row" data-edit="'+(r.col||"iesiri")+'" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.col==="chirii"?T("a_chirie"):REGDEF.iesiri.main(r))+'<span class="s">'+esc([r.data,r.persoana,r.nota].filter(Boolean).join(" · "))+'</span></span><span class="r neg">'+money(n(r.suma)*n(r.curs))+'</span></button>';
   }).join("")+'</div></div>';
   h+='<div class="sec"><h2>'+esc(T("colab_got"))+'</h2>'+(got.length?'<div class="card rows">'+got.map(function(r){
     return '<button type="button" class="tap row" data-edit="iesiri" data-id="'+esc(r.id)+'"><span class="l">'+esc(r.nota||T("d_pers"))+'<span class="s">'+esc(r.data+(r.valuta!=="MDL"?" · "+money(n(r.suma))+" "+r.valuta+" × "+r.curs:""))+'</span></span><span class="r pos">'+money(n(r.suma)*n(r.curs))+'</span></button>';
@@ -2282,7 +2296,7 @@ var REGDEF={
    amt:function(r){return money(n(r.suma))+" "+curBadge(r.valuta||"MDL",false)},cls:function(){return "warnc"},
    meta:function(r){return r.data}},
  chirii:{t:"r_chirii",main:function(r){return r.locatia||"—"},
-   sub:function(r){return [r.chirias,r.nota].filter(Boolean).join(" · ")},
+   sub:function(r){return [r.chirias,r.nota,dinAvans(r)?T("din_avans")+" "+r.platitDe:""].filter(Boolean).join(" · ")},
    amt:function(r){return money(chirieTotal(r))+" "+curBadge(r.valuta||"MDL",false)},cls:function(){return "neg"},
    meta:function(r){return r.dataInceput+(r.dataSfarsit?" → "+r.dataSfarsit:"")+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
  contracte:{t:"r_contr",main:function(r){return r.client||"—"},sub:function(r){return r.nota||""},
@@ -2732,6 +2746,7 @@ function submitForm(){
       if(b.pentru!=="Proiect"){b.proiect="";b.client="";}} /* "EHL" and "Altele" carry no project and no client */
     if(b.valuta==="MDL"&&("curs" in b))b.curs=1; /* lei never carry a rate */
     if(col==="iesiri"&&!st.id){if(ieseDinAvans(null)){b.sursa="Avans";b.platitDe=meName()}else{b.sursa="Casa";b.platitDe=""}}
+    if(col==="chirii"&&!st.id){if(!isDir&&!isCasierMe()){b.sursa="Avans";b.platitDe=meName()}else{b.sursa="Casa";b.platitDe=""}} /* the server sets the same */
     p=saveDoc(col,b,st.id);
     if(col==="pontaj"){b.complet=!!d.complet;}
     if(col==="pontaj"&&d.achitat){
