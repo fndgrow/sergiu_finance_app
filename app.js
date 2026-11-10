@@ -556,11 +556,28 @@ function signedOut(){
   PB.collection("utilizatori").authRefresh({requestKey:null}).then(function(){return T("gate_bad")},function(e){return (e&&e.status===401)?T("sess_other"):T("gate_bad")})
     .then(function(m){if(ACCESS)logout(m)});
 }
-setInterval(selfCheck,3*60*1000);
+setInterval(function(){selfCheck();refreshData()},3*60*1000);
+/* Live updates arrive over the realtime stream, but events missed while the page sat in the background or offline never
+   come again (phones cut the stream). So the lists are fetched afresh on every return to the foreground, on every
+   reconnection and every 3 minutes — without resetting S, so nothing flickers — and the screen is redrawn. */
+var refreshing=false;
+function refreshData(){
+  if(!PB||!ACCESS||!online||refreshing)return Promise.resolve();
+  refreshing=true;
+  var got={};
+  return Promise.all(DATA_COLS.map(function(col){
+    return PB.collection(col).getFullList({batch:1000,requestKey:null}).then(function(items){got[col]=items.map(norm)}).catch(function(e){if(authErrOf(e))throw e});
+  })).then(function(){
+    return PB.collection("config").getFullList({requestKey:null}).then(function(items){if(items[0])S.cfg=normCfg(items[0])}).catch(function(){});
+  }).then(function(){
+    Object.keys(got).forEach(function(col){S[col]=got[col];loaded[col]=true});
+    stale=false;saveCache();if(!sheetState)render();
+  },function(){}).then(function(){refreshing=false});
+}
 document.addEventListener("visibilitychange",function(){
   if(document.visibilityState==="hidden"){hiddenAt=Date.now();return;}
   if(ACCESS&&!LOCKED&&hiddenAt&&lockDue())lockScreen();
-  selfCheck();
+  selfCheck();refreshData();
 });
 var RT=typeof window.EventSource==="function";
 function sub(col,topic,cb){
@@ -677,7 +694,7 @@ function flushQueue(){
      if(QUEUE.length)flushQueue();else render();
    });
 }
-window.addEventListener("online",function(){online=true;dbErr=false;if(ACCESS){if(!loaded.incasari)subscribe();else flushQueue()}render()});
+window.addEventListener("online",function(){online=true;dbErr=false;if(ACCESS){if(!loaded.incasari)subscribe();else{flushQueue();refreshData()}}render()});
 window.addEventListener("offline",function(){online=false;render()});
 function codNou(){
   for(var i=0;i<60;i++){

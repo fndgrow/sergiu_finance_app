@@ -648,6 +648,9 @@ Everything below was asked for by the directors while the app went into use. Whe
 - He fills timesheets only for the employees he created. *client + server.*
 - He reads only what is his (migration `…0011`). His "Panou" is `vPanouOp()`: `mineView()` swaps the registers for his rows (his advances play the incomes), so the director's overview and `calc()` are reused unchanged, then adds his tiles, his expenses by category / target / project, the money he received and `mineList()` — every operation he entered.
 
+**Live updates after a pause**
+- Events missed while the page sat in the background or offline never come again, so `refreshData()` fetches every list afresh (no reset) on every return to the foreground, on every reconnection and every 3 minutes, then redraws — unless a form is open.
+
 **Writes**
 - New records get their id on the client; a create repeated after a lost answer is recognised by the validation error on `id` and dropped from the queue.
 - The queue and the rejected list are stored per user (`ehl.queue.<id>`, `ehl.failed.<id>`).
