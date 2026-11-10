@@ -147,21 +147,21 @@ onRecordUpdateRequest((e) => {
   e.next();
 }, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic");
 
-/* ---- currency exchange: a person swaps money he holds from one currency to another; the record is always his ---- */
-function schimbCheck(e) {
-  var din = String(e.record.getString("valutaDin") || "").trim(), inn = String(e.record.getString("valutaIn") || "").trim();
-  if (!din || !inn || din === inn) throw new BadRequestError("Alegeți două valute diferite.");
-  if (!(e.record.getFloat("sumaDin") > 0) || !(e.record.getFloat("sumaIn") > 0)) throw new BadRequestError("Suma dată și suma primită trebuie să fie mai mari ca zero.");
-}
+/* ---- currency exchange: a person swaps money he holds from one currency to another; the record is always his.
+   (each handler runs in its own VM context, so the check is written out in both) ---- */
 onRecordCreateRequest((e) => {
   if (!e.auth) throw new ForbiddenError("Autentificare necesară.");
   e.record.set("persoana", String(e.auth.getString("nume") || "").trim());
-  schimbCheck(e);
+  var din = String(e.record.getString("valutaDin") || "").trim(), inn = String(e.record.getString("valutaIn") || "").trim();
+  if (!din || !inn || din === inn) throw new BadRequestError("Alegeți două valute diferite.");
+  if (!(e.record.getFloat("sumaDin") > 0) || !(e.record.getFloat("sumaIn") > 0)) throw new BadRequestError("Suma dată și suma primită trebuie să fie mai mari ca zero.");
   e.next();
 }, "schimburi");
 onRecordUpdateRequest((e) => {
   if (e.record.original) e.record.set("persoana", e.record.original().getString("persoana"));
-  schimbCheck(e);
+  var din = String(e.record.getString("valutaDin") || "").trim(), inn = String(e.record.getString("valutaIn") || "").trim();
+  if (!din || !inn || din === inn) throw new BadRequestError("Alegeți două valute diferite.");
+  if (!(e.record.getFloat("sumaDin") > 0) || !(e.record.getFloat("sumaIn") > 0)) throw new BadRequestError("Suma dată și suma primită trebuie să fie mai mari ca zero.");
   e.next();
 }, "schimburi");
 

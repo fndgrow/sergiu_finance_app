@@ -2194,7 +2194,7 @@ function vTranzactii(){
   S.imprumuturi.forEach(function(r){rows.push({col:"imprumuturi",id:r.id,data:r.data,ts:r.ts,t:T("a_impr")+" → "+(r.persoana||"—"),s:[shortDate(r.data),r.status==="Achitat"?T("achitat"):T("neachitat"),r.nota,who(r)?T("by_lbl")+" "+who(r):""],val:imprLei(r),sign:"warnc",amt:money(n(r.suma))+" "+esc(r.valuta||"MDL")})});
   if(!rows.length)return "";
   rows.sort(function(a,b){return String(b.data||"").localeCompare(String(a.data||""))||String(b.ts||"").localeCompare(String(a.ts||""))});
-  return '<div class="sec sec-wide"><h2>'+esc(T("s_tranz"))+' <span class="cnt">'+rows.length+'</span></h2>'+rowsCardMore(rows.map(function(x){
+  return '<div class="sec sec-wide sec-last"><h2>'+esc(T("s_tranz"))+' <span class="cnt">'+rows.length+'</span></h2>'+rowsCardMore(rows.map(function(x){
     return '<button type="button" class="tap row" data-edit="'+x.col+'" data-id="'+esc(x.id)+'"><span class="l">'+esc(x.t)+'<span class="s">'+esc(x.s.filter(Boolean).join(" · "))+'</span></span><span class="r '+x.sign+'">'+esc(x.amt)+'</span></button>';
   }),30,true)+'<p class="hint" style="margin-top:8px">'+esc(T("s_tranz_h"))+'</p></div>';
 }
@@ -2223,7 +2223,7 @@ function mineList(max){
   COLS.forEach(function(c){if(!REGDEF[c]&&c!=="pontaj"&&c!=="angajati")return;S[c].forEach(function(r){if(ME&&r.by===ME&&!(c==="angajati"&&r.status==="Inactiv"))all.push({c:c,r:r})})});
   if(!all.length)return "";
   all.sort(function(a,b){return String(b.r.ts||"").localeCompare(String(a.r.ts||""))});
-  return '<div class="sec sec-wide"><h2>'+esc(T("mine_t"))+' <span class="cnt">'+all.length+'</span></h2><div class="card rows">'+all.slice(0,max).map(function(x){
+  return '<div class="sec sec-wide sec-last"><h2>'+esc(T("mine_t"))+' <span class="cnt">'+all.length+'</span></h2><div class="card rows">'+all.slice(0,max).map(function(x){
     var def=REGDEF[x.c],main=def?def.main(x.r):(x.r.nume||x.r.angajat||"—"),amt=def?def.amt(x.r):"",meta=def?def.meta(x.r):(x.r.luna?monthName(x.r.luna):"");
     return '<button type="button" class="tap row" data-edit="'+x.c+'" data-id="'+esc(x.r.id)+'"><span class="l">'+esc(main)+'<span class="s">'+esc([T(FORMS[x.c]?FORMS[x.c].title:""),meta].filter(Boolean).join(" · "))+'</span></span><span class="r">'+amt+'</span></button>';
   }).join("")+'</div>'+(all.length>max?'<button type="button" class="btn ghost" data-view="mine" style="margin-top:10px">'+esc(T("nav_mine"))+' ('+all.length+')</button>':'')+'</div>';

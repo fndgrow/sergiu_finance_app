@@ -60,6 +60,28 @@ body.ehl-mode .bar .logo{background:#D4A72C;color:#173126}
 body.ehl-mode .bar .role,body.ehl-mode .bar .role.on{background:#D4A72C;color:#173126;border-radius:999px;padding:1px 8px;font-weight:700;letter-spacing:.06em}
 body.ehl-mode .bar .langbtn,body.ehl-mode .bar .burger{border-color:rgba(255,255,255,.45);color:#fff}
 body.ehl-mode .bar .av{background:rgba(212,167,44,.25);color:#fff}
+/* the EHL account wears its own colours everywhere, not only in the header: deep green and gold on a warm paper,
+   so the common till is told apart from an administrator's account at a glance */
+body.ehl-mode{--paper:#EDF1E9;--surface:#FAFBF6;--surface-2:#E3EADF;--line:#C9D5C3;--accent:#173126;--accent-ink:#F7E9C4;--accent-soft:#DDE8D6;
+  --hero-a:#173126;--hero-b:#0C1C15;--hero-ink:#F7E9C4;--field:#F3F6EF;--pos:#1F6B3F}
+body.ehl-mode .tile{background:#F4F7EE;border-color:#C9D5C3}
+body.ehl-mode .tile.big{background:linear-gradient(135deg,#173126,#0C1C15);border-color:transparent;color:#F7E9C4}
+body.ehl-mode .tile.big .v{color:#D4A72C}
+body.ehl-mode .tile.big .k,body.ehl-mode .tile.big .t-sub{color:#F7E9C4}
+body.ehl-mode .sec h2{color:#173126}
+body.ehl-mode .card{border-color:#C9D5C3}
+body.ehl-mode .t-ic{background:#DDE8D6;color:#173126}
+body.ehl-mode .cnt,body.ehl-mode .tagc{border-color:#C9D5C3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body.ehl-mode{--paper:#0A1410;--surface:#122019;--surface-2:#1A2C23;--line:#27392F;--accent:#D4A72C;--accent-ink:#173126;--accent-soft:#2A3A1E;
+  --hero-a:#1D3A2C;--hero-b:#0C1C15;--hero-ink:#F7E9C4;--field:#172A21}
+  :root:not([data-theme="light"]) body.ehl-mode .tile{background:#13231B;border-color:#27392F}
+  :root:not([data-theme="light"]) body.ehl-mode .sec h2{color:#D4A72C}
+  :root:not([data-theme="light"]) body.ehl-mode .t-ic{background:#1E3328;color:#F7E9C4}}
+:root[data-theme="dark"] body.ehl-mode{--paper:#0A1410;--surface:#122019;--surface-2:#1A2C23;--line:#27392F;--accent:#D4A72C;--accent-ink:#173126;--accent-soft:#2A3A1E;
+  --hero-a:#1D3A2C;--hero-b:#0C1C15;--hero-ink:#F7E9C4;--field:#172A21}
+:root[data-theme="dark"] body.ehl-mode .tile{background:#13231B;border-color:#27392F}
+:root[data-theme="dark"] body.ehl-mode .sec h2{color:#D4A72C}
+:root[data-theme="dark"] body.ehl-mode .t-ic{background:#1E3328;color:#F7E9C4}
 .pill{font-family:var(--d);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
 .pill.on{background:var(--accent-soft);color:var(--accent);border-color:transparent}
 .langbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:transparent;border:1px solid var(--line);border-radius:999px;height:32px;padding:0 11px 0 8px;font-family:var(--d);font-size:12.5px;font-weight:600;letter-spacing:.03em;color:var(--ink);cursor:pointer;flex:0 0 auto}
@@ -538,6 +560,7 @@ nav button .ic .ic-svg{width:22px;height:22px}
   .dash-grid>.sec{order:2;margin:0 0 22px}
   .dash-grid>.sec-wide{order:0}
   .dash-grid>.sec-casa{order:1}
+  .dash-grid>.sec-last{order:3} /* the lists that grow all year ("Ce am introdus eu", "Toate tranzacțiile") stay at the bottom */
 }
 /* 4. quick-jump menu */
 .burger{display:none;place-items:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;flex:0 0 auto}
