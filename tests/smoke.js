@@ -64,9 +64,15 @@ function collection(col) {
         if (f) { if (String(data.codFondator || "") !== f.cod) throw err(400, "Codul fondatorului este greșit."); data = { ...data, confirmat: f.nume + " · now" }; }
         delete data.codFondator;
       }
+      if (col === "chirii" && isDir()) data = { ...data, sursa: "Avans", platitDe: currentUser.nume };
+      if (col === "iesiri" && isDir()) { /* a director: from the EHL till with his EHL code, or from his own account */
+        if (data.sursa === "Avans") data = { ...data, platitDe: currentUser.nume };
+        else { if (!data.codEHL || data.codEHL !== currentUser.codEHL) throw err(400, "Codul EHL este greșit."); data = { ...data, sursa: "Casa", platitDe: "" }; }
+        delete data.codEHL;
+      }
       if (col === "cheltuieli" && isDir()) { /* the payer is the account itself, except a salary paid to a collaborator account */
         const who = String(data.platitDe || "").trim(), isCollab = data.categorie === "Salarii" && Object.values(store.utilizatori).some(u => u.rol === "Operator" && u.nume === who);
-        if (!isCollab) data = { ...data, platitDe: currentUser.nume, sursa: "" };
+        if (!isCollab) data = { ...data, platitDe: currentUser.nume, sursa: "Avans" }; /* a director pays from his own account */
       }
       if (col === "cheltuieli" && !isDir()) { /* a collaborator pays himself; cash cannot take his balance below zero (server hook) */
         data = { ...data, platitDe: currentUser.nume };
@@ -168,6 +174,7 @@ const ls = (k) => window.localStorage.getItem(k);
   $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
   check($("#role").textContent === "Director" && !$("#spf") && !$("#pwf"), "director enters with the code alone (password switched off)");
   const dirId = Object.values(store.utilizatori)[0].id;
+  store.utilizatori[dirId].codEHL = "1111"; emit("utilizatori", "update", store.utilizatori[dirId]); await tick(30); /* his EHL access code */
   check(ls("ehl.cod") === null && ls("ehl.exp") === null && Number(ls("ehl.unlock")) > 0, "no remembered code or expiry; the time of entry is stamped");
   check(Object.values(store.utilizatori)[0].rol === "Director", "director user created");
   check($("#role").textContent === "Director", "role pill = Director");
@@ -236,6 +243,18 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("client", "Client A"); setField("valuta", "EUR"); await tick(); setField("suma", "100"); submit($("#recf")); await tick(60);
   click($('[data-form="incasari"]')); await tick(); /* lei in the till, so the director's cash expenses below have something to come out of */
   setField("client", "Client A"); setField("suma", "20000"); submit($("#recf")); await tick(60);
+  console.log("5x. the EHL till: a director takes money into his own account only with his EHL code");
+  click($('[data-form="iesiri"]')); await tick();
+  setField("persoana", "Sergiu"); await tick();
+  check($('[data-k="din"]') && $('[data-k="din"]').value === "Casa" && $('[data-k="codEHL"]'), "to a director the money comes from the EHL till and the EHL code is asked");
+  setField("suma", "15000"); setField("codEHL", "9999"); submit($("#recf")); await tick(60);
+  check($("#recf") && /Codul EHL este greșit/.test($("#sheet").textContent) && !Object.values(store.iesiri || {}).length, "a wrong EHL code is refused, nothing saved");
+  setField("codEHL", "1111"); submit($("#recf")); await tick(80);
+  const self15 = Object.values(store.iesiri).find(r => r.persoana === "Sergiu");
+  check(!$("#recf") && self15 && self15.suma === 15000 && self15.sursa === "Casa" && !("codEHL" in self15), "with the right code 15 000 move from the EHL till to his account; the code is not stored");
+  click($('[data-view="panou"]')); await tick();
+  check(/Conturile administratorilor/.test(text()) && /Sergiu/.test(text()), "the dashboard shows the administrators' accounts");
+  click($('[data-view="add"]')); await tick();
   click($('[data-form="cheltuieli"]')); await tick();
   setField("suma", "500"); setField("descriere", "Ciment"); setField("pentru", "EHL"); setField("categorie", "Materiale"); submit($("#recf")); await tick(60);
   const inc = Object.values(store.incasari)[0];
@@ -267,10 +286,10 @@ const ls = (k) => window.localStorage.getItem(k);
   check($("#recf") && /obligatorii|cel puțin 3/.test($("#sheet").textContent), "expense without description is refused");
   click($("#closeSheet")); await tick();
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
-  check(!$('[data-k="platitDe"]') && !$('[data-k="sursa"]') && /din casă/.test($("#sheet").textContent), "the director's expense form has no payer or source: he pays from the till");
+  check(!$('[data-k="platitDe"]') && !$('[data-k="sursa"]') && /Disponibil în contul meu/.test($("#sheet").textContent), "the director's expense form has no payer or source: he pays from his own account and sees what it holds");
   setField("suma", "1200"); setField("descriere", "Vopsea din buzunar"); setField("pentru", "EHL"); setField("categorie", "Materiale"); submit($("#recf")); await tick(60);
   const vop = Object.values(store.cheltuieli).find(r => r.descriere === "Vopsea din buzunar");
-  check(vop && vop.platitDe === "Sergiu" && !vop.sursa, "the director's expense names him as the payer, with no advance source");
+  check(vop && vop.platitDe === "Sergiu" && vop.sursa === "Avans", "the director's expense names him as the payer, paid from his own account");
   click($('[data-view="panou"]')); await tick();
   check(!/Raport pe colaborator[sS]*Ion Operator/.test(text()) || !window.document.querySelector('[data-colab="Ion Operator"]'), "Ion Operator is not a collaborator with money yet (the director paid from the till)");
 
@@ -332,7 +351,7 @@ const ls = (k) => window.localStorage.getItem(k);
   const dsecs = Array.from(window.document.querySelectorAll("#app .dash-grid>.sec"));
   check(dsecs[1] && /Datorii către fondatori/.test(dsecs[1].textContent) && /Datorie\s*500,00/.test(dsecs[1].textContent) && /Sergiu/.test(dsecs[1].textContent), "the founders report stands on its own right under the totals, per founder");
   click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
-  setField("destinatie", "Restituire fondator"); await tick(); setField("suma", "200"); setField("persoana", "Sergiu"); submit($("#recf")); await tick(80);
+  setField("destinatie", "Restituire fondator"); await tick(); setField("suma", "200"); setField("persoana", "Sergiu"); await tick(); setField("codEHL", "1111"); submit($("#recf")); await tick(80);
   click($('[data-view="panou"]')); await tick();
   check(/Datorie\s*300,00/.test(text()) && /Restituit\s*200,00/.test(text()), "a 'Restituire fondator' outflow brings the debt down to 300");
   const clSec = Array.from(window.document.querySelectorAll("#app .sec")).find(s => /Sold pe client/.test((s.querySelector("h2") || {}).textContent || ""));
@@ -348,13 +367,13 @@ const ls = (k) => window.localStorage.getItem(k);
   const pSel = $('[data-k="persoana"]');
   const pOpts = Array.from(window.document.querySelectorAll("#dl-persoana option")).map(o => o.value);
   check(pSel.tagName === "INPUT" && pSel.getAttribute("list") === "dl-persoana" && ["Sergiu", "Ion Operator"].every(n => pOpts.includes(n)), "the person field suggests the director and the operator and still accepts a typed name");
-  setField("valuta", "USD"); await tick(); setField("suma", "50"); setField("persoana", "Ion Operator"); submit($("#recf")); await tick(60);
+  setField("valuta", "USD"); await tick(); setField("suma", "50"); setField("persoana", "Ion Operator"); await tick(); setField("din", "Casa"); await tick(); setField("codEHL", "1111"); submit($("#recf")); await tick(60);
   check($("#recf") && /nu sunt destui bani/.test($("#sheet").textContent) && iesN() === ies0, "an outflow from an empty USD shelf is refused, nothing is saved");
   click($("#closeSheet")); await tick(60);
 
   console.log("7j. a transfer expense is paid from the bank, with a report of who paid and for what");
   click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
-  setField("destinatie", "Depus pe cont"); await tick(); setField("suma", "300"); submit($("#recf")); await tick(80);
+  setField("destinatie", "Depus pe cont"); await tick(); setField("suma", "300"); setField("codEHL", "1111"); submit($("#recf")); await tick(80);
   click($('[data-form="cheltuieli"]')); await tick();
   setField("pentru", "EHL"); setField("suma", "120"); setField("descriere", "Ciment prin bancă"); setField("categorie", "Materiale"); setField("mod", "Transfer"); await tick();
   submit($("#recf")); await tick(80);
@@ -422,7 +441,7 @@ const ls = (k) => window.localStorage.getItem(k);
   const minSec = Array.from(window.document.querySelectorAll("#app .sec")).find(s => /Contul este în minus/.test((s.querySelector("h2") || {}).textContent || ""));
   check(/Pe cont\s*-320,00/.test(text()) && minSec && /De achitat pe cont\s*320,00/.test(minSec.textContent) && /Excavator/.test(minSec.textContent) && !/Ciment prin bancă/.test(minSec.textContent), "the account shows -320 and the report names the payment that took it below zero");
   click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
-  setField("destinatie", "Depus pe cont"); await tick(); setField("suma", "320"); submit($("#recf")); await tick(80);
+  setField("destinatie", "Depus pe cont"); await tick(); setField("suma", "320"); setField("codEHL", "1111"); submit($("#recf")); await tick(80);
   click($('[data-view="panou"]')); await tick();
   check(/Pe cont\s*0,00/.test(text()) && !/Contul este în minus/.test(text()), "a deposit of 320 clears the minus and the report disappears");
 

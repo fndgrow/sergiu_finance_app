@@ -655,6 +655,11 @@ Everything below was asked for by the directors while the app went into use. Whe
 - New records get their id on the client; a create repeated after a lost answer is recognised by the validation error on `id` and dropped from the queue.
 - The queue and the rejected list are stored per user (`ehl.queue.<id>`, `ehl.failed.<id>`).
 
+**The EHL model (10 November 2026)**
+- The till is the directors' common "Casa EHL". `isTillPayer` is true for the cashier only: a director is a person with an account of his own (`C.dirs`, split off `C.colab` by `fondatoriToti()`), fed by "Dat persoanei" outflows to him from the till and spent on his expenses, rents and what he hands to collaborators (`sursa = "Avans"`, `platitDe = his name`). `C.colabRamas` adds both groups into `totalFirma`.
+- An outflow by a director carries `din` in the form (Casa / Avans; set automatically from the person and the destination, `ieseDinAvans(id, d)` reads it). Money leaving the till needs the director's `codEHL` (`utilizatori.codEHL`, migration `…0021`): the form asks it, the client compares it with `myCodEHL()`, the hook compares the body's `codEHL` with the author's and never stores it. A loan "din casă" sends it too.
+- A director's own account is capped like an advance (`avansErr` for everyone but the cashier; the hooks repeat the balance SQL for directors with the message `cont_meu_lipsa`).
+
 **Known gaps**
 - The work schedule, the day-based salaries, the employees rubric, the "Arhitectură" category and the evening reminder (7–9 November 2026, migrations 12–19) are not yet described here; the commit messages are the reference.
 - The till rule is client-only; the audit trail (`jurnal`) is still written by the client.

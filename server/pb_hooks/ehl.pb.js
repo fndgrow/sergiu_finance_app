@@ -196,6 +196,9 @@ onRecordCreateRequest((e) => {
   var cod = String(e.record.getString("cod") || "").trim();
   if (!/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Codul trebuie să aibă 4–8 cifre.");
   e.record.set("cod", cod);
+  var codEHL = String(e.record.getString("codEHL") || "").trim();
+  if (codEHL && !/^[0-9]{4,8}$/.test(codEHL)) throw new BadRequestError("Codul EHL trebuie să aibă 4–8 cifre.");
+  e.record.set("codEHL", codEHL);
   if (!e.record.getString("status")) e.record.set("status", "Activ");
   if (!e.record.getString("rol")) e.record.set("rol", "Operator");
   e.record.set("email", $security.randomStringWithAlphabet(12, "abcdefghijklmnopqrstuvwxyz") + "@casieria.local");
@@ -208,6 +211,9 @@ onRecordUpdateRequest((e) => {
   var cod = String(e.record.getString("cod") || "").trim();
   if (!/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Codul trebuie să aibă 4–8 cifre.");
   e.record.set("cod", cod);
+  var codEHL = String(e.record.getString("codEHL") || "").trim();
+  if (codEHL && !/^[0-9]{4,8}$/.test(codEHL)) throw new BadRequestError("Codul EHL trebuie să aibă 4–8 cifre.");
+  e.record.set("codEHL", codEHL);
   if (e.auth && e.auth.id === e.record.id) {
     if (e.record.getString("status") === "Inactiv" || e.record.getString("rol") !== "Director") {
       throw new BadRequestError("Nu vă puteți dezactiva sau retrograda propriul cont.");
@@ -290,7 +296,21 @@ onRecordCreateRequest((e) => {
         try { isCollab = $app.countRecords("utilizatori", $dbx.exp("rol = 'Operator' AND TRIM(nume) = {:n}", { n: who })) > 0; } catch (err) { isCollab = false; }
       }
       if (isCollab) { e.record.set("sursa", "Avans"); e.record.set("platitDe", who); }
-      else { e.record.set("sursa", "Casa"); e.record.set("platitDe", ""); }
+      /* a director chooses: from the common EHL till ("Casa") or from his own account ("Avans", his name); the cashier only from the till */
+      else if (want === "Avans" && !(cas && me.toLowerCase() === cas)) {
+        e.record.set("sursa", "Avans"); e.record.set("platitDe", me);
+        var resD = new DynamicModel({ v: "" });
+        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(resD);
+        if (e.record.getFloat("suma") * (e.record.getFloat("curs") || 1) > parseFloat(resD.v || "0") + 0.004) throw new BadRequestError("Nu aveți destui bani în contul dumneavoastră. Luați mai întâi din Casa EHL.");
+      }
+      else {
+        /* money leaves the common EHL till: the director's own EHL code is required */
+        if (e.auth.getString("rol") === "Director" && !(cas && me.toLowerCase() === cas)) {
+          var ce = String((e.requestInfo().body || {}).codEHL || "").trim();
+          if (!ce || ce !== String(e.auth.getString("codEHL") || "")) throw new BadRequestError("Codul EHL este greșit.");
+        }
+        e.record.set("sursa", "Casa"); e.record.set("platitDe", "");
+      }
     } else {
       /* a collaborator takes money out of his advance only to pay a salary (the "Achitat" box of a timesheet),
          and never more than the advance still holds */
@@ -322,7 +342,17 @@ onRecordCreateRequest((e) => {
     if (who && e.record.getString("categorie") === "Salarii") {
       try { isCollab = $app.countRecords("utilizatori", $dbx.exp("rol = 'Operator' AND TRIM(nume) = {:n}", { n: who })) > 0; } catch (err) { isCollab = false; }
     }
-    if (!isCollab) { e.record.set("platitDe", String(e.auth.getString("nume") || "").trim()); e.record.set("sursa", ""); }
+    if (!isCollab) {
+      /* a director pays from his own account (money he took from the EHL till); only the cashier pays from the till */
+      var meD = String(e.auth.getString("nume") || "").trim(), casD = "";
+      try { casD = String($app.findFirstRecordByFilter("config", "id != ''").getString("casier") || "").trim(); } catch (err) { casD = ""; }
+      e.record.set("platitDe", meD); e.record.set("sursa", (casD && casD === meD) ? "" : "Avans");
+      if (!(casD && casD === meD) && e.record.getString("mod") !== "Transfer" && e.record.getString("categorie") !== "Salarii") {
+        var resE = new DynamicModel({ v: "" });
+        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: meD }).one(resE);
+        if (e.record.getFloat("suma") > parseFloat(resE.v || "0") + 0.004) throw new BadRequestError("Nu aveți destui bani în contul dumneavoastră. Luați mai întâi din Casa EHL.");
+      }
+    }
   }
   if (e.auth && e.auth.getString("rol") !== "Director") {
     var me = String(e.auth.getString("nume") || "").trim();
@@ -374,7 +404,16 @@ onRecordCreateRequest((e) => {
     var me = String(e.auth.getString("nume") || "").trim();
     var cas = "";
     try { cas = String($app.findFirstRecordByFilter("config", "id != ''").getString("casier") || "").trim(); } catch (err) { cas = ""; }
-    if (e.auth.getString("rol") === "Director" || (cas && cas === me)) { e.record.set("sursa", "Casa"); e.record.set("platitDe", ""); }
+    if (cas && cas === me) { e.record.set("sursa", "Casa"); e.record.set("platitDe", ""); }
+    else if (e.auth.getString("rol") === "Director") {
+      e.record.set("sursa", "Avans"); e.record.set("platitDe", me); /* from his own account, within what it holds */
+      if (e.record.getString("mod") !== "Transfer") {
+        var resR = new DynamicModel({ v: "" });
+        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(resR);
+        var needR = (e.record.getFloat("chirie") + e.record.getFloat("gaj") + e.record.getFloat("comunale") + e.record.getFloat("avarii")) * (e.record.getFloat("curs") || 1);
+        if (needR > parseFloat(resR.v || "0") + 0.004) throw new BadRequestError("Nu aveți destui bani în contul dumneavoastră. Luați mai întâi din Casa EHL.");
+      }
+    }
     else {
       e.record.set("sursa", "Avans"); e.record.set("platitDe", me);
       if (e.record.getString("mod") !== "Transfer") {
