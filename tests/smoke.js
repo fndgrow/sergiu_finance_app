@@ -50,9 +50,17 @@ const incLimit = (data, exclId) => {
   const rates = { MDL: 1 }; (((store.config || {}).c1 || {}).valute || []).forEach(v => { rates[v.cod] = v.curs; }); const rEur = rates.EUR || 1;
   const toEur = (val, suma, curs) => (val || "MDL") === "EUR" ? Number(suma) : Number(suma) * (Number(curs) || 1) / rEur;
   const av = pr.adaugatorValuta || "EUR", lim = pr.contractEUR + (pr.adaugator || 0) * (av === "MDL" ? 1 : (rates[av] || 1)) / rEur;
-  const got = Object.values(store.incasari || {}).filter(r => r.proiect === pj && r.id !== exclId).reduce((a, r) => a + toEur(r.valuta, r.suma, r.curs), 0);
-  const left = Math.round((lim - got) * 100) / 100;
-  if (toEur(data.valuta, data.suma, data.curs) > left + 0.005) throw err(400, "Suma depășește contractul proiectului. Mai pot fi încasați " + Math.max(0, left).toFixed(2) + " EUR.");
+  const others = Object.values(store.incasari || {}).filter(r => r.proiect === pj && r.id !== exclId);
+  const got = others.reduce((a, r) => a + toEur(r.valuta, r.suma, r.curs), 0);
+  const left = Math.round((lim - got) * 100) / 100, now = toEur(data.valuta, data.suma, data.curs);
+  if (now > left + 0.005) throw err(400, "Suma depășește contractul proiectului. Mai pot fi încasați " + Math.max(0, left).toFixed(2) + " EUR.");
+  const cCash = pr.contractCash || 0, cTr = pr.contractTransfer || 0;
+  if (cCash + cTr > 0) { /* within its part; the additional fits either, once */
+    const isTr = data.mod === "Transfer", sumMode = (tr) => others.filter(r => (r.mod === "Transfer") === tr).reduce((a, r) => a + toEur(r.valuta, r.suma, r.curs), 0);
+    const cPart = isTr ? cTr : cCash, cOther = isTr ? cCash : cTr, paidMode = sumMode(isTr), paidOther = sumMode(!isTr);
+    const extra = Math.max(0, (lim - pr.contractEUR) - Math.max(0, paidOther - cOther)), leftP = Math.round((cPart + extra - paidMode) * 100) / 100;
+    if (now > leftP + 0.005) throw err(400, (isTr ? "Prin transfer" : "Cash") + " pe acest proiect mai pot fi încasați " + Math.max(0, leftP).toFixed(2) + " EUR.");
+  }
 };
 function collection(col) {
   return {
@@ -133,6 +141,7 @@ function collection(col) {
     async delete(id) {
       if (NET_DOWN) throw err(0, "net");
       if (!isDir()) throw err(403, "forbidden");
+      if (col === "proiecte") throw err(400, "Proiectele nu se șterg. Puneți-l pe Finalizat sau Pauză."); /* the rule is locked and the hook refuses */
       const r = store[col] && store[col][id]; if (!r) throw err(404, "nf"); delete store[col][id]; emit(col, "delete", r); return true;
     },
     async subscribe(topic, cb) { const s = { col, topic, cb }; subs.push(s); return () => { const i = subs.indexOf(s); if (i >= 0) subs.splice(i, 1); }; },
@@ -264,8 +273,8 @@ const ls = (k) => window.localStorage.getItem(k);
   check(cs0.tagName === "SELECT" && Array.from(cs0.options).some(o => o.value === "Sergiu" && /fondator/.test(o.textContent)), "before any client the list already offers the founder (the director) marked 'fondator'");
   click($("#closeSheet")); await tick();
   click($('[data-form="proiecte"]')); await tick();
-  setField("nume", "Casa Test"); setField("client", "Client A"); setField("contractEUR", "1000"); await tick(); submit($("#recf")); await tick(60);
-  check(Object.values(store.proiecte || {}).some(p => p.nume === "Casa Test" && p.client === "Client A" && p.contractEUR === 1000 && p.contractTransfer === 1000 && p.responsabili === "Sergiu"), "project Casa Test with client Client A created: contract 1 000 EUR, the whole of it by transfer until a cash part is typed, the creator responsible");
+  setField("nume", "Casa Test"); setField("client", "Client A"); setField("contractEUR", "1000"); await tick(); setField("contractCash", "1000"); await tick(); submit($("#recf")); await tick(60);
+  check(Object.values(store.proiecte || {}).some(p => p.nume === "Casa Test" && p.client === "Client A" && p.contractEUR === 1000 && p.contractCash === 1000 && p.contractTransfer === 0 && p.responsabili === "Sergiu"), "project Casa Test with client Client A created: contract 1 000 EUR, all of it cash, the creator responsible");
   click($('[data-form="incasari"]')); await tick();
   const cs = $('[data-k="client"]');
   check(cs.tagName === "SELECT" && Array.from(cs.options).some(o => o.value === "Client A") && cs.value === "", "client is now a list with Client A, nothing preselected");
@@ -469,6 +478,8 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("proiect", "Casa Test"); await tick(); setField("suma", "1000"); submit($("#recf")); await tick(80);
   click($('[data-view="reg"]')); await tick(); click($('[data-tab="proiecte"]')); await tick();
   click($('[data-edit="proiecte"][data-id="' + prj.id + '"]')); await tick();
+  check(!$("#delbtn"), "a project form has no delete button: projects are never deleted");
+  try { await collection("proiecte").delete(prj.id); check(false, "server refuses to delete a project"); } catch (e) { check(/nu se șterg/.test(e.message), "the server refuses to delete a project"); }
   setField("contractEUR", "50000"); await tick(); setField("contractCash", "30000"); await tick();
   check($('[data-k="contractTransfer"]').value === "20000", "the transfer part fills itself: 50 000 − 30 000 cash = 20 000");
   const boxes = Array.from(window.document.querySelectorAll("#sheet .calcbox")).map(b => b.textContent);
@@ -487,6 +498,12 @@ const ls = (k) => window.localStorage.getItem(k);
   const nInc = Object.keys(store.incasari).length;
   setField("suma", "100"); submit($("#recf")); await tick(80);
   check(!$("#recf") && Object.keys(store.incasari).length === nInc + 1, "100 EUR within the contract is accepted");
+  click($('[data-form="incasari"]')); await tick();
+  setField("proiect", "Casa Test"); await tick(); setField("mod", "Transfer"); await tick(); setField("suma", String(20001 * 20.22)); submit($("#recf")); await tick(40);
+  check($("#recf") && /Prin transfer.*20\.000,00 EUR/.test($("#sheet").textContent), "a transfer above the transfer part (20 000) is refused, naming what is left by transfer");
+  setField("mod", "Numerar"); await tick(); setField("valuta", "EUR"); await tick(); setField("suma", "29900"); submit($("#recf")); await tick(40);
+  check($("#recf") && /Cash pe acest proiect/.test($("#sheet").textContent), "cash above the cash part (30 000 minus what came in cash) is refused");
+  click($("#closeSheet")); await tick();
   try { await collection("incasari").create({ data: "2026-11-10", client: "Client A", proiect: "Casa Test", mod: "Numerar", valuta: "EUR", curs: 20.22, suma: 60000 }); check(false, "server refuses an income above the contract"); }
   catch (e) { check(/depășește contractul/.test(e.message), "the server too refuses an income above the contract"); }
   click($('[data-view="ehl"]')); await tick();

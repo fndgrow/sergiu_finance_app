@@ -147,6 +147,11 @@ onRecordUpdateRequest((e) => {
   e.next();
 }, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic");
 
+/* ---- a project is never deleted (the rule is locked too): finish it or pause it, its money stays on it ---- */
+onRecordDeleteRequest((e) => {
+  throw new BadRequestError("Proiectele nu se șterg. Puneți-l pe Finalizat sau Pauză.");
+}, "proiecte");
+
 /* ---- currency exchange: a person swaps money he holds from one currency to another; the record is always his.
    (each handler runs in its own VM context, so the check is written out in both) ---- */
 onRecordCreateRequest((e) => {
@@ -310,10 +315,18 @@ onRecordCreateRequest((e) => {
       var toEur = function (val, suma, curs) { return String(val || "MDL") === "EUR" ? Number(suma) : Number(suma) * (Number(curs) || 1) / rEur; };
       var av = String(pr.getString("adaugatorValuta") || "EUR");
       var lim = pr.getFloat("contractEUR") + pr.getFloat("adaugator") * (av === "MDL" ? 1 : (rates[av] || 1)) / rEur;
-      var got = 0;
-      try { $app.findRecordsByFilter("incasari", "proiect = {:n} && id != {:id}", "", 0, 0, { n: pj, id: String(e.record.id || "") }).forEach(function (r) { got += toEur(r.getString("valuta"), r.getFloat("suma"), r.getFloat("curs")); }); } catch (err) {}
+      var got = 0, gotCash = 0, gotTr = 0;
+      try { $app.findRecordsByFilter("incasari", "proiect = {:n} && id != {:id}", "", 0, 0, { n: pj, id: String(e.record.id || "") }).forEach(function (r) { var v = toEur(r.getString("valuta"), r.getFloat("suma"), r.getFloat("curs")); got += v; if (r.getString("mod") === "Transfer") gotTr += v; else gotCash += v; }); } catch (err) {}
       var left = Math.round((lim - got) * 100) / 100, now = toEur(e.record.getString("valuta"), e.record.getFloat("suma"), e.record.getFloat("curs"));
       if (now > left + 0.005) throw new BadRequestError("Suma depășește contractul proiectului. Mai pot fi încasați " + Math.max(0, left).toFixed(2) + " EUR.");
+      /* and within its part: cash incomes against the cash part, transfers against the transfer part; the additional fits either, once */
+      var cCash = pr.getFloat("contractCash"), cTr = pr.getFloat("contractTransfer"), adit = lim - pr.getFloat("contractEUR");
+      if (cCash + cTr > 0) {
+        var isTr = e.record.getString("mod") === "Transfer";
+        var cPart = isTr ? cTr : cCash, cOther = isTr ? cCash : cTr, paidMode = isTr ? gotTr : gotCash, paidOther = isTr ? gotCash : gotTr;
+        var extra = Math.max(0, adit - Math.max(0, paidOther - cOther)), leftP = Math.round((cPart + extra - paidMode) * 100) / 100;
+        if (now > leftP + 0.005) throw new BadRequestError((isTr ? "Prin transfer" : "Cash") + " pe acest proiect mai pot fi încasați " + Math.max(0, leftP).toFixed(2) + " EUR.");
+      }
     }
   }
   e.next();
@@ -340,10 +353,18 @@ onRecordUpdateRequest((e) => {
       var toEur = function (val, suma, curs) { return String(val || "MDL") === "EUR" ? Number(suma) : Number(suma) * (Number(curs) || 1) / rEur; };
       var av = String(pr.getString("adaugatorValuta") || "EUR");
       var lim = pr.getFloat("contractEUR") + pr.getFloat("adaugator") * (av === "MDL" ? 1 : (rates[av] || 1)) / rEur;
-      var got = 0;
-      try { $app.findRecordsByFilter("incasari", "proiect = {:n} && id != {:id}", "", 0, 0, { n: pj, id: String(e.record.id || "") }).forEach(function (r) { got += toEur(r.getString("valuta"), r.getFloat("suma"), r.getFloat("curs")); }); } catch (err) {}
+      var got = 0, gotCash = 0, gotTr = 0;
+      try { $app.findRecordsByFilter("incasari", "proiect = {:n} && id != {:id}", "", 0, 0, { n: pj, id: String(e.record.id || "") }).forEach(function (r) { var v = toEur(r.getString("valuta"), r.getFloat("suma"), r.getFloat("curs")); got += v; if (r.getString("mod") === "Transfer") gotTr += v; else gotCash += v; }); } catch (err) {}
       var left = Math.round((lim - got) * 100) / 100, now = toEur(e.record.getString("valuta"), e.record.getFloat("suma"), e.record.getFloat("curs"));
       if (now > left + 0.005) throw new BadRequestError("Suma depășește contractul proiectului. Mai pot fi încasați " + Math.max(0, left).toFixed(2) + " EUR.");
+      /* and within its part: cash incomes against the cash part, transfers against the transfer part; the additional fits either, once */
+      var cCash = pr.getFloat("contractCash"), cTr = pr.getFloat("contractTransfer"), adit = lim - pr.getFloat("contractEUR");
+      if (cCash + cTr > 0) {
+        var isTr = e.record.getString("mod") === "Transfer";
+        var cPart = isTr ? cTr : cCash, cOther = isTr ? cCash : cTr, paidMode = isTr ? gotTr : gotCash, paidOther = isTr ? gotCash : gotTr;
+        var extra = Math.max(0, adit - Math.max(0, paidOther - cOther)), leftP = Math.round((cPart + extra - paidMode) * 100) / 100;
+        if (now > leftP + 0.005) throw new BadRequestError((isTr ? "Prin transfer" : "Cash") + " pe acest proiect mai pot fi încasați " + Math.max(0, leftP).toFixed(2) + " EUR.");
+      }
     }
   }
   e.next();
