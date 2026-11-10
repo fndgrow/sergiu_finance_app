@@ -25,6 +25,9 @@ routerAdd("POST", "/api/ehl/login", (e) => {
 
   var rec = null;
   try { rec = $app.findFirstRecordByFilter("utilizatori", "cod = {:cod}", { cod: cod }); } catch (err) { rec = null; }
+  /* a director's EHL code opens the EHL account (the common till, the firm-wide view) */
+  var viaEHL = false;
+  if (!rec) { try { rec = $app.findFirstRecordByFilter("utilizatori", "rol = 'Director' && codEHL = {:cod}", { cod: cod }); viaEHL = !!rec; } catch (err) { rec = null; } }
 
   var first = false;
   if (!rec && $app.countRecords("utilizatori") === 0) {
@@ -60,7 +63,7 @@ routerAdd("POST", "/api/ehl/login", (e) => {
   };
   if (!rec || rec.getString("status") === "Inactiv") fail("Cod greșit sau utilizator dezactivat.");
 
-  var pub = { id: rec.id, nume: rec.getString("nume"), rol: rec.getString("rol"), cod: rec.getString("cod"), status: rec.getString("status"), parolaSetata: rec.getBool("parolaSetata") };
+  var pub = { id: rec.id, nume: rec.getString("nume"), rol: rec.getString("rol"), cod: rec.getString("cod"), codEHL: rec.getString("codEHL"), status: rec.getString("status"), parolaSetata: rec.getBool("parolaSetata") };
 
   /* operators: the code is enough, token for a year */
   if (rec.getString("rol") !== "Director") {
@@ -73,9 +76,10 @@ routerAdd("POST", "/api/ehl/login", (e) => {
      the password tied to the phone session, asked again every 7 days (the token simply expires). */
   var PAROLA_DIRECTOR = false;
   if (!PAROLA_DIRECTOR) {
-    /* one session per account: a new sign-in changes the token key, so the token of any other device stops working */
-    rec.refreshTokenKey(); $app.save(rec);
-    return e.json(200, { token: rec.newAuthToken(), first: first, record: pub });
+    /* one session per account: a new sign-in changes the token key, so the token of any other device stops working.
+       The EHL sign-in is an extra access and leaves the administrator session alone. */
+    if (!viaEHL) { rec.refreshTokenKey(); $app.save(rec); }
+    return e.json(200, { token: rec.newAuthToken(), first: first, record: pub, ehl: viaEHL });
   }
   var WEEK = 7 * 24 * 3600;
   var parola = String(body.parola || "");

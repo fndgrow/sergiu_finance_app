@@ -160,7 +160,7 @@ ro:{
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
  f_adaug:"Adăugător (MDL)",p_adaug:"Adăugător",p_total:"Contract + adăugător",
  sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",
- op_primit:"Primit de la director",op_chn:"Cheltuit numerar",op_prop:"Din banii mei",op_tr:"Prin transfer (din cont)",op_adv:"Bani primiți de la director",op_proj:"Cheltuieli pe proiect",
+ op_primit:"Primit de la director",op_primit_dir:"Luat din Casa EHL",op_dat:"Dat mai departe",op_adv_dir:"Bani luați din Casa EHL",nav_ehl:"EHL",op_chn:"Cheltuit numerar",op_prop:"Din banii mei",op_tr:"Prin transfer (din cont)",op_adv:"Bani primiți de la director",op_proj:"Cheltuieli pe proiect",
  cont_intra:"Pe cont intră",
  s_cont_minus:"Contul este în minus",l_cont_achitat:"De achitat pe cont",cont_minus_h:"Plățile prin transfer au depășit banii de pe cont. Mai jos sunt plățile care au dus contul în minus. Acoperiți-l cu o încasare prin transfer sau cu Ieșire din casă → Depus pe cont.",
  srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",din_casa:"din casă",cont_meu_disp:"Disponibil în contul meu",f_codehl:"Codul EHL",f_codehl_h:"Banii ies din Casa EHL: confirmați cu codul dumneavoastră EHL.",codehl_bad:"Codul EHL este greșit.",codehl_fmt:"Codul EHL trebuie să aibă 4–8 cifre.",codehl_none:"Nu aveți cod EHL: fără el nu se pot scoate bani din Casa EHL. Cereți-l în Setări → Utilizatori.",f_codehl_set:"Cod EHL (acces la Casa EHL)",f_codehl_set_h:"4–8 cifre. Doar un director cu cod EHL poate scoate bani din casa comună.",f_din:"Din",f_din_h:"Casa EHL este casa comună a directorilor; Contul meu sunt banii pe care i-am luat din ea.",din_casa_ehl:"Casa EHL",din_cont_meu:"Contul meu",s_dirs:"Conturile administratorilor",s_dirs_h:"Banii luați de fiecare director din Casa EHL, ce a dat mai departe sau a cheltuit, și ce mai are în mână.",l_dirs:"La administratori",
@@ -319,7 +319,7 @@ ru:{
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
  f_adaug:"Дополнительно (MDL)",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
  sess_other:"В аккаунт вошли на другом устройстве. Введите код, чтобы продолжить здесь.",
- op_primit:"Получено от директора",op_chn:"Потрачено наличными",op_prop:"Из своих денег",op_tr:"Переводом (со счёта)",op_adv:"Деньги, полученные от директора",op_proj:"Расходы по проектам",
+ op_primit:"Получено от директора",op_primit_dir:"Взято из кассы EHL",op_dat:"Передано дальше",op_adv_dir:"Деньги, взятые из кассы EHL",nav_ehl:"EHL",op_chn:"Потрачено наличными",op_prop:"Из своих денег",op_tr:"Переводом (со счёта)",op_adv:"Деньги, полученные от директора",op_proj:"Расходы по проектам",
  cont_intra:"На счёт поступит",
  s_cont_minus:"Счёт в минусе",l_cont_achitat:"Нужно внести на счёт",cont_minus_h:"Платежи переводом превысили деньги на счёте. Ниже — платежи, которые увели счёт в минус. Покройте его поступлением переводом или Выдачей из кассы → Внесено на счёт.",
  srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",din_casa:"из кассы",cont_meu_disp:"Доступно на моём счёте",f_codehl:"Код EHL",f_codehl_h:"Деньги уходят из кассы EHL: подтвердите своим кодом EHL.",codehl_bad:"Код EHL неверный.",codehl_fmt:"Код EHL должен быть из 4–8 цифр.",codehl_none:"У вас нет кода EHL: без него нельзя брать деньги из кассы EHL. Задайте его в Настройки → Пользователи.",f_codehl_set:"Код EHL (доступ к кассе EHL)",f_codehl_set_h:"4–8 цифр. Брать деньги из общей кассы может только директор с кодом EHL.",f_din:"Откуда",f_din_h:"Касса EHL — общая касса директоров; Мой счёт — деньги, которые я взял из неё.",din_casa_ehl:"Касса EHL",din_cont_meu:"Мой счёт",s_dirs:"Счета администраторов",s_dirs_h:"Сколько каждый директор взял из кассы EHL, что передал дальше или потратил, и сколько у него на руках.",l_dirs:"У администраторов",
@@ -426,16 +426,21 @@ function logout(msg){
   if(left)toast(T("pending_out").replace("{n}",String(left)));
   ACCESS=null;ME=null;isDir=false;LOCKED=false;sheetState=null;$("#sheet").innerHTML="";document.body.style.overflow="";
   if(PB)PB.authStore.clear();
-  try{localStorage.removeItem("ehl.cache")}catch(e){}
+  try{localStorage.removeItem("ehl.cache");localStorage.removeItem("ehl.mode");localStorage.removeItem("ehl.ehlcod")}catch(e){}
   gateErr=msg||"";view="add";render();
 }
 function needGate(){return !ACCESS||LOCKED}
 function userOf(r){return {id:r.id,nume:r.nume||"",rol:r.rol||"Operator",cod:r.cod||"",codEHL:r.codEHL||"",status:r.status||"Activ",parolaSetata:!!r.parolaSetata}}
 /* the EHL code of the signed-in director (taking money out of the common till needs it) */
 function myCodEHL(){var u=myUser();return String((u&&u.codEHL)||"")}
+/* EHL mode: the director signed in with his EHL code — the firm-wide view, and money leaves the common till without
+   asking the code again (it is sent along from here). Kept in localStorage, dropped on sign-out. */
+function ehlMode(){try{return localStorage.getItem("ehl.mode")==="1"}catch(e){return false}}
+function ehlCod(){try{return localStorage.getItem("ehl.ehlcod")||""}catch(e){return ""}}
+function homeView(){return isDir?(ehlMode()?"ehl":"panou"):"add"}
 function enter(user){
   ACCESS={user:userOf(user)};ME=user.id;gateErr="";GATE={step:"cod"};
-  isDir=computeDir();view=isDir?"panou":"add";
+  isDir=computeDir();view=homeView();
   subscribe();
 }
 /* Gate steps: "cod" (everyone) -> for directors "setparola" (first time) or "parola" (new phone, or weekly). */
@@ -457,7 +462,7 @@ function lockScreen(){
 }
 function unlockScreen(){
   LOCKED=false;gateErr="";GATE={step:"cod"};markUnlock();
-  view=LOCKVIEW||(isDir?"panou":"add");
+  view=LOCKVIEW||homeView();
   render();
 }
 function sessionExp(){try{return parseInt(localStorage.getItem("ehl.exp")||"0",10)||0}catch(e){return 0}}
@@ -471,6 +476,7 @@ function login(cod,parola,parolaNoua){
     if(res.needSetPassword){GATE={step:"setparola",cod:cod,nume:res.record&&res.record.nume,first:res.first};return res;}
     if(res.needPassword){GATE={step:"parola",cod:cod,nume:res.record&&res.record.nume};return res;}
     PB.authStore.save(res.token,res.record);
+    try{if(res.ehl){localStorage.setItem("ehl.mode","1");localStorage.setItem("ehl.ehlcod",cod)}else{localStorage.removeItem("ehl.mode");localStorage.removeItem("ehl.ehlcod")}}catch(e){}
     try{
       /* only a password-backed director session (it carries "expires") remembers the code for the weekly password screen */
       if(res.record&&res.record.rol==="Director"&&res.expires){localStorage.setItem("ehl.cod",cod);localStorage.setItem("ehl.exp",String(res.expires))}
@@ -624,7 +630,7 @@ function checkSelf(){
   ACCESS.user=userOf(me);
   try{PB.authStore.save(PB.authStore.token,me)}catch(e){}
   var was=isDir;isDir=computeDir();
-  if(was!==isDir){view=isDir?"panou":"add";subscribe();return;}
+  if(was!==isDir){view=homeView();subscribe();return;}
   if(!sheetState)render();
 }
 /* ---- offline cache + write queue ---- */
@@ -1162,7 +1168,7 @@ var FORMS={
      {v:"Salarii",l:T("d_sal")},{v:"Împrumut",l:T("d_impr")},{v:"Restituire fondator",l:T("d_rest")},{v:"Alte",l:T("d_alte")}],def:"Dat persoanei"},
    /* a director says where the money comes from: the common EHL till, or his own account (money he took from it) */
    {k:"din",t:"select",l:"f_din",req:1,opts:[{v:"Casa",l:T("din_casa_ehl")},{v:"Avans",l:T("din_cont_meu")}],def:"Casa",hint:"f_din_h",showIf:function(){return isDir&&!isCasierMe()&&!(sheetState&&sheetState.id)}},
-   {k:"codEHL",t:"pin",l:"f_codehl",req:1,hint:"f_codehl_h",showIf:function(d){return isDir&&!isCasierMe()&&!(sheetState&&sheetState.id)&&d.din!=="Avans"}},
+   {k:"codEHL",t:"pin",l:"f_codehl",req:1,hint:"f_codehl_h",showIf:function(d){return isDir&&!isCasierMe()&&!ehlMode()&&!(sheetState&&sheetState.id)&&d.din!=="Avans"}},
    {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs"},
    {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1",lockIf:function(d){return d.valuta==="MDL"}},
    {k:"suma",t:"number",l:"f_suma",req:1,step:"0.01"},
@@ -1199,7 +1205,7 @@ var FORMS={
    {k:"termen",t:"date",l:"f_termen"},
    {k:"status",t:"select",l:"f_status",req:1,opts:[{v:"Neachitat",l:T("neachitat")},{v:"Achitat",l:T("achitat")}],def:"Neachitat"},
    {k:"dinCasa",t:"checkbox",l:"impr_cash",hint:"impr_cash_h",newOnly:1,showIf:function(){return isDir}}, /* only a director takes money out of the till */
-   {k:"codEHL",t:"pin",l:"f_codehl",req:1,hint:"f_codehl_h",newOnly:1,showIf:function(d){return isDir&&!isCasierMe()&&!!d.dinCasa}},
+   {k:"codEHL",t:"pin",l:"f_codehl",req:1,hint:"f_codehl_h",newOnly:1,showIf:function(d){return isDir&&!isCasierMe()&&!ehlMode()&&!!d.dinCasa}},
    {k:"nota",t:"text",l:"f_nota"}
  ]}},
 
@@ -1734,13 +1740,13 @@ function render(){
   if(needGate())view="panou";
   document.body.classList.toggle("locked",needGate());
   $("#ttl").textContent=T("app");document.title=T("app");document.documentElement.lang=lang;
-  $("#role").textContent=!ACCESS?T("oaspete"):(isDir?T("director"):T("angajat"));
+  $("#role").textContent=!ACCESS?T("oaspete"):(isDir?(ehlMode()?"EHL":T("director")):T("angajat"));
   $("#role").className="role"+(isDir?" on":"");
   /* header: brand mark, and who is signed in (initials, name, role) */
   var lg=$("#logo");if(lg&&!lg.firstChild)lg.innerHTML=icon("wallet");
   var bgi=$("#burger");if(bgi&&!bgi.firstChild){bgi.innerHTML=icon("menu");bgi.setAttribute("aria-label",T("menu_a"));}
   /* the brand leads home: the dashboard for a director, "Add" for an operator; nothing while signed out */
-  var br=$(".brand");if(br){if(ACCESS&&!needGate()){br.dataset.view=isDir?"panou":"add";br.setAttribute("role","link");br.tabIndex=0;}else{delete br.dataset.view;br.removeAttribute("role");br.removeAttribute("tabindex");}}
+  var br=$(".brand");if(br){if(ACCESS&&!needGate()){br.dataset.view=homeView();br.setAttribute("role","link");br.tabIndex=0;}else{delete br.dataset.view;br.removeAttribute("role");br.removeAttribute("tabindex");}}
   var meBox=$("#me"),nm=meName();
   if(meBox){meBox.hidden=!ACCESS;$("#uname").textContent=nm;$("#av").textContent=initials(nm);}
   /* one button that names the other language */
@@ -1749,6 +1755,7 @@ function render(){
   var h="";
   if(needGate())h=vGate();
   else if(view==="panou")h=vPanou();
+  else if(view==="ehl")h=vPanouEHL();
   else if(view==="add")h=vAdd();
   else if(view==="reg")h=vReg();
   else if(view==="mine")h=vMine();
@@ -1776,7 +1783,7 @@ function dashBlocks(){
   }).sort(function(p,q){return p.y-q.y}); /* in the order they appear on screen (phones reorder the blocks) */
 }
 function openMenu(){
-  if(view!=="panou"){view="panou";histPush({v:view});render();}
+  if(view!=="ehl"){view="ehl";histPush({v:view});render();} /* the quick-jump menu lists the blocks of the EHL tab */
   if(!MENU_IC){MENU_IC={};[["ov_chelt","outArrow"],["ov_flux","chart"],["s_totals","wallet"],["s_cont_minus","bank"],["s_bani","wallet"],["s_casa","cash"],["s_colab","users"],["s_colab_exp","outArrow"],["s_tr","bank"],["s_client","user"],["s_categ","tag"],["s_proiecte","folder"],["p_alte","folder"],["s_contr","file"],["s_sal","users"],["s_impr","clock"],["s_fond","user"],["s_chirii","home"]].forEach(function(p){MENU_IC[p[0]]=p[1]})}
   var byLbl={};Object.keys(MENU_IC).forEach(function(k){byLbl[T(k)]=MENU_IC[k]});
   var m=$("#menu");if(!m)return;
@@ -1800,7 +1807,7 @@ window.addEventListener("resize",function(){cancelAnimationFrame(fitRingRaf);fit
 function renderNav(){
   if(needGate()){$("#nav").innerHTML="";return;}
   var items=isDir
-    ?[["panou",icon("chart"),T("nav_panou")],["add",icon("plus"),T("nav_add")],["reg",icon("list"),T("nav_reg")],["set",icon("gear"),T("nav_set")]]
+    ?[["ehl",icon("wallet"),T("nav_ehl")],["panou",icon("chart"),T("nav_panou")],["add",icon("plus"),T("nav_add")],["reg",icon("list"),T("nav_reg")],["set",icon("gear"),T("nav_set")]]
     :[["add",icon("plus"),T("nav_add")],["panou",icon("chart"),T("nav_panou")],["mine",icon("list"),T("nav_mine")]];
   $("#nav").innerHTML=items.map(function(it){
     return '<button type="button" data-view="'+it[0]+'"'+(view===it[0]?' aria-current="page"':'')+'><span class="ic">'+it[1]+'</span><span class="lb">'+esc(it[2])+'</span></button>';
@@ -2082,13 +2089,13 @@ function vPanouOp(){
     var prop=sumBy(function(r){return r.mod==="Numerar"&&r.sursa==="Proprii"&&sameP(r.platitDe,me)?n(r.suma):0});
     var tr=sumBy(function(r){return r.mod==="Transfer"?n(r.suma):0});
     var dat=round2(S.iesiri.filter(dinAvans).reduce(function(a,r){return a+n(r.suma)*n(r.curs)},0));
-    var sold=round2(primit-chn-dat);
+    var sold=soldAvans(me); /* taken minus everything paid out of the account, cash rents included: the same figure as on the EHL tab */
     var h=vOverview()+'<div class="dash-grid">';
     h+='<div class="sec sec-wide"><div class="tiles">'
       +tile(sold<0?T("colab_owed"):T("my_sold"),money(Math.abs(sold)),"MDL",sold<0?"neg":"",1,"wallet")
-      +tile(T("op_primit"),money(primit),"MDL","pos",0,"inArrow")
+      +tile(T(isDir?"op_primit_dir":"op_primit"),money(primit),"MDL","pos",0,"inArrow")
       +tile(T("op_chn"),money(chn),"MDL","neg",0,"cash")
-      +(dat>0?tile(T("l_salplatit"),money(dat),"MDL","neg",0,"users"):"")
+      +(dat>0?tile(T("op_dat"),money(dat),"MDL","neg",0,"send"):"")
       +tile(T("op_prop"),money(prop),"MDL","",0,"user")
       +tile(T("op_tr"),money(tr),"MDL","",0,"bank")
       +'</div></div>';
@@ -2102,7 +2109,7 @@ function vPanouOp(){
     var byP={};S.cheltuieli.forEach(function(r){if(pentruOf(r)==="Proiect"&&String(r.proiect||"").trim()){var k=String(r.proiect).trim();byP[k]=round2((byP[k]||0)+n(r.suma))}});
     var pj=Object.keys(byP).map(function(k){return {nume:k,val:byP[k]}}).sort(function(a,b){return b.val-a.val});
     if(pj.length)h+='<div class="sec"><h2>'+esc(T("op_proj"))+'</h2>'+rowsCardMore(pj.map(function(x){return barRow(x.nume,x.val,pj[0].val,"var(--s1)","folder")}),5,true)+'</div>';
-    if(adv.length)h+='<div class="sec"><h2>'+esc(T("op_adv"))+'</h2>'+rowsCardMore(adv.slice().sort(function(a,b){return String(b.data).localeCompare(String(a.data))}).map(function(r){
+    if(adv.length)h+='<div class="sec"><h2>'+esc(T(isDir?"op_adv_dir":"op_adv"))+'</h2>'+rowsCardMore(adv.slice().sort(function(a,b){return String(b.data).localeCompare(String(a.data))}).map(function(r){
       return r2(r.nota||T("d_pers"),money(n(r.suma)*n(r.curs)),shortDate(r.data)+(r.valuta!=="MDL"?" · "+money(n(r.suma))+" "+r.valuta+" × "+r.curs:""),"pos",0,"inArrow","var(--pos)");
     }),5,true)+'</div>';
     return h+mineList(15)+'</div>';
@@ -2119,7 +2126,8 @@ function mineList(max){
     return '<button type="button" class="tap row" data-edit="'+x.c+'" data-id="'+esc(x.r.id)+'"><span class="l">'+esc(main)+'<span class="s">'+esc([T(FORMS[x.c]?FORMS[x.c].title:""),meta].filter(Boolean).join(" · "))+'</span></span><span class="r">'+amt+'</span></button>';
   }).join("")+'</div>'+(all.length>max?'<button type="button" class="btn ghost" data-view="mine" style="margin-top:10px">'+esc(T("nav_mine"))+' ('+all.length+')</button>':'')+'</div>';
 }
-function vPanou(){
+function vPanou(){return vPanouOp()} /* everyone's "Panou" is his own account; the firm-wide view is the EHL tab */
+function vPanouEHL(){
   if(!isDir)return vPanouOp();
   var C=calc(),h=statusNote();
   h+=vOverview();
@@ -2736,9 +2744,12 @@ function submitForm(){
   if(toCont&&st.data.valuta&&st.data.valuta!=="MDL"){st.err=T("cont_lei");drawSheet();return;}
   if(isDir&&!isCasierMe()&&!st.id&&((st.col==="iesiri"&&st.data.din!=="Avans")||(st.col==="imprumuturi"&&st.data.dinCasa))){
     /* money leaves the common EHL till: the director confirms with his EHL code (the server checks it again) */
-    var ce=String(st.data.codEHL||"").trim();
-    if(!myCodEHL()){st.err=T("codehl_none");drawSheet();return;}
-    if(ce!==myCodEHL()){st.err=T("codehl_bad");drawSheet();return;}
+    if(ehlMode())st.data.codEHL=ehlCod(); /* signed in with the EHL code: it goes along by itself */
+    else{
+      var ce=String(st.data.codEHL||"").trim();
+      if(!myCodEHL()){st.err=T("codehl_none");drawSheet();return;}
+      if(ce!==myCodEHL()){st.err=T("codehl_bad");drawSheet();return;}
+    }
   }
   var lipsa=casaErr(st.col,st.data,st.id)||avansErr(st.col,st.data,st.id); /* the account has no such check: it may go below zero */
   if(lipsa){st.err=lipsa;drawSheet();return;}
@@ -3086,7 +3097,7 @@ document.addEventListener("submit",function(ev){
     if(!v||gateBusy){$("#pinerr").hidden=false;return;}
     if(GATE.relock){
       /* lock screen: compared with the code of the signed-in user (or the remembered director code), no server round trip */
-      var want=LOCKED&&ACCESS?String(ACCESS.user.cod||""):String(GATE.cod||"");
+      var want=LOCKED&&ACCESS?((ehlMode()&&ehlCod())||String(ACCESS.user.cod||"")):String(GATE.cod||""); /* the code this session was opened with */
       if(want&&v===want){
         if(LOCKED){unlockScreen();return;}
         GATE={step:"parola",cod:v,weekly:!!GATE.weekly,nume:GATE.nume};gateErr="";render();return;

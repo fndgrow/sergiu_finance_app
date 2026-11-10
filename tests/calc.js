@@ -82,6 +82,7 @@ const has = (label, v) => { const ok = txt().includes(v); console.log((ok ? "  o
   window.eval(fs.readFileSync(path.join(APP, "app.js"), "utf8"));
   await tick(50);
   $("#pinv").value = DIR.cod; $("#pinf").dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true })); await tick(200);
+  $('[data-view="ehl"]').dispatchEvent(new window.MouseEvent("click", { bubbles: true })); await tick(60); /* the firm-wide figures live on the EHL tab */
   const t = txt();
   console.log("dashboard loaded:", /Banii firmei/.test(t));
   has("till (În casă)", EXPECT.till); has("bank (Pe cont)", EXPECT.bank); has("company total", EXPECT.total);
