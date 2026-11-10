@@ -580,12 +580,12 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("nume", "Temp Om"); setField("cod", "7777"); submit($("#recf")); await tick(80);
   const tmpU = Object.values(store.utilizatori).find(u => u.nume === "Temp Om");
   await asAdmin(); click($('[data-view="set"]')); await tick();
-  click($('[data-edit="utilizatori"][data-id="' + tmpU.id + '"]')); await tick();
-  setField("status", "Inactiv"); submit($("#recf")); await tick(80);
+  check(!$('[data-deact-user="' + dirId + '"]') && $('[data-deact-user="' + tmpU.id + '"]'), "a collaborator row has a Dezactivează button, a director's row has none");
+  click($('[data-deact-user="' + tmpU.id + '"]')); await tick(80);
   const archRow = () => Array.from(window.document.querySelectorAll('[data-restore="' + tmpU.id + '"]'));
-  check(store.utilizatori[tmpU.id].status === "Inactiv" && !window.document.querySelector('.user-row[data-edit="utilizatori"][data-id="' + tmpU.id + '"]') && archRow().length === 1 && /Arhivă/.test(text()), "deactivated user is out of the list and in the archive");
+  check(store.utilizatori[tmpU.id].status === "Inactiv" && !window.document.querySelector('.urow-main[data-edit="utilizatori"][data-id="' + tmpU.id + '"]') && archRow().length === 1 && /Arhivă/.test(text()), "deactivated user is out of the list and in the archive");
   click(archRow()[0]); await tick(80);
-  check(store.utilizatori[tmpU.id].status === "Activ" && archRow().length === 0 && window.document.querySelector('.user-row[data-edit="utilizatori"][data-id="' + tmpU.id + '"]'), "restore puts the user back in the list");
+  check(store.utilizatori[tmpU.id].status === "Activ" && archRow().length === 0 && window.document.querySelector('.urow-main[data-edit="utilizatori"][data-id="' + tmpU.id + '"]'), "restore puts the user back in the list");
   click($('[data-edit="utilizatori"][data-id="' + tmpU.id + '"]')); await tick();
   setField("status", "Inactiv"); submit($("#recf")); await tick(80);
 
@@ -693,6 +693,9 @@ const ls = (k) => window.localStorage.getItem(k);
   console.log("9. deactivating the operator kicks the device out");
   store.utilizatori[op.id].status = "Inactiv"; emit("utilizatori", "update", store.utilizatori[op.id]); await tick(30);
   check($("#pinf") && $("#role").textContent !== "Operator", "operator locked out after deactivation");
+  check(ls("ehl.cache") === null && !ls("ehl.mode"), "his phone keeps none of the data: the cache is wiped with the sign-out");
+  $("#pinv").value = "4141"; submit($("#pinf")); await tick(60);
+  check($("#pinf") && $("#role").textContent !== "Operator", "his code no longer opens anything");
 
   console.log("10. wrong code rejected");
   $("#pinv").value = "000000"; submit($("#pinf")); await tick(50);

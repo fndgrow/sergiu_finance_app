@@ -88,7 +88,7 @@ ro:{
  j_exp:"Descarcă Excel",j_exp_h:"Un fișier .xlsx gata de citit: panou, toate registrele și istoricul, fiecare pe foaia lui, cu filtre și totaluri.",
  exported:"Descărcat",exp_no:"Descărcarea nu este disponibilă aici.",exp_work:"Se pregătește…",
  exp_t:"Export Excel",exp_tot:"Toate datele",exp_luna:"Doar luna aleasă",exp_btn:"Descarcă .xlsx",
- a_user:"Utilizator",u_ehl_only:"Colaboratorii se creează doar din contul EHL. Administratorii sunt Sergiu și Grigore.",a_user_d:"Acces pentru un angajat nou",r_user:"Utilizatori",
+ a_user:"Utilizator",u_deact:"Dezactivează",u_deact_h:"Colaboratorul pierde accesul pe loc și trece în Arhivă, de unde poate fi reactivat.",u_deact_done:"Colaboratorul a fost dezactivat.",u_ehl_only:"Colaboratorii se creează doar din contul EHL. Administratorii sunt Sergiu și Grigore.",a_user_d:"Acces pentru un angajat nou",r_user:"Utilizatori",
  f_rol:"Rol",rol_op:"Operator",rol_dir:"Director",f_cod:"Cod de acces",
  f_cod_h:"4–8 cifre pe care i le dați angajatului. Cu ele intră în aplicație de pe telefonul lui.",
  also_ang:"Îl trec și la angajați, cu salariu",
@@ -247,7 +247,7 @@ ru:{
  j_exp:"Скачать Excel",j_exp_h:"Готовый .xlsx: сводка, все журналы и история — каждый на своём листе, с фильтрами и итогами.",
  exported:"Скачано",exp_no:"Скачивание здесь недоступно.",exp_work:"Готовлю файл…",
  exp_t:"Выгрузка в Excel",exp_tot:"Все данные",exp_luna:"Только выбранный месяц",exp_btn:"Скачать .xlsx",
- a_user:"Пользователь",u_ehl_only:"Колабораторов создают только из аккаунта EHL. Администраторы — Sergiu и Grigore.",a_user_d:"Доступ новому сотруднику",r_user:"Пользователи",
+ a_user:"Пользователь",u_deact:"Деактивировать",u_deact_h:"Колаборатор сразу теряет доступ и попадает в Архив, откуда его можно вернуть.",u_deact_done:"Колаборатор деактивирован.",u_ehl_only:"Колабораторов создают только из аккаунта EHL. Администраторы — Sergiu и Grigore.",a_user_d:"Доступ новому сотруднику",r_user:"Пользователи",
  f_rol:"Роль",rol_op:"Оператор",rol_dir:"Директор",f_cod:"Код доступа",
  f_cod_h:"4–8 цифр, которые вы даёте сотруднику. По ним он входит со своего телефона.",
  also_ang:"Добавить и в сотрудники, с окладом",
@@ -2390,10 +2390,14 @@ function vUsers(){
     /* a person per row: initials in their colour, the role as a tag, the access code in a mono chip */
     h+='<div class="card rows">'+act.slice().sort(function(a,b){return String(a.nume).localeCompare(String(b.nume))}).map(function(u){
       var dir=u.rol==="Director";
-      return '<button type="button" class="tap row user-row" data-edit="utilizatori" data-id="'+esc(u.id)+'">'
+      /* the row opens the card; a collaborator also has a button that puts him in the archive at once (he loses access the same moment) */
+      return '<div class="row user-row">'
+        +'<button type="button" class="tap urow-main" data-edit="utilizatori" data-id="'+esc(u.id)+'">'
         +'<span class="av" style="--c:'+toneOf(u.nume)+'">'+esc(initials(u.nume))+'</span>'
         +'<span class="l"><span class="nm-row">'+esc(u.nume)+'<span class="tagc '+(dir?"acc":"mut")+'">'+esc(dir?T("rol_dir"):T("rol_op"))+'</span></span></span>'
-        +'<span class="code">'+esc(u.cod)+'</span></button>';
+        +'<span class="code">'+esc(u.cod)+'</span></button>'
+        +(dir?'':'<button type="button" class="btn sm ghost" data-deact-user="'+esc(u.id)+'" title="'+esc(T("u_deact_h"))+'">'+esc(T("u_deact"))+'</button>')
+        +'</div>';
     }).join("")+'</div>';
   }
   return h+'</div>';
@@ -2687,7 +2691,7 @@ function vSet(){
     +'<label class="cg-cell cg-new"><span class="cg-b">'+icon("plus")+'</span><input name="newcod" aria-label="'+esc(T("cod"))+'" placeholder="RON"></label>'
     +'<input name="newcurs" aria-label="'+esc(T("f_curs"))+'" type="number" step="0.0001" placeholder="4.05"></div>'+setSave()+'</form>');
 
-  h+=setCard("wallet",T("set_cas"),T("set_cas_h"),'<form id="casf"><label><span>'+esc(T("f_pers"))+'</span><input name="casier" value="'+esc(c.casier||"")+'" list="dl-pers"></label>'+setSave()+'</form>')
+  /* the cashier setting is gone: in the EHL model the till is the directors' and every payer is an account */
     +'<datalist id="dl-pers">'+persoane().map(function(p){return '<option value="'+esc(p)+'">'}).join("")+'</datalist>';
 
   if(PAROLA_DIR)h+=setCard("lock",T("set_pw"),T("set_pw_h"),'<form id="pwchg">'
@@ -3181,6 +3185,8 @@ document.addEventListener("click",function(ev){
   if(t.closest&&t.closest("[data-clearfilter]")){regFilter=null;REGPAGE[regTab]=0;render();return;}
   var ra=t.closest&&t.closest("[data-restore-ang]");
   if(ra){ra.disabled=true;saveDoc("angajati",{status:"Activ"},ra.getAttribute("data-restore-ang")).then(function(){toast(T("restored"));render()}).catch(function(e){toast(saveErr(e));render()});return;}
+  var du=t.closest&&t.closest("[data-deact-user]");
+  if(du){du.disabled=true;saveDoc("utilizatori",{status:"Inactiv"},du.getAttribute("data-deact-user")).then(function(){toast(T("u_deact_done"));render()}).catch(function(e){toast(saveErr(e));render()});return;}
   var fb=t.closest&&t.closest("[data-fold]");if(fb){var fk=fb.getAttribute("data-fold");FOLD[fk]=!FOLD[fk];render();return;} /* a folding block opens or closes */
   var rs=t.closest&&t.closest("[data-restore]");
   if(rs){rs.disabled=true;saveDoc("utilizatori",{status:"Activ"},rs.getAttribute("data-restore")).then(function(){toast(T("restored"));render()}).catch(function(e){toast(saveErr(e));render()});return;}
