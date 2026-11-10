@@ -409,13 +409,9 @@ function byLine(r){var b=byName(r);return b?T("by_lbl")+" "+b:""}
 function renamePerson(oldN,newN){
   oldN=String(oldN||"").trim();newN=String(newN||"").trim();
   if(!isDir||!oldN||!newN||oldN===newN)return Promise.resolve();
-  var fld={utilizatori:"nume",angajati:"nume",cheltuieli:"platitDe",iesiri:"persoana",imprumuturi:"persoana",chirii:"chirias",pontaj:"angajat",istoric:"angajat"},ops=[];
-  Object.keys(fld).forEach(function(col){var k=fld[col];(S[col]||[]).forEach(function(r){if(sameP(r[k],oldN)&&(col==="utilizatori"||r.by===ME)){var b={};b[k]=newN;ops.push([col,b,r.id])}})});
-  S.proiecte.forEach(function(p){var l=respList(p);if(p.by===ME&&l.some(function(x){return sameP(x,oldN)}))ops.push(["proiecte",{responsabili:l.map(function(x){return sameP(x,oldN)?newN:x}).join(", ")},p.id])});
-  var p=Promise.resolve();
-  ops.forEach(function(o){p=p.then(function(){return saveDoc(o[0],o[1],o[2])})});
-  if(sameP(casier(),oldN))p=p.then(function(){return saveCfg({casier:newN})});
-  return p;
+  if(!PB||!online)return Promise.reject(new Error(T("offline")));
+  /* the server renames in one go, every row of every author (the update hooks keep payer fields otherwise); then refetch */
+  return PB.send("/api/ehl/rename",{method:"POST",body:{vechi:oldN,nou:newN},requestKey:null}).then(function(){return refreshData()});
 }
 function unsubAll(){subs.forEach(function(u){try{u()}catch(e){}});subs=[];if(PB){try{PB.realtime.unsubscribe()}catch(e){}}}
 function resetData(){COLS.forEach(function(c){S[c]=[]});S.cfg=null;loaded={};stale=false;dbErr=false;if(loadTimer){clearTimeout(loadTimer);loadTimer=null}}

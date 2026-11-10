@@ -130,6 +130,33 @@ routerAdd("POST", "/api/ehl/reset", (e) => {
   return e.json(200, { ok: true });
 }, $apis.requireAuth("utilizatori"));
 
+/* ---- a person is renamed everywhere at once (director only): users, employees and every row that carries the name,
+        whoever wrote it; the journal's author names too. The update hooks keep payer/person fields from the original on
+        purpose, so the rename is done here, in SQL, in one transaction.   POST /api/ehl/rename {vechi, nou} ---- */
+routerAdd("POST", "/api/ehl/rename", (e) => {
+  var body = e.requestInfo().body || {}, rec = e.auth;
+  if (!rec || rec.getString("rol") !== "Director") throw new ForbiddenError("Doar directorul poate redenumi.");
+  var vechi = String(body.vechi || "").trim(), nou = String(body.nou || "").trim();
+  if (!vechi || !nou) throw new BadRequestError("Lipsește numele vechi sau cel nou.");
+  if (vechi !== nou) {
+    var where = [["utilizatori", "nume"], ["angajati", "nume"], ["cheltuieli", "platitDe"], ["iesiri", "persoana"], ["iesiri", "platitDe"],
+      ["imprumuturi", "persoana"], ["chirii", "chirias"], ["chirii", "platitDe"], ["pontaj", "angajat"], ["istoric", "angajat"],
+      ["grafic", "angajat"], ["schimburi", "persoana"], ["jurnal", "nume"], ["incasari", "client"]];
+    $app.runInTransaction(function (tx) {
+      where.forEach(function (w) {
+        tx.db().newQuery("UPDATE {{" + w[0] + "}} SET [[" + w[1] + "]] = {:nou} WHERE TRIM([[" + w[1] + "]]) = {:vechi}").bind({ nou: nou, vechi: vechi }).execute();
+      });
+      /* the responsible of a project is a comma list */
+      tx.db().newQuery("UPDATE {{proiecte}} SET [[responsabili]] = REPLACE([[responsabili]], {:vechi}, {:nou}) WHERE [[responsabili]] LIKE {:like}").bind({ vechi: vechi, nou: nou, like: "%" + vechi + "%" }).execute();
+    });
+  }
+  /* the directors' names in the settings follow (a director may correct his own name) */
+  var names = [];
+  try { $app.findRecordsByFilter("utilizatori", "rol = 'Director' && status != 'Inactiv'", "", 0, 0).forEach(function (r) { names.push(r.getString("nume")); }); } catch (err) {}
+  try { var cfg = $app.findFirstRecordByFilter("config", "id != ''"); cfg.set("directori", names); $app.save(cfg); } catch (err) {}
+  return e.json(200, { ok: true });
+}, $apis.requireAuth("utilizatori"));
+
 /* ---- every register row carries its author, set by the server, never by the client ---- */
 onRecordCreateRequest((e) => {
   if (e.auth) e.record.set("by", e.auth.id);

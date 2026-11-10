@@ -159,6 +159,16 @@ class PocketBase {
   async send(p, o) {
     if (NET_DOWN) throw err(0, "net");
     if (p === "/api/ehl/password") { if (!currentUser || currentUser.rol !== "Director") throw err(403, "x"); if (currentUser.parolaSetata && o.body.veche !== currentUser.parola) throw err(400, "Parola actuală este greșită."); currentUser.parola = o.body.noua; currentUser.parolaSetata = true; return { ok: true }; }
+    if (p === "/api/ehl/rename") { /* the rename route: every row of every author, in one go */
+      if (!currentUser || currentUser.rol !== "Director") throw err(403, "x");
+      const vechi = String(o.body.vechi || "").trim(), nou = String(o.body.nou || "").trim(); if (!vechi || !nou) throw err(400, "x");
+      const where = [["utilizatori", "nume"], ["angajati", "nume"], ["cheltuieli", "platitDe"], ["iesiri", "persoana"], ["iesiri", "platitDe"], ["imprumuturi", "persoana"], ["chirii", "chirias"], ["chirii", "platitDe"], ["pontaj", "angajat"], ["istoric", "angajat"], ["grafic", "angajat"], ["schimburi", "persoana"], ["jurnal", "nume"], ["incasari", "client"]];
+      if (vechi !== nou) {
+        where.forEach(([c, k]) => Object.values(store[c] || {}).forEach(r => { if (String(r[k] || "").trim() === vechi) r[k] = nou; }));
+        Object.values(store.proiecte || {}).forEach(p => { if (String(p.responsabili || "").includes(vechi)) p.responsabili = String(p.responsabili).split(vechi).join(nou); });
+      }
+      return { ok: true };
+    }
     if (p !== "/api/ehl/login") throw err(404, "nf");
     const cod = String(o.body.cod || "");
     store.utilizatori = store.utilizatori || {};
@@ -570,6 +580,8 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("nume", "Ion Popescu"); submit($("#recf")); await tick(150);
   const paidBy = (nm) => Object.values(store.cheltuieli).filter(r => r.platitDe === nm).length;
   const nIon = paidBy("Ion Operator") + paidBy("Ion Popescu"); /* every expense he paid so far, whichever name it carried */
+  const oldLeft = ["cheltuieli", "iesiri", "chirii", "imprumuturi", "schimburi", "pontaj", "istoric", "grafic", "angajati", "jurnal"].some(c => Object.values(store[c] || {}).some(r => [r.platitDe, r.persoana, r.chirias, r.angajat, r.nume].includes("Ion Operator")));
+  check(!oldLeft, "no row of any author still carries the old name (the server renames every column that holds a person)");
   check(store.utilizatori[op.id].nume === "Ion Popescu" && paidBy("Ion Popescu") === nIon && paidBy("Ion Operator") === 0, "his expenses, if any, now name Ion Popescu (" + nIon + ")");
   check(Object.values(store.angajati).some(a => a.nume === "Ion Popescu") && !Object.values(store.angajati).some(a => a.nume === "Ion Operator") && Object.values(store.istoric).every(h => h.angajat !== "Ion Operator"), "the employee and the salary history follow the new name");
   click($('[data-edit="utilizatori"][data-id="' + op.id + '"]')); await tick();
