@@ -824,6 +824,12 @@ function dayRanges(list){var out=[],i=0;list=list.slice().sort(function(a,b){ret
   while(i<list.length){var s=list[i],j=i;while(j+1<list.length&&list[j+1].d===list[j].d+1&&!list[j+1].half&&!list[j].half)j++;var e=list[j];
     out.push(s.d===e.d?String(s.d)+(s.half?"½":""):String(s.d)+"–"+String(e.d));i=j+1;}
   return out}
+/* a salary payment's row in the register: a check mark and the days it paid, "✓ Achitat: 5–7, 10 noiembrie" */
+function salPaidTxt(r){
+  if(!r||r.categorie!=="Salarii"||!r.angajat||!r.luna)return "";
+  var me=salCover(r.angajat,r.luna).byPay[r.id],days=me?me.cov.filter(function(c){return !c.day.extra}).map(function(c){var d=c.day;return {d:d.d,half:d.half||!c.full}}):[];
+  return "✓ "+T("achitat")+(days.length?": "+dayRanges(days).join(", ")+" "+monthName(r.luna):"");
+}
 /* the block under a salary payment's form: the days it covers, the rate, what is still unpaid */
 function salCoverHtml(rec){
   if(!rec||rec.categorie!=="Salarii"||!rec.angajat||!rec.luna)return "";
@@ -2498,7 +2504,7 @@ var REGDEF={
    main:function(r){return r.client||"—"},amt:function(r){return money(n(r.suma))+" "+curBadge(r.valuta||"MDL",false)},
    cls:function(){return "pos"},meta:function(r){return r.data+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
  cheltuieli:{t:"r_chelt",main:function(r){return catLabel(r.categorie)||"—"},
-   sub:function(r){var pt=pentruOf(r);return [r.descriere,r.client,pt==="Proiect"?r.proiect:(pt==="EHL"?T("pt_ehl"):T("pt_alte")),(r.mod!=="Transfer"&&r.sursa==="Proprii")?T("src_proprii_short"):""].filter(Boolean).join(" · ")},
+   sub:function(r){var pt=pentruOf(r);return [salPaidTxt(r),r.descriere,r.client,pt==="Proiect"?r.proiect:(pt==="EHL"?T("pt_ehl"):T("pt_alte")),(r.mod!=="Transfer"&&r.sursa==="Proprii")?T("src_proprii_short"):""].filter(Boolean).join(" · ")},
    amt:function(r){return money(n(r.suma))+" MDL"},cls:function(){return "neg"},
    meta:function(r){return r.data+" · "+(r.platitDe||"")+" · "+(r.mod==="Numerar"?T("numerar"):T("transfer"))}},
  iesiri:{t:"r_ies",main:function(r){var m={"Depus pe cont":"d_depus","Dat persoanei":"d_pers",Salarii:"d_sal","Împrumut":"d_impr","Restituire fondator":"d_rest",Alte:"d_alte"};return T(m[r.destinatie]||"d_alte")},

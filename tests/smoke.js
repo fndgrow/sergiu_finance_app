@@ -781,6 +781,7 @@ const ls = (k) => window.localStorage.getItem(k);
   const pay = await collection("cheltuieli").create({ data: dAgo(0), suma: pz, categorie: "Salarii", descriere: "Salariu Nou Venit", pentru: "EHL", mod: "Numerar", angajat: "Nou Venit", luna });
   await tick(60);
   click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick(); click($('[data-edit="cheltuieli"][data-id="' + pay.id + '"]')); await tick(60);
+  check(new RegExp("✓ Achitat: " + new Date().getDate() + " ").test(text()), "the payment's row in the register carries a check mark and the day it paid");
   check(/Zile acoperite de această plată/.test($("#sheet").textContent) && new RegExp("Acoperă: " + new Date().getDate() + " ").test($("#sheet").textContent) && /Toate zilele bifate ale lunii sunt achitate/.test($("#sheet").textContent), "the payment's card lists the day it covers (today, one full day at the day rate) and that nothing is left");
   click($("#closeSheet")); await tick();
   click($('[data-view="add"]')); await tick(); click($('[data-form="grafic"]')); await tick();
