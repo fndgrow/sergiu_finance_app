@@ -209,8 +209,6 @@ onRecordCreateRequest((e) => {
   var nm = String(e.record.getString("angajat") || "").trim(), zi = String(e.record.getString("data") || "");
   var dup = 0; try { dup = $app.countRecords("grafic", $dbx.exp("TRIM(angajat) = {:n} AND data = {:d}", { n: nm, d: zi })); } catch (err) { dup = 0; }
   if (dup > 0) throw new BadRequestError("Ziua este deja bifată de alt utilizator.");
-  var closed = 0; try { closed = $app.countRecords("cheltuieli", $dbx.exp("categorie = 'Salarii' AND luna = {:l} AND TRIM(angajat) = {:n} AND data >= {:d}", { l: zi.slice(0, 7), n: nm, d: zi })); } catch (err) { closed = 0; }
-  if (closed > 0) throw new BadRequestError("Zilele achitate nu se mai schimbă.");
   /* the author's name is written by the server, so everyone can read who booked the day */
   if (e.auth) e.record.set("deCine", String(e.auth.getString("nume") || ""));
   /* not before the employee's first day */
@@ -225,11 +223,6 @@ onRecordUpdateRequest((e) => {
   /* today and back only; the server clock is UTC-based, so one day of slack covers the evening hours in Moldova */
   if (String(e.record.getString("data") || "") > new Date(Date.now() + 86400000).toISOString().slice(0, 10)) throw new BadRequestError("Zilele viitoare nu se bifează: doar azi și înapoi.");
   if (e.record.original) e.record.set("deCine", e.record.original().getString("deCine"));
-  if (e.auth && e.record.original) {
-    var nm = String(e.record.original().getString("angajat") || "").trim(), zi = String(e.record.original().getString("data") || ""), paid = false;
-    try { paid = $app.countRecords("cheltuieli", $dbx.exp("categorie = 'Salarii' AND luna = {:l} AND TRIM(angajat) = {:n} AND data >= {:d}", { l: zi.slice(0, 7), n: nm, d: zi })) > 0; } catch (err) { paid = false; }
-    if (paid) throw new BadRequestError("Zilele achitate nu se mai schimbă.");
-  }
   /* not before the employee's first day */
   var nmS = String(e.record.getString("angajat") || "").trim(), ziS = String(e.record.getString("data") || ""), startS = "";
   try { startS = String($app.findFirstRecordByFilter("angajati", "nume = {:n}", { n: nmS }).getString("dataInceput") || ""); } catch (err) { startS = ""; }
@@ -237,21 +230,11 @@ onRecordUpdateRequest((e) => {
   e.next();
 }, "grafic");
 onRecordDeleteRequest((e) => {
-  var nm = String(e.record.getString("angajat") || "").trim(), zi = String(e.record.getString("data") || ""), paid = false;
-  try { paid = $app.countRecords("cheltuieli", $dbx.exp("categorie = 'Salarii' AND luna = {:l} AND TRIM(angajat) = {:n} AND data >= {:d}", { l: zi.slice(0, 7), n: nm, d: zi })) > 0; } catch (err) { paid = false; }
-  if (paid) throw new BadRequestError("Zilele achitate nu se mai schimbă.");
   e.next();
 }, "grafic");
 
-/* ---- a salary payment is final: nobody, the director included, edits or deletes it (the books rest on it) ---- */
-onRecordUpdateRequest((e) => {
-  if (e.record.original && e.record.original().getString("categorie") === "Salarii") throw new BadRequestError("Plățile de salariu nu se mai schimbă și nu se șterg.");
-  e.next();
-}, "cheltuieli");
-onRecordDeleteRequest((e) => {
-  if (e.record.getString("categorie") === "Salarii") throw new BadRequestError("Plățile de salariu nu se mai schimbă și nu se șterg.");
-  e.next();
-}, "cheltuieli");
+/* a salary payment is an expense like any other: its author (or a director) may correct or delete it; the schedule
+   days it covered simply become unpaid again (see salCover on the client). */
 
 /* ---- users: random credentials, numeric codes, no self-lockout ---- */
 onRecordCreateRequest((e) => {
@@ -462,14 +445,10 @@ onRecordUpdateRequest((e) => {
 /* ---- a collaborator's expense: he is the payer. Cash comes out of the money the director gave him and cannot take
         his balance below zero; a transfer is paid by the firm's account, which may go below zero. The cashier pays from the till. ---- */
 onRecordCreateRequest((e) => {
-  /* the payer is the account that records the expense. A director pays from the till: platitDe is his own name,
-     except a salary paid to a collaborator account, which comes out of that collaborator's advance. */
+  /* the payer is the account that records the expense — salaries included, even when the employee is a collaborator
+     with an account of his own: his salary is his money, not an advance of the firm's. */
   if (e.auth && e.auth.getString("rol") === "Director") {
-    var who = String(e.record.getString("platitDe") || "").trim(), isCollab = false;
-    if (who && e.record.getString("categorie") === "Salarii") {
-      try { isCollab = $app.countRecords("utilizatori", $dbx.exp("rol = 'Operator' AND TRIM(nume) = {:n}", { n: who })) > 0; } catch (err) { isCollab = false; }
-    }
-    if (!isCollab) {
+    {
       /* a director pays from his own account (money he took from the EHL till); only the cashier pays from the till */
       var meD = String(e.auth.getString("nume") || "").trim(), casD = "";
       try { casD = String($app.findFirstRecordByFilter("config", "id != ''").getString("casier") || "").trim(); } catch (err) { casD = ""; }

@@ -109,10 +109,7 @@ function collection(col) {
         }
         delete data.codEHL;
       }
-      if (col === "cheltuieli" && isDir()) { /* the payer is the account itself, except a salary paid to a collaborator account */
-        const who = String(data.platitDe || "").trim(), isCollab = data.categorie === "Salarii" && Object.values(store.utilizatori).some(u => u.rol === "Operator" && u.nume === who);
-        if (!isCollab) data = { ...data, platitDe: currentUser.nume, sursa: "Avans" }; /* a director pays from his own account */
-      }
+      if (col === "cheltuieli" && isDir()) data = { ...data, platitDe: currentUser.nume, sursa: "Avans" }; /* a director pays from his own account, salaries included */
       if (col === "cheltuieli" && !isDir()) { /* a collaborator pays himself; cash cannot take his balance below zero (server hook) */
         data = { ...data, platitDe: currentUser.nume };
         if (data.mod !== "Transfer") {
@@ -777,6 +774,29 @@ const ls = (k) => window.localStorage.getItem(k);
   check(gd() && gd().ore === 8 && gd().pentru === "Proiect" && gd().proiect === "Casa Test", "the day moved to the project and kept its 8 hours");
   check(Object.values(store.jurnal).some(j => j.col === "grafic" && j.ref === gd().id && j.act === "edit"), "the move is in the change history");
   click($("#closeSheet")); await tick();
+
+  console.log("15. a salary payment says which schedule days it covers");
+  const ZL = Number((fs.readFileSync(path.join(APP, "app.js"), "utf8").match(/ZILE_LUNAs*=s*([0-9.]+)/) || [])[1]); /* the app is an IIFE: read the constant from the source */
+  const pz = Math.round(9000 / ZL * 100) / 100, luna = dAgo(0).slice(0, 7);
+  const pay = await collection("cheltuieli").create({ data: dAgo(0), suma: pz, categorie: "Salarii", descriere: "Salariu Nou Venit", pentru: "EHL", mod: "Numerar", angajat: "Nou Venit", luna });
+  await tick(60);
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick(); click($('[data-edit="cheltuieli"][data-id="' + pay.id + '"]')); await tick(60);
+  check(/Zile acoperite de această plată/.test($("#sheet").textContent) && new RegExp("Acoperă: " + new Date().getDate() + " ").test($("#sheet").textContent) && /Toate zilele bifate ale lunii sunt achitate/.test($("#sheet").textContent), "the payment's card lists the day it covers (today, one full day at the day rate) and that nothing is left");
+  click($("#closeSheet")); await tick();
+  click($('[data-view="add"]')); await tick(); click($('[data-form="grafic"]')); await tick();
+  $('[data-gr="angajat"]').value = "Nou Venit"; $('[data-gr="angajat"]').dispatchEvent(new window.Event("change", { bubbles: true })); await tick();
+  check(window.document.querySelectorAll(".gr-day.paid").length === 1 && /plătit/.test($("#sheet").textContent), "the schedule marks that day as paid");
+  if (sameMonth) {
+    click($('[data-grset="8"][data-gra="Nou Venit"][data-grd="' + dAgo(1) + '"]')); await tick(80);
+    const y = Object.values(store.grafic).find(r => r.angajat === "Nou Venit" && r.data === dAgo(1));
+    check(y && y.ore === 8 && window.document.querySelectorAll(".gr-day.paid").length === 1, "after the payment another day can still be ticked; it shows as unpaid");
+  }
+  click($("#closeSheet")); await tick();
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick(); click($('[data-edit="cheltuieli"][data-id="' + pay.id + '"]')); await tick(60);
+  check($("#savebtn") && $("#delbtn") && (!sameMonth || new RegExp("Rămân neachitate: " + new Date().getDate()).test($("#sheet").textContent)), "the payment can be corrected or deleted; days are covered in date order, so with yesterday ticked the card now names today as still unpaid");
+  setField("suma", String(pz * 2)); submit($("#recf")); await tick(100);
+  check(store.cheltuieli[pay.id].suma === pz * 2, "the corrected payment is saved");
+  if (sameMonth) { click($('[data-edit="cheltuieli"][data-id="' + pay.id + '"]')); await tick(60); check(/Toate zilele bifate ale lunii sunt achitate/.test($("#sheet").textContent), "with the doubled sum both days are covered"); click($("#closeSheet")); await tick(); }
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);

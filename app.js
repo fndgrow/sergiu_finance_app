@@ -153,7 +153,7 @@ ro:{
  gr_h_zi:"Alegeți data, apoi la fiecare angajat bifați zi întreagă sau jumătate. Fiecare bifă se salvează imediat, cu numele dvs.",
  gr_lock:"Zilele de până la ultima plată sunt închise și nu se mai schimbă.",srv_gr_dup:"Ziua este deja bifată de alt utilizator.",gr_other:"Ziua a fost introdusă de alt utilizator și nu poate fi schimbată.",
  f_complet:"Salariu complet (luna întreagă, indiferent de zile)",f_complet_h:"Se achită salariul lunar întreg, plus extra.",
- pontaj_paidby:"Achitat de",sal_descr:"Salariu",gr_bani:"Cuvenit pe lună",gr_nosal:"fără salariu stabilit",gr_none:"Alegeți angajatul.",gr_h:"Apăsați „Zi” pentru o zi întreagă sau „½ zi” pentru jumătate. Se bifează doar ziua de azi și cele trecute. Fiecare zi se salvează imediat, cu numele dvs.; o zi o schimbă doar cel care a introdus-o.",gr_future:"Zilele viitoare nu se bifează: doar azi și înapoi.",gr_remind_t:"Graficul de lucru nu a fost deschis azi",gr_remind:"Notați zilele angajaților dvs. care au lucrat azi. Panoul dispare după ce deschideți graficul.",
+ pontaj_paidby:"Achitat de",sal_descr:"Salariu",gr_bani:"Cuvenit pe lună",gr_nosal:"fără salariu stabilit",gr_none:"Alegeți angajatul.",gr_h:"Apăsați „Zi” pentru o zi întreagă sau „½ zi” pentru jumătate. Se bifează doar ziua de azi și cele trecute. Fiecare zi se salvează imediat, cu numele dvs.; o zi o schimbă doar cel care a introdus-o. Zilele acoperite de o plată de salariu sunt marcate „plătit”; plata se poate corecta din fișa ei.",gr_future:"Zilele viitoare nu se bifează: doar azi și înapoi.",gr_remind_t:"Graficul de lucru nu a fost deschis azi",gr_remind:"Notați zilele angajaților dvs. care au lucrat azi. Panoul dispare după ce deschideți graficul.",
  reset_btn:"Șterge datele",reset_t:"Ștergerea tuturor datelor",reset_h:"Se șterg toate înregistrările: încasări, cheltuieli, ieșiri, chirii, contracte, împrumuturi, proiecte, angajați, salarii, grafic, istoric. Se șterg și conturile colaboratorilor. Nu se poate anula.",reset_keep:"Rămân doar conturile directorilor și setările (valute, categorii, casier).",reset_cod:"Codul dvs. de acces, pentru confirmare",reset_go:"Șterg tot, definitiv",reset_busy:"Se șterge…",reset_done:"Datele au fost șterse. Aplicația repornește.",srv_reset_dir:"Doar directorul poate șterge datele.",srv_reset_cod:"Codul de acces este greșit.",srv_sal_lock:"Plățile de salariu nu se mai schimbă și nu se șterg.",
  srv_grafic:"Graficul se face doar pentru angajații creați de dumneavoastră.",srv_ore:"Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).",srv_gr_lock:"Zilele achitate nu se mai schimbă.",f_extra:"Extra (MDL)",f_extra_h:"Remunerare suplimentară pentru luna aceasta, dacă angajatul a făcut ceva în plus. Intră în suma de achitat.",
  op_ang:"Angajați",f_start_h:"Ziua din care lucrează: orice zi până azi. Salariul se socotește de la ea; zilele dinaintea ei nu se bifează în grafic.",gr_before:"Angajatul lucrează de la {d}; zilele dinainte nu se bifează.",ang_n:"angajați",f_aditional:"Adițional",inc_peste:"Suma depășește contractul proiectului. Mai pot fi încasați {x}.",inc_peste_cash:"Cash pe acest proiect mai pot fi încasați {x} (partea cash din contract).",inc_peste_tr:"Prin transfer pe acest proiect mai pot fi încasați {x} (partea transfer din contract).",op_ang_h:"Pentru luna aleasă sus: toate zilele angajatului și de cine au fost bifate, suma lunii, cât s-a achitat și de cine, restul. Ceasul deschide graficul, rotița fișa.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
@@ -166,7 +166,7 @@ ro:{
  srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",din_casa:"din casă",cont_meu_disp:"Disponibil în contul meu",f_codehl:"Codul EHL",f_codehl_h:"Banii ies din Casa EHL: confirmați cu codul dumneavoastră EHL.",codehl_bad:"Codul EHL este greșit.",codehl_fmt:"Codul EHL trebuie să aibă 4–8 cifre.",codehl_none:"Nu aveți cod EHL: fără el nu se pot scoate bani din Casa EHL. Cereți-l în Setări → Utilizatori.",f_codehl_set:"Cod EHL (acces la Casa EHL)",f_codehl_set_h:"4–8 cifre. Doar un director cu cod EHL poate scoate bani din casa comună.",f_din:"Din",f_din_h:"Casa EHL este casa comună a directorilor; Contul meu sunt banii pe care i-am luat din ea.",din_casa_ehl:"Casa EHL",din_cont_meu:"Contul meu",s_dirs:"Conturile administratorilor",s_dirs_h:"Banii luați de fiecare director din Casa EHL, ce a dat mai departe sau a cheltuit, și ce mai are în mână.",l_dirs:"La administratori",
  s_colab_exp:"Cheltuielile și chiriile colaboratorilor",s_tr:"Cheltuieli din cont (transfer)",tr_h:"La transfer banii se iau din contul bancar, nu de la persoană. Apăsați pe un nume ca să vedeți pe ce s-au cheltuit.",colab_tr:"Plătit prin transfer (din cont)",
  avans_lipsa:"Nu aveți destui bani din avans: disponibil {s} MDL. Cereți mai întâi bani de la director.",cont_meu_lipsa:"Nu aveți destui bani în contul dumneavoastră: disponibil {s} MDL. Luați mai întâi din Casa EHL.",ehl_dest:"Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.",avans_disp:"Disponibil din avansul meu",din_avans:"din avansul lui",colab_gave:"Ieșiri făcute din avans",
- f_pentru:"Cheltuiala este pentru",gr_tinta:"Ziua se trece pe",gr_tinta_h:"Se aplică zilelor pe care le bifați de acum. La o zi deja bifată pe altceva apare „Mută pe …”: o mută cel care a bifat-o, fără să o piardă.",gr_retag:"Mută pe {t}",pt_proiect:"Proiect",pt_proiecte:"Proiecte",pt_ehl:"EHL (firma)",pt_alte:"Altele",s_pentru:"Cheltuieli: proiecte, EHL, altele",
+ f_pentru:"Cheltuiala este pentru",sc_t:"Zile acoperite de această plată",sc_days:"Acoperă: {d}",sc_part:"parțial",sc_rest:"restul",sc_rate:"o zi =",sc_over:"Suma depășește zilele bifate cu {s} MDL.",sc_left:"Rămân neachitate: {d}",sc_all:"Toate zilele bifate ale lunii sunt achitate.",sc_none:"Nu sunt zile bifate în grafic pentru luna aceasta; plata se socotește pe suma lunii.",sc_nothing:"Zilele bifate erau deja acoperite de plățile de dinainte.",gr_paid:"plătit",gr_tinta:"Ziua se trece pe",gr_tinta_h:"Se aplică zilelor pe care le bifați de acum. La o zi deja bifată pe altceva apare „Mută pe …”: o mută cel care a bifat-o, fără să o piardă.",gr_retag:"Mută pe {t}",pt_proiect:"Proiect",pt_proiecte:"Proiecte",pt_ehl:"EHL (firma)",pt_alte:"Altele",s_pentru:"Cheltuieli: proiecte, EHL, altele",
  fond_h:"Banii puși de un fondator sunt un împrumut către firmă: datoria crește cu fiecare încasare de la el și scade prin Ieșire din casă → Restituire fondator."
 },
 ru:{
@@ -325,7 +325,7 @@ ru:{
  srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",din_casa:"из кассы",cont_meu_disp:"Доступно на моём счёте",f_codehl:"Код EHL",f_codehl_h:"Деньги уходят из кассы EHL: подтвердите своим кодом EHL.",codehl_bad:"Код EHL неверный.",codehl_fmt:"Код EHL должен быть из 4–8 цифр.",codehl_none:"У вас нет кода EHL: без него нельзя брать деньги из кассы EHL. Задайте его в Настройки → Пользователи.",f_codehl_set:"Код EHL (доступ к кассе EHL)",f_codehl_set_h:"4–8 цифр. Брать деньги из общей кассы может только директор с кодом EHL.",f_din:"Откуда",f_din_h:"Касса EHL — общая касса директоров; Мой счёт — деньги, которые я взял из неё.",din_casa_ehl:"Касса EHL",din_cont_meu:"Мой счёт",s_dirs:"Счета администраторов",s_dirs_h:"Сколько каждый директор взял из кассы EHL, что передал дальше или потратил, и сколько у него на руках.",l_dirs:"У администраторов",
  s_colab_exp:"Расходы и аренда сотрудников",s_tr:"Расходы со счёта (перевод)",tr_h:"При переводе деньги берутся с банковского счёта, а не у человека. Нажмите на имя, чтобы увидеть, на что они потрачены.",colab_tr:"Оплачено переводом (со счёта)",
  avans_lipsa:"В вашем авансе недостаточно денег: доступно {s} MDL. Сначала получите деньги у директора.",cont_meu_lipsa:"На вашем счёте недостаточно денег: доступно {s} MDL. Сначала возьмите из кассы EHL.",ehl_dest:"Из кассы EHL деньги идут только администраторам, на счёт или обратно учредителю.",avans_disp:"Доступно из моего аванса",din_avans:"из аванса:",colab_gave:"Выдачи из аванса",
- f_pentru:"Расход относится к",gr_tinta:"День относится к",gr_tinta_h:"Действует для дней, которые отмечаете с этого момента. У дня, отмеченного на другое, появляется «Перенести на …»: переносит тот, кто его отметил, не теряя день.",gr_retag:"Перенести на {t}",pt_proiect:"Проект",pt_proiecte:"Проекты",pt_ehl:"EHL (фирма)",pt_alte:"Прочее",s_pentru:"Расходы: проекты, EHL, прочее",
+ f_pentru:"Расход относится к",sc_t:"Дни, покрытые этой выплатой",sc_days:"Покрывает: {d}",sc_part:"частично",sc_rest:"остаток",sc_rate:"день =",sc_over:"Сумма превышает отмеченные дни на {s} MDL.",sc_left:"Не оплачены: {d}",sc_all:"Все отмеченные дни месяца оплачены.",sc_none:"В графике нет отмеченных дней за этот месяц; выплата считается по сумме месяца.",sc_nothing:"Отмеченные дни уже были покрыты предыдущими выплатами.",gr_paid:"оплачено",gr_tinta:"День относится к",gr_tinta_h:"Действует для дней, которые отмечаете с этого момента. У дня, отмеченного на другое, появляется «Перенести на …»: переносит тот, кто его отметил, не теряя день.",gr_retag:"Перенести на {t}",pt_proiect:"Проект",pt_proiecte:"Проекты",pt_ehl:"EHL (фирма)",pt_alte:"Прочее",s_pentru:"Расходы: проекты, EHL, прочее",
  fond_h:"Деньги, внесённые учредителем, — это заём фирме: долг растёт с каждым поступлением от него и уменьшается через Выдачу из кассы → Возврат учредителю."
 }};
 var lang="ro";
@@ -798,6 +798,53 @@ function graficOre(angajat,luna,by){var o={h1:0,h2:0,n:0,z1:0,z2:0};if(!angajat|
 /* the days this user scheduled for an employee: what he pays for */
 function graficMele(angajat,luna){return graficOre(angajat,luna,ME)}
 function pontajDinGrafic(d){if(!d||!d.angajat||!d.luna)return false;var g=graficOre(d.angajat,d.luna);if(!g.n)return false;d.z1=String(g.z1);d.z2=String(g.z2);return true}
+/* which schedule days a salary payment covers: the payments of the month, in date order, eat the ticked days in date
+   order at the employee's day rate (salary / working days); bonuses come last; a payment may end mid-day. */
+function salCover(angajat,luna){
+  var wd=workdays(luna),sal=salariuLa(angajat,monthEnd(luna)),pz=wd?sal/wd:0;
+  var days=S.grafic.filter(function(r){return sameP(r.angajat,angajat)&&String(r.data||"").slice(0,7)===luna&&n(r.ore)>0}).sort(function(a,b){return String(a.data).localeCompare(String(b.data))})
+    .map(function(r){return {iso:r.data,d:parseInt(String(r.data).slice(8,10),10),half:n(r.ore)<8,val:round2(n(r.ore)/8*pz)}});
+  var extra=0;S.pontaj.forEach(function(r){if(sameP(r.angajat,angajat)&&r.luna===luna)extra+=n(r.extra)});
+  if(extra>0)days.push({iso:"",d:0,extra:true,val:round2(extra)});
+  var pays=S.cheltuieli.filter(function(r){return r.categorie==="Salarii"&&r.luna===luna&&sameP(r.angajat,angajat)}).map(function(r){return {id:r.id,data:r.data,ts:r.ts||r.created||"",suma:n(r.suma)}})
+    .concat(S.iesiri.filter(function(r){return r.destinatie==="Salarii"&&r.luna===luna&&sameP(r.persoana,angajat)}).map(function(r){return {id:r.id,data:r.data,ts:r.ts||r.created||"",suma:round2(n(r.suma)*n(r.curs))}}))
+    .sort(function(a,b){return String(a.data).localeCompare(String(b.data))||String(a.ts).localeCompare(String(b.ts))});
+  var i=0,used=0,byPay={},map={};
+  pays.forEach(function(p){var left=p.suma,cov=[];
+    while(left>0.004&&i<days.length){var dv=days[i],rest=round2(dv.val-used);
+      if(rest<=left+0.004){cov.push({day:dv,full:true,part:used>0?rest:0});left=round2(left-rest);used=0;i++;if(dv.iso)map[dv.iso]="full";}
+      else{cov.push({day:dv,full:false,part:round2(left)});used=round2(used+left);left=0;if(dv.iso&&!map[dv.iso])map[dv.iso]="part";}
+    }
+    byPay[p.id]={cov:cov,over:round2(left)};
+  });
+  return {byPay:byPay,map:map,unpaid:days.slice(i),pz:round2(pz),days:days};
+}
+/* "2–6, 9, 11½" from a list of days */
+function dayRanges(list){var out=[],i=0;list=list.slice().sort(function(a,b){return a.d-b.d});
+  while(i<list.length){var s=list[i],j=i;while(j+1<list.length&&list[j+1].d===list[j].d+1&&!list[j+1].half&&!list[j].half)j++;var e=list[j];
+    out.push(s.d===e.d?String(s.d)+(s.half?"½":""):String(s.d)+"–"+String(e.d));i=j+1;}
+  return out}
+/* the block under a salary payment's form: the days it covers, the rate, what is still unpaid */
+function salCoverHtml(rec){
+  if(!rec||rec.categorie!=="Salarii"||!rec.angajat||!rec.luna)return "";
+  var sc=salCover(rec.angajat,rec.luna),me=sc.byPay[rec.id];
+  var h='<div class="sec"><h2>'+esc(T("sc_t"))+'</h2><div class="card pad">';
+  if(!sc.days.length)h+='<p class="hint" style="margin:0">'+esc(T("sc_none"))+'</p>';
+  else if(!me||!me.cov.length)h+='<p class="hint" style="margin:0">'+esc(T("sc_nothing"))+'</p>';
+  else{
+    var plain=function(c){return c.full&&!c.part&&!c.day.extra};
+    var lab=function(c){var x=c.day;if(x.extra)return T("f_extra")+" "+money(c.part||x.val);var s=String(x.d)+(x.half?"½":"");return s+" ("+(c.full?T("sc_rest"):T("sc_part"))+" "+money(c.part)+")"};
+    var txt=dayRanges(me.cov.filter(plain).map(function(c){return c.day})).concat(me.cov.filter(function(c){return !plain(c)}).map(lab)).join(", ");
+    var nz=me.cov.reduce(function(a,c){return a+((c.day.extra||!c.full)?0:(c.day.half?0.5:1))},0);
+    h+='<p style="margin:0 0 6px"><b>'+esc(T("sc_days").replace("{d}",txt+" "+monthName(rec.luna)))+'</b></p>'
+      +'<p class="hint" style="margin:0">'+esc(fmt(nz,2)+" "+T("gr_zile_s")+" · "+T("sc_rate")+" "+money(sc.pz)+" MDL")+'</p>';
+    if(me.over>0)h+='<p class="hint" style="margin:6px 0 0">'+esc(T("sc_over").replace("{s}",money(me.over)))+'</p>';
+    var u=sc.unpaid.filter(function(x){return !x.extra});
+    if(sc.unpaid.length)h+='<p class="hint" style="margin:6px 0 0">'+esc(T("sc_left").replace("{d}",(u.length?dayRanges(u).join(", "):"")+(sc.unpaid.some(function(x){return x.extra})?(u.length?" + ":"")+T("f_extra"):"")))+'</p>';
+    else h+='<p class="hint" style="margin:6px 0 0">'+esc(T("sc_all"))+'</p>';
+  }
+  return h+'</div></div>';
+}
 /* every salary payment for an employee and month, by anyone: the expenses "Salarii" and the old-style outflows */
 function platiSalariu(angajat,luna){
   return S.cheltuieli.filter(function(r){return r.categorie==="Salarii"&&r.luna===luna&&sameP(r.angajat,angajat)}).map(function(r){return {by:r.by,data:r.data,suma:n(r.suma),nume:byName(r)||r.platitDe||""}})
@@ -816,7 +863,7 @@ function platesteSalariu(angajat,luna,due){
   var rows=S.grafic.filter(function(r){return sameP(r.angajat,angajat)&&String(r.data||"").slice(0,7)===luna&&n(r.ore)>0}); /* everyone's days: the payment covers the whole month */
   var groups={},tot=0;rows.forEach(function(r){var k=(r.pentru==="Proiect"&&r.proiect)?"Proiect|"+r.proiect:"EHL|";groups[k]=(groups[k]||0)+n(r.ore);tot+=n(r.ore)});
   var keys=Object.keys(groups);if(!keys.length||!(tot>0)){keys=["EHL|"];groups["EHL|"]=1;tot=1;}
-  var payer=isDir?(colabUser(angajat)?angajat:(casier()||meName())):meName(),left=round2(due),p=Promise.resolve();
+  var payer=meName(),left=round2(due),p=Promise.resolve(); /* whoever pays, pays from his own account — also for an employee who is a collaborator */
   keys.forEach(function(k,i){
     var share=i===keys.length-1?left:round2(due*groups[k]/tot);left=round2(left-share);if(!(share>0))return;
     var pt=k.split("|")[0],pr=k.split("|")[1],pj=S.proiecte.filter(function(x){return sameP(x.nume,pr)})[0];
@@ -1359,7 +1406,7 @@ var GR={mode:"ang",angajat:"",luna:curMonth(),zi:today(),pentru:"EHL",proiect:""
 function angStart(nume){var a=S.angajati.filter(function(x){return sameP(x.nume,nume)})[0];return a?String(a.dataInceput||""):""} /* the employee's first day */
 function grRec(angajat,iso){return S.grafic.filter(function(r){return sameP(r.angajat,angajat)&&r.data===iso})[0]||null}
 /* a day is changed only by its author, and not once that author has paid the employee for that month */
-function grEditable(r,angajat,iso){if(String(iso)>today())return false;var st=angStart(angajat);if(st&&String(iso)<st)return false;if(r&&r.by!==ME)return false;if(ziInchisa(angajat,iso))return false;return true}
+function grEditable(r,angajat,iso){if(String(iso)>today())return false;var st=angStart(angajat);if(st&&String(iso)<st)return false;if(r&&r.by!==ME)return false;return true} /* a payment no longer freezes the days: the coverage shows what is paid */
 function grProjOpts(){return S.proiecte.filter(function(p){return p.status!=="Finalizat"}).map(function(p){return p.nume}).sort(function(a,b){return String(a).localeCompare(String(b))})}
 function grTag(r){if(!r)return "";return (r.pentru==="Proiect"&&r.proiect)?r.proiect:"EHL"}
 function grTarget(){return (GR.pentru==="Proiect"&&GR.proiect)?GR.proiect:"EHL"} /* what a tapped day is booked on right now */
@@ -1401,9 +1448,10 @@ function drawGrafic(){
     if(!a)h+='<p class="hint">'+esc(T("gr_none"))+'</p>';
     else{
       var g=graficOre(a,ym),gm=graficMele(a,ym);
-      h+='<p class="hint">'+esc(lunaAchitata(a,ym)?T("gr_lock"):T("gr_h"))+'</p><div class="gr-grid">';
+      h+='<p class="hint">'+esc(T("gr_h"))+'</p><div class="gr-grid">';
+      var scm=salCover(a,ym).map; /* which ticked days the salary payments already cover */
       for(var d=1;d<=dim;d++){var iso=ym+"-"+p2(d),r=grRec(a,iso),hrs=r?n(r.ore):0,dow=new Date(y,m-1,d).getDay();
-        h+='<div class="gr-day'+(dow===0?" sun":"")+(hrs>0?" on":"")+((angStart(a)&&iso<angStart(a))?" before":"")+'"><span class="gr-n">'+d+' <small>'+wd[dow]+'</small></span>'+grCell(a,iso)+'</div>';
+        h+='<div class="gr-day'+(dow===0?" sun":"")+(hrs>0?" on":"")+((angStart(a)&&iso<angStart(a))?" before":"")+(scm[iso]?" paid":"")+'"><span class="gr-n">'+d+' <small>'+wd[dow]+'</small>'+(scm[iso]?' <small class="gr-paid">'+esc(scm[iso]==="full"?T("gr_paid"):T("sc_part"))+'</small>':'')+'</span>'+grCell(a,iso)+'</div>';
       }
       h+='</div><div class="calc-row"><div class="calcbox"><span>'+esc(T("gr_tot"))+'</span><span class="num">'+fmt(g.h1+g.h2,1)+' '+esc(T("gr_ore"))+'</span></div><div class="calcbox"><span>'+esc(T("gr_zile"))+'</span><span class="num">'+fmt(g.z1+g.z2,2)+'</span></div>'
         +'<div class="calcbox"><span>'+esc(T("gr_mine"))+'</span><span class="num">'+fmt(gm.z1+gm.z2,2)+' '+esc(T("gr_zile_s"))+'</span></div></div>';
@@ -1423,7 +1471,7 @@ function grSet(angajat,iso,hrs){
   if(!angajat||!iso)return;
   hrs=n(hrs)===4?4:(n(hrs)===8?8:0);
   var r=grRec(angajat,iso);
-  if(!grEditable(r,angajat,iso)){var stA=angStart(angajat);toast(String(iso)>today()?T("gr_future"):((stA&&String(iso)<stA)?T("gr_before").replace("{d}",shortDate(stA)):T(r&&r.by!==ME?"gr_other":"gr_lock")));drawGrafic();return;}
+  if(!grEditable(r,angajat,iso)){var stA=angStart(angajat);toast(String(iso)>today()?T("gr_future"):((stA&&String(iso)<stA)?T("gr_before").replace("{d}",shortDate(stA)):T("gr_other")));drawGrafic();return;}
   var body={angajat:angajat,data:iso,ore:hrs,pentru:(GR.pentru==="Proiect"&&GR.proiect)?"Proiect":"EHL",proiect:(GR.pentru==="Proiect"&&GR.proiect)?GR.proiect:"",deCine:meName()},p;
   if(!r){if(!(hrs>0))return;p=saveDoc("grafic",body);}
   else if(n(r.ore)===hrs&&(r.pentru||"EHL")===body.pentru&&(r.proiect||"")===body.proiect)return;
@@ -2764,8 +2812,8 @@ function drawSheet(){
   if(sheetState.col==="__reset"){drawReset();return;}
   var st=sheetState,def=FORMS[st.col],fields=def.fields();
   var rec0=st.id?(S[st.col]||[]).filter(function(r){return r.id===st.id})[0]:null;
-  var salPay=!!(rec0&&st.col==="cheltuieli"&&rec0.categorie==="Salarii"); /* a salary payment: the books are closed on it */
-  var lockedOld=salPay||!!(rec0&&(rec0.by!==ME||(!isDir&&rec0.created&&Date.now()-Date.parse(String(rec0.created).replace(" ","T"))>EDIT_DAYS*86400000)));
+  var salPay=!!(rec0&&st.col==="cheltuieli"&&rec0.categorie==="Salarii"); /* a salary payment: shows the days it covers; editable like any expense */
+  var lockedOld=!!(rec0&&(rec0.by!==ME||(!isDir&&rec0.created&&Date.now()-Date.parse(String(rec0.created).replace(" ","T"))>EDIT_DAYS*86400000)));
   var body=fields.filter(function(f){
     if(f.showIf&&!f.showIf(st.data))return false;
     if(f.newOnly&&st.id&&st.col!=="angajati")return false;
@@ -2792,8 +2840,8 @@ function drawSheet(){
     +(st.err?'<p class="err">'+esc(st.err)+'</p>':'')
     +'<div class="form-act"><button class="btn" type="submit" id="savebtn">'+esc(T("save"))+'</button>'
     +((st.id&&st.col==="angajati"&&rec0&&rec0.by===ME&&st.data.status!=="Inactiv")?'<button class="btn danger" type="button" id="deact" title="'+esc(T("ang_deact_h"))+'">'+icon("trash")+'<span>'+esc(T("ang_deact"))+'</span></button>':'')
-    +((st.id&&isDir&&st.col!=="angajati"&&st.col!=="proiecte"&&rec0&&rec0.by===ME&&!salPay)?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
-    +'</div></form>'+(st.id&&isDir?'<div class="sec" id="rec-hist"><h2>'+esc(T("rec_hist"))+'</h2><div class="card"><div class="empty">'+esc(T("j_loading"))+'</div></div></div>':'')+dls+'</div></div>';
+    +((st.id&&isDir&&st.col!=="angajati"&&st.col!=="proiecte"&&rec0&&rec0.by===ME)?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
+    +'</div></form>'+(salPay?salCoverHtml(rec0):'')+(st.id&&isDir?'<div class="sec" id="rec-hist"><h2>'+esc(T("rec_hist"))+'</h2><div class="card"><div class="empty">'+esc(T("j_loading"))+'</div></div></div>':'')+dls+'</div></div>';
   if(st.id&&isDir)loadRecHist(st.col,st.id);
   document.body.style.overflow="hidden";
   if(lockedOld){var sb=$("#savebtn");if(sb){var nt=document.createElement("p");nt.className="note";nt.textContent=T("lock_old");sb.parentNode.replaceChild(nt,sb);}
