@@ -82,6 +82,10 @@ function collection(col) {
         if (String(data.ehlCod || "") !== String(currentUser.codEHL || "")) throw err(400, "Colaboratorii se creează doar din contul EHL.");
         delete data.ehlCod; data.rol = "Operator"; data.codEHL = "";
       }
+      if (col === "grafic") { /* the hook: not before the employee's first day */
+        const emp = Object.values(store.angajati || {}).find(a => a.nume === String(data.angajat || "").trim());
+        if (emp && emp.dataInceput && String(data.data) < String(emp.dataInceput)) throw err(400, "Angajatul lucrează de la " + emp.dataInceput + "; zilele dinainte nu se bifează.");
+      }
       if (col === "schimburi") { /* the hook: the exchange is the account's own, two different currencies, both sums */
         data.persoana = currentUser.nume;
         if (!data.valutaDin || !data.valutaIn || data.valutaDin === data.valutaIn) throw err(400, "Alegeți două valute diferite.");
@@ -740,6 +744,24 @@ const ls = (k) => window.localStorage.getItem(k);
   check(/100,00 EUR/.test(tileNow) && mdlBefore && !tileNow.includes(mdlBefore + " MDL"), "Soldul meu now lists 100,00 EUR and the lei line went down");
   click($('[data-view="reg"]')); await tick(); click($('[data-tab="schimburi"]')); await tick();
   check(/2\.022,00 MDL → EUR/.test(text()), "the exchange has its own register tab");
+
+  console.log("13. an employee starts on a chosen day (up to today): the salary counts from it, earlier days cannot be ticked, the date can be corrected");
+  const iso = (d) => d.toISOString().slice(0, 10), dAgo = (k) => { const d = new Date(); d.setDate(d.getDate() - k); return iso(d); };
+  const sameMonth = new Date().getDate() >= 4; /* the schedule grid shows one month: the start-date checks need a few days of this month behind us */
+  const start = sameMonth ? dAgo(2) : dAgo(0), before = sameMonth ? dAgo(3) : "";
+  click($('[data-view="add"]')); await tick(); click($('[data-form="angajati"]')); await tick();
+  check($('[data-k="dataInceput"]').getAttribute("max") === dAgo(0), "the start date cannot be in the future");
+  setField("nume", "Nou Venit"); setField("dataInceput", start); setField("salariu", "9000"); submit($("#recf")); await tick(80);
+  const nv = Object.values(store.angajati).find(a => a.nume === "Nou Venit"), nvh = Object.values(store.istoric).filter(h => h.angajat === "Nou Venit");
+  check(nv && nv.dataInceput === start && nvh.length === 1 && nvh[0].dinData === start && nvh[0].salariu === 9000, "employee saved with the start date, the salary counts from that date");
+  click($('[data-form="grafic"]')); await tick(); $('[data-gr="angajat"]').value = "Nou Venit"; $('[data-gr="angajat"]').dispatchEvent(new window.Event("change", { bubbles: true })); await tick();
+  if (sameMonth) check($('[data-grset="8"][data-gra="Nou Venit"][data-grd="' + before + '"]').disabled && !$('[data-grset="8"][data-gra="Nou Venit"][data-grd="' + start + '"]').disabled, "the day before the start is greyed out, the start day can be ticked");
+  try { await collection("grafic").create({ angajat: "Nou Venit", data: dAgo(40), ore: 8, pentru: "EHL" }); check(false, "server refuses a day before the start"); } catch (e) { check(/lucrează de la/.test(e.message), "the server refuses a schedule day before the employee's first day"); }
+  click($("#closeSheet")); await tick();
+  click($('[data-view="panou"]')); await tick(); click($('[data-fold="ang"]')); await tick();
+  click($('[data-edit="angajati"][data-id="' + nv.id + '"]')); await tick(); setField("dataInceput", dAgo(20)); submit($("#recf")); await tick(100);
+  const nvh2 = Object.values(store.istoric).filter(h => h.angajat === "Nou Venit");
+  check(store.angajati[nv.id].dataInceput === dAgo(20) && nvh2.length === 1 && nvh2[0].dinData === dAgo(20), "correcting the start date moves the first salary row to the new date");
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);

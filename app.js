@@ -156,7 +156,7 @@ ro:{
  pontaj_paidby:"Achitat de",sal_descr:"Salariu",gr_bani:"Cuvenit pe lună",gr_nosal:"fără salariu stabilit",gr_none:"Alegeți angajatul.",gr_h:"Apăsați „Zi” pentru o zi întreagă sau „½ zi” pentru jumătate. Se bifează doar ziua de azi și cele trecute. Fiecare zi se salvează imediat, cu numele dvs.; o zi o schimbă doar cel care a introdus-o.",gr_future:"Zilele viitoare nu se bifează: doar azi și înapoi.",gr_remind_t:"Graficul de lucru nu a fost deschis azi",gr_remind:"Notați zilele angajaților dvs. care au lucrat azi. Panoul dispare după ce deschideți graficul.",
  reset_btn:"Șterge datele",reset_t:"Ștergerea tuturor datelor",reset_h:"Se șterg toate înregistrările: încasări, cheltuieli, ieșiri, chirii, contracte, împrumuturi, proiecte, angajați, salarii, grafic, istoric. Se șterg și conturile colaboratorilor. Nu se poate anula.",reset_keep:"Rămân doar conturile directorilor și setările (valute, categorii, casier).",reset_cod:"Codul dvs. de acces, pentru confirmare",reset_go:"Șterg tot, definitiv",reset_busy:"Se șterge…",reset_done:"Datele au fost șterse. Aplicația repornește.",srv_reset_dir:"Doar directorul poate șterge datele.",srv_reset_cod:"Codul de acces este greșit.",srv_sal_lock:"Plățile de salariu nu se mai schimbă și nu se șterg.",
  srv_grafic:"Graficul se face doar pentru angajații creați de dumneavoastră.",srv_ore:"Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).",srv_gr_lock:"Zilele achitate nu se mai schimbă.",f_extra:"Extra (MDL)",f_extra_h:"Remunerare suplimentară pentru luna aceasta, dacă angajatul a făcut ceva în plus. Intră în suma de achitat.",
- op_ang:"Angajați",ang_n:"angajați",f_aditional:"Adițional",inc_peste:"Suma depășește contractul proiectului. Mai pot fi încasați {x}.",inc_peste_cash:"Cash pe acest proiect mai pot fi încasați {x} (partea cash din contract).",inc_peste_tr:"Prin transfer pe acest proiect mai pot fi încasați {x} (partea transfer din contract).",op_ang_h:"Pentru luna aleasă sus: toate zilele angajatului și de cine au fost bifate, suma lunii, cât s-a achitat și de cine, restul. Ceasul deschide graficul, rotița fișa.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
+ op_ang:"Angajați",f_start_h:"Ziua din care lucrează: orice zi până azi. Salariul se socotește de la ea; zilele dinaintea ei nu se bifează în grafic.",gr_before:"Angajatul lucrează de la {d}; zilele dinainte nu se bifează.",ang_n:"angajați",f_aditional:"Adițional",inc_peste:"Suma depășește contractul proiectului. Mai pot fi încasați {x}.",inc_peste_cash:"Cash pe acest proiect mai pot fi încasați {x} (partea cash din contract).",inc_peste_tr:"Prin transfer pe acest proiect mai pot fi încasați {x} (partea transfer din contract).",op_ang_h:"Pentru luna aleasă sus: toate zilele angajatului și de cine au fost bifate, suma lunii, cât s-a achitat și de cine, restul. Ceasul deschide graficul, rotița fișa.",pontaj_lipsa:"fără pontaj în luna aceasta",gr_zile_s:"zile",rest_total:"rest pe toate lunile",sal_h:"Salariul îl puteți stabili doar pentru angajații pe care i-ați creat dumneavoastră.",srv_sal:"Salariul se stabilește doar pentru angajații creați de dumneavoastră.",
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
  f_adaug:"Adăugător (MDL)",f_contract_eur:"Contract în EUR",f_contract_eur_sum:"Suma contractului (EUR)",f_contract_cash:"Din care cash (EUR)",f_contract_tr:"Din care transfer (EUR)",contract_split:"Cash + transfer trebuie să dea suma contractului.",f_proiect_nume:"Denumire proiect",f_client_nume:"Numele clientului",s_tranz:"Toate tranzacțiile",s_tranz_h:"Fiecare mișcare de bani, de la cea mai nouă: de unde au plecat, unde au ajuns, cine a înregistrat-o. Apăsați pe un rând ca să vedeți înregistrarea și istoricul ei.",tz_cont:"Cont",rec_hist:"Istoricul înregistrării",rec_hist_none:"Fără istoric.",j_nochange:"Salvat fără modificări",f_contract_usd:"Contract în USD",pers_dir_h:"Din Casa EHL banii merg doar la un administrator.",p_adaug:"Adăugător",p_total:"Contract + adăugător",
  sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",
@@ -315,7 +315,7 @@ ru:{
  pontaj_paidby:"Выплатил",sal_descr:"Зарплата",gr_bani:"Причитается за месяц",gr_nosal:"оклад не задан",gr_none:"Выберите сотрудника.",gr_h:"Нажмите «День» за полный день или «½ дня» за половину. Отмечать можно только сегодня и прошедшие дни. Каждый день сохраняется сразу, с вашим именем; изменить день может только тот, кто его внёс.",gr_future:"Будущие дни не отмечаются: только сегодня и назад.",gr_remind_t:"График работы сегодня не открывался",gr_remind:"Отметьте дни ваших сотрудников, которые работали сегодня. Панель исчезнет после открытия графика.",
  reset_btn:"Удалить данные",reset_t:"Удаление всех данных",reset_h:"Удаляются все записи: поступления, расходы, выдачи, аренда, договоры, займы, проекты, сотрудники, зарплаты, график, история. Удаляются и учётные записи сотрудников-операторов. Отменить нельзя.",reset_keep:"Остаются только учётные записи директоров и настройки (валюты, категории, кассир).",reset_cod:"Ваш код доступа, для подтверждения",reset_go:"Удалить всё, безвозвратно",reset_busy:"Удаляется…",reset_done:"Данные удалены. Приложение перезапускается.",srv_reset_dir:"Удалять данные может только директор.",srv_reset_cod:"Код доступа неверный.",srv_sal_lock:"Выплаты зарплаты не меняются и не удаляются.",
  srv_grafic:"График можно вести только для сотрудников, которых создали вы.",srv_ore:"День отмечается полным (8 часов) или половиной (4 часа).",srv_gr_lock:"Оплаченные дни больше не меняются.",f_extra:"Премия (MDL)",f_extra_h:"Дополнительное вознаграждение за этот месяц, если сотрудник сделал что-то сверх. Входит в сумму к выплате.",
- op_ang:"Сотрудники",ang_n:"сотрудн.",f_aditional:"Дополнительно",inc_peste:"Сумма превышает договор проекта. Можно получить ещё {x}.",inc_peste_cash:"Наличными по этому проекту можно получить ещё {x} (часть cash договора).",inc_peste_tr:"Переводом по этому проекту можно получить ещё {x} (часть transfer договора).",op_ang_h:"За выбранный сверху месяц: все дни сотрудника и кто их отметил, сумма за месяц, сколько и кем выплачено, остаток. Часы открывают график, шестерёнка карточку.",pontaj_lipsa:"табеля за этот месяц нет",gr_zile_s:"дн.",rest_total:"остаток за все месяцы",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
+ op_ang:"Сотрудники",f_start_h:"День, с которого работает: любой день до сегодняшнего. Оклад считается с него; дни до него в графике не отмечаются.",gr_before:"Сотрудник работает с {d}; дни до этого не отмечаются.",ang_n:"сотрудн.",f_aditional:"Дополнительно",inc_peste:"Сумма превышает договор проекта. Можно получить ещё {x}.",inc_peste_cash:"Наличными по этому проекту можно получить ещё {x} (часть cash договора).",inc_peste_tr:"Переводом по этому проекту можно получить ещё {x} (часть transfer договора).",op_ang_h:"За выбранный сверху месяц: все дни сотрудника и кто их отметил, сумма за месяц, сколько и кем выплачено, остаток. Часы открывают график, шестерёнка карточку.",pontaj_lipsa:"табеля за этот месяц нет",gr_zile_s:"дн.",rest_total:"остаток за все месяцы",sal_h:"Оклад можно задать только сотрудникам, которых создали вы.",srv_sal:"Оклад можно задать только сотрудникам, которых создали вы.",
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
  f_adaug:"Дополнительно (MDL)",f_contract_eur:"Договор в EUR",f_contract_eur_sum:"Сумма договора (EUR)",f_contract_cash:"Из них наличными (EUR)",f_contract_tr:"Из них переводом (EUR)",contract_split:"Наличные + перевод должны давать сумму договора.",f_proiect_nume:"Название проекта",f_client_nume:"Имя клиента",s_tranz:"Все операции",s_tranz_h:"Каждое движение денег, новые сверху: откуда ушли, куда пришли, кто записал. Нажмите на строку, чтобы открыть запись и её историю.",tz_cont:"Счёт",rec_hist:"История записи",rec_hist_none:"Истории нет.",j_nochange:"Сохранено без изменений",f_contract_usd:"Договор в USD",pers_dir_h:"Из кассы EHL деньги идут только администратору.",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
  sess_other:"В аккаунт вошли на другом устройстве. Введите код, чтобы продолжить здесь.",
@@ -1333,7 +1333,7 @@ var FORMS={
 
  angajati:{title:"a_ang",icon:"user",fields:function(){return[
    {k:"nume",t:"text",l:"f_nume",req:1},
-   {k:"dataInceput",t:"date",l:"f_start",def:today()},
+   {k:"dataInceput",t:"date",l:"f_start",req:1,def:today(),noFuture:1,hint:"f_start_h"}, /* any day up to today; may be corrected later */
    /* salaries are the director's: an operator adds the person only */
    {k:"salariu",t:"number",l:(sheetState&&sheetState.id)?"f_salariu_nou":"f_salariu",req:isDir?1:0,step:"0.01",newOnly:1,hint:"",showIf:function(d){return isDir||!(sheetState&&sheetState.id)||angajatMeu(d.nume)}},
    {k:"dinSal",t:"date",l:"f_dinsal",hint:"f_dinsal_h",def:today(),showIf:function(d){return !!(sheetState&&sheetState.id)&&angajatMeu(d.nume)}},
@@ -1356,9 +1356,10 @@ FORMS.grafic={title:"a_grafic",icon:"clock",fields:function(){return[]}}; /* dra
 
 /* ---------------- work schedule: full or half days per employee and day, for a project or for EHL; each day signed by its author ---------------- */
 var GR={mode:"ang",angajat:"",luna:curMonth(),zi:today(),pentru:"EHL",proiect:""};
+function angStart(nume){var a=S.angajati.filter(function(x){return sameP(x.nume,nume)})[0];return a?String(a.dataInceput||""):""} /* the employee's first day */
 function grRec(angajat,iso){return S.grafic.filter(function(r){return sameP(r.angajat,angajat)&&r.data===iso})[0]||null}
 /* a day is changed only by its author, and not once that author has paid the employee for that month */
-function grEditable(r,angajat,iso){if(String(iso)>today())return false;if(r&&r.by!==ME)return false;if(ziInchisa(angajat,iso))return false;return true}
+function grEditable(r,angajat,iso){if(String(iso)>today())return false;var st=angStart(angajat);if(st&&String(iso)<st)return false;if(r&&r.by!==ME)return false;if(ziInchisa(angajat,iso))return false;return true}
 function grProjOpts(){return S.proiecte.filter(function(p){return p.status!=="Finalizat"}).map(function(p){return p.nume}).sort(function(a,b){return String(a).localeCompare(String(b))})}
 function grTag(r){if(!r)return "";return (r.pentru==="Proiect"&&r.proiect)?r.proiect:"EHL"}
 function grWho(r){return r?(byName(r)||r.deCine||(r.by===ME?meName():"")):""}
@@ -1401,7 +1402,7 @@ function drawGrafic(){
       var g=graficOre(a,ym),gm=graficMele(a,ym);
       h+='<p class="hint">'+esc(lunaAchitata(a,ym)?T("gr_lock"):T("gr_h"))+'</p><div class="gr-grid">';
       for(var d=1;d<=dim;d++){var iso=ym+"-"+p2(d),r=grRec(a,iso),hrs=r?n(r.ore):0,dow=new Date(y,m-1,d).getDay();
-        h+='<div class="gr-day'+(dow===0?" sun":"")+(hrs>0?" on":"")+'"><span class="gr-n">'+d+' <small>'+wd[dow]+'</small></span>'+grCell(a,iso)+'</div>';
+        h+='<div class="gr-day'+(dow===0?" sun":"")+(hrs>0?" on":"")+((angStart(a)&&iso<angStart(a))?" before":"")+'"><span class="gr-n">'+d+' <small>'+wd[dow]+'</small></span>'+grCell(a,iso)+'</div>';
       }
       h+='</div><div class="calc-row"><div class="calcbox"><span>'+esc(T("gr_tot"))+'</span><span class="num">'+fmt(g.h1+g.h2,1)+' '+esc(T("gr_ore"))+'</span></div><div class="calcbox"><span>'+esc(T("gr_zile"))+'</span><span class="num">'+fmt(g.z1+g.z2,2)+'</span></div>'
         +'<div class="calcbox"><span>'+esc(T("gr_mine"))+'</span><span class="num">'+fmt(gm.z1+gm.z2,2)+' '+esc(T("gr_zile_s"))+'</span></div></div>';
@@ -1421,7 +1422,7 @@ function grSet(angajat,iso,hrs){
   if(!angajat||!iso)return;
   hrs=n(hrs)===4?4:(n(hrs)===8?8:0);
   var r=grRec(angajat,iso);
-  if(!grEditable(r,angajat,iso)){toast(T(String(iso)>today()?"gr_future":(r&&r.by!==ME?"gr_other":"gr_lock")));drawGrafic();return;}
+  if(!grEditable(r,angajat,iso)){var stA=angStart(angajat);toast(String(iso)>today()?T("gr_future"):((stA&&String(iso)<stA)?T("gr_before").replace("{d}",shortDate(stA)):T(r&&r.by!==ME?"gr_other":"gr_lock")));drawGrafic();return;}
   var body={angajat:angajat,data:iso,ore:hrs,pentru:(GR.pentru==="Proiect"&&GR.proiect)?"Proiect":"EHL",proiect:(GR.pentru==="Proiect"&&GR.proiect)?GR.proiect:"",deCine:meName()},p;
   if(!r){if(!(hrs>0))return;p=saveDoc("grafic",body);}
   else if(n(r.ore)===hrs&&(r.pentru||"EHL")===body.pentru&&(r.proiect||"")===body.proiect)return;
@@ -2922,8 +2923,14 @@ function submitForm(){
     });
   }else if(col==="angajati"){
     var body={nume:String(d.nume).trim(),dataInceput:d.dataInceput,status:d.status};
-    var oldA=st.id?((S.angajati.filter(function(a){return a.id===st.id})[0]||{}).nume||""):"";
+    var oldRec=st.id?(S.angajati.filter(function(a){return a.id===st.id})[0]||null):null,oldA=oldRec?(oldRec.nume||""):"";
     p=saveDoc("angajati",body,st.id).then(function(){return renamePerson(oldA,body.nume)}).then(function(){
+      /* the start date was corrected: the first salary counts from the new date */
+      if(oldRec&&body.dataInceput&&String(oldRec.dataInceput||"")!==String(body.dataInceput)){
+        var h0=S.istoric.filter(function(h){return sameP(h.angajat,body.nume)}).sort(function(x,y){return String(x.dinData).localeCompare(String(y.dinData))})[0];
+        if(h0&&h0.dinData!==body.dataInceput)return saveDoc("istoric",{dinData:body.dataInceput},h0.id);
+      }
+    }).then(function(){
       /* a new employee earns the salary from the start date; a changed salary counts from the chosen date,
          so the months before it keep the old one. A second change for the same date corrects that row. */
       var sal=n(d.salariu);

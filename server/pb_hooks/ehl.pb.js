@@ -213,6 +213,10 @@ onRecordCreateRequest((e) => {
   if (closed > 0) throw new BadRequestError("Zilele achitate nu se mai schimbă.");
   /* the author's name is written by the server, so everyone can read who booked the day */
   if (e.auth) e.record.set("deCine", String(e.auth.getString("nume") || ""));
+  /* not before the employee's first day */
+  var nmS = String(e.record.getString("angajat") || "").trim(), ziS = String(e.record.getString("data") || ""), startS = "";
+  try { startS = String($app.findFirstRecordByFilter("angajati", "nume = {:n}", { n: nmS }).getString("dataInceput") || ""); } catch (err) { startS = ""; }
+  if (startS && ziS && ziS < startS) throw new BadRequestError("Angajatul lucrează de la " + startS + "; zilele dinainte nu se bifează.");
   e.next();
 }, "grafic");
 onRecordUpdateRequest((e) => {
@@ -226,6 +230,10 @@ onRecordUpdateRequest((e) => {
     try { paid = $app.countRecords("cheltuieli", $dbx.exp("categorie = 'Salarii' AND luna = {:l} AND TRIM(angajat) = {:n} AND data >= {:d}", { l: zi.slice(0, 7), n: nm, d: zi })) > 0; } catch (err) { paid = false; }
     if (paid) throw new BadRequestError("Zilele achitate nu se mai schimbă.");
   }
+  /* not before the employee's first day */
+  var nmS = String(e.record.getString("angajat") || "").trim(), ziS = String(e.record.getString("data") || ""), startS = "";
+  try { startS = String($app.findFirstRecordByFilter("angajati", "nume = {:n}", { n: nmS }).getString("dataInceput") || ""); } catch (err) { startS = ""; }
+  if (startS && ziS && ziS < startS) throw new BadRequestError("Angajatul lucrează de la " + startS + "; zilele dinainte nu se bifează.");
   e.next();
 }, "grafic");
 onRecordDeleteRequest((e) => {
