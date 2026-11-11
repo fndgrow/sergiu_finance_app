@@ -197,6 +197,16 @@ onRecordUpdateRequest((e) => {
   e.next();
 }, "schimburi");
 
+/* ---- an employee's start date cannot move past a schedule day already ticked for him ---- */
+onRecordUpdateRequest((e) => {
+  var st = String(e.record.getString("dataInceput") || ""), nmA = String((e.record.original ? e.record.original() : e.record).getString("nume") || "").trim(), first = "";
+  if (st) {
+    try { var resA = new DynamicModel({ d: "" }); $app.db().newQuery("SELECT COALESCE(MIN(data),'') AS d FROM grafic WHERE TRIM(angajat) = {:n} AND ore > 0").bind({ n: nmA }).one(resA); first = String(resA.d || ""); } catch (err) { first = ""; }
+    if (first && st > first) throw new BadRequestError("În grafic sunt zile bifate din " + first + ". Data începerii nu poate fi după ele: debifați întâi acele zile sau alegeți o dată mai devreme.");
+  }
+  e.next();
+}, "angajati");
+
 /* ---- the work schedule: a full day (8) or a half day (4); any user, any active employee; a day is changed by its
         author only (collection rule). The month is paid as one sum by whoever pays, so a day is closed for everyone
         once a salary payment for that employee is dated on that day or later. ---- */

@@ -133,6 +133,10 @@ function collection(col) {
       if (NET_DOWN) throw err(0, "net");
       const r = store[col] && store[col][id]; if (!r) throw err(404, "nf");
       if (col === "incasari") incLimit({ ...r, ...data }, id);
+      if (col === "angajati" && data.dataInceput) { /* the hook: the start date cannot move past a ticked day */
+        const first = Object.values(store.grafic || {}).filter(g => g.angajat === r.nume && g.ore > 0).map(g => g.data).sort()[0];
+        if (first && String(data.dataInceput) > first) throw err(400, "În grafic sunt zile bifate din " + first + ".");
+      }
       if (col === "utilizatori" && !isDir()) throw err(403, "forbidden");
       if (col === "utilizatori" && data.rol && data.rol !== r.rol) throw err(400, "Rolul nu se schimbă: administratorii sunt Sergiu și Grigore.");
       if (col !== "utilizatori" && col !== "config" && !isDir() && r.by !== currentUser.id) throw err(403, "forbidden");
@@ -799,6 +803,11 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("suma", String(pz * 2)); submit($("#recf")); await tick(100);
   check(store.cheltuieli[pay.id].suma === pz * 2, "the corrected payment is saved");
   if (sameMonth) { click($('[data-edit="cheltuieli"][data-id="' + pay.id + '"]')); await tick(60); check(/Toate zilele bifate ale lunii sunt achitate/.test($("#sheet").textContent), "with the doubled sum both days are covered"); click($("#closeSheet")); await tick(); }
+  click($('[data-view="panou"]')); await tick(); if ($('[data-fold="ang"]').getAttribute("aria-expanded") !== "true") { click($('[data-fold="ang"]')); await tick(); }
+  click($('[data-edit="angajati"][data-id="' + nv.id + '"]')); await tick(); setField("dataInceput", dAgo(0)); submit($("#recf")); await tick(80);
+  check(store.angajati[nv.id].dataInceput === dAgo(20) && /Data începerii nu poate fi după ele/.test($("#sheet").textContent), "the start date cannot be moved past days already ticked");
+  click($("#closeSheet")); await tick();
+  try { await collection("angajati").update(nv.id, { dataInceput: dAgo(0) }); check(false, "server refuses"); } catch (e) { check(/zile bifate/.test(e.message), "the server refuses it too"); }
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
