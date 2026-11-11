@@ -166,7 +166,7 @@ ro:{
  srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",din_casa:"din casă",cont_meu_disp:"Disponibil în contul meu",f_codehl:"Codul EHL",f_codehl_h:"Banii ies din Casa EHL: confirmați cu codul dumneavoastră EHL.",codehl_bad:"Codul EHL este greșit.",codehl_fmt:"Codul EHL trebuie să aibă 4–8 cifre.",codehl_none:"Nu aveți cod EHL: fără el nu se pot scoate bani din Casa EHL. Cereți-l în Setări → Utilizatori.",f_codehl_set:"Cod EHL (acces la Casa EHL)",f_codehl_set_h:"4–8 cifre. Doar un director cu cod EHL poate scoate bani din casa comună.",f_din:"Din",f_din_h:"Casa EHL este casa comună a directorilor; Contul meu sunt banii pe care i-am luat din ea.",din_casa_ehl:"Casa EHL",din_cont_meu:"Contul meu",s_dirs:"Conturile administratorilor",s_dirs_h:"Banii luați de fiecare director din Casa EHL, ce a dat mai departe sau a cheltuit, și ce mai are în mână.",l_dirs:"La administratori",
  s_colab_exp:"Cheltuielile și chiriile colaboratorilor",s_tr:"Cheltuieli din cont (transfer)",tr_h:"La transfer banii se iau din contul bancar, nu de la persoană. Apăsați pe un nume ca să vedeți pe ce s-au cheltuit.",colab_tr:"Plătit prin transfer (din cont)",
  avans_lipsa:"Nu aveți destui bani din avans: disponibil {s} MDL. Cereți mai întâi bani de la director.",cont_meu_lipsa:"Nu aveți destui bani în contul dumneavoastră: disponibil {s} MDL. Luați mai întâi din Casa EHL.",ehl_dest:"Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.",avans_disp:"Disponibil din avansul meu",din_avans:"din avansul lui",colab_gave:"Ieșiri făcute din avans",
- f_pentru:"Cheltuiala este pentru",pt_proiect:"Proiect",pt_proiecte:"Proiecte",pt_ehl:"EHL (firma)",pt_alte:"Altele",s_pentru:"Cheltuieli: proiecte, EHL, altele",
+ f_pentru:"Cheltuiala este pentru",gr_tinta:"Ziua se trece pe",gr_tinta_h:"Se aplică zilelor pe care le bifați de acum. La o zi deja bifată pe altceva apare „Mută pe …”: o mută cel care a bifat-o, fără să o piardă.",gr_retag:"Mută pe {t}",pt_proiect:"Proiect",pt_proiecte:"Proiecte",pt_ehl:"EHL (firma)",pt_alte:"Altele",s_pentru:"Cheltuieli: proiecte, EHL, altele",
  fond_h:"Banii puși de un fondator sunt un împrumut către firmă: datoria crește cu fiecare încasare de la el și scade prin Ieșire din casă → Restituire fondator."
 },
 ru:{
@@ -325,7 +325,7 @@ ru:{
  srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",din_casa:"из кассы",cont_meu_disp:"Доступно на моём счёте",f_codehl:"Код EHL",f_codehl_h:"Деньги уходят из кассы EHL: подтвердите своим кодом EHL.",codehl_bad:"Код EHL неверный.",codehl_fmt:"Код EHL должен быть из 4–8 цифр.",codehl_none:"У вас нет кода EHL: без него нельзя брать деньги из кассы EHL. Задайте его в Настройки → Пользователи.",f_codehl_set:"Код EHL (доступ к кассе EHL)",f_codehl_set_h:"4–8 цифр. Брать деньги из общей кассы может только директор с кодом EHL.",f_din:"Откуда",f_din_h:"Касса EHL — общая касса директоров; Мой счёт — деньги, которые я взял из неё.",din_casa_ehl:"Касса EHL",din_cont_meu:"Мой счёт",s_dirs:"Счета администраторов",s_dirs_h:"Сколько каждый директор взял из кассы EHL, что передал дальше или потратил, и сколько у него на руках.",l_dirs:"У администраторов",
  s_colab_exp:"Расходы и аренда сотрудников",s_tr:"Расходы со счёта (перевод)",tr_h:"При переводе деньги берутся с банковского счёта, а не у человека. Нажмите на имя, чтобы увидеть, на что они потрачены.",colab_tr:"Оплачено переводом (со счёта)",
  avans_lipsa:"В вашем авансе недостаточно денег: доступно {s} MDL. Сначала получите деньги у директора.",cont_meu_lipsa:"На вашем счёте недостаточно денег: доступно {s} MDL. Сначала возьмите из кассы EHL.",ehl_dest:"Из кассы EHL деньги идут только администраторам, на счёт или обратно учредителю.",avans_disp:"Доступно из моего аванса",din_avans:"из аванса:",colab_gave:"Выдачи из аванса",
- f_pentru:"Расход относится к",pt_proiect:"Проект",pt_proiecte:"Проекты",pt_ehl:"EHL (фирма)",pt_alte:"Прочее",s_pentru:"Расходы: проекты, EHL, прочее",
+ f_pentru:"Расход относится к",gr_tinta:"День относится к",gr_tinta_h:"Действует для дней, которые отмечаете с этого момента. У дня, отмеченного на другое, появляется «Перенести на …»: переносит тот, кто его отметил, не теряя день.",gr_retag:"Перенести на {t}",pt_proiect:"Проект",pt_proiecte:"Проекты",pt_ehl:"EHL (фирма)",pt_alte:"Прочее",s_pentru:"Расходы: проекты, EHL, прочее",
  fond_h:"Деньги, внесённые учредителем, — это заём фирме: долг растёт с каждым поступлением от него и уменьшается через Выдачу из кассы → Возврат учредителю."
 }};
 var lang="ro";
@@ -1362,6 +1362,7 @@ function grRec(angajat,iso){return S.grafic.filter(function(r){return sameP(r.an
 function grEditable(r,angajat,iso){if(String(iso)>today())return false;var st=angStart(angajat);if(st&&String(iso)<st)return false;if(r&&r.by!==ME)return false;if(ziInchisa(angajat,iso))return false;return true}
 function grProjOpts(){return S.proiecte.filter(function(p){return p.status!=="Finalizat"}).map(function(p){return p.nume}).sort(function(a,b){return String(a).localeCompare(String(b))})}
 function grTag(r){if(!r)return "";return (r.pentru==="Proiect"&&r.proiect)?r.proiect:"EHL"}
+function grTarget(){return (GR.pentru==="Proiect"&&GR.proiect)?GR.proiect:"EHL"} /* what a tapped day is booked on right now */
 function grWho(r){return r?(byName(r)||r.deCine||(r.by===ME?meName():"")):""}
 function openGrafic(angajat,luna){
   grMarkOpened();grRemindShown=false;
@@ -1378,7 +1379,8 @@ function grCell(angajat,iso){
   return '<span class="gr-ctl">'
     +'<button type="button" class="gr-full" data-grset="8" data-gra="'+esc(angajat)+'" data-grd="'+iso+'" aria-pressed="'+(hrs===8?"true":"false")+'"'+(ed?"":" disabled")+'>'+esc(T("gr_zi"))+'</button>'
     +'<button type="button" class="gr-full" data-grset="4" data-gra="'+esc(angajat)+'" data-grd="'+iso+'" aria-pressed="'+(hrs===4?"true":"false")+'"'+(ed?"":" disabled")+'>'+esc(T("gr_half"))+'</button></span>'
-    +(r&&hrs>0?'<span class="gr-meta">'+esc(grTag(r))+(who?' · '+esc(who):'')+'</span>':'');
+    +(r&&hrs>0?'<span class="gr-meta">'+esc(grTag(r))+(who?' · '+esc(who):'')
+      +((ed&&!sameP(grTag(r),grTarget()))?' <button type="button" class="btn sm ghost gr-move" data-grretag="1" data-gra="'+esc(angajat)+'" data-grd="'+iso+'">'+esc(T("gr_retag").replace("{t}",grTarget()))+'</button>':'')+'</span>':'');
 }
 function drawGrafic(){
   var lst=angajatiLucru(),a=GR.angajat,ym=GR.luna;
@@ -1387,9 +1389,8 @@ function drawGrafic(){
   var h='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(T("a_grafic"))+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div>';
   h+='<div class="chips" style="margin-bottom:10px"><button type="button" class="chip" data-grmode="ang"'+(GR.mode==="ang"?' aria-pressed="true"':'')+'>'+esc(T("gr_mode_ang"))+'</button><button type="button" class="chip" data-grmode="zi"'+(GR.mode==="zi"?' aria-pressed="true"':'')+'>'+esc(T("gr_mode_zi"))+'</button></div>';
   /* what the day is worked for; applies to the days tapped from now on */
-  var pj=grProjOpts();
-  h+='<div class="pair"><label><span>'+esc(T("f_pentru"))+'</span><select data-gr="pentru"><option value="EHL"'+(GR.pentru!=="Proiect"?' selected':'')+'>'+esc(T("pt_ehl"))+'</option>'+(pj.length?'<option value="Proiect"'+(GR.pentru==="Proiect"?' selected':'')+'>'+esc(T("pt_proiect"))+'</option>':'')+'</select></label>'
-    +'<label'+(GR.pentru==="Proiect"?'':' hidden')+'><span>'+esc(T("f_proiect"))+'</span><select data-gr="proiect">'+pj.map(function(p){return '<option value="'+esc(p)+'"'+(sameP(p,GR.proiect)?' selected':'')+'>'+esc(p)+'</option>'}).join("")+'</select></label></div>';
+  var pj=grProjOpts(),onP=GR.pentru==="Proiect"&&GR.proiect;
+  h+='<label><span>'+esc(T("gr_tinta"))+'</span><select data-gr="tinta"><option value="EHL"'+(onP?'':' selected')+'>'+esc(T("pt_ehl"))+'</option>'+pj.map(function(p){return '<option value="P:'+esc(p)+'"'+((onP&&sameP(p,GR.proiect))?' selected':'')+'>'+esc(T("pt_proiect"))+' · '+esc(p)+'</option>'}).join("")+'</select></label><p class="hint">'+esc(T("gr_tinta_h"))+'</p>';
   if(GR.mode==="zi"){
     h+='<label><span>'+esc(T("f_data"))+'</span><input type="date" data-gr="zi" value="'+esc(GR.zi)+'" max="'+today()+'"></label><p class="hint">'+esc(T("gr_h_zi"))+'</p>';
     if(!lst.length)h+='<p class="hint">'+esc(T("gr_none"))+'</p>';
@@ -1434,8 +1435,7 @@ function grChange(el){
   if(k==="angajat"){GR.angajat=el.value;drawGrafic();return;}
   if(k==="luna"){if(/^[0-9]{4}-[0-9]{2}$/.test(el.value)){GR.luna=el.value;GR.zi=GR.luna===curMonth()?today():GR.luna+"-01";}drawGrafic();return;}
   if(k==="zi"){if(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(el.value)){GR.zi=el.value;GR.luna=el.value.slice(0,7);}drawGrafic();return;}
-  if(k==="pentru"){GR.pentru=el.value;if(GR.pentru==="Proiect"&&!GR.proiect)GR.proiect=grProjOpts()[0]||"";drawGrafic();return;}
-  if(k==="proiect"){GR.proiect=el.value;return;}
+  if(k==="tinta"){if(el.value.indexOf("P:")===0){GR.pentru="Proiect";GR.proiect=el.value.slice(2);}else{GR.pentru="EHL";GR.proiect="";}drawGrafic();return;}
 }
 
 /* ---------------- db layer ---------------- */
@@ -3119,6 +3119,8 @@ document.addEventListener("click",function(ev){
   if(nv){var nvNew=nv.dataset.view!==view;if(nvNew){view=nv.dataset.view;histPush({v:view});}render();if(nvNew)window.scrollTo(0,0);return;}
   var fb=t.closest&&t.closest("[data-form]");
   if(fb){if(fb.dataset.form==="grafic"){openGrafic();return;}openForm(fb.dataset.form);return;}
+  var gmv=t.closest&&t.closest("[data-grretag]"); /* a ticked day moves to the selected target, hours unchanged */
+  if(gmv){var mva=gmv.getAttribute("data-gra"),mvd=gmv.getAttribute("data-grd"),mvr=grRec(mva,mvd);if(mvr&&n(mvr.ore)>0)grSet(mva,mvd,n(mvr.ore));return;}
   var gs=t.closest&&t.closest("[data-grset]");
   if(gs){var gsa=gs.getAttribute("data-gra"),gsd=gs.getAttribute("data-grd"),gsw=n(gs.getAttribute("data-grset")),gsc=grRec(gsa,gsd);grSet(gsa,gsd,(gsc&&n(gsc.ore)===gsw)?0:gsw);return;}
   var gmd=t.closest&&t.closest("[data-grmode]");

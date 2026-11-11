@@ -763,6 +763,21 @@ const ls = (k) => window.localStorage.getItem(k);
   const nvh2 = Object.values(store.istoric).filter(h => h.angajat === "Nou Venit");
   check(store.angajati[nv.id].dataInceput === dAgo(20) && nvh2.length === 1 && nvh2[0].dinData === dAgo(20), "correcting the start date moves the first salary row to the new date");
 
+  console.log("14. a day booked on the wrong target is moved by its author, not unticked");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="grafic"]')); await tick();
+  $('[data-gr="angajat"]').value = "Nou Venit"; $('[data-gr="angajat"]').dispatchEvent(new window.Event("change", { bubbles: true })); await tick();
+  check($('[data-gr="tinta"]') && !$('[data-gr="pentru"]') && !$('[data-gr="proiect"]'), "one selector says what a day is booked on: EHL or a project");
+  click($('[data-grset="8"][data-gra="Nou Venit"][data-grd="' + dAgo(0) + '"]')); await tick(80);
+  const gd = () => Object.values(store.grafic || {}).find(r => r.angajat === "Nou Venit" && r.data === dAgo(0));
+  check(gd() && gd().ore === 8 && gd().pentru === "EHL" && !$('[data-grretag][data-gra="Nou Venit"][data-grd="' + dAgo(0) + '"]'), "today ticked on EHL; no move button while the selector is on EHL");
+  $('[data-gr="tinta"]').value = "P:Casa Test"; $('[data-gr="tinta"]').dispatchEvent(new window.Event("change", { bubbles: true })); await tick();
+  const mv = $('[data-grretag][data-gra="Nou Venit"][data-grd="' + dAgo(0) + '"]');
+  check(mv && /Mută pe Casa Test/.test(mv.textContent), "with a project selected the ticked day offers \"Mută pe Casa Test\"");
+  click(mv); await tick(80);
+  check(gd() && gd().ore === 8 && gd().pentru === "Proiect" && gd().proiect === "Casa Test", "the day moved to the project and kept its 8 hours");
+  check(Object.values(store.jurnal).some(j => j.col === "grafic" && j.ref === gd().id && j.act === "edit"), "the move is in the change history");
+  click($("#closeSheet")); await tick();
+
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
 })().catch(e => { console.error("TEST CRASH", e); process.exit(2); });
