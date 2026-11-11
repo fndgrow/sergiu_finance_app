@@ -57,26 +57,42 @@ Contents
 | File | Lines | What is inside |
 |---|---|---|
 | `index.html` | 43 | the shell: header (`.bar` with logo, title, signed-in user block, burger button, language button), `<main id="app">`, `<nav id="nav">`, containers `#sheet`, `#menu` and `#toasts`, script tags |
-| `styles.css` | ~770 | theme variables (`:root`, dark theme), all styles, media queries for phones (≤ 899 px), 620/900/1200/1400/1800 px tiers and `hover:hover` |
-| `app.js` | ~2 400 | all behaviour: translations, state, sign-in and lock screen, sync, calculations, forms, screens, charts, date picker |
+| `styles.css` | ~850 | theme variables (`:root`, dark theme, the EHL account's green-and-gold overrides), all styles, media queries for phones (≤ 899 px), 620/900/1200/1400/1800 px tiers and `hover:hover` |
+| `app.js` | ~3 300 | all behaviour: translations, state, sign-in and lock screen, sync, calculations, forms, screens, charts, date picker |
 | `app-config.js` | 3 | `window.PB_URL`, the server address; empty = same origin |
 | `vendor/pocketbase.umd.js` | — | the official PocketBase JS SDK 0.28.2 |
 | `sw.js` | 46 | service worker: caches the app files and libraries; the `CACHE` version |
 | `manifest.json` | — | name, icons, colours for installing on a phone |
 | `icons/` | — | PNG icons 192/512, maskable, apple-touch |
-| `server/pb_migrations/1762000000_init.js` | 97 | creates every collection with its fields and rules |
-| `server/pb_migrations/1762000001_settings.js` | 15 | trusts the X-Real-IP header, sets the app name |
-| `server/pb_migrations/1762000002_backups.js` | 12 | daily backup at 03:00, keep 14 |
-| `server/pb_migrations/1762000003_sursa.js` | 12 | the `sursa` field on expenses |
-| `server/pb_migrations/1762000004_incasari_director.js` | 12 | client incomes are created by directors only |
+| `server/pb_migrations/1762000000_init.js` | — | creates every collection with its fields and rules |
+| `server/pb_migrations/1762000001_settings.js` | — | trusts the X-Real-IP header, sets the app name |
+| `server/pb_migrations/1762000002_backups.js` | — | daily backup at 03:00, keep 14 |
+| `server/pb_migrations/1762000003_sursa.js` | — | the `sursa` field on expenses |
+| `server/pb_migrations/1762000004_incasari_director.js` | — | client incomes are created by directors only |
 | `server/pb_migrations/1762000005_incasari_confirmat.js` | — | `incasari.confirmat`: who confirmed a founder's money and when |
-| `server/pb_migrations/1762000006_proiecte_contract.js` | — | `proiecte.sumaContract`, `proiecte.adaugator` |
+| `server/pb_migrations/1762000006_proiecte_contract.js` | — | `proiecte.sumaContract`, `proiecte.adaugator` (the latter now the "Adițional") |
 | `server/pb_migrations/1762000007_cheltuieli_pentru.js` | — | `cheltuieli.pentru`: Proiect / EHL / Altele |
-| `server/pb_migrations/1762000008_iesiri_sursa.js` | — | `iesiri.sursa`, `iesiri.platitDe`: paid from the till or from a collaborator's advance |
+| `server/pb_migrations/1762000008_iesiri_sursa.js` | — | `iesiri.sursa`, `iesiri.platitDe`: paid from the till or from a person's own account |
 | `server/pb_migrations/1762000009_iesiri_director.js` | — | till outflows are created by directors only |
 | `server/pb_migrations/1762000010_imprumuturi_director.js` | — | loans are created by directors only |
 | `server/pb_migrations/1762000011_operator_citire.js` | — | list/view rules: a collaborator reads only what is his |
-| `server/pb_hooks/ehl.pb.js` | 151 | sign-in by code, the director's password, record authorship, validations |
+| `server/pb_migrations/1762000012_istoric_colaborator.js` | — | salary history readable by collaborators |
+| `server/pb_migrations/1762000013_iesiri_salarii_colab.js` | — | a collaborator may record salary outflows |
+| `server/pb_migrations/1762000014_grafic.js` | — | the `grafic` collection (work schedule) |
+| `server/pb_migrations/1762000015_pontaj_extra.js` | — | extra fields on timesheets |
+| `server/pb_migrations/1762000016_doar_autorul.js` | — | only the author (or a director) edits a row |
+| `server/pb_migrations/1762000017_grafic_salarii.js` | — | employees, salaries and the schedule readable by every member |
+| `server/pb_migrations/1762000018_config_directori.js` | — | `config.directori`: the directors' names for every client |
+| `server/pb_migrations/1762000019_categoria_arhitectura.js` | — | adds the Arhitectură category (safe on an empty base) |
+| `server/pb_migrations/1762000020_chirii_sursa.js` | — | `chirii.sursa`, `chirii.platitDe` |
+| `server/pb_migrations/1762000021_cod_ehl.js` | — | `utilizatori.codEHL`: a director's code for the EHL account |
+| `server/pb_migrations/1762000022_proiecte_valute.js` | — | `proiecte.contractEUR`, `proiecte.contractUSD` |
+| `server/pb_migrations/1762000023_proiecte_cash_transfer.js` | — | `proiecte.contractCash`, `proiecte.contractTransfer`: the contract's cash and transfer parts |
+| `server/pb_migrations/1762000024_imprumuturi_valuta.js` | — | `imprumuturi.valuta`, `imprumuturi.curs`: loans in any currency |
+| `server/pb_migrations/1762000025_schimburi.js` | — | the `schimburi` collection: currency exchange by a person |
+| `server/pb_migrations/1762000026_proiecte_aditional_valuta.js` | — | `proiecte.adaugatorValuta`: the currency of the Adițional |
+| `server/pb_migrations/1762000027_proiecte_fara_stergere.js` | — | `proiecte.deleteRule = null`: projects are never deleted |
+| `server/pb_hooks/ehl.pb.js` | 576 | sign-in by code (own code or EHL code), record authorship, every money rule (payer/source, balances, founder code, project caps), users (EHL only, collaborators only, fixed roles), rename route, reset route |
 | `server/install.sh` | 85 | installs PocketBase as a service + nginx site + certificate |
 | `server/nginx-site.conf` | 32 | nginx site template (proxy to 8090, security headers) |
 | `deploy.sh` | 28 | copies the files to the server over scp and restarts the service |
@@ -482,19 +498,21 @@ Every record has the system fields `id` (15 characters; new records get it on th
 
 | Collection | Fields |
 |---|---|
-| `utilizatori` (auth) | `nume` text; `rol` select Operator/Director; `cod` text 4–8 digits, unique index; `status` select Activ/Inactiv; `parolaSetata` bool; system `email`, `password`, `verified`, `tokenKey` (email and password are random; `tokenKey` is refreshed on every sign-in: one session per account) |
+| `utilizatori` (auth) | `nume` text; `rol` select Operator/Director (fixed: new users are always Operator, the role never changes); `cod` text 4–8 digits, unique index; `codEHL` text (a director's code for the EHL account); `status` select Activ/Inactiv; `parolaSetata` bool; system `email`, `password`, `verified`, `tokenKey` (random; `tokenKey` is refreshed on every own-code sign-in: one session per account) |
 | `incasari` | `data`, `client` (a client or a founder = a director's name), `proiect`, `descriere`, `valuta` text; `curs`, `suma` number; `mod` text (Numerar/Transfer; a transfer is always MDL); `confirmat` text (set by the server for a founder's money) |
 | `cheltuieli` | `data`, `categorie`, `descriere`, `pentru` (Proiect/EHL/Altele), `client`, `proiect`, `platitDe`, `mod`, `sursa` (Avans/Proprii/empty) text; `suma` number |
 | `iesiri` | `data`, `destinatie` (Dat persoanei/Depus pe cont/Salarii/Împrumut/Restituire fondator/Alte), `valuta`, `persoana`, `luna` (YYYY-MM), `nota`, `sursa` (Casa/Avans), `platitDe`; `curs`, `suma` |
-| `chirii` | `dataInceput`, `dataSfarsit`, `locatia`, `chirias`, `valuta`, `mod`, `nota`; `curs`, `chirie`, `gaj`, `comunale`, `avarii` |
+| `chirii` | `dataInceput`, `dataSfarsit`, `locatia`, `chirias`, `valuta`, `mod`, `nota`, `sursa` (Casa/Avans), `platitDe`; `curs`, `chirie`, `gaj`, `comunale`, `avarii` |
 | `contracte` | `client`, `nota`; `sumaContract`, `deIncasatCash` |
-| `imprumuturi` | `data`, `persoana`, `termen`, `status` (Neachitat/Achitat), `nota`; `suma` |
-| `proiecte` | `nume`, `client`, `responsabili` (names separated by commas), `dataInceput`, `termen`, `status` (Activ/Pauză/Finalizat), `nota`; `buget`, `sumaContract`, `adaugator` |
+| `imprumuturi` | `data`, `persoana`, `termen`, `status` (Neachitat/Achitat), `nota`, `valuta` (empty = MDL); `suma`, `curs` |
+| `proiecte` | `nume`, `client`, `responsabili` (the creating account; comma list for old rows), `dataInceput`, `termen`, `status` (Activ/Pauză/Finalizat), `nota`, `adaugatorValuta` (EUR/MDL/USD); `contractEUR`, `contractCash`, `contractTransfer`, `adaugator` (the Adițional); legacy `buget`, `sumaContract`, `contractUSD`. Delete rule: nobody |
 | `angajati` | `nume`, `dataInceput`, `status` |
 | `istoric` | `angajat`, `dinData`; `salariu` |
-| `pontaj` | `luna`, `angajat`; `z1`, `z2` |
+| `pontaj` | `luna`, `angajat`; `z1`, `z2` (+ extra fields from migration 0015) |
+| `grafic` | work schedule: `angajat`, day fields (migration 0014) |
+| `schimburi` | `data`, `persoana` (the account; set by the server), `valutaDin`, `valutaIn`, `nota`; `sumaDin`, `sumaIn`. Read: directors or own rows |
 | `jurnal` | `act` (add/edit/del), `col`, `ref`, `nume`; `data` JSON |
-| `config` | `valute` JSON `[{cod, curs}]`; `casier` text; `categorii` JSON `[…]` |
+| `config` | `valute` JSON `[{cod, curs}]`; `categorii` JSON `[…]`; `directori` JSON (kept by the server); `casier` text (legacy, empty, no longer shown) |
 | `login_attempts` | `ip`; written only by the server |
 
 Dates are stored as **text** in ISO form (`2026-11-02`) so comparisons and the export do not depend on time zones; amounts are numbers. People, clients and projects are referenced by **name** (text); a rename is propagated by the client (`renamePerson`), and the server hooks compare names exactly (SQLite's `LOWER()` knows ASCII only, so it is not used on names).
@@ -638,7 +656,7 @@ Everything below was asked for by the directors while the app went into use. Whe
 - Founders are the directors. An income picks its source from `fondatori()` first, then the real clients; a founder's money needs `codFondator` and is a **loan to the firm**: `C.fond` (per founder: put in, returned, owed) is rendered right under the dashboard totals, the outflow destination "Restituire fondator" repays it, and founders are left out of `C.perClient`. *code check: client + server.*
 
 **Projects and expenses**
-- A project carries `sumaContract` and `adaugator`; `projInc(name)` splits what the client paid into cash and transfer from the incomes naming the project.
+- A project carries `contractEUR` split into `contractCash` + `contractTransfer`, plus the Adițional (`adaugator` + `adaugatorValuta`); `projIncEur(name)` splits what the client paid into cash and transfer, in euro, from the incomes naming the project (`sumaContract`/`contractUSD` are legacy, lei fallback through `contractLei`).
 - An expense is for a project, for the firm or for something else (`pentru`, `pentruOf()`); "Proiect" requires the project. `C.perPentru` feeds a dashboard block.
 - A transfer expense is paid by the account: `C.trPers` lists who paid by transfer; the cash report (`C.colab`) no longer lists people who only paid by transfer.
 
