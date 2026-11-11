@@ -37,7 +37,7 @@ const visible = (col, r) => {
   if (col === "utilizatori") return r.id === me.id;
   if (["incasari", "contracte", "imprumuturi", "jurnal"].includes(col)) return false;
   if (col === "istoric" || col === "angajati" || col === "grafic") return true; /* migration 17: employees, salaries and the schedule are shared */
-  if (col === "cheltuieli") return r.by === me.id || r.platitDe === me.nume;
+  if (col === "cheltuieli") return r.by === me.id || r.platitDe === me.nume || r.categorie === "Salarii"; /* salary payments are shared, like the employees */
   if (col === "iesiri") return r.by === me.id || r.persoana === me.nume;
   if (["chirii", "pontaj", "schimburi"].includes(col)) return r.by === me.id;
   return true; /* proiecte, config */
@@ -694,6 +694,7 @@ const ls = (k) => window.localStorage.getItem(k);
   console.log("8j. the collaborator's own dashboard: his money only, nothing of the firm's");
   click($('[data-view="panou"]')); await tick();
   check(/Primit de la director/.test(text()) && /Cheltuit numerar/.test(text()) && /Ce am introdus eu/.test(text()), "his dashboard shows what he received, what he spent and the operations he entered");
+  check(/Bani primiți de la director/.test(text()) ? /· de la (Sergiu|Casa EHL)/.test(text()) : true, "each sum he received names who sent it");
   check(!/Banii firmei|Datorii către fondatori|Sold pe client/.test(text()), "no firm totals, clients or founders on it");
   const opCache = JSON.parse(ls("ehl.cache") || "{}");
   check(opCache.incasari && opCache.incasari.length === 0 && opCache.cheltuieli.length > 0 && opCache.cheltuieli.every(r => r.by === op.id || r.platitDe === "Ion Operator"), "his phone holds no incomes and only his own expenses (" + (opCache.cheltuieli || []).length + ")");
