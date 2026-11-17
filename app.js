@@ -92,7 +92,7 @@ ro:{
  f_rol:"Rol",rol_op:"Operator",rol_dir:"Director",f_cod:"Cod de acces",
  f_cod_h:"4–8 cifre pe care i le dați angajatului. Cu ele intră în aplicație de pe telefonul lui.",
  also_ang:"Îl trec și la angajați, cu salariu",
- gate_t:"Cod de acces",gate_h:"Introduceți codul primit de la director. La prima pornire a aplicației, codul introdus devine codul directorului.",gate_bad:"Cod greșit sau utilizator dezactivat.",
+ gate_t:"Cod de acces",gate_h:"Codul de acces: al dumneavoastră, sau codul EHL pentru Casa EHL. Apoi codul din aplicația de autentificare a contului respectiv; la prima intrare o configurați.",gate_bad:"Cod greșit sau utilizator dezactivat.",
  u_none:"Niciun utilizator încă",u_none_d:"Adăugați primul utilizator ca angajații să poată intra cu codul lor.",
  logout:"Schimbă utilizatorul",u_inactiv:"Dezactivat",
  setup_t:"Aplicația nu este configurată",setup_h:"Biblioteca serverului nu s-a încărcat. Reîncărcați pagina; dacă persistă, verificați fișierul vendor/pocketbase.umd.js.",
@@ -160,13 +160,13 @@ ro:{
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
  f_adaug:"Adăugător (MDL)",f_contract_eur:"Contract în EUR",f_contract_eur_sum:"Suma contractului (EUR)",f_contract_cash:"Din care cash (EUR)",f_contract_tr:"Din care transfer (EUR)",contract_split:"Cash + transfer trebuie să dea suma contractului.",f_proiect_nume:"Denumire proiect",f_client_nume:"Numele clientului",s_tranz:"Toate tranzacțiile",s_tranz_h:"Fiecare mișcare de bani, de la cea mai nouă: de unde au plecat, unde au ajuns, cine a înregistrat-o. Apăsați pe un rând ca să vedeți înregistrarea și istoricul ei.",tz_cont:"Cont",rec_hist:"Istoricul înregistrării",rec_hist_none:"Fără istoric.",j_nochange:"Salvat fără modificări",f_contract_usd:"Contract în USD",pers_dir_h:"Din Casa EHL banii merg doar la un administrator.",p_adaug:"Adăugător",p_total:"Contract + adăugător",
  sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",sess_exp:"Sesiunea a expirat. Autentificați-vă din nou.",
- full_t:"Administrator / Casa EHL",full_h:"Login și parola. Apoi se cere codul din aplicația de autentificare; la prima intrare o veți configura. Bifați „Casa EHL” ca să intrați în casa comună.",f_login:"Login",f_totp:"Cod din aplicația de autentificare",f_totp_mine:"Codul meu",f_ehl_in:"Deschid Casa EHL — contul comun al firmei (casă, încasări, proiecte), nu contul meu de administrator",
+ full_t:"Administrator / Casa EHL",full_h:"Login și parola. Apoi se cere codul din aplicația de autentificare; la prima intrare o veți configura. Bifați „Casa EHL” ca să intrați în casa comună.",f_login:"Login",f_totp:"Cod din aplicația de autentificare",f_totp_mine:"Codul meu",f_ehl_in:"Casa EHL",f_cont:"Care cont:",f_cont_admin:"Contul meu de administrator",f_cont_ehl:"Casa EHL — contul comun al firmei (casă, încasări, proiecte); are propriul cod de autentificare",totp_ehl_h:"Codul din intrarea „Casa EHL” a aplicației de autentificare (contul comun are propriul cod).",su_secret_ehl_h:"Aceasta este a doua intrare, pentru Casa EHL: adăugați-o în aplicația de autentificare pe lângă cea a contului de administrator. Scanați codul QR sau introduceți cheia, apoi scrieți codul de 6 cifre.",
  gate_full_link:"Sunt administrator: login, parolă și cod de autentificare",gate_cod_link:"Am doar un cod de acces (colaborator)",full_bad:"Date de autentificare greșite.",
  totp_t:"Codul din aplicația de autentificare",totp_h:"Introduceți acum cele 6 cifre din aplicația de autentificare de pe telefon (sau un cod de recuperare).",totp_bad:"Codul din aplicația de autentificare este greșit.",
  su_t:"Autentificare în doi pași — configurare obligatorie",su_cred_h:"Alegeți un login și o parolă (cel puțin 8 caractere). De acum intrați cu ele plus codul din aplicația de autentificare; codul de acces nu mai deschide contul.",su_next:"Mai departe",
  su_secret_h:"Instalați Google Authenticator, Microsoft Authenticator sau Aegis. Scanați codul QR, sau apăsați butonul de deschidere pe telefon, sau introduceți cheia manual. Apoi scrieți codul de 6 cifre pe care îl arată aplicația.",su_key:"Cheia (dacă nu puteți scana):",su_open_app:"Deschide în aplicația de autentificare",su_confirm:"Confirmă codul",
  su_codes_t:"Coduri de recuperare",su_codes_h:"Dacă pierdeți telefonul cu aplicația de autentificare, un astfel de cod ține locul codului de 6 cifre, o singură dată fiecare. Notați-le undeva sigur acum: nu se mai afișează.",su_done:"Le-am notat, continuă",
- login_fmt:"Login: 3–40 de litere mici, cifre, punct, liniuță.",set_sec:"Securitate",set_sec_h:"Login, parolă și aplicația de autentificare. Contul colaboratorului: codul de acces plus aplicația lui.",sec_2fa:"Autentificare în doi pași",sec_on:"activă",sec_off:"neconfigurată",
+ login_fmt:"Login: 3–40 de litere mici, cifre, punct, liniuță.",set_sec:"Securitate",set_sec_h:"Intrarea = codul de acces + codul din aplicația de autentificare. Directorul are două intrări în aplicație: una pentru contul lui, una pentru Casa EHL.",sec_2fa:"Autentificare în doi pași",sec_on:"activă",sec_off:"neconfigurată",
  sec_redo_h:"Telefon nou pentru aplicația de autentificare? Introduceți codul curent și configurați din nou.",sec_redo:"Reconfigurează aplicația de autentificare",sec_reset_h:"Cineva și-a pierdut telefonul: resetați-i autentificarea (confirmați cu codul dumneavoastră). La următoarea intrare o configurează din nou.",sec_reset:"Resetează",sec_reset_done:"Autentificarea a fost resetată.",
  op_primit:"Primit de la director",op_primit_dir:"Luat din Casa EHL",op_dat:"Dat mai departe",op_adv_dir:"Bani luați din Casa EHL",nav_ehl:"EHL",app_ehl:"Casa EHL · contul comun",op_chn:"Cheltuit numerar",op_prop:"Din banii mei",op_tr:"Prin transfer (din cont)",op_adv:"Bani primiți de la director",op_proj:"Cheltuieli pe proiect",
  cont_intra:"Pe cont intră",
@@ -259,7 +259,7 @@ ru:{
  f_rol:"Роль",rol_op:"Оператор",rol_dir:"Директор",f_cod:"Код доступа",
  f_cod_h:"4–8 цифр, которые вы даёте сотруднику. По ним он входит со своего телефона.",
  also_ang:"Добавить и в сотрудники, с окладом",
- gate_t:"Код доступа",gate_h:"Введите код, который дал директор. При самом первом запуске введённый код становится кодом директора.",gate_bad:"Неверный код или пользователь отключён.",
+ gate_t:"Код доступа",gate_h:"Код доступа: ваш собственный, или код EHL для Casa EHL. Затем код из приложения-аутентификатора этого аккаунта; при первом входе вы его настроите.",gate_bad:"Неверный код или пользователь отключён.",
  u_none:"Пользователей пока нет",u_none_d:"Добавьте первого, чтобы сотрудники входили по своему коду.",
  logout:"Сменить пользователя",u_inactiv:"Отключён",
  setup_t:"Приложение не настроено",setup_h:"Не загрузилась библиотека сервера. Обновите страницу; если повторяется, проверьте файл vendor/pocketbase.umd.js.",
@@ -327,13 +327,13 @@ ru:{
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
  f_adaug:"Дополнительно (MDL)",f_contract_eur:"Договор в EUR",f_contract_eur_sum:"Сумма договора (EUR)",f_contract_cash:"Из них наличными (EUR)",f_contract_tr:"Из них переводом (EUR)",contract_split:"Наличные + перевод должны давать сумму договора.",f_proiect_nume:"Название проекта",f_client_nume:"Имя клиента",s_tranz:"Все операции",s_tranz_h:"Каждое движение денег, новые сверху: откуда ушли, куда пришли, кто записал. Нажмите на строку, чтобы открыть запись и её историю.",tz_cont:"Счёт",rec_hist:"История записи",rec_hist_none:"Истории нет.",j_nochange:"Сохранено без изменений",f_contract_usd:"Договор в USD",pers_dir_h:"Из кассы EHL деньги идут только администратору.",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
  sess_exp:"Сессия истекла. Войдите снова.",
- full_t:"Администратор / Casa EHL",full_h:"Логин и пароль. Затем спросят код из приложения-аутентификатора; при первом входе вы его настроите. Отметьте «Casa EHL», чтобы войти в общую кассу.",f_login:"Логин",f_totp:"Код из приложения-аутентификатора",f_totp_mine:"Мой код",f_ehl_in:"Открыть Casa EHL — общий счёт фирмы (касса, поступления, проекты), а не мой счёт администратора",
+ full_t:"Администратор / Casa EHL",full_h:"Логин и пароль. Затем спросят код из приложения-аутентификатора; при первом входе вы его настроите. Отметьте «Casa EHL», чтобы войти в общую кассу.",f_login:"Логин",f_totp:"Код из приложения-аутентификатора",f_totp_mine:"Мой код",f_ehl_in:"Casa EHL",f_cont:"Какой счёт:",f_cont_admin:"Мой счёт администратора",f_cont_ehl:"Casa EHL — общий счёт фирмы (касса, поступления, проекты); у него свой код аутентификатора",totp_ehl_h:"Код из записи «Casa EHL» в приложении-аутентификаторе (у общего счёта свой код).",su_secret_ehl_h:"Это вторая запись, для Casa EHL: добавьте её в приложение-аутентификатор рядом с записью счёта администратора. Отсканируйте QR или введите ключ, затем впишите 6-значный код.",
  gate_full_link:"Я администратор: логин, пароль и код аутентификатора",gate_cod_link:"У меня только код доступа (колаборатор)",full_bad:"Неверные данные входа.",
  totp_t:"Код из приложения-аутентификатора",totp_h:"Теперь введите 6 цифр из приложения-аутентификатора на телефоне (или код восстановления).",totp_bad:"Код из приложения-аутентификатора неверный.",
  su_t:"Двухэтапный вход — обязательная настройка",su_cred_h:"Выберите логин и пароль (не меньше 8 символов). Дальше вы входите с ними плюс код из приложения-аутентификатора; код доступа аккаунт больше не открывает.",su_next:"Дальше",
  su_secret_h:"Установите Google Authenticator, Microsoft Authenticator или Aegis. Отсканируйте QR-код, или нажмите кнопку открытия на телефоне, или введите ключ вручную. Затем впишите 6-значный код, который показывает приложение.",su_key:"Ключ (если не получается сканировать):",su_open_app:"Открыть в приложении-аутентификаторе",su_confirm:"Подтвердить код",
  su_codes_t:"Коды восстановления",su_codes_h:"Если потеряете телефон с аутентификатором, такой код заменит 6-значный, каждый — один раз. Запишите их сейчас в надёжное место: больше они не показываются.",su_done:"Записал, продолжить",
- login_fmt:"Логин: 3–40 строчных букв, цифр, точка, дефис.",set_sec:"Безопасность",set_sec_h:"Логин, пароль и приложение-аутентификатор. Аккаунт колаборатора: код доступа плюс его приложение.",sec_2fa:"Двухэтапный вход",sec_on:"включён",sec_off:"не настроен",
+ login_fmt:"Логин: 3–40 строчных букв, цифр, точка, дефис.",set_sec:"Безопасность",set_sec_h:"Вход = код доступа + код из приложения-аутентификатора. У директора две записи в приложении: для своего счёта и для Casa EHL.",sec_2fa:"Двухэтапный вход",sec_on:"включён",sec_off:"не настроен",
  sec_redo_h:"Новый телефон для аутентификатора? Введите текущий код и настройте заново.",sec_redo:"Перенастроить аутентификатор",sec_reset_h:"Кто-то потерял телефон: сбросьте ему аутентификацию (подтвердите своим кодом). При следующем входе он настроит её заново.",sec_reset:"Сбросить",sec_reset_done:"Аутентификация сброшена.",
  sess_other:"В аккаунт вошли на другом устройстве. Введите код, чтобы продолжить здесь.",
  op_primit:"Получено от директора",op_primit_dir:"Взято из кассы EHL",op_dat:"Передано дальше",op_adv_dir:"Деньги, взятые из кассы EHL",nav_ehl:"EHL",app_ehl:"Касса EHL · общий счёт",op_chn:"Потрачено наличными",op_prop:"Из своих денег",op_tr:"Переводом (со счёта)",op_adv:"Деньги, полученные от директора",op_proj:"Расходы по проектам",
@@ -443,8 +443,9 @@ function logout(msg){
   gateErr=msg||"";view="add";render();
 }
 function needGate(){return !ACCESS||LOCKED}
-function userOf(r){return {id:r.id,nume:r.nume||"",rol:r.rol||"Operator",cod:r.cod||"",codEHL:r.codEHL||"",status:r.status||"Activ",parolaSetata:!!r.parolaSetata,login:r.login||"",twoFA:!!r.twoFA}}
-function needSetup(){return !!(ACCESS&&ACCESS.user&&!ACCESS.user.twoFA)} /* the authenticator is not set up yet: nothing else until it is */
+function userOf(r){return {id:r.id,nume:r.nume||"",rol:r.rol||"Operator",cod:r.cod||"",codEHL:r.codEHL||"",status:r.status||"Activ",parolaSetata:!!r.parolaSetata,login:r.login||"",twoFA:!!r.twoFA,twoFAEHL:!!r.twoFAEHL}}
+/* the authenticator of the account in use is not set up yet: nothing else until it is (a director has one per account) */
+function needSetup(){return !!(ACCESS&&ACCESS.user&&!(isDir&&ehlMode()?ACCESS.user.twoFAEHL:ACCESS.user.twoFA))}
 /* the EHL code of the signed-in director (taking money out of the common till needs it) */
 function myCodEHL(){var u=myUser();return String((u&&u.codEHL)||"")}
 /* EHL mode: the director signed in with his EHL code — the firm-wide view, and money leaves the common till without
@@ -482,19 +483,18 @@ function unlockScreen(){
   render();
 }
 function sessionExp(){try{return parseInt(localStorage.getItem("ehl.exp")||"0",10)||0}catch(e){return 0}}
-/* POST /api/ehl/login {cod[,totp]} | {login,parola,totp[,ehl]} -> {token,record,expires[,needSetup][,ehl]} | {needFull} | {needTotp}.
-   The server counts failed attempts per IP; a director's session ends at 05:00 Chișinău, a collaborator's after two days. */
+/* POST /api/ehl/login {cod[,totp]} -> {token,record,expires[,needSetup],ehl} | {needTotp,ehl}. The code names the account (a
+   director's EHL code = Casa EHL), the account's authenticator confirms. A director's session ends at 05:00 Chișinău, a
+   collaborator's after two days. */
 function login(body){
   if(!PB)return Promise.reject({code:"no_db"});
   return PB.send("/api/ehl/login",{method:"POST",body:body,requestKey:null}).then(function(res){
-    if(res.needFull){GATE={step:"full",nume:res.nume||"",login:res.login||"",ehl:false};return res;}
-    if(res.needTotp){GATE={step:"totp",nume:res.nume||"",base:body};return res;}
+    if(res.needTotp){GATE={step:"totp",nume:res.nume||"",base:body,ehl:!!res.ehl};return res;}
     PB.authStore.save(res.token,res.record);
     try{
       if(res.ehl){localStorage.setItem("ehl.mode","1");localStorage.setItem("ehl.ehlcod",String((res.record&&res.record.codEHL)||""))}
       else{localStorage.removeItem("ehl.mode");localStorage.removeItem("ehl.ehlcod")}
       localStorage.setItem("ehl.exp",String(res.expires||0));
-      if(res.record&&res.record.login)localStorage.setItem("ehl.login",res.record.login);
     }catch(e){}
     markUnlock();
     enter(res.record);
@@ -504,19 +504,19 @@ function login(body){
   });
 }
 /* the first thing after a sign-in without an authenticator: set it up (a director also picks his login and password) */
-function startSetup(){SETUP={step:isDir?"cred":"secret",secret:"",uri:"",login:"",codes:null,busy:false,err:""};if(!isDir)setupSecret({});render();}
+function startSetup(){SETUP={step:"secret",secret:"",uri:"",login:"",codes:null,busy:false,err:""};setupSecret({});render();}
 function setupSecret(body){
   SETUP.busy=true;SETUP.err="";render();
+  if(isDir&&ehlMode())body.ehl=true; /* the Casa EHL account has its own authenticator */
   return PB.send("/api/ehl/2fa/setup",{method:"POST",body:body,requestKey:null}).then(function(res){
-    SETUP={step:"secret",secret:res.secret,uri:res.uri,login:res.login||"",codes:null,busy:false,err:""};render();
+    SETUP={step:"secret",secret:res.secret,uri:res.uri,login:res.login||"",codes:null,busy:false,err:"",ehl:!!res.ehl};render();
   }).catch(function(e){SETUP.busy=false;SETUP.err=gateMsg(e,T("save_err"));render();});
 }
 function gateMsg(e,dflt){var srv=e&&e.response&&e.response.message;return netErr(e)?T("offline"):(srv?srvT(srv):dflt)}
 /* the session is over (05:00 for a director, two days for a collaborator): sign in again; a director lands on his login form */
 function sessionExpired(){
-  var dir=isDir,nume=ACCESS&&ACCESS.user?ACCESS.user.nume:"",lg="";try{lg=localStorage.getItem("ehl.login")||""}catch(e){}
   logout(T("sess_exp"));
-  GATE=dir?{step:"full",nume:nume,login:lg,ehl:false}:{step:"cod"};
+  GATE={step:"cod"};
   render();
 }
 function expiryCheck(){
@@ -2433,21 +2433,10 @@ function vGate(){
 }
 function vPin(){
   var locked=needGate();
-  if(locked&&GATE.step==="full"){
-    /* a director: login, password and the authenticator code; the box opens the EHL account instead of his own */
-    return '<div class="sec"><div class="card pad"><h2 style="margin:0 0 6px;font-size:18px">'+esc(T("full_t"))+(GATE.nume?' · '+esc(GATE.nume):'')+'</h2>'
-     +'<p class="hint" style="margin:0 0 12px">'+esc(T("full_h"))+'</p>'
-     +'<form id="fullf"><label><span>'+esc(T("f_login"))+'</span><input type="text" name="login" autocomplete="username" autocapitalize="none" value="'+esc(GATE.login||"")+'"'+(gateBusy?" disabled":"")+'></label>'
-     +'<label><span>'+esc(T("f_parola"))+'</span><input type="password" name="parola" autocomplete="current-password"'+(gateBusy?" disabled":"")+'></label>'
-     +'<label class="chk"><input type="checkbox" name="ehl"'+(GATE.ehl?" checked":"")+'> <span>'+esc(T("f_ehl_in"))+'</span></label>'
-     +'<p class="err" id="pinerr"'+(gateErr?"":" hidden")+'>'+esc(gateErr)+'</p>'
-     +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("pin_ok"))+'</button>'
-     +'<button class="btn ghost" type="button" id="gateback">'+esc(T("gate_cod_link"))+'</button></form></div></div>';
-  }
   if(locked&&GATE.step==="totp"){
     /* a collaborator: the PIN was right, now the code from his authenticator app (or a recovery code) */
-    return '<div class="sec"><div class="card pad"><h2 style="margin:0 0 6px;font-size:18px">'+esc(T("totp_t"))+(GATE.nume?' · '+esc(GATE.nume):'')+'</h2>'
-     +'<p class="hint" style="margin:0 0 12px">'+esc(T("totp_h"))+'</p>'
+    return '<div class="sec"><div class="card pad"><h2 style="margin:0 0 6px;font-size:18px">'+esc(T("totp_t"))+(GATE.nume?' · '+esc(GATE.nume):'')+(GATE.ehl?' · Casa EHL':'')+'</h2>'
+     +'<p class="hint" style="margin:0 0 12px">'+esc(GATE.ehl?T("totp_ehl_h"):T("totp_h"))+'</p>'
      +'<form id="totpf"><label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"'+(gateBusy?" disabled":"")+'></label>'
      +'<p class="err" id="pinerr"'+(gateErr?"":" hidden")+'>'+esc(gateErr)+'</p>'
      +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("pin_ok"))+'</button>'
@@ -2461,23 +2450,17 @@ function vPin(){
    +'<form id="pinf"><label><span>'+esc(T("f_cod"))+'</span><input type="password" inputmode="numeric" id="pinv" autocomplete="off"'+(gateBusy?" disabled":"")+'></label>'
    +'<p class="err" id="pinerr"'+(gateErr?"":" hidden")+'>'+esc(gateErr||T("gate_bad"))+'</p>'
    +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("pin_ok"))+'</button>'
-   +(relock?'<button class="btn ghost" type="button" id="gateother">'+esc(T("logout"))+'</button>':'<button class="btn ghost" type="button" id="gatefull">'+esc(T("gate_full_link"))+'</button>')+'</form></div></div>';
+   +(relock?'<button class="btn ghost" type="button" id="gateother">'+esc(T("logout"))+'</button>':'')+'</form></div></div>';
   if(!locked)h+='<div class="sec"><div class="note">'+esc(T("pin_as"))+'</div></div>';
   return h;
 }
 /* the authenticator setup: shown instead of the app until it is done */
 function vSetup(){
   var s=SETUP,h='<div class="sec"><div class="card pad">';
-  if(s.step==="cred"){
-    h+='<h2 style="margin:0 0 6px;font-size:18px">'+esc(T("su_t"))+'</h2><p class="hint" style="margin:0 0 12px">'+esc(T("su_cred_h"))+'</p>'
-      +'<form id="sucred"><label><span>'+esc(T("f_login"))+'</span><input type="text" name="login" autocomplete="username" autocapitalize="none" pattern="[a-z0-9._-]{3,40}" value="'+esc(s.login||"")+'"'+(s.busy?" disabled":"")+'></label>'
-      +'<div class="pair"><label><span>'+esc(T("f_parola"))+'</span><input type="password" name="p1" autocomplete="new-password" minlength="8"'+(s.busy?" disabled":"")+'></label>'
-      +'<label><span>'+esc(T("f_parola2"))+'</span><input type="password" name="p2" autocomplete="new-password" minlength="8"'+(s.busy?" disabled":"")+'></label></div>'
-      +(s.err?'<p class="err">'+esc(s.err)+'</p>':'')+'<button class="btn" type="submit"'+(s.busy?" disabled":"")+'>'+esc(s.busy?T("saving"):T("su_next"))+'</button></form>';
-  }else if(s.step==="secret"){
+  if(s.step==="secret"){
     var qr="";
     try{if(window.qrcode&&s.uri){var q=window.qrcode(0,"M");q.addData(s.uri);q.make();qr='<div class="qr">'+q.createSvgTag({cellSize:4,margin:2,scalable:true})+'</div>';}}catch(e){qr="";}
-    h+='<h2 style="margin:0 0 6px;font-size:18px">'+esc(T("su_t"))+'</h2><p class="hint" style="margin:0 0 12px">'+esc(T("su_secret_h"))+'</p>'+qr
+    h+='<h2 style="margin:0 0 6px;font-size:18px">'+esc(T("su_t"))+(s.ehl?' · Casa EHL':'')+'</h2><p class="hint" style="margin:0 0 12px">'+esc(s.ehl?T("su_secret_ehl_h"):T("su_secret_h"))+'</p>'+qr
       +'<p class="hint" style="margin:0 0 4px">'+esc(T("su_key"))+'</p><p class="key" data-secret="'+esc(s.secret)+'">'+esc(String(s.secret||"").replace(/(.{4})/g,"$1 ").trim())+'</p>'
       +(s.uri?'<p style="margin:0 0 12px"><a class="btn ghost" href="'+esc(s.uri)+'">'+esc(T("su_open_app"))+'</a></p>':'')
       +'<form id="suconf"><label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"'+(s.busy?" disabled":"")+'></label>'
@@ -2808,12 +2791,8 @@ function vSet(){
      else's authenticator when his phone is lost (confirmed with the director's own code) */
   var me0=myUser()||{};
   h+=setCard("lock",T("set_sec"),T("set_sec_h"),
-    '<p class="hint" style="margin:0 0 10px">'+esc(T("f_login"))+': <b>'+esc(me0.login||"—")+'</b> · '+esc(T("sec_2fa"))+': <b>'+esc(me0.twoFA?T("sec_on"):T("sec_off"))+'</b></p>'
-    +'<form id="pwchg"><label><span>'+esc(T("f_parola_veche"))+'</span><input type="password" name="veche" autocomplete="current-password"></label>'
-    +'<div class="pair"><label><span>'+esc(T("f_parola_noua"))+'</span><input type="password" name="noua" autocomplete="new-password" minlength="8"></label>'
-    +'<label><span>'+esc(T("f_parola2"))+'</span><input type="password" name="noua2" autocomplete="new-password" minlength="8"></label></div>'
-    +'<label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"></label>'+setSave()+'</form>'
-    +'<hr><form id="resetupf"><p class="hint" style="margin:0 0 6px">'+esc(T("sec_redo_h"))+'</p><label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"></label><button class="btn ghost" type="submit">'+esc(T("sec_redo"))+'</button></form>'
+    '<p class="hint" style="margin:0 0 10px">'+esc(T("sec_2fa"))+' ('+esc(T("f_cont_admin"))+'): <b>'+esc(me0.twoFA?T("sec_on"):T("sec_off"))+'</b>'+(isDir?' · '+esc(T("sec_2fa"))+' (Casa EHL): <b>'+esc(me0.twoFAEHL?T("sec_on"):T("sec_off"))+'</b>':'')+'</p>'
+    +'<form id="resetupf"><p class="hint" style="margin:0 0 6px">'+esc(T("sec_redo_h"))+'</p><label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"></label><button class="btn ghost" type="submit">'+esc(T("sec_redo"))+'</button></form>'
     +(S.utilizatori.filter(function(u){return u.id!==ME&&u.status!=="Inactiv"}).length?'<hr><p class="hint" style="margin:0 0 6px">'+esc(T("sec_reset_h"))+'</p>'+S.utilizatori.filter(function(u){return u.id!==ME&&u.status!=="Inactiv"}).map(function(u){
       return '<form class="reset2fa" data-uid="'+esc(u.id)+'" style="display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-bottom:6px"><span style="flex:1;min-width:120px">'+esc(u.nume)+' · '+esc(u.twoFA?T("sec_on"):T("sec_off"))+'</span><label style="flex:0 0 120px"><span>'+esc(T("f_totp_mine"))+'</span><input type="text" name="totp" inputmode="numeric" placeholder="000000"></label><button class="btn sm danger" type="submit">'+esc(T("sec_reset"))+'</button></form>'}).join(""):''));
 
@@ -3309,7 +3288,6 @@ document.addEventListener("click",function(ev){
   if(t.closest&&t.closest("#expbtn")){exportRun(JUR.luna,false);return;}
   if(t.closest&&t.closest("#exitdir")){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}logout();return;}
   if(t.closest&&t.closest("#gateback")){GATE={step:"cod"};gateErr="";render();return;}
-  if(t.closest&&t.closest("#gatefull")){var lg0="";try{lg0=localStorage.getItem("ehl.login")||""}catch(e){}GATE={step:"full",login:lg0,ehl:false};gateErr="";render();return;}
   if(t.closest&&t.closest("#sudone")){SETUP={step:"",secret:"",uri:"",login:"",codes:null,busy:false,err:""};view=homeView();render();return;}
   if(t.closest&&t.closest("#gateother")){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}GATE={step:"cod"};logout();return;}
   if(t.closest&&t.closest("#installbtn")&&installEvt){var ev2=installEvt;installEvt=null;ev2.prompt();render();return;}
@@ -3368,13 +3346,6 @@ document.addEventListener("submit",function(ev){
     login({cod:v}).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("gate_bad"))});
     return;
   }
-  if(f.id==="fullf"){
-    var lg=String(f.elements["login"].value||"").trim().toLowerCase(),pw=f.elements["parola"].value,wantE=!!f.elements["ehl"].checked;
-    if(!lg||!pw||gateBusy){gateErr=T("req");render();return;}
-    GATE.login=lg;GATE.ehl=wantE;gateBusy=true;gateErr="";render();
-    login({login:lg,parola:pw,ehl:wantE}).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("full_bad"))});
-    return;
-  }
   if(f.id==="totpf"){
     var tp2=String(f.elements["totp"].value||"").trim();
     if(!tp2||gateBusy)return;
@@ -3383,47 +3354,26 @@ document.addEventListener("submit",function(ev){
     login(base).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("totp_bad"))});
     return;
   }
-  if(f.id==="sucred"){
-    var sl=String(f.elements["login"].value||"").trim().toLowerCase(),s1=f.elements["p1"].value,s2=f.elements["p2"].value;
-    if(SETUP.busy)return;
-    if(!/^[a-z0-9._-]{3,40}$/.test(sl)){SETUP.err=T("login_fmt");render();return;}
-    if(s1.length<8){SETUP.err=T("pw_short");render();return;}
-    if(s1!==s2){SETUP.err=T("pw_mismatch");render();return;}
-    SETUP.login=sl;setupSecret({login:sl,parola:s1});return;
-  }
   if(f.id==="suconf"){
     var st2=String(f.elements["totp"].value||"").trim();
     if(!st2||SETUP.busy)return;
     SETUP.busy=true;SETUP.err="";render();
-    PB.send("/api/ehl/2fa/confirm",{method:"POST",body:{totp:st2},requestKey:null}).then(function(res){
+    PB.send("/api/ehl/2fa/confirm",{method:"POST",body:{totp:st2,ehl:!!SETUP.ehl},requestKey:null}).then(function(res){
+      var wasEHL=!!SETUP.ehl;
       SETUP={step:"codes",secret:"",uri:"",login:SETUP.login,codes:res.recuperare||[],busy:false,err:""};
-      if(ACCESS&&ACCESS.user){ACCESS.user.twoFA=true;if(SETUP.login)ACCESS.user.login=SETUP.login;}
-      try{if(SETUP.login)localStorage.setItem("ehl.login",SETUP.login)}catch(e){}
+      if(ACCESS&&ACCESS.user){if(wasEHL)ACCESS.user.twoFAEHL=true;else ACCESS.user.twoFA=true;}
       render();
     }).catch(function(e){SETUP.busy=false;SETUP.err=gateMsg(e,T("totp_bad"));render();});
     return;
   }
   if(f.id==="resetupf"){
     var rt=String(f.elements["totp"].value||"").trim();if(!rt)return;
-    var u0=myUser()||{};
-    setupSecret(isDir?{totp:rt,login:u0.login,parola:""}:{totp:rt}).then(function(){if(ACCESS&&ACCESS.user)ACCESS.user.twoFA=false;render();});
+    setupSecret({totp:rt}).then(function(){if(ACCESS&&ACCESS.user){if(isDir&&ehlMode())ACCESS.user.twoFAEHL=false;else ACCESS.user.twoFA=false;}render();});
     return;
   }
   if(f.classList&&f.classList.contains("reset2fa")){
     var rid=f.getAttribute("data-uid"),rtp=String(f.elements["totp"].value||"").trim();if(!rtp)return;
     PB.send("/api/ehl/2fa/reset",{method:"POST",body:{id:rid,totp:rtp},requestKey:null}).then(function(){toast(T("sec_reset_done"));refreshData()}).catch(function(e){toast(gateMsg(e,T("save_err")))});
-    return;
-  }
-  if(f.id==="pwchg"){
-    var ve=f.elements["veche"].value,no=f.elements["noua"].value,no2=f.elements["noua2"].value,ptp=String(f.elements["totp"].value||"").trim();
-    if(no.length<8){toast(T("pw_short"));return;}
-    if(no!==no2){toast(T("pw_mismatch"));return;}
-    PB.send("/api/ehl/password",{method:"POST",body:{veche:ve,noua:no,totp:ptp},requestKey:null})
-      .then(function(res){
-        if(res&&res.token){PB.authStore.save(res.token,PB.authStore.record||PB.authStore.model);try{localStorage.setItem("ehl.exp",String(res.expires||0))}catch(e){}}
-        f.reset();toast(T("pw_saved"));
-      })
-      .catch(function(e){var srv=e&&e.response&&e.response.message;toast(netErr(e)?T("offline"):(srv?srvT(srv):T("pw_bad")))});
     return;
   }
   if(f.id==="valf"){

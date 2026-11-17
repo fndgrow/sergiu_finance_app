@@ -12,20 +12,17 @@ routerUse((e) => {
   return e.next();
 });
 
-/* ---- sign-in. Two factors for everyone (17 November 2026):
-        directors:     POST /api/ehl/login {login, parola, totp[, ehl]}   -> token until 05:00 Chișinău
-        collaborators: POST /api/ehl/login {cod, totp}                   -> token for two days
-        Before the authenticator is set up, the code alone still signs the person in and the answer carries needSetup,
-        so the app walks him through the setup at once (login + password for a director, then the authenticator).
-        Answers without a token: {needFull} (a director typed his code: use login/password), {needTotp} (a collaborator's
-        PIN was right: now the authenticator code). A recovery code may stand in for the authenticator code.
-        Failed attempts count per IP (8 in 15 minutes) on top of PocketBase's rate limits. ---- */
+/* ---- sign-in = PIN + authenticator code, for everyone (17 November 2026):  POST /api/ehl/login {cod, totp}
+        A director's own code opens his administrator account (token until 05:00 Chișinău); his EHL code opens Casa EHL,
+        which has its own authenticator. A collaborator's PIN opens his account (token for two days).
+        Before the authenticator of that account is set up, the code alone signs the person in and the answer carries
+        needSetup, so the app walks him through the setup at once. {needTotp}: the code was right, now the authenticator
+        code (or a recovery code, used once). Failed attempts count per IP (8 in 15 minutes) on top of the rate limits. ---- */
 routerAdd("POST", "/api/ehl/login", (e) => {
   var T = require(__hooks + "/totp.js");
   var body = e.requestInfo().body || {};
-  var cod = String(body.cod || "").trim(), lg = String(body.login || "").trim().toLowerCase(), parola = String(body.parola || "");
-  var totp = String(body.totp || "").trim(), wantEHL = !!body.ehl;
-  if (!lg && !/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Cod invalid.");
+  var cod = String(body.cod || "").trim(), totp = String(body.totp || "").trim();
+  if (!/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Cod invalid.");
 
   var ip = e.realIP() || "unknown";
   var since = new Date(Date.now() - 15 * 60 * 1000).toISOString().replace("T", " ").slice(0, 19);
@@ -38,44 +35,26 @@ routerAdd("POST", "/api/ehl/login", (e) => {
     try { var old = new Date(Date.now() - 24 * 3600 * 1000).toISOString().replace("T", " ").slice(0, 19); $app.db().newQuery("DELETE FROM login_attempts WHERE created < {:old}").bind({ old: old }).execute(); } catch (err) {}
     throw new UnauthorizedError(msg);
   };
-  /* the authenticator code (or a recovery code, used once) against the record; returns true or fails */
-  var checkSecond = function (rec) {
-    var step = T.verify(rec.getString("totpSecret"), totp, rec.getInt("totpLast"));
-    if (step) { rec.set("totpLast", step); return true; }
+  /* the authenticator code (or a recovery code, used once) against the record's administrator or EHL authenticator */
+  var checkSecond = function (rec, ehl) {
+    var S = ehl ? "totpSecretEHL" : "totpSecret", L = ehl ? "totpLastEHL" : "totpLast", R = ehl ? "recuperareEHL" : "recuperare";
+    var step = T.verify(rec.getString(S), totp, rec.getInt(L));
+    if (step) { rec.set(L, step); return true; }
     var rc = String(totp || "").trim().toLowerCase();
     if (/^[a-z0-9]{4}-?[a-z0-9]{4}$/.test(rc)) {
-      var hashes = []; try { hashes = JSON.parse(rec.getString("recuperare") || "[]") || []; } catch (err) { hashes = []; }
+      var hashes = []; try { hashes = JSON.parse(rec.getString(R) || "[]") || []; } catch (err) { hashes = []; }
       var h = T.hashCode(rc.replace("-", "").replace(/^(.{4})(.{4})$/, "$1-$2")), k = hashes.indexOf(h);
-      if (k >= 0) { hashes.splice(k, 1); rec.set("recuperare", hashes); return true; }
+      if (k >= 0) { hashes.splice(k, 1); rec.set(R, hashes); return true; }
     }
     return false;
   };
-  var pubOf = function (rec) { return { id: rec.id, nume: rec.getString("nume"), rol: rec.getString("rol"), cod: rec.getString("cod"), codEHL: rec.getString("codEHL"), status: rec.getString("status"), login: rec.getString("login"), twoFA: rec.getBool("twoFA") }; };
+  var pubOf = function (rec) { return { id: rec.id, nume: rec.getString("nume"), rol: rec.getString("rol"), cod: rec.getString("cod"), codEHL: rec.getString("codEHL"), status: rec.getString("status"), login: rec.getString("login"), twoFA: rec.getBool("twoFA"), twoFAEHL: rec.getBool("twoFAEHL") }; };
   var sessionOf = function (rec, seconds) { return { token: rec.newStaticAuthToken(seconds * 1000000000), expires: Date.now() + seconds * 1000 }; };
 
-  /* ---- a director with login + password + authenticator ---- */
-  if (lg) {
-    var dr = null;
-    try { dr = $app.findFirstRecordByFilter("utilizatori", "rol = 'Director' && login = {:l}", { l: lg }); } catch (err) { dr = null; }
-    if (!dr || dr.getString("status") === "Inactiv") fail("Date de autentificare greșite.");
-    if (!dr.validatePassword(parola)) fail("Date de autentificare greșite.");
-    if (!dr.getBool("twoFA")) {
-      /* first sign-in with login + password: a short session whose only purpose is the authenticator setup */
-      dr.refreshTokenKey(); $app.save(dr);
-      var s0 = sessionOf(dr, T.secondsUntilFive());
-      return e.json(200, { token: s0.token, expires: s0.expires, record: pubOf(dr), needSetup: true });
-    }
-    if (!totp) return e.json(200, { needTotp: true, nume: dr.getString("nume") });
-    if (!checkSecond(dr)) fail("Codul din aplicația de autentificare este greșit.");
-    if (!wantEHL) dr.refreshTokenKey(); /* one administrator session per account; the EHL sign-in is an extra access */
-    $app.save(dr);
-    var sd = sessionOf(dr, T.secondsUntilFive());
-    return e.json(200, { token: sd.token, expires: sd.expires, record: pubOf(dr), ehl: wantEHL });
-  }
-
-  /* ---- a code ---- */
-  var rec = null;
+  /* ---- the code: a user's own code, or a director's EHL code (Casa EHL) ---- */
+  var rec = null, viaEHL = false;
   try { rec = $app.findFirstRecordByFilter("utilizatori", "cod = {:cod}", { cod: cod }); } catch (err) { rec = null; }
+  if (!rec) { try { rec = $app.findFirstRecordByFilter("utilizatori", "rol = 'Director' && codEHL = {:cod}", { cod: cod }); viaEHL = !!rec; } catch (err) { rec = null; } }
   var first = false;
   if (!rec && $app.countRecords("utilizatori") === 0) {
     /* first launch: the first code typed becomes the director */
@@ -95,46 +74,38 @@ routerAdd("POST", "/api/ehl/login", (e) => {
     first = true;
   }
   if (!rec || rec.getString("status") === "Inactiv") fail("Cod greșit sau utilizator dezactivat.");
-  var isDirector = rec.getString("rol") === "Director";
-  if (isDirector && rec.getString("login")) return e.json(200, { needFull: true, nume: rec.getString("nume"), login: rec.getString("login") }); /* a director signs in with login + password, never with the code alone */
-  if (rec.getBool("twoFA")) {
-    /* a collaborator: the PIN names him, the authenticator confirms it */
-    if (!totp) return e.json(200, { needTotp: true, nume: rec.getString("nume") });
-    if (!checkSecond(rec)) fail("Codul din aplicația de autentificare este greșit.");
-    rec.refreshTokenKey(); $app.save(rec);
-    var so = sessionOf(rec, T.TWO_DAYS);
-    return e.json(200, { token: so.token, expires: so.expires, record: pubOf(rec) });
+  var isDirector = rec.getString("rol") === "Director", seconds = isDirector ? T.secondsUntilFive() : T.TWO_DAYS;
+  if (rec.getBool(viaEHL ? "twoFAEHL" : "twoFA")) {
+    /* the code names the account, the account's authenticator confirms */
+    if (!totp) return e.json(200, { needTotp: true, nume: rec.getString("nume"), ehl: viaEHL });
+    if (!checkSecond(rec, viaEHL)) fail("Codul din aplicația de autentificare este greșit.");
+    if (!isDirector) rec.refreshTokenKey(); /* one session per collaborator account; a director keeps both accounts open on different devices */
+    $app.save(rec);
+    var so = sessionOf(rec, seconds);
+    return e.json(200, { token: so.token, expires: so.expires, record: pubOf(rec), ehl: viaEHL });
   }
-  /* no authenticator yet: the code opens a short session whose only purpose is the setup */
-  rec.refreshTokenKey(); $app.save(rec);
-  var ss = sessionOf(rec, isDirector ? T.secondsUntilFive() : T.TWO_DAYS);
-  return e.json(200, { token: ss.token, expires: ss.expires, first: first, record: pubOf(rec), needSetup: true });
+  /* no authenticator yet for this account: the code opens a short session whose only purpose is the setup */
+  if (!isDirector) rec.refreshTokenKey();
+  $app.save(rec);
+  var ss = sessionOf(rec, seconds);
+  return e.json(200, { token: ss.token, expires: ss.expires, first: first, record: pubOf(rec), needSetup: true, ehl: viaEHL });
 });
 
-/* ---- 2FA setup, step 1: a director chooses his login and password (a collaborator keeps his PIN); the server hands
-        back a fresh secret for the authenticator app. POST /api/ehl/2fa/setup {login?, parola?, totp?}
-        Someone who already has 2FA must give a current authenticator code to start over. ---- */
+/* ---- 2FA setup, step 1: the server hands back a fresh secret for the authenticator app of the account in use
+        ({ehl: true} = the director's Casa EHL account). POST /api/ehl/2fa/setup {ehl?, totp?}
+        Someone who already has 2FA on that account must give a current authenticator code to start over. ---- */
 routerAdd("POST", "/api/ehl/2fa/setup", (e) => {
   var T = require(__hooks + "/totp.js");
   var body = e.requestInfo().body || {}, rec = e.auth;
   if (!rec) throw new ForbiddenError("Autentificare necesară.");
-  if (rec.getBool("twoFA") && !T.verify(rec.getString("totpSecret"), String(body.totp || ""), rec.getInt("totpLast"))) throw new BadRequestError("Codul din aplicația de autentificare este greșit.");
-  if (rec.getString("rol") === "Director") {
-    var lg = String(body.login || "").trim().toLowerCase(), parola = String(body.parola || "");
-    if (lg || !rec.getString("login")) {
-      if (!/^[a-z0-9._-]{3,40}$/.test(lg)) throw new BadRequestError("Login: 3–40 de litere mici, cifre, punct, liniuță.");
-      var taken = 0; try { taken = $app.countRecords("utilizatori", $dbx.exp("login = {:l} AND id <> {:id}", { l: lg, id: rec.id })); } catch (err) { taken = 0; }
-      if (taken) throw new BadRequestError("Acest login este folosit de altcineva.");
-      rec.set("login", lg);
-    }
-    if (parola) { if (parola.length < 8) throw new BadRequestError("Parola trebuie să aibă cel puțin 8 caractere."); rec.setPassword(parola); rec.set("parolaSetata", true); }
-    else if (!rec.getBool("parolaSetata")) throw new BadRequestError("Parola trebuie să aibă cel puțin 8 caractere.");
-  }
+  var ehlA = !!body.ehl && rec.getString("rol") === "Director"; /* which of a director's two authenticators */
+  var S = ehlA ? "totpSecretEHL" : "totpSecret", L = ehlA ? "totpLastEHL" : "totpLast", F = ehlA ? "twoFAEHL" : "twoFA", R = ehlA ? "recuperareEHL" : "recuperare";
+  if (rec.getBool(F) && !T.verify(rec.getString(S), String(body.totp || ""), rec.getInt(L))) throw new BadRequestError("Codul din aplicația de autentificare este greșit.");
   var secret = T.newSecret();
-  rec.set("totpSecret", secret); rec.set("totpLast", 0); rec.set("twoFA", false); rec.set("recuperare", []);
+  rec.set(S, secret); rec.set(L, 0); rec.set(F, false); rec.set(R, []);
   $app.save(rec);
-  var account = rec.getString("rol") === "Director" ? rec.getString("login") : rec.getString("nume");
-  return e.json(200, { secret: secret, uri: T.uri("Casieria EHL", account, secret), login: rec.getString("login") });
+  var account = rec.getString("nume");
+  return e.json(200, { secret: secret, uri: T.uri(ehlA ? "Casa EHL" : "Casieria EHL", account, secret), ehl: ehlA });
 }, $apis.requireAuth("utilizatori"));
 
 /* ---- 2FA setup, step 2: the first code from the app proves the secret landed; 2FA goes live and the recovery codes are
@@ -143,11 +114,13 @@ routerAdd("POST", "/api/ehl/2fa/confirm", (e) => {
   var T = require(__hooks + "/totp.js");
   var body = e.requestInfo().body || {}, rec = e.auth;
   if (!rec) throw new ForbiddenError("Autentificare necesară.");
-  if (!rec.getString("totpSecret")) throw new BadRequestError("Mai întâi pasul de configurare.");
-  var step = T.verify(rec.getString("totpSecret"), String(body.totp || ""), rec.getInt("totpLast"));
+  var ehlC = !!body.ehl && rec.getString("rol") === "Director";
+  var S2 = ehlC ? "totpSecretEHL" : "totpSecret", L2 = ehlC ? "totpLastEHL" : "totpLast", F2 = ehlC ? "twoFAEHL" : "twoFA", R2 = ehlC ? "recuperareEHL" : "recuperare";
+  if (!rec.getString(S2)) throw new BadRequestError("Mai întâi pasul de configurare.");
+  var step = T.verify(rec.getString(S2), String(body.totp || ""), rec.getInt(L2));
   if (!step) throw new BadRequestError("Codul din aplicația de autentificare este greșit. Verificați ora telefonului.");
   var codes = T.newRecovery();
-  rec.set("totpLast", step); rec.set("twoFA", true); rec.set("recuperare", codes.map(T.hashCode));
+  rec.set(L2, step); rec.set(F2, true); rec.set(R2, codes.map(T.hashCode));
   $app.save(rec);
   return e.json(200, { ok: true, recuperare: codes });
 }, $apis.requireAuth("utilizatori"));
@@ -163,53 +136,9 @@ routerAdd("POST", "/api/ehl/2fa/reset", (e) => {
   var target = null; try { target = $app.findRecordById("utilizatori", String(body.id || "")); } catch (err) { target = null; }
   if (!target || target.id === rec.id) throw new BadRequestError("Alegeți alt utilizator.");
   target.set("twoFA", false); target.set("totpSecret", ""); target.set("totpLast", 0); target.set("recuperare", []);
+  target.set("twoFAEHL", false); target.set("totpSecretEHL", ""); target.set("totpLastEHL", 0); target.set("recuperareEHL", []);
   target.refreshTokenKey(); /* his sessions end: he signs in and sets the authenticator up again */
   $app.save(target);
-  return e.json(200, { ok: true });
-}, $apis.requireAuth("utilizatori"));
-
-/* ---- director changes own password: POST /api/ehl/password {veche, noua, totp} ---- */
-routerAdd("POST", "/api/ehl/password", (e) => {
-  var T = require(__hooks + "/totp.js");
-  var body = e.requestInfo().body || {};
-  var rec = e.auth;
-  if (!rec || rec.getString("rol") !== "Director") throw new ForbiddenError("Doar directorul are parolă.");
-  var veche = String(body.veche || ""), noua = String(body.noua || "");
-  if (noua.length < 8) throw new BadRequestError("Parola nouă trebuie să aibă cel puțin 8 caractere.");
-  if (rec.getBool("parolaSetata") && !rec.validatePassword(veche)) throw new BadRequestError("Parola actuală este greșită.");
-  if (rec.getBool("twoFA") && !T.verify(rec.getString("totpSecret"), String(body.totp || ""), rec.getInt("totpLast"))) throw new BadRequestError("Codul din aplicația de autentificare este greșit.");
-  rec.setPassword(noua);
-  rec.set("parolaSetata", true);
-  $app.save(rec);
-  /* a password change invalidates every token of the user, so hand back a fresh one for this device */
-  var secs = T.secondsUntilFive();
-  return e.json(200, { ok: true, token: rec.newStaticAuthToken(secs * 1000000000), expires: Date.now() + secs * 1000 });
-}, $apis.requireAuth("utilizatori"));
-
-/* ---- a person is renamed everywhere at once (director only): users, employees and every row that carries the name,
-        whoever wrote it; the journal's author names too. The update hooks keep payer/person fields from the original on
-        purpose, so the rename is done here, in SQL, in one transaction.   POST /api/ehl/rename {vechi, nou} ---- */
-routerAdd("POST", "/api/ehl/rename", (e) => {
-  var body = e.requestInfo().body || {}, rec = e.auth;
-  if (!rec || rec.getString("rol") !== "Director") throw new ForbiddenError("Doar directorul poate redenumi.");
-  var vechi = String(body.vechi || "").trim(), nou = String(body.nou || "").trim();
-  if (!vechi || !nou) throw new BadRequestError("Lipsește numele vechi sau cel nou.");
-  if (vechi !== nou) {
-    var where = [["utilizatori", "nume"], ["angajati", "nume"], ["cheltuieli", "platitDe"], ["iesiri", "persoana"], ["iesiri", "platitDe"],
-      ["imprumuturi", "persoana"], ["chirii", "chirias"], ["chirii", "platitDe"], ["pontaj", "angajat"], ["istoric", "angajat"],
-      ["grafic", "angajat"], ["schimburi", "persoana"], ["jurnal", "nume"], ["incasari", "client"]];
-    $app.runInTransaction(function (tx) {
-      where.forEach(function (w) {
-        tx.db().newQuery("UPDATE {{" + w[0] + "}} SET [[" + w[1] + "]] = {:nou} WHERE TRIM([[" + w[1] + "]]) = {:vechi}").bind({ nou: nou, vechi: vechi }).execute();
-      });
-      /* the responsible of a project is a comma list */
-      tx.db().newQuery("UPDATE {{proiecte}} SET [[responsabili]] = REPLACE([[responsabili]], {:vechi}, {:nou}) WHERE [[responsabili]] LIKE {:like}").bind({ vechi: vechi, nou: nou, like: "%" + vechi + "%" }).execute();
-    });
-  }
-  /* the directors' names in the settings follow (a director may correct his own name) */
-  var names = [];
-  try { $app.findRecordsByFilter("utilizatori", "rol = 'Director' && status != 'Inactiv'", "", 0, 0).forEach(function (r) { names.push(r.getString("nume")); }); } catch (err) {}
-  try { var cfg = $app.findFirstRecordByFilter("config", "id != ''"); cfg.set("directori", names); $app.save(cfg); } catch (err) {}
   return e.json(200, { ok: true });
 }, $apis.requireAuth("utilizatori"));
 
@@ -401,7 +330,7 @@ onRecordUpdateRequest((e) => {
   var codEHL = String(e.record.getString("codEHL") || "").trim();
   if (codEHL && !/^[0-9]{4,8}$/.test(codEHL)) throw new BadRequestError("Codul EHL trebuie să aibă 4–8 cifre.");
   e.record.set("codEHL", codEHL);
-  if (e.record.original) { e.record.set("login", e.record.original().getString("login")); e.record.set("twoFA", e.record.original().getBool("twoFA")); } /* set by the 2FA routes only */
+  if (e.record.original) { e.record.set("login", e.record.original().getString("login")); e.record.set("twoFA", e.record.original().getBool("twoFA")); e.record.set("twoFAEHL", e.record.original().getBool("twoFAEHL")); } /* set by the 2FA routes only */
   /* the administrators are fixed (Sergiu and Grigore): nobody is promoted or demoted */
   if (e.record.original && e.record.getString("rol") !== e.record.original().getString("rol")) {
     throw new BadRequestError("Rolul nu se schimbă: administratorii sunt Sergiu și Grigore.");

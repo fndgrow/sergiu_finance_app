@@ -193,20 +193,16 @@ class PocketBase {
   collection(c) { return collection(c); }
   async send(p, o) {
     if (NET_DOWN) throw err(0, "net");
-    if (p === "/api/ehl/password") { if (!currentUser || currentUser.rol !== "Director") throw err(403, "x"); if (currentUser.parolaSetata && o.body.veche !== currentUser.parola) throw err(400, "Parola actuală este greșită."); if (currentUser.twoFA && !verifyStep(currentUser, o.body.totp)) throw err(400, "Codul din aplicația de autentificare este greșit."); currentUser.parola = o.body.noua; currentUser.parolaSetata = true; return { ok: true, token: "tok-" + currentUser.id, expires: Date.now() + 7 * 86400000 }; }
+    if (false) { if (!currentUser || currentUser.rol !== "Director") throw err(403, "x"); if (currentUser.parolaSetata && o.body.veche !== currentUser.parola) throw err(400, "Parola actuală este greșită."); if (currentUser.twoFA && !verifyStep(currentUser, o.body.totp)) throw err(400, "Codul din aplicația de autentificare este greșit."); currentUser.parola = o.body.noua; currentUser.parolaSetata = true; return { ok: true, token: "tok-" + currentUser.id, expires: Date.now() + 7 * 86400000 }; }
     if (p === "/api/ehl/2fa/setup") { /* step 1: a director's login + password (kept when he already has them), a fresh secret */
       const u = currentUser; if (!u) throw err(403, "x");
-      if (u.twoFA && !verifyStep(u, o.body.totp)) throw err(400, "Codul din aplicația de autentificare este greșit.");
-      if (u.rol === "Director") {
-        const lg = String(o.body.login || "").trim().toLowerCase(), pw = String(o.body.parola || "");
-        if (lg || !u.login) { if (!/^[a-z0-9._-]{3,40}$/.test(lg)) throw err(400, "Login: 3–40 de litere mici, cifre, punct, liniuță."); if (Object.values(store.utilizatori).some(x => x.id !== u.id && x.login === lg)) throw err(400, "Acest login este folosit de altcineva."); u.login = lg; }
-        if (pw) { if (pw.length < 8) throw err(400, "Parola trebuie să aibă cel puțin 8 caractere."); u.parola = pw; u.parolaSetata = true; } else if (!u.parolaSetata) throw err(400, "Parola trebuie să aibă cel puțin 8 caractere.");
-      }
-      u.totpSecret = newSecret(); u.totpLast = 0; u.twoFA = false; u.recuperare = [];
-      return { secret: u.totpSecret, uri: "otpauth://totp/Casieria%20EHL:" + encodeURIComponent(u.login || u.nume) + "?secret=" + u.totpSecret + "&issuer=Casieria%20EHL", login: u.login || "" };
+      const ehlA = !!o.body.ehl && u.rol === "Director", K = ehlA ? "EHL" : "";
+      if (u["twoFA" + K] && !verifyStep({ totpSecret: u["totpSecret" + K] }, o.body.totp)) throw err(400, "Codul din aplicația de autentificare este greșit.");
+      u["totpSecret" + K] = newSecret(); u["totpLast" + K] = 0; u["twoFA" + K] = false; u["recuperare" + K] = [];
+      return { secret: u["totpSecret" + K], uri: "otpauth://totp/Casieria%20EHL:" + encodeURIComponent(u.login || u.nume) + "?secret=" + u["totpSecret" + K] + "&issuer=Casieria%20EHL", login: u.login || "", ehl: ehlA };
     }
-    if (p === "/api/ehl/2fa/confirm") { const u = currentUser; if (!u || !u.totpSecret) throw err(400, "Mai întâi pasul de configurare."); if (!verifyStep(u, o.body.totp)) throw err(400, "Codul din aplicația de autentificare este greșit. Verificați ora telefonului."); u.twoFA = true; u.recuperare = newRecovery(); emit("utilizatori", "update", u); return { ok: true, recuperare: u.recuperare.slice() }; }
-    if (p === "/api/ehl/2fa/reset") { const u = currentUser; if (!u || u.rol !== "Director") throw err(403, "Doar directorul resetează autentificarea."); if (!verifyStep(u, o.body.totp)) throw err(400, "Codul dumneavoastră din aplicația de autentificare este greșit."); const t = store.utilizatori[o.body.id]; if (!t || t.id === u.id) throw err(400, "Alegeți alt utilizator."); t.twoFA = false; t.totpSecret = ""; t.recuperare = []; emit("utilizatori", "update", t); return { ok: true }; }
+    if (p === "/api/ehl/2fa/confirm") { const u = currentUser, K = (!!o.body.ehl && u && u.rol === "Director") ? "EHL" : ""; if (!u || !u["totpSecret" + K]) throw err(400, "Mai întâi pasul de configurare."); if (!verifyStep({ totpSecret: u["totpSecret" + K] }, o.body.totp)) throw err(400, "Codul din aplicația de autentificare este greșit. Verificați ora telefonului."); u["twoFA" + K] = true; u["recuperare" + K] = newRecovery(); emit("utilizatori", "update", u); return { ok: true, recuperare: u["recuperare" + K].slice() }; }
+    if (p === "/api/ehl/2fa/reset") { const u = currentUser; if (!u || u.rol !== "Director") throw err(403, "Doar directorul resetează autentificarea."); if (!verifyStep(u, o.body.totp)) throw err(400, "Codul dumneavoastră din aplicația de autentificare este greșit."); const t = store.utilizatori[o.body.id]; if (!t || t.id === u.id) throw err(400, "Alegeți alt utilizator."); t.twoFA = false; t.totpSecret = ""; t.recuperare = []; t.twoFAEHL = false; t.totpSecretEHL = ""; t.recuperareEHL = []; emit("utilizatori", "update", t); return { ok: true }; }
     if (p === "/api/ehl/rename") { /* the rename route: every row of every author, in one go */
       if (!currentUser || currentUser.rol !== "Director") throw err(403, "x");
       const vechi = String(o.body.vechi || "").trim(), nou = String(o.body.nou || "").trim(); if (!vechi || !nou) throw err(400, "x");
@@ -218,19 +214,12 @@ class PocketBase {
       return { ok: true };
     }
     if (p !== "/api/ehl/login") throw err(404, "nf");
-    const cod = String(o.body.cod || ""), lg = String(o.body.login || "").trim().toLowerCase(), totp = String(o.body.totp || "").trim(), wantEHL = !!o.body.ehl;
+    const cod = String(o.body.cod || ""), totp = String(o.body.totp || "").trim();
     store.utilizatori = store.utilizatori || {};
-    const pubOf = (x) => ({ id: x.id, nume: x.nume, rol: x.rol, cod: x.cod, codEHL: x.codEHL || "", status: x.status, login: x.login || "", twoFA: !!x.twoFA });
-    const checkSecond = (x) => { if (verifyStep(x, totp)) return true; const i = (x.recuperare || []).indexOf(totp.toLowerCase()); if (i >= 0) { x.recuperare.splice(i, 1); return true; } return false; };
-    if (lg) { /* a director: login + password, then the authenticator (or straight to the setup when there is none yet) */
-      const dr = Object.values(store.utilizatori).find(x => x.rol === "Director" && x.login === lg);
-      if (!dr || dr.status === "Inactiv" || o.body.parola !== dr.parola) throw err(401, "Date de autentificare greșite.");
-      if (!dr.twoFA) return { token: "tok-" + dr.id, expires: Date.now() + 86400000, record: pubOf(dr), needSetup: true };
-      if (!totp) return { needTotp: true, nume: dr.nume };
-      if (!checkSecond(dr)) throw err(401, "Codul din aplicația de autentificare este greșit.");
-      return { token: "tok-" + dr.id, expires: Date.now() + 86400000, record: pubOf(dr), ehl: wantEHL };
-    }
-    let u = Object.values(store.utilizatori).find(x => x.cod === cod);
+    const pubOf = (x) => ({ id: x.id, nume: x.nume, rol: x.rol, cod: x.cod, codEHL: x.codEHL || "", status: x.status, login: x.login || "", twoFA: !!x.twoFA, twoFAEHL: !!x.twoFAEHL });
+    const checkSecond = (x, ehl) => { const sec = ehl ? x.totpSecretEHL : x.totpSecret, rc = ehl ? (x.recuperareEHL || []) : (x.recuperare || []); if (verifyStep({ totpSecret: sec }, totp)) return true; const i = rc.indexOf(totp.toLowerCase()); if (i >= 0) { rc.splice(i, 1); return true; } return false; };
+    let u = Object.values(store.utilizatori).find(x => x.cod === cod), viaEHL = false;
+    if (!u) { u = Object.values(store.utilizatori).find(x => x.rol === "Director" && x.codEHL === cod); viaEHL = !!u; }
     let first = false;
     if (!u && Object.keys(store.utilizatori).length === 0) {
       u = { id: newId(), nume: "Director", rol: "Director", cod, status: "Activ" }; store.utilizatori[u.id] = u; first = true;
@@ -238,13 +227,12 @@ class PocketBase {
     }
     if (DEBUG) console.log("   FAKE login", cod, "found:", !!u, u && u.status, u && u.rol);
     if (!u || u.status === "Inactiv") throw err(401, "Cod greșit sau utilizator dezactivat.");
-    if (u.rol === "Director" && u.login) return { needFull: true, nume: u.nume, login: u.login }; /* a director signs in with login + password */
-    if (u.twoFA) { /* a collaborator: the PIN names him, the authenticator confirms */
-      if (!totp) return { needTotp: true, nume: u.nume };
-      if (!checkSecond(u)) throw err(401, "Codul din aplicația de autentificare este greșit.");
-      return { token: "tok-" + u.id, expires: Date.now() + 2 * 86400000, record: pubOf(u) };
+    if (viaEHL ? u.twoFAEHL : u.twoFA) { /* the code names the account, its authenticator confirms */
+      if (!totp) return { needTotp: true, nume: u.nume, ehl: viaEHL };
+      if (!checkSecond(u, viaEHL)) throw err(401, "Codul din aplicația de autentificare este greșit.");
+      return { token: "tok-" + u.id, expires: Date.now() + 2 * 86400000, record: pubOf(u), ehl: viaEHL };
     }
-    return { token: "tok-" + u.id, expires: Date.now() + 2 * 86400000, first, record: pubOf(u), needSetup: true };
+    return { token: "tok-" + u.id, expires: Date.now() + 2 * 86400000, first, record: pubOf(u), needSetup: true, ehl: viaEHL };
   }
 }
 window.PocketBase = PocketBase;
@@ -274,11 +262,10 @@ const ls = (k) => window.localStorage.getItem(k);
   click($("#langbtn")); await tick();
   console.log("2. first launch: the code creates the director, who must set up two-factor sign-in at once");
   $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
-  check($("#sucred") && !$("#nav").children.length && !$('#nav [data-view="panou"]') && !$(".tile"), "the director is in, but sees only the setup: login + password first, nothing else of the app");
+  check($("[data-secret]") && !$("#nav").children.length && !$('#nav [data-view="panou"]') && !$(".tile"), "the director is in, but sees only the authenticator setup, nothing else of the app");
   /* the setup walk-through: credentials (directors), the authenticator secret and its first code, the recovery codes */
-  const finishSetup = async (login, pw) => {
+  const finishSetup = async () => {
     await tick(40);
-    if ($("#sucred")) { $("#sucred").elements["login"].value = login; $("#sucred").elements["p1"].value = pw; $("#sucred").elements["p2"].value = pw; submit($("#sucred")); await tick(60); }
     const sec = $("[data-secret]") && $("[data-secret]").getAttribute("data-secret"); if (!sec) throw new Error("no authenticator secret shown");
     $("#suconf").elements["totp"].value = "123456"; submit($("#suconf")); await tick(40);
     const wrongRefused = !!$("#suconf") && /greșit/.test(text());
@@ -287,26 +274,29 @@ const ls = (k) => window.localStorage.getItem(k);
     click($("#sudone")); await tick(40);
     return { codes, wrongRefused, secret: sec };
   };
-  const dirSetup = await finishSetup("sergiu", "Parola-123");
+  const ehlSetups = [];
+  const dirSetup = await finishSetup();
   check(dirSetup.wrongRefused && dirSetup.codes.length === 8 && $("#role").textContent === "Director" && $("#nav").children.length === 5, "a wrong first code is refused, the right one activates 2FA, 8 recovery codes are shown once, the director is in");
   const dirId = Object.values(store.utilizatori)[0].id;
-  check(store.utilizatori[dirId].login === "sergiu" && store.utilizatori[dirId].twoFA === true, "the director now has a login and an active authenticator");
+  check(store.utilizatori[dirId].twoFA === true, "the director now has an active authenticator for his own account");
   store.utilizatori[dirId].codEHL = "1111"; emit("utilizatori", "update", store.utilizatori[dirId]); await tick(30); /* his EHL code: still the PIN for money out of the till */
-  /* sign-in helpers: a director types login + password + the authenticator code (the box opens the EHL account); a collaborator his PIN, then the code */
-  const fullLogin = async (login, pw, ehl, totpOverride) => {
-    if ($("#pinf") && !$("#fullf")) { click($("#gatefull")); await tick(); }
-    const u = Object.values(store.utilizatori).find(x => x.login === login), f = $("#fullf");
-    f.elements["login"].value = login; f.elements["parola"].value = pw; f.elements["ehl"].checked = !!ehl;
-    submit(f); await tick(80);
-    if ($("#totpf")) { /* second step: the authenticator code (only once the authenticator is set up) */
-      $("#totpf").elements["totp"].value = totpOverride !== undefined ? totpOverride : (u && u.totpSecret ? totpAt(u.totpSecret, nowStep()) : "");
+  /* sign-in helper: the code names the account (a director's EHL code = Casa EHL), then the code of that account's authenticator */
+  const codeLogin = async (cod, totpOverride) => {
+    $("#pinv").value = cod; submit($("#pinf")); await tick(60);
+    if ($("#totpf")) {
+      const u = Object.values(store.utilizatori).find(x => x.cod === cod || (x.rol === "Director" && x.codEHL === cod)), ehl = !!(u && u.cod !== cod);
+      const sec = u ? (ehl ? u.totpSecretEHL : u.totpSecret) : "";
+      $("#totpf").elements["totp"].value = totpOverride !== undefined ? totpOverride : (sec ? totpAt(sec, nowStep()) : "");
       submit($("#totpf")); await tick(80);
     }
+    if ($("[data-secret]")) { const r = await finishSetup(); ehlSetups.push(r); } /* an account's first sign-in sets its authenticator up */
   };
-  const opLogin = async (cod) => { $("#pinv").value = cod; submit($("#pinf")); await tick(60); if ($("#totpf")) { const u = Object.values(store.utilizatori).find(x => x.cod === cod); $("#totpf").elements["totp"].value = totpAt(u.totpSecret, nowStep()); submit($("#totpf")); await tick(80); } };
-  const asMode = async (ehl) => { click($('[data-view="set"]')); await tick(); click($("#exitdir")); await tick(30); await fullLogin("sergiu", "Parola-123", ehl); click($('[data-view="add"]')); await tick(); };
+  const fullLogin = async (login, pw, ehl, totpOverride) => codeLogin(ehl ? "1111" : "258000", totpOverride); /* kept name: the director's own code or his EHL code */
+  const opLogin = async (cod) => codeLogin(cod);
+  const asMode = async (ehl) => { click($('[data-view="set"]')); await tick(); click($("#exitdir")); await tick(30); await codeLogin(ehl ? "1111" : "258000"); click($('[data-view="add"]')); await tick(); };
   const asEHL = () => asMode(true), asAdmin = () => asMode(false); /* incomes, projects and the till are the EHL account's; spending is the administrator's */
   check(ls("ehl.cod") === null && Number(ls("ehl.exp")) > Date.now() && Number(ls("ehl.unlock")) > 0, "no remembered code; the session's end and the time of entry are stamped");
+  check(!$("#fullf") && !$("#gatefull"), "there is no login/password form anywhere: the code and the authenticator are the two factors");
   check(Object.values(store.utilizatori)[0].rol === "Director", "director user created");
   check($("#role").textContent === "Director", "role pill = Director");
   check($("#nav").children.length === 5, "director nav has 5 tabs: EHL, Panou, Adaugă, Registre, Setări");
@@ -651,19 +641,14 @@ const ls = (k) => window.localStorage.getItem(k);
   click($("#exitdir")); await tick(30);
   check($("#pinf") && !ls("ehl.cache"), "locked again, cache cleared");
   $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
-  check($("#fullf") && $("#fullf").elements["login"].value === "sergiu", "a director's code alone opens nothing: the app switches to his login form, login prefilled");
-  await fullLogin("sergiu", "wrong-password", false);
-  check($("#fullf") && /greșite/.test(text()), "a wrong password is refused");
-  await fullLogin("sergiu", "Parola-123", false, "000000");
-  check($("#totpf") && /aplicația de autentificare/.test(text()), "a wrong authenticator code is refused on the second step");
+  check($("#totpf") && /Sergiu/.test(text()) && !/Casa EHL/.test($("#sheet,#app h2") ? $("#app h2").textContent : ""), "the director's own code alone opens nothing: the authenticator code of his account is asked");
+  $("#totpf").elements["totp"].value = "000000"; submit($("#totpf")); await tick(40);
+  check($("#totpf") && /aplicația de autentificare/.test(text()), "a wrong authenticator code is refused");
   click($("#gateback")); await tick();
-  await fullLogin("sergiu", "Parola-123", false, store.utilizatori[dirId].recuperare[0]);
+  await codeLogin("258000", store.utilizatori[dirId].recuperare[0]);
   check($("#role").textContent === "Director" && store.utilizatori[dirId].recuperare.length === 7, "a recovery code signs him in and is used up");
   click($('[data-view="set"]')); await tick();
-  check($("#pwchg") && /Securitate/.test(text()) && /sergiu/.test(text()), "the Securitate card shows his login and the 2FA state, with the password form");
-  $("#pwchg").elements["veche"].value = "Parola-123"; $("#pwchg").elements["noua"].value = "Parola-456"; $("#pwchg").elements["noua2"].value = "Parola-456"; $("#pwchg").elements["totp"].value = totpAt(store.utilizatori[dirId].totpSecret, nowStep()); submit($("#pwchg")); await tick(60);
-  check(store.utilizatori[dirId].parola === "Parola-456", "the password is changed from Setări (with the authenticator code)");
-  $("#pwchg").elements["veche"].value = "Parola-456"; $("#pwchg").elements["noua"].value = "Parola-123"; $("#pwchg").elements["noua2"].value = "Parola-123"; $("#pwchg").elements["totp"].value = totpAt(store.utilizatori[dirId].totpSecret, nowStep()); submit($("#pwchg")); await tick(60);
+  check(/Securitate/.test(text()) && !$("#pwchg") && /Casa EHL/.test(text()), "the Securitate card shows the two authenticators of a director and no password form");
   console.log("8b. renaming a person renames them in every register");
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
   setField("suma", "10"); setField("descriere", "Cuie mici"); setField("pentru", "EHL"); setField("categorie", "Materiale"); submit($("#recf")); await tick(60);
@@ -700,13 +685,14 @@ const ls = (k) => window.localStorage.getItem(k);
   window.localStorage.setItem("ehl.exp", String(Date.now() - 1000));
   Object.defineProperty(window.document, "visibilityState", { value: "hidden", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange"));
   Object.defineProperty(window.document, "visibilityState", { value: "visible", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange")); await tick(60);
-  check($("#fullf") && /expirat/.test(text()) && !$("#nav").children.length && $("#fullf").elements["login"].value === "sergiu", "an expired session shows the sign-in form again with the login prefilled, and nothing of the app");
-  await fullLogin("sergiu", "Parola-123", false);
-  check($("#role").textContent === "Director", "login + password + code bring him back");
-  console.log("8e0. the EHL box on the sign-in form opens the EHL account");
+  check($("#pinf") && /expirat/.test(text()) && !$("#nav").children.length, "an expired session shows the code screen again, and nothing of the app");
+  await codeLogin("258000");
+  check($("#role").textContent === "Director", "code + authenticator code bring him back");
+  console.log("8e0. the EHL code opens the EHL account, with its own authenticator");
   click($('[data-view="set"]')); await tick(); click($("#exitdir")); await tick(30);
-  await fullLogin("sergiu", "Parola-123", true);
-  check($("#role").textContent === "EHL" && /Banii firmei/.test(text()) && $('[data-view="ehl"][aria-current="page"]'), "1111 opens the EHL account: badge EHL, the firm-wide view first");
+  await codeLogin("1111");
+  check($("#role").textContent === "EHL" && /Banii firmei/.test(text()) && $('[data-view="ehl"][aria-current="page"]'), "the EHL code opens the EHL account: badge EHL, the firm-wide view first");
+  check(ehlSetups.length === 1 && ehlSetups[0].codes.length === 8 && store.utilizatori[dirId].twoFAEHL === true && store.utilizatori[dirId].totpSecretEHL !== store.utilizatori[dirId].totpSecret, "the Casa EHL account got its own authenticator (second secret, own recovery codes) at its first sign-in");
   check(window.document.body.classList.contains("ehl-mode") && $("#ttl").textContent === "Casa EHL · contul comun", "the EHL account is marked: dark header class and its own title");
   click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
   setField("destinatie", "Depus pe cont"); await tick();
@@ -714,12 +700,12 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("suma", "100"); submit($("#recf")); await tick(80);
   check(!$("#recf") && Object.values(store.iesiri).some(r => r.destinatie === "Depus pe cont" && r.suma === 100 && r.sursa === "Casa"), "money leaves the common till with the code sent along");
   click($('[data-view="set"]')); await tick(); click($("#exitdir")); await tick(30);
-  await fullLogin("sergiu", "Parola-123", false);
-  check($("#role").textContent === "Director" && $('[data-view="panou"][aria-current="page"]'), "without the box the same login opens the administrator account: his own Panou first");
+  await codeLogin("258000");
+  check($("#role").textContent === "Director" && $('[data-view="panou"][aria-current="page"]'), "his own code opens the administrator account: his own Panou first");
   click($('[data-view="set"]')); await tick();
   click($("#exitdir")); await tick(30);
   $("#pinv").value = "4141"; submit($("#pinf")); await tick(80);
-  check(!$("#sucred") && $("[data-secret]"), "a collaborator's first PIN sign-in goes straight to the authenticator setup (no login or password for him)");
+  check($("[data-secret]"), "a collaborator's first PIN sign-in goes straight to the authenticator setup");
   const opSetup = await finishSetup();
   check(opSetup.codes.length === 8 && $("#role").textContent === "Operator" && Object.values(store.utilizatori).find(x => x.cod === "4141").twoFA === true, "the collaborator's authenticator is active, with his own recovery codes");
   click($('[data-view="set"]') || $('[data-view="add"]')); await tick();
@@ -811,7 +797,7 @@ const ls = (k) => window.localStorage.getItem(k);
   check($("#pinf") && /greșit/.test(text()), "wrong code shows error and stays locked");
 
   console.log("11. a loan may be in euro or dollars: the currency and the rate are kept, the books count it in lei");
-  await fullLogin("sergiu", "Parola-123", false); /* the administrator signs in on the locked device */
+  await codeLogin("258000"); /* the administrator signs in on the locked device */
   click($('[data-view="add"]')); await tick(); click($('[data-form="imprumuturi"]')); await tick();
   setField("persoana", "Vasile Creditat"); setField("valuta", "EUR"); await tick();
   check($('[data-k="curs"]').value === "20.22", "choosing EUR fills in the rate of the day, 20,22");
