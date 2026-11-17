@@ -296,8 +296,12 @@ const ls = (k) => window.localStorage.getItem(k);
   const fullLogin = async (login, pw, ehl, totpOverride) => {
     if ($("#pinf") && !$("#fullf")) { click($("#gatefull")); await tick(); }
     const u = Object.values(store.utilizatori).find(x => x.login === login), f = $("#fullf");
-    f.elements["login"].value = login; f.elements["parola"].value = pw; f.elements["totp"].value = totpOverride !== undefined ? totpOverride : (u && u.totpSecret ? totpAt(u.totpSecret, nowStep()) : ""); f.elements["ehl"].checked = !!ehl;
+    f.elements["login"].value = login; f.elements["parola"].value = pw; f.elements["ehl"].checked = !!ehl;
     submit(f); await tick(80);
+    if ($("#totpf")) { /* second step: the authenticator code (only once the authenticator is set up) */
+      $("#totpf").elements["totp"].value = totpOverride !== undefined ? totpOverride : (u && u.totpSecret ? totpAt(u.totpSecret, nowStep()) : "");
+      submit($("#totpf")); await tick(80);
+    }
   };
   const opLogin = async (cod) => { $("#pinv").value = cod; submit($("#pinf")); await tick(60); if ($("#totpf")) { const u = Object.values(store.utilizatori).find(x => x.cod === cod); $("#totpf").elements["totp"].value = totpAt(u.totpSecret, nowStep()); submit($("#totpf")); await tick(80); } };
   const asMode = async (ehl) => { click($('[data-view="set"]')); await tick(); click($("#exitdir")); await tick(30); await fullLogin("sergiu", "Parola-123", ehl); click($('[data-view="add"]')); await tick(); };
@@ -651,7 +655,8 @@ const ls = (k) => window.localStorage.getItem(k);
   await fullLogin("sergiu", "wrong-password", false);
   check($("#fullf") && /greșite/.test(text()), "a wrong password is refused");
   await fullLogin("sergiu", "Parola-123", false, "000000");
-  check($("#fullf") && /aplicația de autentificare/.test(text()), "a wrong authenticator code is refused");
+  check($("#totpf") && /aplicația de autentificare/.test(text()), "a wrong authenticator code is refused on the second step");
+  click($("#gateback")); await tick();
   await fullLogin("sergiu", "Parola-123", false, store.utilizatori[dirId].recuperare[0]);
   check($("#role").textContent === "Director" && store.utilizatori[dirId].recuperare.length === 7, "a recovery code signs him in and is used up");
   click($('[data-view="set"]')); await tick();

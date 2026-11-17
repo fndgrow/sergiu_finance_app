@@ -160,9 +160,9 @@ ro:{
  f_contract_mdl:"Suma contractului (MDL)",p_cash:"Încasat cash",p_tr:"Încasat transfer",p_ramas:"Rămas de încasat",
  f_adaug:"Adăugător (MDL)",f_contract_eur:"Contract în EUR",f_contract_eur_sum:"Suma contractului (EUR)",f_contract_cash:"Din care cash (EUR)",f_contract_tr:"Din care transfer (EUR)",contract_split:"Cash + transfer trebuie să dea suma contractului.",f_proiect_nume:"Denumire proiect",f_client_nume:"Numele clientului",s_tranz:"Toate tranzacțiile",s_tranz_h:"Fiecare mișcare de bani, de la cea mai nouă: de unde au plecat, unde au ajuns, cine a înregistrat-o. Apăsați pe un rând ca să vedeți înregistrarea și istoricul ei.",tz_cont:"Cont",rec_hist:"Istoricul înregistrării",rec_hist_none:"Fără istoric.",j_nochange:"Salvat fără modificări",f_contract_usd:"Contract în USD",pers_dir_h:"Din Casa EHL banii merg doar la un administrator.",p_adaug:"Adăugător",p_total:"Contract + adăugător",
  sess_other:"Contul a fost deschis pe alt dispozitiv. Introduceți codul ca să continuați aici.",sess_exp:"Sesiunea a expirat. Autentificați-vă din nou.",
- full_t:"Administrator / Casa EHL",full_h:"Login, parola și codul din aplicația de autentificare (Google Authenticator sau similară). Bifați „Casa EHL” ca să intrați în casa comună.",f_login:"Login",f_totp:"Cod din aplicația de autentificare",f_totp_mine:"Codul meu",f_ehl_in:"Intru în Casa EHL (casa comună)",
+ full_t:"Administrator / Casa EHL",full_h:"Login și parola. Apoi se cere codul din aplicația de autentificare; la prima intrare o veți configura. Bifați „Casa EHL” ca să intrați în casa comună.",f_login:"Login",f_totp:"Cod din aplicația de autentificare",f_totp_mine:"Codul meu",f_ehl_in:"Deschid Casa EHL — contul comun al firmei (casă, încasări, proiecte), nu contul meu de administrator",
  gate_full_link:"Sunt administrator: login, parolă și cod de autentificare",gate_cod_link:"Am doar un cod de acces (colaborator)",full_bad:"Date de autentificare greșite.",
- totp_t:"Codul din aplicația de autentificare",totp_h:"Codul s-a potrivit. Introduceți acum cei 6 digiți din aplicația de autentificare de pe telefon (sau un cod de recuperare).",totp_bad:"Codul din aplicația de autentificare este greșit.",
+ totp_t:"Codul din aplicația de autentificare",totp_h:"Introduceți acum cele 6 cifre din aplicația de autentificare de pe telefon (sau un cod de recuperare).",totp_bad:"Codul din aplicația de autentificare este greșit.",
  su_t:"Autentificare în doi pași — configurare obligatorie",su_cred_h:"Alegeți un login și o parolă (cel puțin 8 caractere). De acum intrați cu ele plus codul din aplicația de autentificare; codul de acces nu mai deschide contul.",su_next:"Mai departe",
  su_secret_h:"Instalați Google Authenticator, Microsoft Authenticator sau Aegis. Scanați codul QR, sau apăsați butonul de deschidere pe telefon, sau introduceți cheia manual. Apoi scrieți codul de 6 cifre pe care îl arată aplicația.",su_key:"Cheia (dacă nu puteți scana):",su_open_app:"Deschide în aplicația de autentificare",su_confirm:"Confirmă codul",
  su_codes_t:"Coduri de recuperare",su_codes_h:"Dacă pierdeți telefonul cu aplicația de autentificare, un astfel de cod ține locul codului de 6 cifre, o singură dată fiecare. Notați-le undeva sigur acum: nu se mai afișează.",su_done:"Le-am notat, continuă",
@@ -327,9 +327,9 @@ ru:{
  f_contract_mdl:"Сумма договора (MDL)",p_cash:"Получено наличными",p_tr:"Получено переводом",p_ramas:"Осталось получить",
  f_adaug:"Дополнительно (MDL)",f_contract_eur:"Договор в EUR",f_contract_eur_sum:"Сумма договора (EUR)",f_contract_cash:"Из них наличными (EUR)",f_contract_tr:"Из них переводом (EUR)",contract_split:"Наличные + перевод должны давать сумму договора.",f_proiect_nume:"Название проекта",f_client_nume:"Имя клиента",s_tranz:"Все операции",s_tranz_h:"Каждое движение денег, новые сверху: откуда ушли, куда пришли, кто записал. Нажмите на строку, чтобы открыть запись и её историю.",tz_cont:"Счёт",rec_hist:"История записи",rec_hist_none:"Истории нет.",j_nochange:"Сохранено без изменений",f_contract_usd:"Договор в USD",pers_dir_h:"Из кассы EHL деньги идут только администратору.",p_adaug:"Дополнительно",p_total:"Договор + дополнительно",
  sess_exp:"Сессия истекла. Войдите снова.",
- full_t:"Администратор / Casa EHL",full_h:"Логин, пароль и код из приложения-аутентификатора (Google Authenticator или похожее). Отметьте «Casa EHL», чтобы войти в общую кассу.",f_login:"Логин",f_totp:"Код из приложения-аутентификатора",f_totp_mine:"Мой код",f_ehl_in:"Вхожу в Casa EHL (общая касса)",
+ full_t:"Администратор / Casa EHL",full_h:"Логин и пароль. Затем спросят код из приложения-аутентификатора; при первом входе вы его настроите. Отметьте «Casa EHL», чтобы войти в общую кассу.",f_login:"Логин",f_totp:"Код из приложения-аутентификатора",f_totp_mine:"Мой код",f_ehl_in:"Открыть Casa EHL — общий счёт фирмы (касса, поступления, проекты), а не мой счёт администратора",
  gate_full_link:"Я администратор: логин, пароль и код аутентификатора",gate_cod_link:"У меня только код доступа (колаборатор)",full_bad:"Неверные данные входа.",
- totp_t:"Код из приложения-аутентификатора",totp_h:"Код подошёл. Теперь введите 6 цифр из приложения-аутентификатора на телефоне (или код восстановления).",totp_bad:"Код из приложения-аутентификатора неверный.",
+ totp_t:"Код из приложения-аутентификатора",totp_h:"Теперь введите 6 цифр из приложения-аутентификатора на телефоне (или код восстановления).",totp_bad:"Код из приложения-аутентификатора неверный.",
  su_t:"Двухэтапный вход — обязательная настройка",su_cred_h:"Выберите логин и пароль (не меньше 8 символов). Дальше вы входите с ними плюс код из приложения-аутентификатора; код доступа аккаунт больше не открывает.",su_next:"Дальше",
  su_secret_h:"Установите Google Authenticator, Microsoft Authenticator или Aegis. Отсканируйте QR-код, или нажмите кнопку открытия на телефоне, или введите ключ вручную. Затем впишите 6-значный код, который показывает приложение.",su_key:"Ключ (если не получается сканировать):",su_open_app:"Открыть в приложении-аутентификаторе",su_confirm:"Подтвердить код",
  su_codes_t:"Коды восстановления",su_codes_h:"Если потеряете телефон с аутентификатором, такой код заменит 6-значный, каждый — один раз. Запишите их сейчас в надёжное место: больше они не показываются.",su_done:"Записал, продолжить",
@@ -2439,7 +2439,6 @@ function vPin(){
      +'<p class="hint" style="margin:0 0 12px">'+esc(T("full_h"))+'</p>'
      +'<form id="fullf"><label><span>'+esc(T("f_login"))+'</span><input type="text" name="login" autocomplete="username" autocapitalize="none" value="'+esc(GATE.login||"")+'"'+(gateBusy?" disabled":"")+'></label>'
      +'<label><span>'+esc(T("f_parola"))+'</span><input type="password" name="parola" autocomplete="current-password"'+(gateBusy?" disabled":"")+'></label>'
-     +'<label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"'+(gateBusy?" disabled":"")+'></label>'
      +'<label class="chk"><input type="checkbox" name="ehl"'+(GATE.ehl?" checked":"")+'> <span>'+esc(T("f_ehl_in"))+'</span></label>'
      +'<p class="err" id="pinerr"'+(gateErr?"":" hidden")+'>'+esc(gateErr)+'</p>'
      +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("pin_ok"))+'</button>'
@@ -3370,10 +3369,10 @@ document.addEventListener("submit",function(ev){
     return;
   }
   if(f.id==="fullf"){
-    var lg=String(f.elements["login"].value||"").trim().toLowerCase(),pw=f.elements["parola"].value,tp=String(f.elements["totp"].value||"").trim(),wantE=!!f.elements["ehl"].checked;
+    var lg=String(f.elements["login"].value||"").trim().toLowerCase(),pw=f.elements["parola"].value,wantE=!!f.elements["ehl"].checked;
     if(!lg||!pw||gateBusy){gateErr=T("req");render();return;}
     GATE.login=lg;GATE.ehl=wantE;gateBusy=true;gateErr="";render();
-    login({login:lg,parola:pw,totp:tp,ehl:wantE}).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("full_bad"))});
+    login({login:lg,parola:pw,ehl:wantE}).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("full_bad"))});
     return;
   }
   if(f.id==="totpf"){
