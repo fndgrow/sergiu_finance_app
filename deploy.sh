@@ -12,7 +12,7 @@ cd "$(dirname "$0")"
 
 STAGE="$(mktemp -d)"; trap 'rm -rf "$STAGE"' EXIT
 mkdir -p "$STAGE/pb_public/icons" "$STAGE/pb_public/vendor" "$STAGE/pb_hooks" "$STAGE/pb_migrations" "$STAGE/server"
-for f in index.html styles.css app.js app-config.js sw.js manifest.json; do tr -d '\r' < "$f" > "$STAGE/pb_public/$f"; done
+for f in index.html styles.css app.js app-config.js sw.js manifest.json robots.txt; do tr -d '\r' < "$f" > "$STAGE/pb_public/$f"; done
 cp icons/*.png "$STAGE/pb_public/icons/"
 cp vendor/*.js "$STAGE/pb_public/vendor/"
 for f in server/pb_hooks/*.js; do tr -d '\r' < "$f" > "$STAGE/pb_hooks/$(basename "$f")"; done

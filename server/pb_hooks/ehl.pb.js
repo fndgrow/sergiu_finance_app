@@ -104,8 +104,11 @@ routerAdd("POST", "/api/ehl/2fa/setup", (e) => {
   var secret = T.newSecret();
   rec.set(S, secret); rec.set(L, 0); rec.set(F, false); rec.set(R, []);
   $app.save(rec);
+  /* the entry's name in the authenticator app says which code it gives: Administrator EHL (a director's own account),
+     Casa EHL (the common till), Colaborator EHL (a collaborator); the person's name is the account label */
   var account = rec.getString("nume");
-  return e.json(200, { secret: secret, uri: T.uri(ehlA ? "Casa EHL" : "Casieria EHL", account, secret), ehl: ehlA });
+  var issuer = ehlA ? "Casa EHL" : (rec.getString("rol") === "Director" ? "Administrator EHL" : "Colaborator EHL");
+  return e.json(200, { secret: secret, uri: T.uri(issuer, account, secret), ehl: ehlA, issuer: issuer });
 }, $apis.requireAuth("utilizatori"));
 
 /* ---- 2FA setup, step 2: the first code from the app proves the secret landed; 2FA goes live and the recovery codes are

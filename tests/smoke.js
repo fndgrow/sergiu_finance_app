@@ -199,7 +199,8 @@ class PocketBase {
       const ehlA = !!o.body.ehl && u.rol === "Director", K = ehlA ? "EHL" : "";
       if (u["twoFA" + K] && !verifyStep({ totpSecret: u["totpSecret" + K] }, o.body.totp)) throw err(400, "Codul din aplicația de autentificare este greșit.");
       u["totpSecret" + K] = newSecret(); u["totpLast" + K] = 0; u["twoFA" + K] = false; u["recuperare" + K] = [];
-      return { secret: u["totpSecret" + K], uri: "otpauth://totp/Casieria%20EHL:" + encodeURIComponent(u.login || u.nume) + "?secret=" + u["totpSecret" + K] + "&issuer=Casieria%20EHL", login: u.login || "", ehl: ehlA };
+      const issuer = ehlA ? "Casa EHL" : (u.rol === "Director" ? "Administrator EHL" : "Colaborator EHL");
+      return { secret: u["totpSecret" + K], uri: "otpauth://totp/" + encodeURIComponent(issuer) + ":" + encodeURIComponent(u.nume) + "?secret=" + u["totpSecret" + K] + "&issuer=" + encodeURIComponent(issuer), ehl: ehlA, issuer: issuer };
     }
     if (p === "/api/ehl/2fa/confirm") { const u = currentUser, K = (!!o.body.ehl && u && u.rol === "Director") ? "EHL" : ""; if (!u || !u["totpSecret" + K]) throw err(400, "Mai întâi pasul de configurare."); if (!verifyStep({ totpSecret: u["totpSecret" + K] }, o.body.totp)) throw err(400, "Codul din aplicația de autentificare este greșit. Verificați ora telefonului."); u["twoFA" + K] = true; u["recuperare" + K] = newRecovery(); emit("utilizatori", "update", u); return { ok: true, recuperare: u["recuperare" + K].slice() }; }
     if (p === "/api/ehl/2fa/reset") { const u = currentUser; if (!u || u.rol !== "Director") throw err(403, "Doar directorul resetează autentificarea."); if (!verifyStep(u, o.body.totp)) throw err(400, "Codul dumneavoastră din aplicația de autentificare este greșit."); const t = store.utilizatori[o.body.id]; if (!t || t.id === u.id) throw err(400, "Alegeți alt utilizator."); t.twoFA = false; t.totpSecret = ""; t.recuperare = []; t.twoFAEHL = false; t.totpSecretEHL = ""; t.recuperareEHL = []; emit("utilizatori", "update", t); return { ok: true }; }
@@ -264,9 +265,13 @@ const ls = (k) => window.localStorage.getItem(k);
   $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
   check($("[data-secret]") && !$("#nav").children.length && !$('#nav [data-view="panou"]') && !$(".tile"), "the director is in, but sees only the authenticator setup, nothing else of the app");
   /* the setup walk-through: credentials (directors), the authenticator secret and its first code, the recovery codes */
+  const setupLabels = [], ehlSetups = [];
   const finishSetup = async () => {
     await tick(40);
     const sec = $("[data-secret]") && $("[data-secret]").getAttribute("data-secret"); if (!sec) throw new Error("no authenticator secret shown");
+    /* the screen names the entry as the authenticator app will show it: Administrator EHL / Casa EHL / Colaborator EHL + the person's name */
+    const u0 = currentUser, want = window.document.body.classList.contains("ehl-mode") || /Casa EHL/.test($("#app h2").textContent) ? "Casa EHL" : (u0 && u0.rol === "Director" ? "Administrator EHL" : "Colaborator EHL");
+    setupLabels.push({ want, seen: $("#app h2").textContent.includes(want) && $("#app").textContent.includes("intrarea se va numi: " + want + " · " + (u0 ? u0.nume : "")) });
     $("#suconf").elements["totp"].value = "123456"; submit($("#suconf")); await tick(40);
     const wrongRefused = !!$("#suconf") && /greșit/.test(text());
     $("#suconf").elements["totp"].value = totpAt(sec, nowStep()); submit($("#suconf")); await tick(60);
@@ -274,7 +279,6 @@ const ls = (k) => window.localStorage.getItem(k);
     click($("#sudone")); await tick(40);
     return { codes, wrongRefused, secret: sec };
   };
-  const ehlSetups = [];
   const dirSetup = await finishSetup();
   check(dirSetup.wrongRefused && dirSetup.codes.length === 8 && $("#role").textContent === "Director" && $("#nav").children.length === 5, "a wrong first code is refused, the right one activates 2FA, 8 recovery codes are shown once, the director is in");
   const dirId = Object.values(store.utilizatori)[0].id;
@@ -692,6 +696,7 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="set"]')); await tick(); click($("#exitdir")); await tick(30);
   await codeLogin("1111");
   check($("#role").textContent === "EHL" && /Banii firmei/.test(text()) && $('[data-view="ehl"][aria-current="page"]'), "the EHL code opens the EHL account: badge EHL, the firm-wide view first");
+  check(setupLabels.length === 2 && setupLabels.every(l => l.seen) && setupLabels[0].want === "Administrator EHL" && setupLabels[1].want === "Casa EHL", "each setup screen names the authenticator entry as the app will show it: Administrator EHL for the director's account, Casa EHL for the till, + the person's name");
   check(ehlSetups.length === 1 && ehlSetups[0].codes.length === 8 && store.utilizatori[dirId].twoFAEHL === true && store.utilizatori[dirId].totpSecretEHL !== store.utilizatori[dirId].totpSecret, "the Casa EHL account got its own authenticator (second secret, own recovery codes) at its first sign-in");
   check(window.document.body.classList.contains("ehl-mode") && $("#ttl").textContent === "Casa EHL · contul comun", "the EHL account is marked: dark header class and its own title");
   click($('[data-view="add"]')); await tick(); click($('[data-form="iesiri"]')); await tick();
@@ -707,6 +712,7 @@ const ls = (k) => window.localStorage.getItem(k);
   $("#pinv").value = "4141"; submit($("#pinf")); await tick(80);
   check($("[data-secret]"), "a collaborator's first PIN sign-in goes straight to the authenticator setup");
   const opSetup = await finishSetup();
+  check(setupLabels.length === 3 && setupLabels[2].seen && setupLabels[2].want === "Colaborator EHL", "the collaborator's setup names his entry Colaborator EHL + his name");
   check(opSetup.codes.length === 8 && $("#role").textContent === "Operator" && Object.values(store.utilizatori).find(x => x.cod === "4141").twoFA === true, "the collaborator's authenticator is active, with his own recovery codes");
   click($('[data-view="set"]') || $('[data-view="add"]')); await tick();
   if ($("#exitdir")) { click($("#exitdir")); await tick(30); } else { click($(".exit-top") || $('[data-view="add"]')); await tick(30); }

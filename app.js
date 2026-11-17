@@ -164,7 +164,7 @@ ro:{
  gate_full_link:"Sunt administrator: login, parolă și cod de autentificare",gate_cod_link:"Am doar un cod de acces (colaborator)",full_bad:"Date de autentificare greșite.",
  totp_t:"Codul din aplicația de autentificare",totp_h:"Introduceți acum cele 6 cifre din aplicația de autentificare de pe telefon (sau un cod de recuperare).",totp_bad:"Codul din aplicația de autentificare este greșit.",
  su_t:"Autentificare în doi pași — configurare obligatorie",su_cred_h:"Alegeți un login și o parolă (cel puțin 8 caractere). De acum intrați cu ele plus codul din aplicația de autentificare; codul de acces nu mai deschide contul.",su_next:"Mai departe",
- su_secret_h:"Instalați Google Authenticator, Microsoft Authenticator sau Aegis. Scanați codul QR, sau apăsați butonul de deschidere pe telefon, sau introduceți cheia manual. Apoi scrieți codul de 6 cifre pe care îl arată aplicația.",su_key:"Cheia (dacă nu puteți scana):",su_open_app:"Deschide în aplicația de autentificare",su_confirm:"Confirmă codul",
+ su_secret_h:"Instalați Google Authenticator, Microsoft Authenticator sau Aegis. Scanați codul QR, sau apăsați butonul de deschidere pe telefon, sau introduceți cheia manual. Apoi scrieți codul de 6 cifre pe care îl arată aplicația.",su_key:"Cheia (dacă nu puteți scana):",su_entry:"În aplicația de autentificare intrarea se va numi:",su_open_app:"Deschide în aplicația de autentificare",su_confirm:"Confirmă codul",
  su_codes_t:"Coduri de recuperare",su_codes_h:"Dacă pierdeți telefonul cu aplicația de autentificare, un astfel de cod ține locul codului de 6 cifre, o singură dată fiecare. Notați-le undeva sigur acum: nu se mai afișează.",su_done:"Le-am notat, continuă",
  login_fmt:"Login: 3–40 de litere mici, cifre, punct, liniuță.",set_sec:"Securitate",set_sec_h:"Intrarea = codul de acces + codul din aplicația de autentificare. Directorul are două intrări în aplicație: una pentru contul lui, una pentru Casa EHL.",sec_2fa:"Autentificare în doi pași",sec_on:"activă",sec_off:"neconfigurată",
  sec_redo_h:"Telefon nou pentru aplicația de autentificare? Introduceți codul curent și configurați din nou.",sec_redo:"Reconfigurează aplicația de autentificare",sec_reset_h:"Cineva și-a pierdut telefonul: resetați-i autentificarea (confirmați cu codul dumneavoastră). La următoarea intrare o configurează din nou.",sec_reset:"Resetează",sec_reset_done:"Autentificarea a fost resetată.",
@@ -331,7 +331,7 @@ ru:{
  gate_full_link:"Я администратор: логин, пароль и код аутентификатора",gate_cod_link:"У меня только код доступа (колаборатор)",full_bad:"Неверные данные входа.",
  totp_t:"Код из приложения-аутентификатора",totp_h:"Теперь введите 6 цифр из приложения-аутентификатора на телефоне (или код восстановления).",totp_bad:"Код из приложения-аутентификатора неверный.",
  su_t:"Двухэтапный вход — обязательная настройка",su_cred_h:"Выберите логин и пароль (не меньше 8 символов). Дальше вы входите с ними плюс код из приложения-аутентификатора; код доступа аккаунт больше не открывает.",su_next:"Дальше",
- su_secret_h:"Установите Google Authenticator, Microsoft Authenticator или Aegis. Отсканируйте QR-код, или нажмите кнопку открытия на телефоне, или введите ключ вручную. Затем впишите 6-значный код, который показывает приложение.",su_key:"Ключ (если не получается сканировать):",su_open_app:"Открыть в приложении-аутентификаторе",su_confirm:"Подтвердить код",
+ su_secret_h:"Установите Google Authenticator, Microsoft Authenticator или Aegis. Отсканируйте QR-код, или нажмите кнопку открытия на телефоне, или введите ключ вручную. Затем впишите 6-значный код, который показывает приложение.",su_entry:"В приложении-аутентификаторе запись будет называться:",su_key:"Ключ (если не получается сканировать):",su_open_app:"Открыть в приложении-аутентификаторе",su_confirm:"Подтвердить код",
  su_codes_t:"Коды восстановления",su_codes_h:"Если потеряете телефон с аутентификатором, такой код заменит 6-значный, каждый — один раз. Запишите их сейчас в надёжное место: больше они не показываются.",su_done:"Записал, продолжить",
  login_fmt:"Логин: 3–40 строчных букв, цифр, точка, дефис.",set_sec:"Безопасность",set_sec_h:"Вход = код доступа + код из приложения-аутентификатора. У директора две записи в приложении: для своего счёта и для Casa EHL.",sec_2fa:"Двухэтапный вход",sec_on:"включён",sec_off:"не настроен",
  sec_redo_h:"Новый телефон для аутентификатора? Введите текущий код и настройте заново.",sec_redo:"Перенастроить аутентификатор",sec_reset_h:"Кто-то потерял телефон: сбросьте ему аутентификацию (подтвердите своим кодом). При следующем входе он настроит её заново.",sec_reset:"Сбросить",sec_reset_done:"Аутентификация сброшена.",
@@ -509,7 +509,7 @@ function setupSecret(body){
   SETUP.busy=true;SETUP.err="";render();
   if(isDir&&ehlMode())body.ehl=true; /* the Casa EHL account has its own authenticator */
   return PB.send("/api/ehl/2fa/setup",{method:"POST",body:body,requestKey:null}).then(function(res){
-    SETUP={step:"secret",secret:res.secret,uri:res.uri,login:res.login||"",codes:null,busy:false,err:"",ehl:!!res.ehl};render();
+    SETUP={step:"secret",secret:res.secret,uri:res.uri,login:res.login||"",codes:null,busy:false,err:"",ehl:!!res.ehl,issuer:res.issuer||""};render();
   }).catch(function(e){SETUP.busy=false;SETUP.err=gateMsg(e,T("save_err"));render();});
 }
 function gateMsg(e,dflt){var srv=e&&e.response&&e.response.message;return netErr(e)?T("offline"):(srv?srvT(srv):dflt)}
@@ -2460,7 +2460,9 @@ function vSetup(){
   if(s.step==="secret"){
     var qr="";
     try{if(window.qrcode&&s.uri){var q=window.qrcode(0,"M");q.addData(s.uri);q.make();qr='<div class="qr">'+q.createSvgTag({cellSize:4,margin:2,scalable:true})+'</div>';}}catch(e){qr="";}
-    h+='<h2 style="margin:0 0 6px;font-size:18px">'+esc(T("su_t"))+(s.ehl?' · Casa EHL':'')+'</h2><p class="hint" style="margin:0 0 12px">'+esc(s.ehl?T("su_secret_ehl_h"):T("su_secret_h"))+'</p>'+qr
+    var entry=s.issuer||(s.ehl?"Casa EHL":(isDir?"Administrator EHL":"Colaborator EHL"));
+    h+='<h2 style="margin:0 0 6px;font-size:18px">'+esc(T("su_t"))+' · '+esc(entry)+'</h2><p class="hint" style="margin:0 0 12px">'+esc(s.ehl?T("su_secret_ehl_h"):T("su_secret_h"))+'</p>'
+      +'<p class="hint" style="margin:0 0 12px">'+esc(T("su_entry"))+' <b>'+esc(entry)+(ACCESS&&ACCESS.user?' · '+esc(ACCESS.user.nume):'')+'</b></p>'+qr
       +'<p class="hint" style="margin:0 0 4px">'+esc(T("su_key"))+'</p><p class="key" data-secret="'+esc(s.secret)+'">'+esc(String(s.secret||"").replace(/(.{4})/g,"$1 ").trim())+'</p>'
       +(s.uri?'<p style="margin:0 0 12px"><a class="btn ghost" href="'+esc(s.uri)+'">'+esc(T("su_open_app"))+'</a></p>':'')
       +'<form id="suconf"><label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"'+(s.busy?" disabled":"")+'></label>'
