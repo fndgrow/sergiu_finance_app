@@ -449,6 +449,11 @@ nav button .ic .ic-svg{width:22px;height:22px}
 .user-row{align-items:center;gap:10px}
 .gr-day.before{opacity:.45} /* a day before the employee's first day */
 label[hidden]{display:none} /* a hidden label stays hidden (labels are flex) */
+.qr{max-width:220px;margin:0 auto 12px}.qr svg{width:100%;height:auto;display:block;background:#fff;border-radius:10px}
+.key{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px;letter-spacing:.06em;word-break:break-all;margin:0 0 10px;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.codes{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:0 0 14px}.codes code{font-size:15px;padding:8px;border-radius:8px;background:color-mix(in srgb,var(--ink) 7%,transparent);text-align:center}
+label.chk{flex-direction:row;align-items:center;gap:8px;margin:4px 0 10px}label.chk input{width:18px;height:18px}
+hr{border:0;border-top:1px solid var(--line);margin:12px 0}
 .gr-move{margin-left:6px;padding:2px 8px;font-size:12px}
 .urow-main{display:flex;align-items:center;gap:10px;flex:1;min-width:0;background:transparent;border:0;padding:0;margin:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
 .urow-main .l{flex:1;min-width:0}

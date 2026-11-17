@@ -16,7 +16,7 @@ Object.defineProperty(window.navigator, "serviceWorker", { value: undefined });
 window.EventSource = function () {};
 
 /* ---- fixture (all rows by the director, today's rates: EUR 20, USD 18) ---- */
-const DIR = { id: "dir000000000001", nume: "Director", rol: "Director", cod: "100000", status: "Activ", parolaSetata: true };
+const DIR = { id: "dir000000000001", nume: "Director", rol: "Director", cod: "100000", status: "Activ", parolaSetata: true , login: "sergiu", twoFA: true };
 const D = "2026-11-02";
 const store = {
   utilizatori: { [DIR.id]: DIR },

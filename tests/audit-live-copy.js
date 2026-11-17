@@ -22,7 +22,27 @@ async function api(method, url, token, body) {
   let j = null; try { j = await r.json(); } catch (e) {}
   return { status: r.status, body: j };
 }
-async function login(cod) { for (let i = 0; ; i++) { const r = await api("POST", "/api/ehl/login", null, { cod }); if (r.status === 200) return r.body; if (r.status === 429 && i < 24) { await new Promise(z => setTimeout(z, 5000)); continue; } throw new Error("login failed " + r.status + " " + JSON.stringify(r.body)); } } /* the copy sees every request from one IP: wait out a rate limit */
+/* sign-in as the app does: a director with login + password + authenticator code, a collaborator with PIN + code. The copy
+   exposes each user's secret (users.json), so the codes are computed here; a director's password is his old code unless
+   AUDIT_PASS_<login> says otherwise (he changed it). Waits out a 429 (every request of the audit comes from one IP). */
+const crypto = require("crypto");
+const b32dec = (s) => { let bits = 0, val = 0; const out = []; for (const ch of String(s).toUpperCase().replace(/[^A-Z2-7]/g, "")) { val = (val << 5) | "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".indexOf(ch); bits += 5; if (bits >= 8) { out.push((val >>> (bits - 8)) & 255); bits -= 8; val &= (1 << bits) - 1; } } return Buffer.from(out); };
+const totpNow = (secret, shift) => { const step = Math.floor(Date.now() / 30000) + (shift || 0); const b = Buffer.alloc(8); b.writeUInt32BE(0, 0); b.writeUInt32BE(step >>> 0, 4); const h = crypto.createHmac("sha1", b32dec(secret)).update(b).digest(); const o = h[19] & 15; return String((h.readUInt32BE(o) & 0x7fffffff) % 1e6).padStart(6, "0"); };
+const usedStep = {};
+async function login(codOrUser, ehl) {
+  const u = typeof codOrUser === "object" ? codOrUser : users.find(x => x.cod === codOrUser || x.codEHL === codOrUser);
+  if (!u) throw new Error("no such user");
+  const body = u.rol === "Director" && u.login ? { login: u.login, parola: process.env["AUDIT_PASS_" + u.login] || u.cod, ehl: !!ehl } : { cod: u.cod };
+  for (let i = 0; ; i++) {
+    if (u.twoFA && u.totpSecret) { const shift = (usedStep[u.id] || 0) >= Math.floor(Date.now() / 30000) ? 1 : 0; body.totp = totpNow(u.totpSecret, shift); usedStep[u.id] = Math.floor(Date.now() / 30000) + shift; }
+    const r = await api("POST", "/api/ehl/login", null, body);
+    if (r.status === 200 && r.body.token) return r.body;
+    if (r.status === 200 && (r.body.needSetup === undefined)) throw new Error("login needs more: " + JSON.stringify(r.body));
+    if (r.status === 429 && i < 24) { await new Promise(z => setTimeout(z, 5000)); continue; }
+    if (r.status === 200) return r.body;
+    throw new Error("login failed " + r.status + " " + JSON.stringify(r.body));
+  }
+}
 async function dump(token) {
   const out = {};
   for (const col of COLS) {
@@ -58,7 +78,8 @@ function salaryPaid(D, emp, luna) {
 
 /* ---------- the real app in jsdom, signed in with a code ---------- */
 const SDK = fs.readFileSync(path.join(REPO, "vendor/pocketbase.umd.js"), "utf8"), APPJS = fs.readFileSync(path.join(REPO, "app.js"), "utf8");
-async function openApp(cod) {
+async function openApp(cod, ehl) { /* cod may also be a user object; a director signs in through his login form */
+  const u = typeof cod === "object" ? cod : users.find(x => x.cod === cod || x.codEHL === cod);
   const html = fs.readFileSync(path.join(REPO, "index.html"), "utf8").replace(/<script[^>]*src="[^"]*"[^>]*><\/script>/g, "").replace(/<link[^>]*>/g, "");
   const dom = new JSDOM(html, { url: "https://casieria.test/", runScripts: "outside-only", pretendToBeVisual: true });
   const w = dom.window, errs = [];
@@ -72,8 +93,17 @@ async function openApp(cod) {
   const tick = (ms) => new Promise(r => setTimeout(r, ms));
   await tick(400);
   const $ = (s) => w.document.querySelector(s);
-  $("#pinv").value = cod; $("#pinf").dispatchEvent(new w.Event("submit", { bubbles: true, cancelable: true }));
-  for (let i = 0; i < 60 && $("#pinf"); i++) await tick(200);
+  const fire = (el, ev) => el.dispatchEvent(new w.Event(ev, { bubbles: true, cancelable: true }));
+  const code = () => { if (!(u && u.twoFA && u.totpSecret)) return ""; const shift = (usedStep[u.id] || 0) >= Math.floor(Date.now() / 30000) ? 1 : 0; usedStep[u.id] = Math.floor(Date.now() / 30000) + shift; return totpNow(u.totpSecret, shift); };
+  if (u && u.rol === "Director" && u.login) {
+    $("#gatefull").dispatchEvent(new w.MouseEvent("click", { bubbles: true })); await tick(100);
+    const f = $("#fullf"); f.elements["login"].value = u.login; f.elements["parola"].value = process.env["AUDIT_PASS_" + u.login] || u.cod; f.elements["totp"].value = code(); f.elements["ehl"].checked = !!ehl; fire(f, "submit");
+  } else {
+    $("#pinv").value = u ? u.cod : String(cod); fire($("#pinf"), "submit");
+    for (let i = 0; i < 30 && !$("#totpf") && $("#pinf"); i++) await tick(200);
+    if ($("#totpf")) { $("#totpf").elements["totp"].value = code(); fire($("#totpf"), "submit"); }
+  }
+  for (let i = 0; i < 60 && ($("#pinf") || $("#fullf") || $("#totpf")); i++) await tick(200);
   await tick(2500);
   const click = (el) => el && el.dispatchEvent(new w.MouseEvent("click", { bubbles: true }));
   return { w, $, tick, click, errs, close: () => w.close() };
@@ -143,7 +173,7 @@ async function uiCheck(D, u, cod, label) {
   const A = await openApp(cod);
   ok(!A.$("#pinf"), label + ": signs in with the code");
   const P = await readPanou(A), want = person(D, u.nume);
-  ok(near(P.value, want.ramas), label + ": \"Soldul meu\" shows " + P.value + " — independent " + want.ramas);
+  if (!isNaN(P.value) || want.ramas) ok(near(P.value, want.ramas), label + ": \"Soldul meu\" shows " + P.value + " — independent " + want.ramas); else ok(true, label + ": no money yet, no balance tile");
   Object.keys(want.val).forEach(v => { if (v in P.cur) ok(near(P.cur[v], want.val[v]), label + ": balance in " + v + " shows " + P.cur[v] + " — independent " + want.val[v]); else if (want.val[v]) ok(false, label + ": no line for " + v + " though he holds " + want.val[v]); });
   if (u.rol !== "Director" && P.rows.length) ok(P.rows.every(t => / · de la /.test(t)), label + ": each sum received names its sender (" + P.rows.length + " rows)");
   Object.keys(P.emp).forEach(e => { const w = salaryPaid(D, e, curMonth()); ok(near(P.emp[e], w), label + ": employee " + e + " shows paid " + P.emp[e] + " this month — independent " + w); });
@@ -151,8 +181,8 @@ async function uiCheck(D, u, cod, label) {
   A.close();
   return P;
 }
-async function ehlCheck(D, cod) {
-  const A = await openApp(cod);
+async function ehlCheck(D, u) {
+  const A = await openApp(u, true);
   const E = await readEHL(A);
   Object.keys(E.people).forEach(p => { const w = person(D, p); ok(near(E.people[p], w.ramas), "EHL: account of " + p + " shows " + E.people[p] + " — independent " + w.ramas); });
   Object.keys(E.casa).forEach(v => ok(E.casa[v] >= -0.004, "EHL: Casa EHL in " + v + " is " + E.casa[v] + " (never below zero)"));
@@ -175,11 +205,12 @@ async function ehlCheck(D, cod) {
   for (const u of dirs) { const V = await dump((await login(u.cod)).token); ok(COLS.every(c => V[c] && V[c].length === D0[c].length), u.nume + " (director) reads everything"); }
 
   console.log("\n3. The real app, each account, against the independent figures");
-  for (const u of dirs) await uiCheck(D0, u, u.cod, u.nume + " (administrator)");
+  for (const u of dirs) await uiCheck(D0, u, u, u.nume + " (administrator)");
   for (const u of colabs) await uiCheck(D0, u, u.cod, u.nume + " (collaborator)");
-  if (dirs[0].codEHL) await ehlCheck(D0, dirs[0].codEHL);
+  await ehlCheck(D0, dirs[0]);
 
   console.log("\n4. A scenario on the copy: administrator → collaborator → spending → exchange → salary");
+  if (!colabs.length) { console.log("  (no collaborator account on this copy: the scenario is skipped)"); console.log("\n" + oks + " ok, " + fails + " failed" + (notes.length ? ", " + notes.length + " notes" : "")); process.exit(fails ? 1 : 0); }
   const S = dirs[0], C = colabs[0], R0 = rates(D0), before = { s: person(D0, S.nume), c: person(D0, C.nume) };
   const emp = (D0.angajati.find(a => a.status !== "Inactiv" && !users.some(u => same(u.nume, a.nume))) || {}).nume;
   let ts = (await login(S.cod)).token;
@@ -202,10 +233,10 @@ async function ehlCheck(D, cod) {
   ok(near(after.s.ramas, before.s.ramas - 1000 - (emp ? 100 : 0)), S.nume + ": balance " + before.s.ramas + " → " + after.s.ramas + " (−1 000 handed on" + (emp ? ", −100 salary" : "") + ")");
   ok(near(after.c.val.MDL, before.c.val.MDL + 1000 - 300 - 200) && near(after.c.val.EUR, before.c.val.EUR + 10), C.nume + ": MDL " + before.c.val.MDL + " → " + after.c.val.MDL + ", EUR " + before.c.val.EUR + " → " + after.c.val.EUR);
   ok(near(after.c.ramas, before.c.ramas + 1000 - 300 + (10 * (R0.EUR || 1) - 200)), C.nume + ": lei balance " + before.c.ramas + " → " + after.c.ramas + " (+1 000 −300, exchange at today's rate)");
-  await uiCheck(D1, S, S.cod, S.nume + " after the scenario");
+  await uiCheck(D1, S, S, S.nume + " after the scenario");
   const PC = await uiCheck(D1, C, C.cod, C.nume + " after the scenario");
   ok(PC.rows.some(t => /de la/.test(t) && /1\.000,00/.test(t) && t.includes(S.nume)), C.nume + " sees the 1 000 MDL as coming from " + S.nume);
-  if (dirs[0].codEHL) await ehlCheck(D1, dirs[0].codEHL);
+  await ehlCheck(D1, dirs[0]);
 
   console.log("\n" + oks + " ok, " + fails + " failed" + (notes.length ? ", " + notes.length + " notes" : ""));
   process.exit(fails ? 1 : 0);

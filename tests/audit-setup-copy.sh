@@ -24,7 +24,9 @@ curl -s -o /dev/null -w "live health %{http_code}\n" http://127.0.0.1:8090/api/h
 python3 - <<'PY'
 import sqlite3, json
 c = sqlite3.connect("/tmp/pbaudit/pb_data/data.db")
-u = [dict(id=i, nume=n, rol=r, cod=k, codEHL=e or "", status=s) for i, n, r, k, e, s in c.execute("SELECT id,nume,rol,cod,codEHL,status FROM utilizatori")]
+cols = [r[1] for r in c.execute("PRAGMA table_info(utilizatori)")]
+extra = ", login, twoFA, totpSecret" if "totpSecret" in cols else ", '', 0, ''"
+u = [dict(id=i, nume=n, rol=r, cod=k, codEHL=e or "", status=s, login=l or "", twoFA=bool(t), totpSecret=ts or "") for i, n, r, k, e, s, l, t, ts in c.execute("SELECT id,nume,rol,cod,codEHL,status" + extra + " FROM utilizatori")]
 json.dump(u, open("/tmp/pbaudit/users.json", "w"))
 print("users:", [(x["nume"], x["rol"], x["status"]) for x in u])
 PY
