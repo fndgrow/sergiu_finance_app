@@ -111,8 +111,14 @@ if [ ! -f "$SITE" ]; then
 fi
 
 if command -v certbot >/dev/null 2>&1; then
+  # the certificate: the domain, plus www.DOMAIN when it points here too; an internal address (...@....local) is not sent
+  # to Let's Encrypt: the certificate is then registered without an e-mail (renewal is automatic either way)
+  MYIP="$(curl -fsS4 --max-time 5 https://api.ipify.org 2>/dev/null || true)"
+  CERT_D=(-d "$DOMAIN")
+  if [ -n "$MYIP" ] && getent ahostsv4 "www.$DOMAIN" 2>/dev/null | awk '{print $1}' | grep -qx "$MYIP"; then CERT_D+=(-d "www.$DOMAIN"); fi
+  case "$ADMIN_EMAIL" in *@*.local|"") CERT_MAIL=(--register-unsafely-without-email) ;; *) CERT_MAIL=(-m "$ADMIN_EMAIL") ;; esac
   if ! certbot certificates 2>/dev/null | grep -q "Domains:.*\b$DOMAIN\b"; then
-    certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$ADMIN_EMAIL" --redirect || echo "!! certbot failed: check that $DOMAIN points to this server, then rerun install.sh"
+    certbot --nginx "${CERT_D[@]}" --non-interactive --agree-tos "${CERT_MAIL[@]}" --redirect || echo "!! certbot failed: check that $DOMAIN points to this server (Cloudflare: DNS only, grey cloud), then rerun install.sh"
   else
     echo "== certificate for $DOMAIN already present"
   fi

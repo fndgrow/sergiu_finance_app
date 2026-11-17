@@ -92,6 +92,7 @@ Contents
 | `server/pb_migrations/1762000025_schimburi.js` | — | the `schimburi` collection: currency exchange by a person |
 | `server/pb_migrations/1762000026_proiecte_aditional_valuta.js` | — | `proiecte.adaugatorValuta`: the currency of the Adițional |
 | `server/pb_migrations/1762000027_proiecte_fara_stergere.js` | — | `proiecte.deleteRule = null`: projects are never deleted |
+| `server/pb_migrations/1762000032_directori_fixi.js` | — | a clean install: creates Sergiu Cervoneac (1234 / EHL 1111) and Grigore Enachi (4321 / EHL 2222) and the settings row when missing; no-op where they exist |
 | `server/pb_hooks/ehl.pb.js` | 576 | sign-in by code (own code or EHL code), record authorship, every money rule (payer/source, balances, founder code, project caps), users (EHL only, collaborators only, fixed roles), rename route, reset route |
 | `server/install.sh` | 85 | installs PocketBase as a service + nginx site + certificate |
 | `server/nginx-site.conf` | 32 | nginx site template (proxy to 8090, security headers) |
@@ -585,7 +586,7 @@ File `server/pb_hooks/ehl.pb.js`. In the PocketBase JS engine handlers cannot se
 
 **`deploy.sh user@host`** (from a computer): creates the folders on the server, copies `index.html styles.css app.js app-config.js sw.js manifest.json`, the icons and the SDK into `pb_public`, the hooks into `pb_hooks`, the migrations into `pb_migrations`, `install.sh` and the nginx template into `/opt/casieria`; if the service is already installed — `systemctl restart casieria`. The restart applies new migrations; hooks reload even without it.
 
-**`install.sh DOMAIN EMAIL [PASSWORD]`** (on the server, once): installs `unzip`; downloads the required PocketBase version (`PB_VERSION`) from GitHub and unpacks it; `pocketbase migrate up` applies the schema; creates/updates the superuser; writes the `casieria.service` unit (autostart, restart on crash, log in `std.log`); enables the service and checks `/api/health`; unless `SKIP_NGINX=1` — copies the site template with the domain and port filled in, enables it, `nginx -t`, reloads nginx, obtains a certificate with `certbot --nginx` and a redirect to HTTPS.
+**`install.sh DOMAIN EMAIL [PASSWORD]`** (on the server, once): installs `unzip`; downloads the required PocketBase version (`PB_VERSION`) from GitHub and unpacks it; `pocketbase migrate up` applies the schema; creates/updates the superuser; writes the `casieria.service` unit (autostart, restart on crash, log in `std.log`); enables the service and checks `/api/health`; unless `SKIP_NGINX=1` — copies the site template with the domain and port filled in, enables it, `nginx -t`, reloads nginx, obtains a certificate with `certbot --nginx` and a redirect to HTTPS (for `www.DOMAIN` too when it resolves to this server's IPv4; an internal `…@….local` address is never sent to Let's Encrypt — `--register-unsafely-without-email`). `HARDEN=1` (default) also sets up ufw (22/80/443), fail2ban, unattended-upgrades and keys-only sshd (only when root already has an authorized key).
 
 **`reset.sh`** (on the server, tests only; not in the repository): stops the service, deletes `pb_data`, re-applies the migrations and the superuser, starts. **It deletes all data.**
 
@@ -711,3 +712,5 @@ Everything below was asked for by the directors while the app went into use. Whe
 - `tests/fill.js`, `tests/seed-year*.js` and `tests/verify-*.js` predate these rules and were not updated; `tests/smoke.js` and `tests/calc.js` are current (the fake server in `smoke.js` mirrors the rules and hooks above).
 
 Not indexed (17 November 2026): `robots.txt` (`Disallow: /`, served from pb_public), `<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">` in `index.html`, and the same in nginx's `X-Robots-Tag` header on every response (`server/nginx-site.conf`).
+
+Production (17 November 2026): https://casaehl.com on its own VPS 45.140.203.66 (Ubuntu 24.04, timezone Europe/Chisinau, PocketBase 0.40.6, installed with `HARDEN=1`); the test instance stays at https://casa.fndgrow.md (45.141.22.62, shared machine, no server-wide hardening). The production database started empty: migration 0032 created the two administrators and the settings. Cloudflare must stay DNS-only (grey cloud) unless nginx is taught `real_ip_header CF-Connecting-IP` for Cloudflare's ranges, or the sign-in limiter would see one IP for everyone.
