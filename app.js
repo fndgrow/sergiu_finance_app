@@ -770,7 +770,8 @@ function catSubs(main){if(!main)return [];return uniqKeep(categorii().filter(fun
 function angajatiActivi(){return S.angajati.filter(function(a){return a.status!=="Inactiv"}).map(function(a){return a.nume})}
 /* an operator fills timesheets only for the employees he created himself (the server checks the same); a director for all */
 /* an operator sets and sees the salary only of the employees he created himself; a director of everyone */
-function angajatMeu(nume){return !!String(nume||"").trim()} /* employees are shared: every user may schedule, pay and see the salary of any of them */
+function angajatMeu(nume){return !!String(nume||"").trim()}
+function angajatCreatDeMine(nume){return isDir||S.angajati.some(function(a){return sameP(a.nume,nume)&&a.by===ME})} /* a bonus or "whole month" for someone else's employee is the director's call */ /* employees are shared: every user may schedule, pay and see the salary of any of them */
 /* a collaborator is an operator account; his own salary comes out of the advance the director gave him, never out of the till */
 function colabUser(nume){return !!(nume&&S.utilizatori.some(function(u){return u.rol==="Operator"&&u.status!=="Inactiv"&&sameP(u.nume,nume)}))}
 function pontajTotal(d){var wd=workdays(d.luna),sal=salariuLa(d.angajat,d.luna?monthEnd(d.luna):today()),pz=wd?sal/wd:0;return round2((d.complet?sal:(n(d.z1)+n(d.z2))*pz)+n(d.extra))}
@@ -1326,9 +1327,9 @@ var FORMS={
    {k:"z1",t:"number",l:"f_z1",half:1,step:"0.5",def:"0",roIf:function(d){return graficOre(d.angajat,d.luna).n>0||!!dPlin(d).complet}},
    {k:"z2",t:"number",l:"f_z2",half:1,step:"0.5",def:"0",roIf:function(d){return graficOre(d.angajat,d.luna).n>0||!!dPlin(d).complet},hint:"gr_din",hintIf:function(d){return graficOre(d.angajat,d.luna).n>0}},
    /* the whole monthly salary, whatever the days */
-   {k:"complet",t:"checkbox",l:"f_complet",hint:"f_complet_h",showIf:function(d){return !!d.angajat&&pontajPlatit(d)<=0.004&&!pontajAltii(d.angajat,d.luna).complet}},
+   {k:"complet",t:"checkbox",l:"f_complet",hint:"f_complet_h",showIf:function(d){return !!d.angajat&&angajatCreatDeMine(d.angajat)&&pontajPlatit(d)<=0.004&&!pontajAltii(d.angajat,d.luna).complet}},
    /* a bonus on top, for work beyond the ordinary */
-   {k:"extra",t:"number",l:"f_extra",step:"0.01",def:"0",hint:"f_extra_h",showIf:function(d){return !!d.angajat}},
+   {k:"extra",t:"number",l:"f_extra",step:"0.01",def:"0",hint:"f_extra_h",showIf:function(d){return !!d.angajat&&angajatCreatDeMine(d.angajat)}},
    /* "paid now": expenses "Salarii" on the projects of my days, for what is still due; from my advance (a director: from the till) */
    {k:"achitat",t:"checkbox",l:"pontaj_pay",hint:"pontaj_pay_h",showIf:function(d){return !!d.angajat&&pontajDue(dPlin(d))>0.004}},
    /* the whole remainder by default; a part (for instance one's own days only) when a sum is typed */

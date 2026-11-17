@@ -22,7 +22,7 @@ async function api(method, url, token, body) {
   let j = null; try { j = await r.json(); } catch (e) {}
   return { status: r.status, body: j };
 }
-async function login(cod) { const r = await api("POST", "/api/ehl/login", null, { cod }); if (r.status !== 200) throw new Error("login failed " + r.status + " " + JSON.stringify(r.body)); return r.body; }
+async function login(cod) { for (let i = 0; ; i++) { const r = await api("POST", "/api/ehl/login", null, { cod }); if (r.status === 200) return r.body; if (r.status === 429 && i < 24) { await new Promise(z => setTimeout(z, 5000)); continue; } throw new Error("login failed " + r.status + " " + JSON.stringify(r.body)); } } /* the copy sees every request from one IP: wait out a rate limit */
 async function dump(token) {
   const out = {};
   for (const col of COLS) {

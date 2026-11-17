@@ -62,6 +62,16 @@ const incLimit = (data, exclId) => {
     if (now > leftP + 0.005) throw err(400, (isTr ? "Prin transfer" : "Cash") + " pe acest proiect mai pot fi încasați " + Math.max(0, leftP).toFixed(2) + " EUR.");
   }
 };
+/* the hook's holdings of a person in one currency (what "Soldul meu" shows per currency) */
+const holdings = (nume, v, exclId) => {
+  const L = (c) => Object.values(store[c] || {}), cur = (r) => r.valuta || "MDL";
+  const got = L("iesiri").filter(r => r.destinatie === "Dat persoanei" && r.persoana === nume && cur(r) === v).reduce((a, r) => a + r.suma, 0);
+  const gave = L("iesiri").filter(r => r.sursa === "Avans" && r.platitDe === nume && cur(r) === v && r.id !== exclId).reduce((a, r) => a + r.suma, 0);
+  const rent = L("chirii").filter(r => r.sursa === "Avans" && r.mod !== "Transfer" && r.platitDe === nume && cur(r) === v).reduce((a, r) => a + (r.chirie || 0) + (r.gaj || 0) + (r.comunale || 0) + (r.avarii || 0), 0);
+  const xin = L("schimburi").filter(r => r.persoana === nume && r.valutaIn === v && r.id !== exclId).reduce((a, r) => a + r.sumaIn, 0), xout = L("schimburi").filter(r => r.persoana === nume && r.valutaDin === v && r.id !== exclId).reduce((a, r) => a + r.sumaDin, 0);
+  const cash = v === "MDL" ? L("cheltuieli").filter(r => r.mod !== "Transfer" && r.platitDe === nume).reduce((a, r) => a + r.suma, 0) : 0;
+  return got - gave - rent + xin - xout - cash;
+};
 function collection(col) {
   return {
     async getFullList(opts) { if (DEBUG) console.log("   FAKE list", col, "user:", currentUser && currentUser.nume);
@@ -86,8 +96,10 @@ function collection(col) {
         const emp = Object.values(store.angajati || {}).find(a => a.nume === String(data.angajat || "").trim());
         if (emp && emp.dataInceput && String(data.data) < String(emp.dataInceput)) throw err(400, "Angajatul lucrează de la " + emp.dataInceput + "; zilele dinainte nu se bifează.");
       }
-      if (col === "schimburi") { /* the hook: the exchange is the account's own, two different currencies, both sums */
+      if (col === "pontaj" && !isDir() && (data.extra > 0 || data.complet) && !Object.values(store.angajati || {}).some(a => a.nume === String(data.angajat || "").trim() && a.by === currentUser.id)) throw err(403, "Bonusul și bifa „luna întreagă” le pune directorul sau cel care a creat angajatul.");
+      if (col === "schimburi") { /* the hook: the exchange is the account's own, two different currencies, both sums, never more than held */
         data.persoana = currentUser.nume;
+        if (data.sumaDin > holdings(currentUser.nume, data.valutaDin, null) + 0.004) throw err(400, "Nu aveți atâta în valuta dată.");
         if (!data.valutaDin || !data.valutaIn || data.valutaDin === data.valutaIn) throw err(400, "Alegeți două valute diferite.");
         if (!(data.sumaDin > 0) || !(data.sumaIn > 0)) throw err(400, "Suma dată și suma primită trebuie să fie mai mari ca zero.");
       }
@@ -136,6 +148,12 @@ function collection(col) {
       if (NET_DOWN) throw err(0, "net");
       const r = store[col] && store[col][id]; if (!r) throw err(404, "nf");
       if (col === "incasari") incLimit({ ...r, ...data }, id);
+      if (col === "iesiri") { ["sursa", "platitDe", "destinatie", "persoana", "valuta", "luna"].forEach(k => { if (k in r) data[k] = r[k]; }); } /* the hook: an outflow keeps where it went */
+      if (col === "istoric") { data.angajat = r.angajat; if (!isDir() && !Object.values(store.angajati || {}).some(a => a.nume === r.angajat && a.by === currentUser.id)) throw err(403, "Salariul îl stabilește directorul sau cel care a creat angajatul."); }
+      if (col === "grafic") { data.angajat = r.angajat; data.data = r.data; }
+      if (col === "pontaj") { data.angajat = r.angajat; data.luna = r.luna; }
+      if (col === "cheltuieli" && ((r.categorie === "Salarii") !== (("categorie" in data ? data.categorie : r.categorie) === "Salarii"))) throw err(400, "O plată de salariu nu se transformă în altă cheltuială și invers: ștergeți rândul și introduceți-l din nou.");
+      if (col === "schimburi") { const h = holdings(currentUser.nume, data.valutaDin || r.valutaDin, id); if ((data.sumaDin !== undefined ? data.sumaDin : r.sumaDin) > h + 0.004) throw err(400, "Nu aveți atâta în valuta dată."); }
       if (col === "angajati" && data.dataInceput) { /* the hook: the start date cannot move past a ticked day */
         const first = Object.values(store.grafic || {}).filter(g => g.angajat === r.nume && g.ore > 0).map(g => g.data).sort()[0];
         if (first && String(data.dataInceput) > first) throw err(400, "În grafic sunt zile bifate din " + first + ".");
@@ -812,6 +830,31 @@ const ls = (k) => window.localStorage.getItem(k);
   check(store.angajati[nv.id].dataInceput === dAgo(20) && /Data începerii nu poate fi după ele/.test($("#sheet").textContent), "the start date cannot be moved past days already ticked");
   click($("#closeSheet")); await tick();
   try { await collection("angajati").update(nv.id, { dataInceput: dAgo(0) }); check(false, "server refuses"); } catch (e) { check(/zile bifate/.test(e.message), "the server refuses it too"); }
+
+  console.log("16. edits cannot forge money or move rows onto other people (the server rules, mirrored by the fake)");
+  const asOp = async () => { click($('[data-view="set"]')); await tick(); click($("#exitdir")); await tick(30); $("#pinv").value = "4141"; submit($("#pinf")); await tick(80); };
+  /* the operator was deactivated in section 9: bring him back as the administrator, then sign in as him */
+  store.utilizatori[op.id].status = "Activ"; emit("utilizatori", "update", store.utilizatori[op.id]); await tick(30); /* the administrator is still signed in from section 15 */
+  await asOp(); check($("#role").textContent === "Operator", "the collaborator is signed in again");
+  const sal = await collection("iesiri").create({ data: dAgo(0), destinatie: "Salarii", persoana: "Nou Venit", luna: dAgo(0).slice(0, 7), valuta: "MDL", curs: 1, suma: 1 });
+  const forged = await collection("iesiri").update(sal.id, { destinatie: "Dat persoanei", persoana: "Ion Operator", suma: 500000 });
+  check(forged.destinatie === "Salarii" && forged.persoana === "Nou Venit", "an outflow keeps its destination and person on edit (no money out of thin air)");
+  try { await collection("schimburi").create({ data: dAgo(0), valutaDin: "USD", sumaDin: 1000000, valutaIn: "EUR", sumaIn: 1000000 }); check(false, "exchange past holdings refused"); } catch (e) { check(/Nu aveți atâta/.test(e.message), "an exchange of money he does not hold is refused by the server"); }
+  const mine = await collection("angajati").create({ nume: "Al Meu", dataInceput: dAgo(0), status: "Activ" });
+  const hrow = await collection("istoric").create({ angajat: "Al Meu", salariu: 1, dinData: dAgo(0) });
+  const moved = await collection("istoric").update(hrow.id, { angajat: "Nou Venit", salariu: 99999 });
+  check(moved.angajat === "Al Meu", "a salary row keeps its employee on edit");
+  try { await collection("pontaj").create({ luna: dAgo(0).slice(0, 7), angajat: "Nou Venit", z1: 0, z2: 0, extra: 50000 }); check(false, "bonus refused"); } catch (e) { check(/Bonusul/.test(e.message), "a bonus for someone else's employee is refused"); }
+  const ok1 = await collection("pontaj").create({ luna: dAgo(0).slice(0, 7), angajat: "Al Meu", z1: 0, z2: 0, extra: 100 }); check(!!ok1.id, "a bonus for his own employee is accepted");
+  const gday = await collection("grafic").create({ angajat: "Al Meu", data: dAgo(0), ore: 8, pentru: "EHL" });
+  const gmoved = await collection("grafic").update(gday.id, { angajat: "Nou Venit", data: dAgo(1) });
+  check(gmoved.angajat === "Al Meu" && gmoved.data === dAgo(0), "a schedule row keeps its employee and day on edit");
+  const exp1 = await collection("cheltuieli").create({ data: dAgo(0), suma: 1, categorie: "Materiale", descriere: "probe", pentru: "EHL", mod: "Numerar" });
+  try { await collection("cheltuieli").update(exp1.id, { categorie: "Salarii", angajat: "Nou Venit", luna: dAgo(0).slice(0, 7) }); check(false, "refused"); } catch (e) { check(/nu se transformă/.test(e.message), "an expense cannot be turned into a salary payment"); }
+  click($('[data-view="add"]')); await tick(); click($('[data-form="pontaj"]')); await tick(); setField("angajat", "Nou Venit"); await tick();
+  check(!$('[data-k="extra"]') && !$('[data-k="complet"]'), "the timesheet form hides the bonus and the whole-month mark for an employee he did not create");
+  setField("angajat", "Al Meu"); await tick(); check(!!$('[data-k="extra"]'), "…and shows them for his own employee");
+  click($("#closeSheet")); await tick();
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
