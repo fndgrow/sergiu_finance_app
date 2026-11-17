@@ -25,8 +25,8 @@ python3 - <<'PY'
 import sqlite3, json
 c = sqlite3.connect("/tmp/pbaudit/pb_data/data.db")
 cols = [r[1] for r in c.execute("PRAGMA table_info(utilizatori)")]
-extra = ", login, twoFA, totpSecret" if "totpSecret" in cols else ", '', 0, ''"
-u = [dict(id=i, nume=n, rol=r, cod=k, codEHL=e or "", status=s, login=l or "", twoFA=bool(t), totpSecret=ts or "") for i, n, r, k, e, s, l, t, ts in c.execute("SELECT id,nume,rol,cod,codEHL,status" + extra + " FROM utilizatori")]
+extra = ", twoFA, totpSecret, twoFAEHL, totpSecretEHL" if "totpSecretEHL" in cols else ", 0, '', 0, ''"
+u = [dict(id=i, nume=n, rol=r, cod=k, codEHL=e or "", status=s, twoFA=bool(t), totpSecret=ts or "", twoFAEHL=bool(te), totpSecretEHL=tse or "") for i, n, r, k, e, s, t, ts, te, tse in c.execute("SELECT id,nume,rol,cod,codEHL,status" + extra + " FROM utilizatori")]
 json.dump(u, open("/tmp/pbaudit/users.json", "w"))
 print("users:", [(x["nume"], x["rol"], x["status"]) for x in u])
 PY

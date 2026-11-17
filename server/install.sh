@@ -37,6 +37,7 @@ PasswordAuthentication no
 KbdInteractiveAuthentication no
 PermitRootLogin prohibit-password
 MaxAuthTries 4
+X11Forwarding no
 SSHD
     sshd -t && systemctl reload ssh && echo "   ssh: keys only (root key kept)" || { rm -f /etc/ssh/sshd_config.d/00-casieria-hardening.conf; echo "   ssh config refused, left unchanged"; }
   else
@@ -101,6 +102,13 @@ curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null && echo "== PocketBase 
 
 if [ "$SKIP_NGINX" = "1" ]; then echo "== nginx step skipped"; exit 0; fi
 
+# server-wide nginx bits (idempotent): no version banner; the visitor's address from Cloudflare when the proxy is on
+echo 'server_tokens off;' > /etc/nginx/conf.d/casieria-hardening.conf
+CF=/etc/nginx/conf.d/cloudflare-realip.conf
+if V4=$(curl -fsS --max-time 10 https://www.cloudflare.com/ips-v4) && V6=$(curl -fsS --max-time 10 https://www.cloudflare.com/ips-v6) && [ -n "$V4" ]; then
+  { echo "# Cloudflare's ranges (rerun install.sh to refresh); only these may say who the visitor is"; for r in $V4 $V6; do echo "set_real_ip_from $r;"; done; echo "real_ip_header CF-Connecting-IP;"; } > "$CF.tmp"
+  nginx -t -c /etc/nginx/nginx.conf >/dev/null 2>&1 && mv "$CF.tmp" "$CF" || rm -f "$CF.tmp"
+fi
 SITE=/etc/nginx/sites-available/casieria
 if [ ! -f "$SITE" ]; then
   sed "s/__DOMAIN__/$DOMAIN/g; s/__PORT__/$PORT/g" "$DIR/nginx-site.conf" > "$SITE"

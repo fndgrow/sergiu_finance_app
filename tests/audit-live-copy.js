@@ -22,24 +22,45 @@ async function api(method, url, token, body) {
   let j = null; try { j = await r.json(); } catch (e) {}
   return { status: r.status, body: j };
 }
-/* sign-in as the app does: a director with login + password + authenticator code, a collaborator with PIN + code. The copy
-   exposes each user's secret (users.json), so the codes are computed here; a director's password is his old code unless
-   AUDIT_PASS_<login> says otherwise (he changed it). Waits out a 429 (every request of the audit comes from one IP). */
+/* sign-in as the app does: the code names the account (a user's own code, or a director's EHL code for Casa EHL), then
+   that account's authenticator code. The copy exposes each account's secret (users.json), so the codes are computed here;
+   an account without an authenticator yet is enrolled on the copy by the audit itself (setup + confirm), as a first
+   sign-in would. Waits out a 429 (every request of the audit comes from one IP). */
 const crypto = require("crypto");
 const b32dec = (s) => { let bits = 0, val = 0; const out = []; for (const ch of String(s).toUpperCase().replace(/[^A-Z2-7]/g, "")) { val = (val << 5) | "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".indexOf(ch); bits += 5; if (bits >= 8) { out.push((val >>> (bits - 8)) & 255); bits -= 8; val &= (1 << bits) - 1; } } return Buffer.from(out); };
 const totpNow = (secret, shift) => { const step = Math.floor(Date.now() / 30000) + (shift || 0); const b = Buffer.alloc(8); b.writeUInt32BE(0, 0); b.writeUInt32BE(step >>> 0, 4); const h = crypto.createHmac("sha1", b32dec(secret)).update(b).digest(); const o = h[19] & 15; return String((h.readUInt32BE(o) & 0x7fffffff) % 1e6).padStart(6, "0"); };
 const usedStep = {};
+const accountOf = (codOrUser, ehl) => { /* which user and which of his accounts (own / Casa EHL) a code means */
+  const u = typeof codOrUser === "object" ? codOrUser : users.find(x => x.cod === codOrUser || (x.rol === "Director" && x.codEHL === codOrUser));
+  if (!u) throw new Error("no such user: " + codOrUser);
+  const K = u.rol === "Director" && (ehl || (typeof codOrUser === "string" && codOrUser !== u.cod && codOrUser === u.codEHL)) ? "EHL" : "";
+  return { u, K, cod: K ? u.codEHL : u.cod };
+};
+const nextCode = async (u, K) => { /* a fresh code for the account: never a step already used (the server refuses a replay),
+  never more than one step ahead (the server accepts ±1): a third sign-in inside the same 30 s waits for the next step */
+  let now = Math.floor(Date.now() / 30000);
+  while ((usedStep[u.id + K] || 0) >= now + 1) { await new Promise(z => setTimeout(z, (now + 1) * 30000 - Date.now() + 200)); now = Math.floor(Date.now() / 30000); }
+  const shift = (usedStep[u.id + K] || 0) >= now ? 1 : 0;
+  usedStep[u.id + K] = now + shift; return totpNow(u["totpSecret" + K], shift);
+};
+async function enrol(u, K, token) { /* copy only: the account's first sign-in sets its authenticator up */
+  const st = await api("POST", "/api/ehl/2fa/setup", token, { ehl: !!K });
+  if (st.status !== 200 || !st.body.secret) throw new Error("2fa setup failed " + st.status + " " + JSON.stringify(st.body));
+  u["totpSecret" + K] = st.body.secret; u["twoFA" + K] = false;
+  const cf = await api("POST", "/api/ehl/2fa/confirm", token, { totp: await nextCode(u, K), ehl: !!K });
+  if (cf.status !== 200) throw new Error("2fa confirm failed " + cf.status + " " + JSON.stringify(cf.body));
+  u["twoFA" + K] = true; note((K ? "Casa EHL of " : "") + u.nume + ": authenticator enrolled on the copy (" + (cf.body.recuperare || []).length + " recovery codes)");
+}
 async function login(codOrUser, ehl) {
-  const u = typeof codOrUser === "object" ? codOrUser : users.find(x => x.cod === codOrUser || x.codEHL === codOrUser);
-  if (!u) throw new Error("no such user");
-  const body = u.rol === "Director" && u.login ? { login: u.login, parola: process.env["AUDIT_PASS_" + u.login] || u.cod, ehl: !!ehl } : { cod: u.cod };
+  const { u, K, cod } = accountOf(codOrUser, ehl);
   for (let i = 0; ; i++) {
-    if (u.twoFA && u.totpSecret) { const shift = (usedStep[u.id] || 0) >= Math.floor(Date.now() / 30000) ? 1 : 0; body.totp = totpNow(u.totpSecret, shift); usedStep[u.id] = Math.floor(Date.now() / 30000) + shift; }
+    const body = { cod };
+    if (u["twoFA" + K] && u["totpSecret" + K]) body.totp = await nextCode(u, K);
     const r = await api("POST", "/api/ehl/login", null, body);
-    if (r.status === 200 && r.body.token) return r.body;
-    if (r.status === 200 && (r.body.needSetup === undefined)) throw new Error("login needs more: " + JSON.stringify(r.body));
+    if (r.status === 200 && r.body.token && !r.body.needSetup) return r.body;
+    if (r.status === 200 && r.body.needSetup && r.body.token) { await enrol(u, K, r.body.token); continue; }
+    if (r.status === 200) throw new Error("login needs more: " + JSON.stringify(r.body));
     if (r.status === 429 && i < 24) { await new Promise(z => setTimeout(z, 5000)); continue; }
-    if (r.status === 200) return r.body;
     throw new Error("login failed " + r.status + " " + JSON.stringify(r.body));
   }
 }
@@ -78,8 +99,8 @@ function salaryPaid(D, emp, luna) {
 
 /* ---------- the real app in jsdom, signed in with a code ---------- */
 const SDK = fs.readFileSync(path.join(REPO, "vendor/pocketbase.umd.js"), "utf8"), APPJS = fs.readFileSync(path.join(REPO, "app.js"), "utf8");
-async function openApp(cod, ehl) { /* cod may also be a user object; a director signs in through his login form */
-  const u = typeof cod === "object" ? cod : users.find(x => x.cod === cod || x.codEHL === cod);
+async function openApp(cod, ehl) { /* cod may also be a user object; ehl = the director's Casa EHL account */
+  const { u, K, cod: pin } = accountOf(cod, ehl);
   const html = fs.readFileSync(path.join(REPO, "index.html"), "utf8").replace(/<script[^>]*src="[^"]*"[^>]*><\/script>/g, "").replace(/<link[^>]*>/g, "");
   const dom = new JSDOM(html, { url: "https://casieria.test/", runScripts: "outside-only", pretendToBeVisual: true });
   const w = dom.window, errs = [];
@@ -94,14 +115,17 @@ async function openApp(cod, ehl) { /* cod may also be a user object; a director 
   await tick(400);
   const $ = (s) => w.document.querySelector(s);
   const fire = (el, ev) => el.dispatchEvent(new w.Event(ev, { bubbles: true, cancelable: true }));
-  const code = () => { if (!(u && u.twoFA && u.totpSecret)) return ""; const shift = (usedStep[u.id] || 0) >= Math.floor(Date.now() / 30000) ? 1 : 0; usedStep[u.id] = Math.floor(Date.now() / 30000) + shift; return totpNow(u.totpSecret, shift); };
-  if (u && u.rol === "Director" && u.login) {
-    $("#gatefull").dispatchEvent(new w.MouseEvent("click", { bubbles: true })); await tick(100);
-    const f = $("#fullf"); f.elements["login"].value = u.login; f.elements["parola"].value = process.env["AUDIT_PASS_" + u.login] || u.cod; f.elements["totp"].value = code(); f.elements["ehl"].checked = !!ehl; fire(f, "submit");
-  } else {
-    $("#pinv").value = u ? u.cod : String(cod); fire($("#pinf"), "submit");
-    for (let i = 0; i < 30 && !$("#totpf") && $("#pinf"); i++) await tick(200);
-    if ($("#totpf")) { $("#totpf").elements["totp"].value = code(); fire($("#totpf"), "submit"); }
+  const code = async () => (u["twoFA" + K] && u["totpSecret" + K]) ? await nextCode(u, K) : "";
+  $("#pinv").value = pin; fire($("#pinf"), "submit");
+  for (let i = 0; i < 30 && !$("#totpf") && !$("[data-secret]") && $("#pinf"); i++) await tick(200);
+  if ($("#totpf")) { $("#totpf").elements["totp"].value = await code(); fire($("#totpf"), "submit"); }
+  for (let i = 0; i < 30 && ($("#totpf") || $("#pinf")) && !$("[data-secret]"); i++) await tick(200);
+  if ($("[data-secret]")) { /* first sign-in of this account on the copy: the setup screen, as a person would see it */
+    u["totpSecret" + K] = $("[data-secret]").getAttribute("data-secret"); u["twoFA" + K] = false;
+    $("#suconf").elements["totp"].value = await nextCode(u, K); fire($("#suconf"), "submit");
+    for (let i = 0; i < 30 && !$("#sudone"); i++) await tick(200);
+    u["twoFA" + K] = true; note((K ? "Casa EHL of " : "") + u.nume + ": authenticator enrolled through the app's setup screen (" + w.document.querySelectorAll(".codes code").length + " recovery codes shown)");
+    $("#sudone") && $("#sudone").dispatchEvent(new w.MouseEvent("click", { bubbles: true }));
   }
   for (let i = 0; i < 60 && ($("#pinf") || $("#fullf") || $("#totpf")); i++) await tick(200);
   await tick(2500);
@@ -192,7 +216,14 @@ async function ehlCheck(D, u) {
 }
 
 (async () => {
-  const dirs = users.filter(u => u.rol === "Director"), colabs = users.filter(u => u.rol === "Operator");
+  const dirs = users.filter(u => u.rol === "Director");
+  if (!users.some(u => u.rol === "Operator")) {
+    const te = (await login(dirs[0], true)).token; /* collaborators are created from Casa EHL only */
+    const r = await api("POST", "/api/collections/utilizatori/records", te, { nume: "Audit Colab", cod: "7777", status: "Activ", ehlCod: dirs[0].codEHL });
+    if (r.status === 200) { users.push({ id: r.body.id, nume: "Audit Colab", rol: "Operator", cod: "7777", codEHL: "", status: "Activ", twoFA: false, totpSecret: "" }); note("no collaborator on the copy: made 'Audit Colab' (PIN 7777) from Casa EHL"); }
+    else note("could not make a collaborator on the copy: " + r.status + " " + JSON.stringify(r.body));
+  }
+  const colabs = users.filter(u => u.rol === "Operator");
   const D0 = await dump((await login(dirs[0].cod)).token);
   console.log("\n1. The data itself (copy of the live database, " + D0.iesiri.length + " outflows, " + D0.cheltuieli.length + " expenses, " + D0.schimburi.length + " exchanges)");
   invariants(D0);
@@ -213,8 +244,25 @@ async function ehlCheck(D, u) {
   if (!colabs.length) { console.log("  (no collaborator account on this copy: the scenario is skipped)"); console.log("\n" + oks + " ok, " + fails + " failed" + (notes.length ? ", " + notes.length + " notes" : "")); process.exit(fails ? 1 : 0); }
   const S = dirs[0], C = colabs[0], R0 = rates(D0), before = { s: person(D0, S.nume), c: person(D0, C.nume) };
   const emp = (D0.angajati.find(a => a.status !== "Inactiv" && !users.some(u => same(u.nume, a.nume))) || {}).nume;
-  let ts = (await login(S.cod)).token;
-  let r = await api("POST", "/api/collections/iesiri/records", ts, { data: today(), destinatie: "Dat persoanei", persoana: C.nume, valuta: "MDL", curs: 1, suma: 1000, sursa: "Avans", nota: "audit" });
+  let ts = (await login(S.cod)).token, r;
+  if (before.s.ramas < 1100) { /* an empty copy: the till is fed by a project income (EHL account), then hands the administrator cash */
+    const te = (await login(S, true)).token;
+    r = await api("POST", "/api/collections/proiecte/records", te, { nume: "Audit Proiect", client: "Audit Client", contractEUR: 1000, contractCash: 1000, contractTransfer: 0, status: "Activ" });
+    ok(r.status === 200, "Casa EHL opens a project (" + (r.body && r.body.message || r.status) + ")");
+    r = await api("POST", "/api/collections/incasari/records", te, { data: today(), client: "Audit Client", proiect: "Audit Proiect", suma: 5000, valuta: "MDL", curs: 1, mod: "Numerar" });
+    ok(r.status === 200, "Casa EHL records a 5 000 MDL cash income on it (" + (r.body && r.body.message || r.status) + ")");
+    r = await api("POST", "/api/collections/iesiri/records", te, { data: today(), destinatie: "Dat persoanei", persoana: S.nume, valuta: "MDL", curs: 1, suma: 3000, sursa: "Casa", codEHL: S.codEHL });
+    ok(r.status === 200 && r.body.sursa === "Casa", "Casa EHL hands 3 000 MDL to " + S.nume + " (" + (r.body && r.body.message || r.status) + ")");
+    r = await api("POST", "/api/collections/iesiri/records", te, { data: today(), destinatie: "Dat persoanei", persoana: C.nume, valuta: "MDL", curs: 1, suma: 10, sursa: "Casa", codEHL: S.codEHL });
+    ok(r.status === 400, "…but not to a collaborator (" + (r.body && r.body.message) + ")");
+    r = await api("POST", "/api/collections/iesiri/records", te, { data: today(), destinatie: "Dat persoanei", persoana: S.nume, valuta: "MDL", curs: 1, suma: 10, sursa: "Casa", codEHL: "0000" });
+    ok(r.status === 400, "…and not with a wrong EHL code (" + (r.body && r.body.message) + ")");
+    r = await api("POST", "/api/collections/iesiri/records", te, { data: today(), destinatie: "Dat persoanei", persoana: S.nume, valuta: "MDL", curs: 1, suma: 2500, sursa: "Casa", codEHL: S.codEHL });
+    ok(r.status === 400, "…and never more than the till holds (" + (r.body && r.body.message) + ")");
+    const Dm = await dump(ts); before.s = person(Dm, S.nume); before.c = person(Dm, C.nume);
+    ok(near(before.s.ramas, 3000), S.nume + " now holds 3 000 MDL by the independent figures (" + before.s.ramas + ")");
+  }
+  r = await api("POST", "/api/collections/iesiri/records", ts, { data: today(), destinatie: "Dat persoanei", persoana: C.nume, valuta: "MDL", curs: 1, suma: 1000, sursa: "Avans", nota: "audit" });
   ok(r.status === 200 && same(r.body.platitDe, S.nume) && r.body.sursa === "Avans", S.nume + " hands 1 000 MDL to " + C.nume + " from his own account (payer " + (r.body && r.body.platitDe) + ")");
   if (emp) { r = await api("POST", "/api/collections/cheltuieli/records", ts, { data: today(), suma: 100, categorie: "Salarii", descriere: "audit salariu", pentru: "EHL", mod: "Numerar", angajat: emp, luna: curMonth(), platitDe: C.nume });
     ok(r.status === 200 && same(r.body.platitDe, S.nume), S.nume + " pays 100 MDL salary to " + emp + ": it stays on his account even if the form names someone else (payer " + (r.body && r.body.platitDe) + ")"); }
