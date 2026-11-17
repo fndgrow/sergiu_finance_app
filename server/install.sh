@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Casieria EHL — one-time server setup on Ubuntu with an existing nginx (run as root after deploy.sh).
+# Casieria EHL — one-time server setup on Ubuntu (run as root after deploy.sh).
 #   bash /opt/casieria/install.sh casa.example.com admin@example.com 'StrongAdminPassword'
 # PocketBase listens on 127.0.0.1:8090 only; nginx publishes it on the domain with a Let's Encrypt certificate.
-# Touches: /opt/casieria, /etc/systemd/system/casieria.service, /etc/nginx/sites-available/casieria (+ symlink).
-# Nothing else on the server is changed.
+# On a fresh, dedicated server it also installs nginx + certbot, a firewall (ssh/http/https only), fail2ban,
+# automatic security updates, and switches ssh to keys only (only when root already has an authorized key, so the
+# current way in keeps working). Set HARDEN=0 to skip those server-wide steps on a shared machine.
+# Touches: /opt/casieria, the casieria service and nginx site; with HARDEN=1 also ufw, fail2ban, sshd, unattended-upgrades.
 set -euo pipefail
 
 DOMAIN="${1:?usage: install.sh DOMAIN ADMIN_EMAIL [ADMIN_PASSWORD]}"
@@ -14,8 +16,33 @@ DIR="${DIR:-/opt/casieria}"
 PORT="${PORT:-8090}"
 SKIP_NGINX="${SKIP_NGINX:-0}"
 
+HARDEN="${HARDEN:-1}"
+
 echo "== Casieria EHL: PocketBase $PB_VERSION in $DIR, port $PORT, domain $DOMAIN"
-command -v unzip >/dev/null || { apt-get update -qq; apt-get install -y -qq unzip >/dev/null; }
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq
+apt-get install -y -qq unzip curl nginx certbot python3-certbot-nginx >/dev/null
+if [ "$HARDEN" = "1" ]; then
+  echo "== server hardening (HARDEN=1): firewall, fail2ban, automatic security updates, ssh keys only"
+  apt-get install -y -qq ufw fail2ban unattended-upgrades >/dev/null
+  ufw default deny incoming >/dev/null; ufw default allow outgoing >/dev/null
+  ufw allow 22/tcp >/dev/null; ufw allow 80/tcp >/dev/null; ufw allow 443/tcp >/dev/null
+  ufw --force enable >/dev/null; ufw status | head -1
+  systemctl enable --now fail2ban >/dev/null 2>&1 || true
+  dpkg-reconfigure -f noninteractive unattended-upgrades >/dev/null 2>&1 || true
+  if [ -s /root/.ssh/authorized_keys ]; then
+    cat > /etc/ssh/sshd_config.d/00-casieria-hardening.conf <<'SSHD'
+# keys only; root stays reachable with its key
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin prohibit-password
+MaxAuthTries 4
+SSHD
+    sshd -t && systemctl reload ssh && echo "   ssh: keys only (root key kept)" || { rm -f /etc/ssh/sshd_config.d/00-casieria-hardening.conf; echo "   ssh config refused, left unchanged"; }
+  else
+    echo "   ssh: no authorized key for root yet, password login left on (add a key, then rerun)"
+  fi
+fi
 mkdir -p "$DIR/pb_data" "$DIR/pb_public" "$DIR/pb_hooks" "$DIR/pb_migrations"
 cd "$DIR"
 

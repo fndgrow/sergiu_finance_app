@@ -581,6 +581,8 @@ File `server/pb_hooks/ehl.pb.js`. In the PocketBase JS engine handlers cannot se
 
 ## 24. Deployment: what the scripts do
 
+**`server/backup-offsite.sh`** (cron on the server, `BACKUP_TARGET=user@host:/folder`): scp of the newest `@auto_pb_backup_*.zip` to another machine, keeps the newest `KEEP` (30) there. **`server/harden-ssh-firewall.sh`**: the ufw + keys-only sshd steps on their own (for a server set up before `install.sh` did them).
+
 **`deploy.sh user@host`** (from a computer): creates the folders on the server, copies `index.html styles.css app.js app-config.js sw.js manifest.json`, the icons and the SDK into `pb_public`, the hooks into `pb_hooks`, the migrations into `pb_migrations`, `install.sh` and the nginx template into `/opt/casieria`; if the service is already installed — `systemctl restart casieria`. The restart applies new migrations; hooks reload even without it.
 
 **`install.sh DOMAIN EMAIL [PASSWORD]`** (on the server, once): installs `unzip`; downloads the required PocketBase version (`PB_VERSION`) from GitHub and unpacks it; `pocketbase migrate up` applies the schema; creates/updates the superuser; writes the `casieria.service` unit (autostart, restart on crash, log in `std.log`); enables the service and checks `/api/health`; unless `SKIP_NGINX=1` — copies the site template with the domain and port filled in, enables it, `nginx -t`, reloads nginx, obtains a certificate with `certbot --nginx` and a redirect to HTTPS.
