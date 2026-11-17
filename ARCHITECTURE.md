@@ -475,6 +475,8 @@ The "only the chosen month" filter is `inM(r)` over `dateOf(r)`.
 
 ## 20. Server: PocketBase
 
+Since 17 November 2026 the unit runs as user `casieria` (NoNewPrivileges, ProtectSystem=strict, ReadWritePaths = pb_data + std.log); the casieria nginx site answers 404 on `/_/`, `/api/settings`, `/api/logs`, `/api/backups`, `/api/collections/_superusers` and `/api/collections/users` (template: `server/nginx-site.conf`). `server/harden-ssh-firewall.sh` holds the optional ufw + key-only sshd steps for the owner.
+
 PocketBase runs with this command (from `casieria.service`):
 
 ```

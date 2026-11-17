@@ -35,6 +35,9 @@ if [ -n "$ADMIN_PASS" ]; then
   echo "== superuser $ADMIN_EMAIL ready (admin UI: https://$DOMAIN/_/)"
 fi
 
+# the service runs as its own user: it can write only pb_data and its log
+id casieria >/dev/null 2>&1 || useradd --system --home "$DIR" --shell /usr/sbin/nologin casieria
+mkdir -p "$DIR/pb_data"; touch "$DIR/std.log"; chown -R casieria:casieria "$DIR/pb_data" "$DIR/std.log"; chmod -R a+rX "$DIR/pb_public" "$DIR/pb_hooks" "$DIR/pb_migrations"
 cat > /etc/systemd/system/casieria.service <<EOF
 [Unit]
 Description=Casieria EHL (PocketBase)
@@ -42,8 +45,8 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
-Group=root
+User=casieria
+Group=casieria
 LimitNOFILE=4096
 Restart=always
 RestartSec=5s
@@ -51,6 +54,14 @@ WorkingDirectory=$DIR
 StandardOutput=append:$DIR/std.log
 StandardError=append:$DIR/std.log
 ExecStart=$DIR/pocketbase serve --http=127.0.0.1:$PORT --dir=$DIR/pb_data --publicDir=$DIR/pb_public --hooksDir=$DIR/pb_hooks --migrationsDir=$DIR/pb_migrations
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=$DIR/pb_data $DIR/std.log
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
 
 [Install]
 WantedBy=multi-user.target
