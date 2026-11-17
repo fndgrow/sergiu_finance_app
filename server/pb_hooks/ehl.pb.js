@@ -115,21 +115,6 @@ routerAdd("POST", "/api/ehl/password", (e) => {
   return e.json(200, { ok: true, token: rec.newStaticAuthToken(WEEK * 1000000000), expires: Date.now() + WEEK * 1000 });
 }, $apis.requireAuth("utilizatori"));
 
-/* ---- the director wipes everything for a fresh start: every register, the schedule, the journal and every account
-        that is not a director's. The settings and the director accounts stay. Confirmed with the director's own code.
-        POST /api/ehl/reset {cod} ---- */
-routerAdd("POST", "/api/ehl/reset", (e) => {
-  var body = e.requestInfo().body || {}, rec = e.auth;
-  if (!rec || rec.getString("rol") !== "Director") throw new ForbiddenError("Doar directorul poate șterge datele.");
-  if (String(body.cod || "").trim() === "" || String(body.cod || "").trim() !== rec.getString("cod")) throw new BadRequestError("Codul de acces este greșit.");
-  var cols = ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal"];
-  $app.runInTransaction(function (tx) {
-    cols.forEach(function (c) { tx.db().newQuery("DELETE FROM {{" + c + "}}").execute(); });
-    tx.db().newQuery("DELETE FROM {{utilizatori}} WHERE rol != 'Director'").execute();
-  });
-  return e.json(200, { ok: true });
-}, $apis.requireAuth("utilizatori"));
-
 /* ---- a person is renamed everywhere at once (director only): users, employees and every row that carries the name,
         whoever wrote it; the journal's author names too. The update hooks keep payer/person fields from the original on
         purpose, so the rename is done here, in SQL, in one transaction.   POST /api/ehl/rename {vechi, nou} ---- */
@@ -196,6 +181,22 @@ onRecordUpdateRequest((e) => {
   if (!(e.record.getFloat("sumaDin") > 0) || !(e.record.getFloat("sumaIn") > 0)) throw new BadRequestError("Suma dată și suma primită trebuie să fie mai mari ca zero.");
   e.next();
 }, "schimburi");
+
+/* ---- the history's author name is written by the server, never taken from the client ---- */
+onRecordCreateRequest((e) => {
+  if (e.auth) e.record.set("nume", String(e.auth.getString("nume") || ""));
+  e.next();
+}, "jurnal");
+
+/* ---- an employee's salary is set by a director or by the user who created that employee ---- */
+onRecordCreateRequest((e) => {
+  if (e.auth && e.auth.getString("rol") !== "Director") {
+    var nmI = String(e.record.getString("angajat") || "").trim(), mine = 0;
+    try { mine = $app.countRecords("angajati", $dbx.exp("TRIM(nume) = {:n} AND by = {:me}", { n: nmI, me: e.auth.id })); } catch (err) { mine = 0; }
+    if (!mine) throw new ForbiddenError("Salariul îl stabilește directorul sau cel care a creat angajatul.");
+  }
+  e.next();
+}, "istoric");
 
 /* ---- an employee's start date cannot move past a schedule day already ticked for him ---- */
 onRecordUpdateRequest((e) => {

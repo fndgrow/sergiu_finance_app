@@ -1,6 +1,8 @@
 #!/bin/bash
 # Throwaway copy of the live Casieria database for an end-to-end audit. Touches only /tmp/pbaudit; the live service is read, never written.
 set -e
+# optional first argument: a folder with pb_hooks/ and pb_migrations/ to test instead of the live ones (new code, live data)
+SRC=${1:-/opt/casieria}
 OLD=$(pgrep -f "pocketbase serve --dir /tmp/pbaudit" || true)
 [ -n "$OLD" ] && kill $OLD || true
 rm -rf /tmp/pbaudit && mkdir -p /tmp/pbaudit/pb_data
@@ -13,7 +15,7 @@ for f in ("data.db", "auxiliary.db"):
     except Exception as e:
         print("skip", f, e)
 PY
-cp -r pb_hooks pb_migrations /tmp/pbaudit/
+cp -r "$SRC/pb_hooks" "$SRC/pb_migrations" /tmp/pbaudit/
 cd /tmp/pbaudit
 setsid nohup timeout 3600 /opt/casieria/pocketbase serve --dir /tmp/pbaudit/pb_data --hooksDir /tmp/pbaudit/pb_hooks --migrationsDir /tmp/pbaudit/pb_migrations --http 127.0.0.1:8097 > /tmp/pbaudit/out.log 2>&1 < /dev/null &
 sleep 5

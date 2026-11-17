@@ -2433,7 +2433,7 @@ function vPin(){
   return h;
 }
 function vUsers(){
-  var h='<div class="sec"><div class="sec-h"><h2>'+esc(T("r_user"))+'</h2><div class="sec-act"><button class="btn sm ghost exit-top" id="exitdir" type="button">'+icon("users")+esc(T("logout"))+'</button><button class="btn sm danger" id="resetAll" type="button" title="'+esc(T("reset_h"))+'">'+icon("trash")+esc(T("reset_btn"))+'</button>'+(ehlMode()?'<button class="btn sm" type="button" data-form="utilizatori">'+icon("userplus")+esc(T("a_user"))+'</button>':'')+'</div></div>'
+  var h='<div class="sec"><div class="sec-h"><h2>'+esc(T("r_user"))+'</h2><div class="sec-act"><button class="btn sm ghost exit-top" id="exitdir" type="button">'+icon("users")+esc(T("logout"))+'</button>'+(ehlMode()?'<button class="btn sm" type="button" data-form="utilizatori">'+icon("userplus")+esc(T("a_user"))+'</button>':'')+'</div></div>'
     +(ehlMode()?'':'<p class="hint" style="margin:-4px 0 10px">'+esc(T("u_ehl_only"))+'</p>');
   /* only the active users here; the deactivated ones wait in the archive (vArhiva), nothing of theirs is lost */
   var act=S.utilizatori.filter(function(u){return u.status!=="Inactiv"});
@@ -2797,27 +2797,8 @@ window.addEventListener("popstate",function(e){
   if(st.v&&st.v!==view&&!needGate()){view=st.v;render();}
 });
 /* the director's "delete the data": everything but the settings and the director accounts, after the access code */
-var RESET={busy:false,err:""};
-function openReset(){if(!isDir)return;RESET={busy:false,err:""};sheetState={col:"__reset",id:null,data:{},err:""};sheetOpened();drawReset();}
-function drawReset(){
-  var h='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(T("reset_t"))+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div>'
-    +'<p class="hint">'+esc(T("reset_h"))+'</p><p class="hint">'+esc(T("reset_keep"))+'</p>'
-    +'<form id="resetf"><label><span>'+esc(T("reset_cod"))+'</span><input name="cod" inputmode="numeric" autocomplete="off" required'+(RESET.busy?' disabled':'')+'></label>'
-    +(RESET.err?'<p class="err">'+esc(RESET.err)+'</p>':'')
-    +'<div class="form-act"><button class="btn danger" type="submit" style="flex:1"'+(RESET.busy?' disabled':'')+'>'+icon("trash")+'<span>'+esc(RESET.busy?T("reset_busy"):T("reset_go"))+'</span></button></div></form></div></div>';
-  $("#sheet").innerHTML=h;
-}
-function doReset(cod){
-  if(RESET.busy||!PB)return;
-  RESET.busy=true;RESET.err="";drawReset();
-  PB.send("/api/ehl/reset",{method:"POST",body:{cod:cod},requestKey:null}).then(function(){
-    try{localStorage.removeItem("ehl.cache");localStorage.removeItem("ehl.queue");localStorage.removeItem("ehl.failed")}catch(e){}
-    resetData();toast(T("reset_done"));setTimeout(function(){location.reload()},600);
-  }).catch(function(e){RESET.busy=false;var srv=e&&e.response&&e.response.message;RESET.err=netErr(e)?T("offline"):(srv&&SRV_MSG[srv]?srvT(srv):T("save_err"));drawReset();});
-}
 function drawSheet(){
   if(!sheetState)return;
-  if(sheetState.col==="__reset"){drawReset();return;}
   var st=sheetState,def=FORMS[st.col],fields=def.fields();
   var rec0=st.id?(S[st.col]||[]).filter(function(r){return r.id===st.id})[0]:null;
   var salPay=!!(rec0&&st.col==="cheltuieli"&&rec0.categorie==="Salarii"); /* a salary payment: shows the days it covers; editable like any expense */
@@ -3262,7 +3243,6 @@ document.addEventListener("click",function(ev){
   if(df){if(df.dataset.armed==="1"){dropFailed(parseInt(df.getAttribute("data-dropfailed"),10))}else{df.dataset.armed="1";df.textContent=T("del_yes")}return;}
   if(t.closest&&t.closest("#expbtn")){exportRun(JUR.luna,false);return;}
   if(t.closest&&t.closest("#exitdir")){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}logout();return;}
-  if(t.closest&&t.closest("#resetAll")){openReset();return;}
   if(t.closest&&t.closest("#gateback")){GATE={step:"cod"};gateErr="";render();return;}
   if(t.closest&&t.closest("#gateother")){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}GATE={step:"cod"};logout();return;}
   if(t.closest&&t.closest("#installbtn")&&installEvt){var ev2=installEvt;installEvt=null;ev2.prompt();render();return;}
@@ -3307,7 +3287,6 @@ document.addEventListener("change",function(ev){
 document.addEventListener("submit",function(ev){
   var f=ev.target;ev.preventDefault();
   if(f.id==="recf"){submitForm();return;}
-  if(f.id==="resetf"){doReset(String(f.elements["cod"].value||"").trim());return;}
   var gateFail=function(e,dflt){
     gateBusy=false;
     if(e&&e.stack&&!e.status&&!e.code){try{console.error("sign-in failed inside the app:",e.stack||e)}catch(x){}} /* a bug, not a wrong code: keep it visible */

@@ -91,6 +91,9 @@ function collection(col) {
         if (!data.valutaDin || !data.valutaIn || data.valutaDin === data.valutaIn) throw err(400, "Alegeți două valute diferite.");
         if (!(data.sumaDin > 0) || !(data.sumaIn > 0)) throw err(400, "Suma dată și suma primită trebuie să fie mai mari ca zero.");
       }
+      if ((col === "proiecte" || col === "contracte") && !isDir()) throw err(403, "forbidden"); /* projects are the EHL account's (migration 0028) */
+      if (col === "istoric" && !isDir() && !Object.values(store.angajati || {}).some(a => a.nume === String(data.angajat || "").trim() && a.by === currentUser.id)) throw err(403, "Salariul îl stabilește directorul sau cel care a creat angajatul.");
+      if (col === "jurnal") data = { ...data, nume: currentUser.nume }; /* the author name comes from the server */
       if (col === "incasari" && !isDir()) throw err(403, "forbidden"); /* client incomes: director only */
       if (col === "incasari") incLimit(data, null);
       if (col === "incasari") { /* money from a founder is confirmed with that founder's code */
@@ -242,6 +245,7 @@ const ls = (k) => window.localStorage.getItem(k);
   console.log("3. add a user (operator) with employee + salary — from the EHL account only");
   click($('[data-view="set"]')); await tick();
   check(!$('[data-form="utilizatori"]') && /doar din contul EHL/.test(text()), "the administrator account has no button to add users, a note says they are made in EHL");
+  check(!$("#resetAll") && !/Șterge datele/.test(text()), "nobody has a button to wipe the data (a fresh start is done only by code on the server)");
   await asEHL();
   click($('[data-view="set"]')); await tick();
   click($('[data-form="utilizatori"]')); await tick();
