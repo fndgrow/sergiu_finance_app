@@ -17,7 +17,8 @@ routerUse((e) => {
         which has its own authenticator. A collaborator's PIN opens his account (token for two days).
         Before the authenticator of that account is set up, the code alone signs the person in and the answer carries
         needSetup, so the app walks him through the setup at once. {needTotp}: the code was right, now the authenticator
-        code (or a recovery code, used once). Failed attempts count per IP (8 in 15 minutes) on top of the rate limits. ---- */
+        code (or a recovery code, used once). Failed attempts count per IP (8 in 15 minutes) on top of the rate limits.
+        With pb_data/turnstile.secret present, a Cloudflare Turnstile token ({cf}) or the pass it earned ({human}) is required. ---- */
 routerAdd("POST", "/api/ehl/login", (e) => {
   var T = require(__hooks + "/totp.js");
   var body = e.requestInfo().body || {};
@@ -28,6 +29,28 @@ routerAdd("POST", "/api/ehl/login", (e) => {
   var since = new Date(Date.now() - 15 * 60 * 1000).toISOString().replace("T", " ").slice(0, 19);
   var tries = $app.countRecords("login_attempts", $dbx.exp("ip = {:ip} AND created >= {:since}", { ip: ip, since: since }));
   if (tries >= 8) throw new ApiError(429, "Prea multe încercări. Așteptați 15 minute.", {});
+  /* ---- the human check (Cloudflare Turnstile), on as soon as pb_data/turnstile.secret exists (19 November 2026):
+          the code step carries a Turnstile token (body.cf), checked with Cloudflare; a checked step hands back a short
+          pass (body.human: 5 minutes, this IP) so the authenticator step needs no second box. Bots without a token never
+          reach the code check. 428 = "confirm you are human first". ---- */
+  var tsSecret = "";
+  try { tsSecret = String(toString($os.readFile($app.dataDir() + "/turnstile.secret")) || "").trim(); } catch (err) { tsSecret = ""; }
+  var human = "";
+  if (tsSecret) {
+    var pass = String(body.human || "").trim(), passOk = false;
+    if (pass) { try { var pj = $security.parseJWT(pass, tsSecret); passOk = String(pj.ip || "") === ip; } catch (err) { passOk = false; } }
+    if (!passOk) {
+      var cf = String(body.cf || "").trim();
+      if (!cf) throw new ApiError(428, "Confirmați că nu sunteți robot.", {});
+      var cfOk = false;
+      try {
+        var vr = $http.send({ url: "https://challenges.cloudflare.com/turnstile/v0/siteverify", method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ secret: tsSecret, response: cf, remoteip: ip }), timeout: 10 });
+        cfOk = !!(vr && vr.json && vr.json.success);
+      } catch (err) { cfOk = false; }
+      if (!cfOk) throw new ApiError(428, "Confirmarea „nu sunt robot” a expirat. Încercați din nou.", {});
+    }
+    human = $security.createJWT({ ip: ip }, tsSecret, 300);
+  }
   var fail = function (msg) {
     var att = new Record($app.findCollectionByNameOrId("login_attempts"));
     att.set("ip", ip);
@@ -77,7 +100,7 @@ routerAdd("POST", "/api/ehl/login", (e) => {
   var isDirector = rec.getString("rol") === "Director", seconds = isDirector ? T.secondsUntilFive() : T.TWO_DAYS;
   if (rec.getBool(viaEHL ? "twoFAEHL" : "twoFA")) {
     /* the code names the account, the account's authenticator confirms */
-    if (!totp) return e.json(200, { needTotp: true, nume: rec.getString("nume"), ehl: viaEHL });
+    if (!totp) return e.json(200, { needTotp: true, nume: rec.getString("nume"), ehl: viaEHL, human: human });
     if (!checkSecond(rec, viaEHL)) fail("Codul din aplicația de autentificare este greșit.");
     if (!isDirector) rec.refreshTokenKey(); /* one session per collaborator account; a director keeps both accounts open on different devices */
     $app.save(rec);

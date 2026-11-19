@@ -202,6 +202,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="month"]::-webkit-dat
 .btn[disabled]{opacity:.5;cursor:default}
 .calcbox{background:var(--accent-soft);border-radius:11px;padding:11px 13px;font-family:var(--d);font-weight:600;display:flex;justify-content:space-between;gap:10px;color:var(--accent)}
 .err{color:var(--neg);font-size:13px}
+.cfts{margin:0 0 12px;min-height:65px}
 /* form bottom: totals in one row, Save (wider) and Delete in one row */
 .calc-row{display:flex;gap:11px}
 .calc-row .calcbox{flex:1 1 0;min-width:0;flex-direction:column;justify-content:flex-start;align-items:flex-start;gap:2px} /* the amount always on its own line under the label */

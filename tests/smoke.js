@@ -219,6 +219,15 @@ class PocketBase {
     store.utilizatori = store.utilizatori || {};
     const pubOf = (x) => ({ id: x.id, nume: x.nume, rol: x.rol, cod: x.cod, codEHL: x.codEHL || "", status: x.status, login: x.login || "", twoFA: !!x.twoFA, twoFAEHL: !!x.twoFAEHL });
     const checkSecond = (x, ehl) => { const sec = ehl ? x.totpSecretEHL : x.totpSecret, rc = ehl ? (x.recuperareEHL || []) : (x.recuperare || []); if (verifyStep({ totpSecret: sec }, totp)) return true; const i = rc.indexOf(totp.toLowerCase()); if (i >= 0) { rc.splice(i, 1); return true; } return false; };
+    if (store.turnstileSecret) { /* the human check, as the hook does it when pb_data/turnstile.secret exists */
+      store.turnstileSeen = store.turnstileSeen || [];
+      if (o.body.human !== "pass:" + store.turnstileSecret) {
+        const cf = String(o.body.cf || "");
+        if (!cf) throw err(428, "Confirmați că nu sunteți robot.");
+        if (store.turnstileSeen.includes(cf)) throw err(428, "Confirmarea „nu sunt robot” a expirat. Încercați din nou.");
+        store.turnstileSeen.push(cf);
+      }
+    }
     let u = Object.values(store.utilizatori).find(x => x.cod === cod), viaEHL = false;
     if (!u) { u = Object.values(store.utilizatori).find(x => x.rol === "Director" && x.codEHL === cod); viaEHL = !!u; }
     let first = false;
@@ -229,7 +238,7 @@ class PocketBase {
     if (DEBUG) console.log("   FAKE login", cod, "found:", !!u, u && u.status, u && u.rol);
     if (!u || u.status === "Inactiv") throw err(401, "Cod greșit sau utilizator dezactivat.");
     if (viaEHL ? u.twoFAEHL : u.twoFA) { /* the code names the account, its authenticator confirms */
-      if (!totp) return { needTotp: true, nume: u.nume, ehl: viaEHL };
+      if (!totp) return { needTotp: true, nume: u.nume, ehl: viaEHL, human: store.turnstileSecret ? "pass:" + store.turnstileSecret : "" };
       if (!checkSecond(u, viaEHL)) throw err(401, "Codul din aplicația de autentificare este greșit.");
       return { token: "tok-" + u.id, expires: Date.now() + 2 * 86400000, record: pubOf(u), ehl: viaEHL };
     }
@@ -916,6 +925,32 @@ const ls = (k) => window.localStorage.getItem(k);
   check(!$('[data-k="extra"]') && !$('[data-k="complet"]'), "the timesheet form hides the bonus and the whole-month mark for an employee he did not create");
   setField("angajat", "Al Meu"); await tick(); check(!!$('[data-k="extra"]'), "…and shows them for his own employee");
   click($("#closeSheet")); await tick();
+
+  console.log("\n17. The human check (Cloudflare Turnstile) in front of the sign-in");
+  const signOut = async () => { if (!$("#exitdir")) { click($('[data-view="set"]') || $('[data-view="add"]')); await tick(); } click($("#exitdir")); await tick(30); }; /* the exit button sits in Setări for a director, on the Adaugă screen for a collaborator */
+  await signOut();
+  check(!$("#cfts"), "without a site key the gate has no widget and asks for nothing extra");
+  store.turnstileSecret = "s3cret"; store.turnstileSeen = []; window.TURNSTILE_SITE_KEY = "test-site-key";
+  const tsW = []; window.turnstile = { render(el, o) { tsW.push(o); el.setAttribute("data-w", "w" + tsW.length); return "w" + tsW.length; }, reset() {} };
+  $("#pinv").value = "0"; submit($("#pinf")); await tick(40); /* the form was drawn before the key existed: this try is sent bare and redraws it */
+  check($("#pinf") && /Bifați mai întâi/.test(text()) && store.turnstileSeen.length === 0, "a try before the widget is even drawn is stopped on the device, nothing is sent");
+  let bare = null; try { bare = await new window.PocketBase("").send("/api/ehl/login", { method: "POST", body: { cod: "258000" } }); } catch (e) { bare = e; }
+  check(bare && bare.status === 428 && /nu sunteți robot/.test(bare.response && bare.response.message || "") && store.turnstileSeen.length === 0, "a request sent straight to the server without a token is refused (428) before the code is looked at");
+  check($("#cfts") && tsW.length === 1 && tsW[0].sitekey === "test-site-key" && tsW[0].action === "login", "with a site key the code form carries the Turnstile widget (rendered once per form)");
+  $("#pinv").value = "258000"; submit($("#pinf")); await tick(40);
+  check($("#pinf") && /Bifați mai întâi/.test(text()) && store.turnstileSeen.length === 0, "the code is not even sent before the box is ticked");
+  tsW[tsW.length - 1].callback("cf-1"); await tick(10);
+  check(!/Bifați mai întâi/.test($("#pinerr").hidden ? "" : text()), "ticking the box clears the reminder");
+  await codeLogin("258000"); await tick(40);
+  check(!$("#pinf") && !$("#totpf") && $("#role") && store.turnstileSeen.join() === "cf-1", "token + code → authenticator step covered by the pass → in (the server saw the token once)");
+  await signOut();
+  tsW[tsW.length - 1].callback("cf-1"); await tick(10);
+  $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
+  check($("#pinf") && /a expirat/.test(text()) && tsW.length >= 3, "a replayed token is refused by the server and the form gets a fresh widget");
+  tsW[tsW.length - 1].callback("cf-2"); await tick(10);
+  await codeLogin("258000"); await tick(40);
+  check($("#role") && store.turnstileSeen.join() === "cf-1,cf-2", "a fresh token signs in again");
+  store.turnstileSecret = ""; window.TURNSTILE_SITE_KEY = ""; delete window.turnstile;
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);

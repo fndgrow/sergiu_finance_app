@@ -63,6 +63,12 @@ if [ -n "$ADMIN_PASS" ]; then
   echo "== superuser $ADMIN_EMAIL ready (admin UI: https://$DOMAIN/_/)"
 fi
 
+# the human check at sign-in (Cloudflare Turnstile): TURNSTILE_SECRET=… install.sh writes the secret where only the service reads it;
+# the matching site key goes into app-config.js (window.TURNSTILE_SITE_KEY). Without the file the sign-in asks for no box.
+if [ -n "${TURNSTILE_SECRET:-}" ]; then
+  umask 077; printf '%s\n' "$TURNSTILE_SECRET" > "$DIR/pb_data/turnstile.secret"; umask 022
+  echo "== Turnstile secret stored in $DIR/pb_data/turnstile.secret"
+fi
 # the service runs as its own user: it can write only pb_data and its log
 id casieria >/dev/null 2>&1 || useradd --system --home "$DIR" --shell /usr/sbin/nologin casieria
 mkdir -p "$DIR/pb_data"; touch "$DIR/std.log"; chown -R casieria:casieria "$DIR/pb_data" "$DIR/std.log"; chmod -R a+rX "$DIR/pb_public" "$DIR/pb_hooks" "$DIR/pb_migrations"

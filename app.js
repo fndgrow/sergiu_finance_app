@@ -92,7 +92,7 @@ ro:{
  f_rol:"Rol",rol_op:"Operator",rol_dir:"Director",f_cod:"Cod de acces",
  f_cod_h:"4–8 cifre pe care i le dați angajatului. Cu ele intră în aplicație de pe telefonul lui.",
  also_ang:"Îl trec și la angajați, cu salariu",
- gate_t:"Cod de acces",gate_h:"Codul de acces: al dumneavoastră, sau codul EHL pentru Casa EHL. Apoi codul din aplicația de autentificare a contului respectiv; la prima intrare o configurați.",gate_bad:"Cod greșit sau utilizator dezactivat.",
+ human_need:"Bifați mai întâi confirmarea „Sunt om”.",srv_human:"Confirmați că nu sunteți robot.",srv_human_exp:"Confirmarea „nu sunt robot” a expirat. Încercați din nou.",gate_t:"Cod de acces",gate_h:"Codul de acces: al dumneavoastră, sau codul EHL pentru Casa EHL. Apoi codul din aplicația de autentificare a contului respectiv; la prima intrare o configurați.",gate_bad:"Cod greșit sau utilizator dezactivat.",
  u_none:"Niciun utilizator încă",u_none_d:"Adăugați primul utilizator ca angajații să poată intra cu codul lor.",
  logout:"Schimbă utilizatorul",u_inactiv:"Dezactivat",
  setup_t:"Aplicația nu este configurată",setup_h:"Biblioteca serverului nu s-a încărcat. Reîncărcați pagina; dacă persistă, verificați fișierul vendor/pocketbase.umd.js.",
@@ -259,7 +259,7 @@ ru:{
  f_rol:"Роль",rol_op:"Оператор",rol_dir:"Директор",f_cod:"Код доступа",
  f_cod_h:"4–8 цифр, которые вы даёте сотруднику. По ним он входит со своего телефона.",
  also_ang:"Добавить и в сотрудники, с окладом",
- gate_t:"Код доступа",gate_h:"Код доступа: ваш собственный, или код EHL для Casa EHL. Затем код из приложения-аутентификатора этого аккаунта; при первом входе вы его настроите.",gate_bad:"Неверный код или пользователь отключён.",
+ human_need:"Сначала отметьте «Я человек».",srv_human:"Подтвердите, что вы не робот.",srv_human_exp:"Подтверждение «я не робот» истекло. Попробуйте ещё раз.",gate_t:"Код доступа",gate_h:"Код доступа: ваш собственный, или код EHL для Casa EHL. Затем код из приложения-аутентификатора этого аккаунта; при первом входе вы его настроите.",gate_bad:"Неверный код или пользователь отключён.",
  u_none:"Пользователей пока нет",u_none_d:"Добавьте первого, чтобы сотрудники входили по своему коду.",
  logout:"Сменить пользователя",u_inactiv:"Отключён",
  setup_t:"Приложение не настроено",setup_h:"Не загрузилась библиотека сервера. Обновите страницу; если повторяется, проверьте файл vendor/pocketbase.umd.js.",
@@ -349,7 +349,7 @@ var lang="ro";
 try{var sl=localStorage.getItem("ehl.lang"); if(sl==="ro"||sl==="ru") lang=sl;}catch(e){}
 function T(k){var d=I18N[lang];return (d&&d[k])||I18N.ro[k]||k;}
 /* the server answers in Romanian; known messages are shown in the interface language */
-var SRV_MSG={"Date de autentificare greșite.":"full_bad","Codul din aplicația de autentificare este greșit.":"totp_bad","Codul din aplicația de autentificare este greșit. Verificați ora telefonului.":"totp_bad","Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Doar directorul poate șterge datele.":"srv_reset_dir","Plățile de salariu nu se mai schimbă și nu se șterg.":"srv_sal_lock","Codul de acces este greșit.":"srv_reset_cod","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans","Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.":"ehl_dest","Codul EHL este greșit.":"codehl_bad","Codul EHL trebuie să aibă 4–8 cifre.":"codehl_fmt","Nu aveți destui bani în contul dumneavoastră. Luați mai întâi din Casa EHL.":"cont_meu_lipsa","Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).":"srv_ies_op","Salariul se stabilește doar pentru angajații creați de dumneavoastră.":"srv_sal","Graficul se face doar pentru angajații creați de dumneavoastră.":"srv_grafic","Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).":"srv_ore","Zilele achitate nu se mai schimbă.":"srv_gr_lock","Zilele viitoare nu se bifează: doar azi și înapoi.":"gr_future","Ziua este deja bifată de alt utilizator.":"srv_gr_dup"};
+var SRV_MSG={"Confirmați că nu sunteți robot.":"srv_human","Confirmarea „nu sunt robot” a expirat. Încercați din nou.":"srv_human_exp","Date de autentificare greșite.":"full_bad","Codul din aplicația de autentificare este greșit.":"totp_bad","Codul din aplicația de autentificare este greșit. Verificați ora telefonului.":"totp_bad","Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Doar directorul poate șterge datele.":"srv_reset_dir","Plățile de salariu nu se mai schimbă și nu se șterg.":"srv_sal_lock","Codul de acces este greșit.":"srv_reset_cod","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans","Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.":"ehl_dest","Codul EHL este greșit.":"codehl_bad","Codul EHL trebuie să aibă 4–8 cifre.":"codehl_fmt","Nu aveți destui bani în contul dumneavoastră. Luați mai întâi din Casa EHL.":"cont_meu_lipsa","Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).":"srv_ies_op","Salariul se stabilește doar pentru angajații creați de dumneavoastră.":"srv_sal","Graficul se face doar pentru angajații creați de dumneavoastră.":"srv_grafic","Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).":"srv_ore","Zilele achitate nu se mai schimbă.":"srv_gr_lock","Zilele viitoare nu se bifează: doar azi și înapoi.":"gr_future","Ziua este deja bifată de alt utilizator.":"srv_gr_dup"};
 function srvT(m){var k=SRV_MSG[String(m||"").trim()];return k?T(k):m}
 
 /* ---------------- helpers ---------------- */
@@ -486,10 +486,33 @@ function sessionExp(){try{return parseInt(localStorage.getItem("ehl.exp")||"0",1
 /* POST /api/ehl/login {cod[,totp]} -> {token,record,expires[,needSetup],ehl} | {needTotp,ehl}. The code names the account (a
    director's EHL code = Casa EHL), the account's authenticator confirms. A director's session ends at 05:00 Chișinău, a
    collaborator's after two days. */
+/* ---- the human check (Cloudflare Turnstile), on when app-config.js names a site key and the server holds the secret:
+        the code step carries a Turnstile token; the server answers with a short pass that covers the authenticator step.
+        The widget script is loaded only when needed; a token is single-use, so every failed try gets a fresh widget. ---- */
+function tsOn(){return !!window.TURNSTILE_SITE_KEY}
+var tsLoading=false;
+function tsLoad(){
+  if(!tsOn()||tsLoading||window.turnstile)return;
+  tsLoading=true;
+  window.__tsReady=function(){tsMount()};
+  var s=document.createElement("script");s.src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=__tsReady&render=explicit";s.async=true;s.defer=true;document.head.appendChild(s);
+}
+function tsMount(){
+  var el=$("#cfts");
+  if(!el||el.getAttribute("data-w"))return;
+  if(!window.turnstile){tsLoad();return;}
+  try{
+    var w=window.turnstile.render(el,{sitekey:window.TURNSTILE_SITE_KEY,theme:"auto",language:lang==="ru"?"ru":"ro",action:"login",
+      callback:function(t){GATE.cf=t;if(gateErr===T("human_need")){gateErr="";var pe=$("#pinerr");if(pe)pe.hidden=true;}},
+      "expired-callback":function(){GATE.cf=""},"error-callback":function(){GATE.cf=""}});
+    el.setAttribute("data-w",String(w||"1"));
+  }catch(e){}
+}
 function login(body){
   if(!PB)return Promise.reject({code:"no_db"});
+  if(tsOn()){if(GATE.human)body.human=GATE.human;else if(GATE.cf)body.cf=GATE.cf;}
   return PB.send("/api/ehl/login",{method:"POST",body:body,requestKey:null}).then(function(res){
-    if(res.needTotp){GATE={step:"totp",nume:res.nume||"",base:body,ehl:!!res.ehl};return res;}
+    if(res.needTotp){GATE={step:"totp",nume:res.nume||"",base:body,ehl:!!res.ehl,human:res.human||""};return res;}
     PB.authStore.save(res.token,res.record);
     try{
       if(res.ehl){localStorage.setItem("ehl.mode","1");localStorage.setItem("ehl.ehlcod",String((res.record&&res.record.codEHL)||""))}
@@ -1917,6 +1940,7 @@ function render(){
   else if(ms)ms.scrollLeft=oldSl;
   var bg=$("#burger");if(bg)bg.hidden=!(isDir&&ACCESS&&!needGate());
   fitRing();
+  tsMount();
 }
 /* The expenses ring is as tall as its card allows, so the gap on its right equals the gaps above and below.
    The card's height comes from its row (the cash-flow card or the list), measured with the CSS base size in place;
@@ -2448,6 +2472,7 @@ function vPin(){
   var h='<div class="sec"><div class="card pad"><h2 style="margin:0 0 6px;font-size:18px">'+esc(ttl)+'</h2>'
    +'<p class="hint" style="margin:0 0 12px">'+esc(hint)+'</p>'
    +'<form id="pinf"><label><span>'+esc(T("f_cod"))+'</span><input type="password" inputmode="numeric" id="pinv" autocomplete="off"'+(gateBusy?" disabled":"")+'></label>'
+   +(tsOn()?'<div class="cfts" id="cfts"></div>':'')
    +'<p class="err" id="pinerr"'+(gateErr?"":" hidden")+'>'+esc(gateErr||T("gate_bad"))+'</p>'
    +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("pin_ok"))+'</button>'
    +(relock?'<button class="btn ghost" type="button" id="gateother">'+esc(T("logout"))+'</button>':'')+'</form></div></div>';
@@ -3338,12 +3363,14 @@ document.addEventListener("submit",function(ev){
     gateBusy=false;
     if(e&&e.stack&&!e.status&&!e.code){try{console.error("sign-in failed inside the app:",e.stack||e)}catch(x){}} /* a bug, not a wrong code: keep it visible */
     var srv=e&&e.response&&e.response.message;
-    gateErr=netErr(e)?T("offline"):(((e&&e.status===429)||(e&&e.status===400))&&srv?srvT(srv):dflt);
+    if(tsOn()){GATE.cf="";if(e&&e.status===428){GATE.human="";if(GATE.step==="totp")GATE={step:"cod"};}} /* a Turnstile token is single-use; an expired pass means starting from the code again */
+    gateErr=netErr(e)?T("offline"):(((e&&e.status===429)||(e&&e.status===400)||(e&&e.status===428))&&srv?srvT(srv):dflt);
     render();
   };
   if(f.id==="pinf"){
     var v=$("#pinv").value.trim();
     if(!v||gateBusy){$("#pinerr").hidden=false;return;}
+    if(tsOn()&&!GATE.cf&&!GATE.human){gateErr=T("human_need");render();return;}
     gateBusy=true;gateErr="";render();
     login({cod:v}).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("gate_bad"))});
     return;
@@ -3351,7 +3378,7 @@ document.addEventListener("submit",function(ev){
   if(f.id==="totpf"){
     var tp2=String(f.elements["totp"].value||"").trim();
     if(!tp2||gateBusy)return;
-    var base={};for(var bk in (GATE.base||{}))base[bk]=GATE.base[bk];base.totp=tp2;
+    var base={};for(var bk in (GATE.base||{}))base[bk]=GATE.base[bk];base.totp=tp2;delete base.cf; /* the pass covers this step; the token was used */
     gateBusy=true;gateErr="";render();
     login(base).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("totp_bad"))});
     return;
