@@ -40,13 +40,20 @@ def main():
     msg.set_content(sys.argv[2])
     port = int(c.get("smtp_port") or 587)
     ctx = ssl.create_default_context()
+    def auth(s):
+        # one AUTH PLAIN by hand: smtplib's login() retries with AUTH LOGIN after a 535 and Gmail then drops the
+        # connection, which hides the real answer ("Username and Password not accepted") behind "connection closed"
+        import base64
+        code, text = s.docmd("AUTH PLAIN", base64.b64encode(("\0%s\0%s" % (c["smtp_user"], c["smtp_pass"])).encode()).decode())
+        if code != 235:
+            raise RuntimeError("SMTP %d %s — the app password does not belong to %s, or it was revoked" % (code, text.decode(errors="replace").split("\n")[0], c["smtp_user"]))
     try:
         if port == 465:
             with smtplib.SMTP_SSL(c["smtp_host"], port, context=ctx, timeout=30) as s:
-                s.login(c["smtp_user"], c["smtp_pass"]); s.send_message(msg)
+                s.ehlo(c.get("domain") or "casieria.local"); auth(s); s.send_message(msg)
         else:
             with smtplib.SMTP(c["smtp_host"], port, timeout=30) as s:
-                s.ehlo(); s.starttls(context=ctx); s.ehlo(); s.login(c["smtp_user"], c["smtp_pass"]); s.send_message(msg)
+                s.ehlo(c.get("domain") or "casieria.local"); s.starttls(context=ctx); s.ehlo(c.get("domain") or "casieria.local"); auth(s); s.send_message(msg)
     except Exception as e:  # the caller logs and keeps the link
         print("send failed: %s" % e, file=sys.stderr); return 1
     print("sent to " + c["to"]); return 0
