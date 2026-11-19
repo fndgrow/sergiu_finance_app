@@ -497,13 +497,19 @@ function tsLoad(){
   window.__tsReady=function(){tsMount()};
   var s=document.createElement("script");s.src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=__tsReady&render=explicit";s.async=true;s.defer=true;document.head.appendChild(s);
 }
+function tsAttention(){
+  var el=$("#cfts");if(!el){render();return;} /* no widget on screen (the key came late): draw the form again, with it */
+  el.classList.remove("cfts-attn");void el.offsetWidth; /* restart the animation on every try */
+  el.classList.add("cfts-attn");
+  try{el.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}
+}
 function tsMount(){
   var el=$("#cfts");
   if(!el||el.getAttribute("data-w"))return;
   if(!window.turnstile){tsLoad();return;}
   try{
     var w=window.turnstile.render(el,{sitekey:window.TURNSTILE_SITE_KEY,theme:"auto",language:lang==="ru"?"ru":"ro",action:"login",
-      callback:function(t){GATE.cf=t;if(gateErr===T("human_need")){gateErr="";var pe=$("#pinerr");if(pe)pe.hidden=true;}},
+      callback:function(t){GATE.cf=t;el.classList.remove("cfts-attn");if(gateErr===T("human_need")){gateErr="";var pe=$("#pinerr");if(pe)pe.hidden=true;}},
       "expired-callback":function(){GATE.cf=""},"error-callback":function(){GATE.cf=""}});
     el.setAttribute("data-w",String(w||"1"));
   }catch(e){}
@@ -3370,7 +3376,10 @@ document.addEventListener("submit",function(ev){
   if(f.id==="pinf"){
     var v=$("#pinv").value.trim();
     if(!v||gateBusy){$("#pinerr").hidden=false;return;}
-    if(tsOn()&&!GATE.cf&&!GATE.human){gateErr=T("human_need");render();return;}
+    if(tsOn()&&!GATE.cf&&!GATE.human){ /* the code is typed but the box is not ticked: point at the box, keep the widget as it is */
+      gateErr=T("human_need");var pe0=$("#pinerr");if(pe0){pe0.textContent=gateErr;pe0.hidden=false;}
+      tsAttention();return;
+    }
     gateBusy=true;gateErr="";render();
     login({cod:v}).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("gate_bad"))});
     return;

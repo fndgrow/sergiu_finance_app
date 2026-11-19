@@ -202,7 +202,11 @@ input[type="date"]::-webkit-date-and-time-value,input[type="month"]::-webkit-dat
 .btn[disabled]{opacity:.5;cursor:default}
 .calcbox{background:var(--accent-soft);border-radius:11px;padding:11px 13px;font-family:var(--d);font-weight:600;display:flex;justify-content:space-between;gap:10px;color:var(--accent)}
 .err{color:var(--neg);font-size:13px}
-.cfts{margin:0 0 12px;min-height:65px}
+.cfts{margin:0 0 12px;min-height:65px;border-radius:12px;padding:4px;transition:box-shadow .3s}
+.cfts-attn{animation:cfts-shake .6s ease,cfts-glow 1.4s ease-in-out .6s 4;box-shadow:0 0 0 3px var(--neg)}
+@keyframes cfts-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes cfts-glow{0%,100%{box-shadow:0 0 0 3px var(--neg)}50%{box-shadow:0 0 0 12px rgba(214,69,69,.12)}}
+@media (prefers-reduced-motion:reduce){.cfts-attn{animation:none}}
 /* form bottom: totals in one row, Save (wider) and Delete in one row */
 .calc-row{display:flex;gap:11px}
 .calc-row .calcbox{flex:1 1 0;min-width:0;flex-direction:column;justify-content:flex-start;align-items:flex-start;gap:2px} /* the amount always on its own line under the label */
