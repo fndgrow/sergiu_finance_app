@@ -5,11 +5,12 @@
      smtp_host: smtp.gmail.com      smtp_port: 587 (STARTTLS) or 465 (SSL)
      smtp_user: adresa@gmail.com    smtp_pass: the 16-character Gmail app password (never the account password)
      from: adresa@gmail.com         to: owner@gmail.com (several: comma-separated)
+     from_name: CasaEHL BackUP      (the name shown in the inbox)
      domain: casaehl.com            (used by backup-weekly.sh for the link)
 """
 import smtplib, ssl, sys
 from email.message import EmailMessage
-from email.utils import formatdate, make_msgid
+from email.utils import formataddr, formatdate, make_msgid
 
 CONF = "/opt/casieria/mail.conf"
 
@@ -33,7 +34,7 @@ def main():
         print("mail.conf incomplete, missing: " + ", ".join(need), file=sys.stderr); return 1
     msg = EmailMessage()
     msg["Subject"] = sys.argv[1]
-    msg["From"] = c.get("from") or c["smtp_user"]
+    msg["From"] = formataddr((c.get("from_name") or "", c.get("from") or c["smtp_user"]))
     msg["To"] = c["to"]
     msg["Date"] = formatdate(localtime=True)
     msg["Message-ID"] = make_msgid(domain=c.get("domain") or "casieria.local")

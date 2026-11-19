@@ -21,7 +21,7 @@ HARDEN="${HARDEN:-1}"
 echo "== Casieria EHL: PocketBase $PB_VERSION in $DIR, port $PORT, domain $DOMAIN"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq unzip curl nginx certbot python3-certbot-nginx p7zip-full >/dev/null
+apt-get install -y -qq unzip curl nginx certbot python3-certbot-nginx p7zip-full python3-openpyxl >/dev/null
 if [ "$HARDEN" = "1" ]; then
   echo "== server hardening (HARDEN=1): firewall, fail2ban, automatic security updates, ssh keys only"
   apt-get install -y -qq ufw fail2ban unattended-upgrades >/dev/null
@@ -68,7 +68,7 @@ fi
 # is still made and the run logs the link
 mkdir -p /var/lib/casieria-backups; chmod 755 /var/lib/casieria-backups
 [ -s "$DIR/backup.pass" ] || { umask 077; openssl rand -base64 24 | tr -d '/+=' | cut -c1-24 > "$DIR/backup.pass"; umask 022; echo "== archive password made: $DIR/backup.pass"; }
-[ -f "$DIR/mail.conf" ] || { umask 077; printf 'smtp_host: smtp.gmail.com\nsmtp_port: 587\nsmtp_user: \nsmtp_pass: \nfrom: \nto: \ndomain: %s\n' "$DOMAIN" > "$DIR/mail.conf"; umask 022; echo "== fill in $DIR/mail.conf (Gmail app password) for the backup e-mails"; }
+[ -f "$DIR/mail.conf" ] || { umask 077; printf 'smtp_host: smtp.gmail.com\nsmtp_port: 587\nsmtp_user: \nsmtp_pass: \nfrom: \nfrom_name: CasaEHL BackUP\nto: \ndomain: %s\n' "$DOMAIN" > "$DIR/mail.conf"; umask 022; echo "== fill in $DIR/mail.conf (Gmail app password) for the backup e-mails"; }
 cat > /etc/cron.d/casieria-backup <<EOF
 # Casieria EHL: the owner's weekly backup (Friday 04:00) and the daily removal of links older than 3 days
 0 4 * * 5 root $DIR/backup-weekly.sh >> $DIR/backup-weekly.log 2>&1

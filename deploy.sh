@@ -17,7 +17,7 @@ cp icons/*.png "$STAGE/pb_public/icons/"
 for f in vendor/*.js; do tr -d '\r' < "$f" > "$STAGE/pb_public/vendor/$(basename "$f")"; done   # as git stores them (LF)
 for f in server/pb_hooks/*.js; do tr -d '\r' < "$f" > "$STAGE/pb_hooks/$(basename "$f")"; done
 for f in server/pb_migrations/*.js; do tr -d '\r' < "$f" > "$STAGE/pb_migrations/$(basename "$f")"; done
-for f in server/install.sh server/nginx-site.conf server/harden-ssh-firewall.sh server/backup-offsite.sh server/backup-weekly.sh server/send-mail.py; do tr -d '\r' < "$f" > "$STAGE/server/$(basename "$f")"; done
+for f in server/install.sh server/nginx-site.conf server/harden-ssh-firewall.sh server/backup-offsite.sh server/backup-weekly.sh server/send-mail.py server/export-xlsx.py server/restore.sh; do tr -d '\r' < "$f" > "$STAGE/server/$(basename "$f")"; done
 
 echo "== upload to $HOST:$DIR"
 ssh "$HOST" "mkdir -p $DIR/pb_public/icons $DIR/pb_public/vendor $DIR/pb_hooks $DIR/pb_migrations"
@@ -28,7 +28,7 @@ scp -q "$STAGE"/pb_hooks/*.js "$HOST:$DIR/pb_hooks/"
 scp -q "$STAGE"/pb_migrations/*.js "$HOST:$DIR/pb_migrations/"
 scp -q "$STAGE"/server/* "$HOST:$DIR/"
 # the service user only needs to read these; pb_data stays its own
-ssh "$HOST" "chmod -R a+rX $DIR/pb_public $DIR/pb_hooks $DIR/pb_migrations; chmod 700 $DIR/*.sh $DIR/send-mail.py 2>/dev/null || true"
+ssh "$HOST" "chmod -R a+rX $DIR/pb_public $DIR/pb_hooks $DIR/pb_migrations; chmod 700 $DIR/*.sh $DIR/*.py 2>/dev/null || true"
 
 if ssh "$HOST" "systemctl is-enabled casieria >/dev/null 2>&1"; then
   echo "== restart service (new migrations apply on start)"
