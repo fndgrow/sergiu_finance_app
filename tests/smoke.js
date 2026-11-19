@@ -214,6 +214,13 @@ class PocketBase {
       }
       return { ok: true };
     }
+    if (p === "/api/ehl/relock") { /* the screen lock: the code of the account in use, as the hook checks it */
+      const u = currentUser; if (!u) throw err(403, "Autentificare necesară.");
+      const ehl = !!o.body.ehl && u.rol === "Director";
+      if (u.status === "Inactiv") throw err(401, "Cod greșit sau utilizator dezactivat.");
+      if (String(o.body.cod || "") !== (ehl ? u.codEHL : u.cod)) throw err(401, "Cod greșit.");
+      return { ok: true };
+    }
     if (p !== "/api/ehl/login") throw err(404, "nf");
     const cod = String(o.body.cod || ""), totp = String(o.body.totp || "").trim();
     store.utilizatori = store.utilizatori || {};
@@ -690,11 +697,22 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-edit="utilizatori"][data-id="' + tmpU.id + '"]')); await tick();
   setField("status", "Inactiv"); submit($("#recf")); await tick(80);
 
-  console.log("8d. no local lock any more: the session ends when the server says (05:00 for a director), then the app asks to sign in again");
+  console.log("8d. the screen lock: the code again after the app sat in the background, then the session's end as the server says it");
   click($('[data-view="reg"]')); await tick();
-  Object.defineProperty(window.document, "visibilityState", { value: "hidden", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange"));
-  Object.defineProperty(window.document, "visibilityState", { value: "visible", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange")); await tick(40);
+  const goHidden = () => { Object.defineProperty(window.document, "visibilityState", { value: "hidden", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange")); };
+  const goVisible = () => { Object.defineProperty(window.document, "visibilityState", { value: "visible", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange")); };
+  goHidden(); goVisible(); await tick(40);
   check(!$("#pinf") && !$("#fullf") && $("#role").textContent === "Director", "a short absence changes nothing");
+  const realNow = window.Date.now; goHidden(); window.Date.now = () => realNow() + 60 * 1000; goVisible(); await tick(40); window.Date.now = realNow;
+  check($("#pinf") && /Introduceți din nou codul/.test(text()) && /Sergiu/.test(text()) && !$("#nav").children.length && !$("#cfts"), "a minute in the background: the screen is covered and the code is asked again (no human box here)");
+  $("#pinv").value = "0000"; submit($("#pinf")); await tick(60);
+  check($("#pinf") && /Cod greșit/.test(text()), "a wrong code does not open it");
+  $("#pinv").value = "258000"; submit($("#pinf")); await tick(80);
+  check(!$("#pinf") && $("#role").textContent === "Director" && $('[data-tab]'), "his own code opens it and the screen he left (the register) is back");
+  goHidden(); window.Date.now = () => realNow() + 60 * 1000; goVisible(); await tick(40); window.Date.now = realNow;
+  click($("#gateother")); await tick(60);
+  check($("#pinf") && !/Introduceți din nou codul/.test(text()) && !ls("ehl.cache"), "the lock screen's sign-out button ends the session properly");
+  await codeLogin("258000"); await tick(40); click($('[data-view="reg"]')); await tick();
   window.localStorage.setItem("ehl.exp", String(Date.now() - 1000));
   Object.defineProperty(window.document, "visibilityState", { value: "hidden", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange"));
   Object.defineProperty(window.document, "visibilityState", { value: "visible", configurable: true }); window.document.dispatchEvent(new window.Event("visibilitychange")); await tick(60);

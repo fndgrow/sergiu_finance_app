@@ -117,6 +117,27 @@ routerAdd("POST", "/api/ehl/login", (e) => {
 /* ---- 2FA setup, step 1: the server hands back a fresh secret for the authenticator app of the account in use
         ({ehl: true} = the director's Casa EHL account). POST /api/ehl/2fa/setup {ehl?, totp?}
         Someone who already has 2FA on that account must give a current authenticator code to start over. ---- */
+/* ---- the screen lock (19 November 2026): the app covers itself after 3 minutes without a touch, after 30 s in the
+        background and at every start; the code of the account in use opens it again — checked here, never on the device.
+        POST /api/ehl/relock {cod, ehl?} with the session token ({ehl: true} = the director's Casa EHL screen wants his EHL
+        code). Wrong codes count like failed sign-ins (8 per IP in 15 minutes). No human box, no authenticator: the session
+        token already proves who signed in; the lock only stops whoever picks up an unlocked phone. ---- */
+routerAdd("POST", "/api/ehl/relock", (e) => {
+  var rec = e.auth;
+  if (!rec) throw new ForbiddenError("Autentificare necesară.");
+  var body = e.requestInfo().body || {};
+  var cod = String(body.cod || "").trim(), ehl = !!body.ehl && rec.getString("rol") === "Director";
+  var ip = e.realIP() || "unknown";
+  var since = new Date(Date.now() - 15 * 60 * 1000).toISOString().replace("T", " ").slice(0, 19);
+  if ($app.countRecords("login_attempts", $dbx.exp("ip = {:ip} AND created >= {:since}", { ip: ip, since: since })) >= 8) throw new ApiError(429, "Prea multe încercări. Așteptați 15 minute.", {});
+  if (rec.getString("status") === "Inactiv") throw new UnauthorizedError("Cod greșit sau utilizator dezactivat.");
+  if (!cod || cod !== rec.getString(ehl ? "codEHL" : "cod")) {
+    var att = new Record($app.findCollectionByNameOrId("login_attempts")); att.set("ip", ip); $app.save(att);
+    throw new UnauthorizedError("Cod greșit.");
+  }
+  return e.json(200, { ok: true });
+}, $apis.requireAuth("utilizatori"));
+
 routerAdd("POST", "/api/ehl/2fa/setup", (e) => {
   var T = require(__hooks + "/totp.js");
   var body = e.requestInfo().body || {}, rec = e.auth;

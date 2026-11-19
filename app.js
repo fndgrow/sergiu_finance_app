@@ -120,7 +120,7 @@ ro:{
  colab_owed:"Firma îi datorează",colab_has:"Are în mână bani ai firmei",colab_zero:"Sold zero",colab_proprii:"din banii proprii",
  colab_proprii_h:"Din această sumă, {s} MDL a plătit din banii proprii pentru firmă.",colab_spent:"Cheltuit pentru firmă",colab_got:"Primit de la firmă",
  my_sold:"Soldul meu",my_sold_h:"Minus înseamnă că firma vă datorează bani. Apăsați ca să vedeți fiecare sumă.",
- relock_t:"Cod de acces",relock_h:"Introduceți din nou codul ca să continuați. Se cere la fiecare deschidere a aplicației.",relock_week:"A trecut o săptămână: introduceți codul, apoi parola directorului.",
+ relock_t:"Cod de acces",relock_h:"Introduceți din nou codul ca să continuați. Se cere la fiecare deschidere a aplicației și după 3 minute fără activitate.",relock_week:"A trecut o săptămână: introduceți codul, apoi parola directorului.",
  failed_t:"{n} înregistrări respinse de server",failed_h:"Nu s-au pierdut: sunt păstrate pe acest telefon. Verificați motivul și reîncercați.",failed_retry:"Reîncearcă",failed_toast:"Serverul a respins o înregistrare. Vedeți nota de sus.",
  // server messages (texts sent by server/pb_hooks/ehl.pb.js, shown through srvT)
  srv_cod:"Cod invalid.",srv_many:"Prea multe încercări. Așteptați 15 minute.",srv_bad_user:"Cod greșit sau utilizator dezactivat.",srv_pw8:"Parola trebuie să aibă cel puțin 8 caractere.",srv_pw_bad:"Parolă greșită.",srv_pw_dir:"Doar directorul are parolă.",srv_pw_new8:"Parola nouă trebuie să aibă cel puțin 8 caractere.",srv_pw_cur:"Parola actuală este greșită.",srv_cod48:"Codul trebuie să aibă 4–8 cifre.",srv_self_lock:"Nu vă puteți dezactiva sau retrograda propriul cont.",srv_self_del:"Nu vă puteți șterge propriul cont.",srv_descr:"Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).",
@@ -287,7 +287,7 @@ ru:{
  colab_owed:"Фирма должна",colab_has:"На руках деньги фирмы",colab_zero:"Баланс ноль",colab_proprii:"из своих денег",
  colab_proprii_h:"Из этой суммы {s} MDL оплачено из своих денег за фирму.",colab_spent:"Потрачено на фирму",colab_got:"Получено от фирмы",
  my_sold:"Мой баланс",my_sold_h:"Минус означает, что фирма должна вам деньги. Нажмите, чтобы увидеть каждую сумму.",
- relock_t:"Код доступа",relock_h:"Введите код ещё раз, чтобы продолжить. Он запрашивается при каждом открытии приложения.",relock_week:"Прошла неделя: введите код, затем пароль директора.",
+ relock_t:"Код доступа",relock_h:"Введите код ещё раз, чтобы продолжить. Он запрашивается при каждом открытии приложения и после 3 минут без действий.",relock_week:"Прошла неделя: введите код, затем пароль директора.",
  failed_t:"{n} записей отклонено сервером",failed_h:"Они не потеряны и хранятся на этом телефоне. Проверьте причину и повторите.",failed_retry:"Повторить",failed_toast:"Сервер отклонил запись. Смотрите заметку вверху.",
  // server messages
  srv_cod:"Неверный код.",srv_many:"Слишком много попыток. Подождите 15 минут.",srv_bad_user:"Неверный код или пользователь отключён.",srv_pw8:"Пароль должен быть не короче 8 символов.",srv_pw_bad:"Неверный пароль.",srv_pw_dir:"Пароль есть только у директора.",srv_pw_new8:"Новый пароль должен быть не короче 8 символов.",srv_pw_cur:"Текущий пароль неверен.",srv_cod48:"Код должен состоять из 4–8 цифр.",srv_self_lock:"Нельзя отключить или понизить собственную учётную запись.",srv_self_del:"Нельзя удалить собственную учётную запись.",srv_descr:"Напишите, на что потрачены деньги (описание обязательно).",
@@ -462,13 +462,16 @@ function enter(user){
 var GATE={step:"cod"};
 /* Lock screen: the access code is asked again on every start of the app and after it sat in the background
    for LOCK_AFTER; the session itself (token, data, offline queue) stays, only the screen is covered. */
-var LOCKED=false,LOCKVIEW="",hiddenAt=0,LOCK_AFTER=Infinity; /* no local lock: the server ends a director's session at 05:00 and a collaborator's after two days */
+var LOCKED=false,LOCKVIEW="",hiddenAt=0,lastTouch=Date.now(),IDLE_LOCK=3*60*1000,HIDDEN_LOCK=30*1000;
+/* the screen lock (19 November 2026): the code is asked again after IDLE_LOCK without a touch, after HIDDEN_LOCK in the
+   background (or closed) and at every start; the server checks it (/api/ehl/relock). The session itself stays until the
+   server ends it (05:00 for a director, two days for a collaborator): then the full sign-in. */
 var PAROLA_DIR=false; /* kept for the old weekly-password branches, which no longer run */
 /* the authenticator setup walk-through: "cred" (a director's login + password) -> "secret" (scan, first code) -> "codes" (recovery codes, once) */
 var SETUP={step:"",secret:"",uri:"",login:"",codes:null,busy:false,err:""};
 function lastUnlock(){try{return parseInt(localStorage.getItem("ehl.unlock")||"0",10)||0}catch(e){return 0}}
 function markUnlock(){try{localStorage.setItem("ehl.unlock",String(Date.now()))}catch(e){}}
-function lockDue(){return Date.now()-lastUnlock()>LOCK_AFTER}
+function lockDue(){return !!hiddenAt&&Date.now()-hiddenAt>HIDDEN_LOCK}
 var EDIT_DAYS=15; /* an operator may correct his own rows for this many days; afterwards only the director */
 function lockScreen(){
   if(!ACCESS||LOCKED)return;
@@ -637,9 +640,13 @@ function refreshData(){
 }
 document.addEventListener("visibilitychange",function(){
   if(document.visibilityState==="hidden"){hiddenAt=Date.now();return;}
-  if(ACCESS&&!LOCKED&&hiddenAt&&lockDue())lockScreen();
+  if(ACCESS&&!LOCKED&&!needSetup()&&lockDue())lockScreen();
+  hiddenAt=0;lastTouch=Date.now();
   selfCheck();refreshData();
 });
+/* the screen lock: any touch counts as activity; after IDLE_LOCK without one the code is asked again */
+["pointerdown","touchstart","keydown","click","submit","input","scroll"].forEach(function(ev){document.addEventListener(ev,function(){lastTouch=Date.now()},{passive:true,capture:true})});
+setInterval(function(){if(ACCESS&&!LOCKED&&!needSetup()&&document.visibilityState!=="hidden"&&Date.now()-lastTouch>IDLE_LOCK)lockScreen()},10*1000);
 var RT=typeof window.EventSource==="function";
 function sub(col,topic,cb){
   if(!RT)return;
@@ -2478,7 +2485,7 @@ function vPin(){
   var h='<div class="sec"><div class="card pad"><h2 style="margin:0 0 6px;font-size:18px">'+esc(ttl)+'</h2>'
    +'<p class="hint" style="margin:0 0 12px">'+esc(hint)+'</p>'
    +'<form id="pinf"><label><span>'+esc(T("f_cod"))+'</span><input type="password" inputmode="numeric" id="pinv" autocomplete="off"'+(gateBusy?" disabled":"")+'></label>'
-   +(tsOn()?'<div class="cfts" id="cfts"></div>':'')
+   +(tsOn()&&!relock?'<div class="cfts" id="cfts"></div>':'')
    +'<p class="err" id="pinerr"'+(gateErr?"":" hidden")+'>'+esc(gateErr||T("gate_bad"))+'</p>'
    +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("pin_ok"))+'</button>'
    +(relock?'<button class="btn ghost" type="button" id="gateother">'+esc(T("logout"))+'</button>':'')+'</form></div></div>';
@@ -3376,6 +3383,15 @@ document.addEventListener("submit",function(ev){
   if(f.id==="pinf"){
     var v=$("#pinv").value.trim();
     if(!v||gateBusy){$("#pinerr").hidden=false;return;}
+    if(LOCKED){ /* the screen lock: the code of the account in use, checked by the server; no human box, no authenticator */
+      gateBusy=true;gateErr="";render();
+      PB.send("/api/ehl/relock",{method:"POST",body:{cod:v,ehl:!!(isDir&&ehlMode())},requestKey:null}).then(function(){gateBusy=false;unlockScreen()}).catch(function(e){
+        var m=String(e&&e.response&&e.response.message||"");
+        if(e&&(e.status===403||(e.status===401&&/dezactivat/.test(m)))){logout(T("gate_bad"));return;} /* no session any more, or the user was switched off */
+        gateFail(e,T("gate_bad"));
+      });
+      return;
+    }
     if(tsOn()&&!GATE.cf&&!GATE.human){ /* the code is typed but the box is not ticked: point at the box, keep the widget as it is */
       gateErr=T("human_need");var pe0=$("#pinerr");if(pe0){pe0.textContent=gateErr;pe0.hidden=false;}
       tsAttention();return;
@@ -3455,6 +3471,7 @@ render();
   if(PB.authStore.isValid&&rec&&rec.id){
     enter(rec);
     if(expiryCheck())return; /* the session ran out while the app was closed: sign in again */
+    if(!needSetup())lockScreen(); /* every start of the app: the code again */
     /* confirm the session with the server: a deactivated user or an expired director week ends it */
     selfCheck();
   }else{
