@@ -21,7 +21,7 @@ HARDEN="${HARDEN:-1}"
 echo "== Casieria EHL: PocketBase $PB_VERSION in $DIR, port $PORT, domain $DOMAIN"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq unzip curl nginx certbot python3-certbot-nginx >/dev/null
+apt-get install -y -qq unzip curl nginx certbot python3-certbot-nginx p7zip-full >/dev/null
 if [ "$HARDEN" = "1" ]; then
   echo "== server hardening (HARDEN=1): firewall, fail2ban, automatic security updates, ssh keys only"
   apt-get install -y -qq ufw fail2ban unattended-upgrades >/dev/null
@@ -63,6 +63,18 @@ if [ -n "$ADMIN_PASS" ]; then
   echo "== superuser $ADMIN_EMAIL ready (admin UI: https://$DOMAIN/_/)"
 fi
 
+# the owner's weekly backup (Friday 04:00 server time) and the daily clean-up of expired links; the archive password is
+# made once and stays on the server; the e-mail settings go into mail.conf (see README §17a) — without them the archive
+# is still made and the run logs the link
+mkdir -p /var/lib/casieria-backups; chmod 755 /var/lib/casieria-backups
+[ -s "$DIR/backup.pass" ] || { umask 077; openssl rand -base64 24 | tr -d '/+=' | cut -c1-24 > "$DIR/backup.pass"; umask 022; echo "== archive password made: $DIR/backup.pass"; }
+[ -f "$DIR/mail.conf" ] || { umask 077; printf 'smtp_host: smtp.gmail.com\nsmtp_port: 587\nsmtp_user: \nsmtp_pass: \nfrom: \nto: \ndomain: %s\n' "$DOMAIN" > "$DIR/mail.conf"; umask 022; echo "== fill in $DIR/mail.conf (Gmail app password) for the backup e-mails"; }
+cat > /etc/cron.d/casieria-backup <<EOF
+# Casieria EHL: the owner's weekly backup (Friday 04:00) and the daily removal of links older than 3 days
+0 4 * * 5 root $DIR/backup-weekly.sh >> $DIR/backup-weekly.log 2>&1
+30 4 * * * root $DIR/backup-weekly.sh expire >> $DIR/backup-weekly.log 2>&1
+EOF
+chmod 644 /etc/cron.d/casieria-backup
 # the human check at sign-in (Cloudflare Turnstile): TURNSTILE_SECRET=… install.sh writes the secret where only the service reads it;
 # the matching site key goes into app-config.js (window.TURNSTILE_SITE_KEY). Without the file the sign-in asks for no box.
 if [ -n "${TURNSTILE_SECRET:-}" ]; then
