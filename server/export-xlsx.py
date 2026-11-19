@@ -78,7 +78,22 @@ def main():
         ws.freeze_panes = "A2"; ws.auto_filter.ref = ws.dimensions
         toc.append([title, n, note])
     toc.column_dimensions["A"].width = 24; toc.column_dimensions["B"].width = 10; toc.column_dimensions["C"].width = 70
-    wb.save(out); print("wrote " + out); return 0
+    now = datetime.datetime.now().replace(microsecond=0)
+    wb.properties.creator = "Casieria EHL"; wb.properties.created = now; wb.properties.modified = now
+    wb.save(out); fix_core_dates(out); print("wrote " + out); return 0
+
+def fix_core_dates(path):
+    """openpyxl 3.1.2 on Python 3.12 writes '2026-11-19T09:47:34+00:00Z' into docProps/core.xml (offset AND Z):
+       Excel then refuses the whole file as 'not a valid format'. Rewrite the zip with the dates as '…Z'."""
+    import re, zipfile, shutil, os
+    tmp = path + ".tmp"
+    with zipfile.ZipFile(path) as zin, zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as zout:
+        for item in zin.infolist():
+            data = zin.read(item.filename)
+            if item.filename == "docProps/core.xml":
+                data = re.sub(rb"([0-9]{2}:[0-9]{2}:[0-9]{2})(\.[0-9]+)?\+00:00Z", rb"\1Z", data)
+            zout.writestr(item, data)
+    shutil.move(tmp, path)
 
 if __name__ == "__main__":
     sys.exit(main())
