@@ -3,4 +3,4 @@
 window.PB_URL = "";
 /* Cheia publică (site key) Cloudflare Turnstile: confirmarea „Sunt om” înainte de cod. Gol = fără confirmare.
    Secretul pereche stă numai pe server, în /opt/casieria/pb_data/turnstile.secret (vezi README §17a). */
-window.TURNSTILE_SITE_KEY = "";
+window.TURNSTILE_SITE_KEY = "0x4AAAAAAGIZISxzPP_BYCoM";
