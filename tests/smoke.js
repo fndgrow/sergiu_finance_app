@@ -247,9 +247,9 @@ class PocketBase {
     if (viaEHL ? u.twoFAEHL : u.twoFA) { /* the code names the account, its authenticator confirms */
       if (!totp) return { needTotp: true, nume: u.nume, ehl: viaEHL, human: store.turnstileSecret ? "pass:" + store.turnstileSecret : "" };
       if (!checkSecond(u, viaEHL)) throw err(401, "Codul din aplicația de autentificare este greșit.");
-      return { token: "tok-" + u.id, expires: Date.now() + 2 * 86400000, record: pubOf(u), ehl: viaEHL };
+      return { token: "tok-" + u.id, expires: Date.now() + (u.rol === "Director" ? 12 * 3600000 : 2 * 3600000), record: pubOf(u), ehl: viaEHL }; /* 05:00 for a director (about), two hours for a collaborator */
     }
-    return { token: "tok-" + u.id, expires: Date.now() + 2 * 86400000, first, record: pubOf(u), needSetup: true, ehl: viaEHL };
+    return { token: "tok-" + u.id, expires: Date.now() + (u.rol === "Director" ? 12 * 3600000 : 2 * 3600000), first, record: pubOf(u), needSetup: true, ehl: viaEHL };
   }
 }
 window.PocketBase = PocketBase;
@@ -924,6 +924,12 @@ const ls = (k) => window.localStorage.getItem(k);
   /* the operator was deactivated in section 9: bring him back as the administrator, then sign in as him */
   store.utilizatori[op.id].status = "Activ"; emit("utilizatori", "update", store.utilizatori[op.id]); await tick(30); /* the administrator is still signed in from section 15 */
   await asOp(); check($("#role").textContent === "Operator", "the collaborator is signed in again");
+  { /* no screen lock for a collaborator: his session ends after two hours instead */
+    const realNow2 = window.Date.now; goHidden(); window.Date.now = () => realNow2() + 60 * 1000; goVisible(); await tick(40); window.Date.now = realNow2;
+    check(!$("#pinf") && $("#role").textContent === "Operator", "a collaborator back after a minute away is not asked for his code (no lock for collaborators)");
+    const exp = Number(ls("ehl.exp")) - Date.now();
+    check(exp > 1.9 * 3600000 && exp < 2.1 * 3600000, "a collaborator's session ends after two hours (" + Math.round(exp / 60000) + " min left)");
+  }
   const sal = await collection("iesiri").create({ data: dAgo(0), destinatie: "Salarii", persoana: "Nou Venit", luna: dAgo(0).slice(0, 7), valuta: "MDL", curs: 1, suma: 1 });
   const forged = await collection("iesiri").update(sal.id, { destinatie: "Dat persoanei", persoana: "Ion Operator", suma: 500000 });
   check(forged.destinatie === "Salarii" && forged.persoana === "Nou Venit", "an outflow keeps its destination and person on edit (no money out of thin air)");

@@ -86,6 +86,7 @@ function secondsUntilFive() {
   if (next <= now.getTime() + 60000) next += 86400000;
   return Math.max(300, Math.floor((next - now.getTime()) / 1000));
 }
-var TWO_DAYS = 2 * 24 * 3600;
+var TWO_DAYS = 2 * 24 * 3600; /* kept for reference; collaborators get COLAB_SECONDS since 19 November 2026 */
+var COLAB_SECONDS = 2 * 3600;  /* a collaborator's session: two hours, then the full sign-in again (the owner's rule) */
 
-module.exports = { codeAt: codeAt, verify: verify, nowStep: nowStep, newSecret: newSecret, uri: uri, newRecovery: newRecovery, hashCode: hashCode, secondsUntilFive: secondsUntilFive, TWO_DAYS: TWO_DAYS, sha1: sha1, hmacSha1: hmacSha1, base32Decode: base32Decode };
+module.exports = { codeAt: codeAt, verify: verify, nowStep: nowStep, newSecret: newSecret, uri: uri, newRecovery: newRecovery, hashCode: hashCode, secondsUntilFive: secondsUntilFive, TWO_DAYS: TWO_DAYS, COLAB_SECONDS: COLAB_SECONDS, sha1: sha1, hmacSha1: hmacSha1, base32Decode: base32Decode };

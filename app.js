@@ -120,7 +120,7 @@ ro:{
  colab_owed:"Firma îi datorează",colab_has:"Are în mână bani ai firmei",colab_zero:"Sold zero",colab_proprii:"din banii proprii",
  colab_proprii_h:"Din această sumă, {s} MDL a plătit din banii proprii pentru firmă.",colab_spent:"Cheltuit pentru firmă",colab_got:"Primit de la firmă",
  my_sold:"Soldul meu",my_sold_h:"Minus înseamnă că firma vă datorează bani. Apăsați ca să vedeți fiecare sumă.",
- relock_t:"Cod de acces",relock_h:"Introduceți din nou codul ca să continuați. Se cere la fiecare deschidere a aplicației și după 3 minute fără activitate.",relock_week:"A trecut o săptămână: introduceți codul, apoi parola directorului.",
+ relock_t:"Cod de acces",relock_h:"Introduceți din nou codul ca să continuați. Se cere la fiecare deschidere a aplicației și după 4 minute fără activitate.",relock_week:"A trecut o săptămână: introduceți codul, apoi parola directorului.",
  failed_t:"{n} înregistrări respinse de server",failed_h:"Nu s-au pierdut: sunt păstrate pe acest telefon. Verificați motivul și reîncercați.",failed_retry:"Reîncearcă",failed_toast:"Serverul a respins o înregistrare. Vedeți nota de sus.",
  // server messages (texts sent by server/pb_hooks/ehl.pb.js, shown through srvT)
  srv_cod:"Cod invalid.",srv_many:"Prea multe încercări. Așteptați 15 minute.",srv_bad_user:"Cod greșit sau utilizator dezactivat.",srv_pw8:"Parola trebuie să aibă cel puțin 8 caractere.",srv_pw_bad:"Parolă greșită.",srv_pw_dir:"Doar directorul are parolă.",srv_pw_new8:"Parola nouă trebuie să aibă cel puțin 8 caractere.",srv_pw_cur:"Parola actuală este greșită.",srv_cod48:"Codul trebuie să aibă 4–8 cifre.",srv_self_lock:"Nu vă puteți dezactiva sau retrograda propriul cont.",srv_self_del:"Nu vă puteți șterge propriul cont.",srv_descr:"Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).",
@@ -287,7 +287,7 @@ ru:{
  colab_owed:"Фирма должна",colab_has:"На руках деньги фирмы",colab_zero:"Баланс ноль",colab_proprii:"из своих денег",
  colab_proprii_h:"Из этой суммы {s} MDL оплачено из своих денег за фирму.",colab_spent:"Потрачено на фирму",colab_got:"Получено от фирмы",
  my_sold:"Мой баланс",my_sold_h:"Минус означает, что фирма должна вам деньги. Нажмите, чтобы увидеть каждую сумму.",
- relock_t:"Код доступа",relock_h:"Введите код ещё раз, чтобы продолжить. Он запрашивается при каждом открытии приложения и после 3 минут без действий.",relock_week:"Прошла неделя: введите код, затем пароль директора.",
+ relock_t:"Код доступа",relock_h:"Введите код ещё раз, чтобы продолжить. Он запрашивается при каждом открытии приложения и после 4 минут без действий.",relock_week:"Прошла неделя: введите код, затем пароль директора.",
  failed_t:"{n} записей отклонено сервером",failed_h:"Они не потеряны и хранятся на этом телефоне. Проверьте причину и повторите.",failed_retry:"Повторить",failed_toast:"Сервер отклонил запись. Смотрите заметку вверху.",
  // server messages
  srv_cod:"Неверный код.",srv_many:"Слишком много попыток. Подождите 15 минут.",srv_bad_user:"Неверный код или пользователь отключён.",srv_pw8:"Пароль должен быть не короче 8 символов.",srv_pw_bad:"Неверный пароль.",srv_pw_dir:"Пароль есть только у директора.",srv_pw_new8:"Новый пароль должен быть не короче 8 символов.",srv_pw_cur:"Текущий пароль неверен.",srv_cod48:"Код должен состоять из 4–8 цифр.",srv_self_lock:"Нельзя отключить или понизить собственную учётную запись.",srv_self_del:"Нельзя удалить собственную учётную запись.",srv_descr:"Напишите, на что потрачены деньги (описание обязательно).",
@@ -462,10 +462,11 @@ function enter(user){
 var GATE={step:"cod"};
 /* Lock screen: the access code is asked again on every start of the app and after it sat in the background
    for LOCK_AFTER; the session itself (token, data, offline queue) stays, only the screen is covered. */
-var LOCKED=false,LOCKVIEW="",hiddenAt=0,lastTouch=Date.now(),IDLE_LOCK=3*60*1000,HIDDEN_LOCK=30*1000;
-/* the screen lock (19 November 2026): the code is asked again after IDLE_LOCK without a touch, after HIDDEN_LOCK in the
-   background (or closed) and at every start; the server checks it (/api/ehl/relock). The session itself stays until the
-   server ends it (05:00 for a director, two days for a collaborator): then the full sign-in. */
+var LOCKED=false,LOCKVIEW="",hiddenAt=0,lastTouch=Date.now(),IDLE_LOCK=4*60*1000,HIDDEN_LOCK=30*1000;
+/* the screen lock (19 November 2026), administrators only: the code is asked again after IDLE_LOCK without a touch, after
+   HIDDEN_LOCK in the background (or closed) and at every start; the server checks it (/api/ehl/relock). A collaborator has
+   no lock: his session simply ends after two hours. A director's session ends at 05:00. Then the full sign-in. */
+function lockApplies(){return !!(ACCESS&&isDir&&!LOCKED&&!needSetup())}
 var PAROLA_DIR=false; /* kept for the old weekly-password branches, which no longer run */
 /* the authenticator setup walk-through: "cred" (a director's login + password) -> "secret" (scan, first code) -> "codes" (recovery codes, once) */
 var SETUP={step:"",secret:"",uri:"",login:"",codes:null,busy:false,err:""};
@@ -488,7 +489,7 @@ function unlockScreen(){
 function sessionExp(){try{return parseInt(localStorage.getItem("ehl.exp")||"0",10)||0}catch(e){return 0}}
 /* POST /api/ehl/login {cod[,totp]} -> {token,record,expires[,needSetup],ehl} | {needTotp,ehl}. The code names the account (a
    director's EHL code = Casa EHL), the account's authenticator confirms. A director's session ends at 05:00 Chișinău, a
-   collaborator's after two days. */
+   collaborator's after two hours. */
 /* ---- the human check (Cloudflare Turnstile), on when app-config.js names a site key and the server holds the secret:
         the code step carries a Turnstile token; the server answers with a short pass that covers the authenticator step.
         The widget script is loaded only when needed; a token is single-use, so every failed try gets a fresh widget. ---- */
@@ -545,7 +546,7 @@ function setupSecret(body){
   }).catch(function(e){SETUP.busy=false;SETUP.err=gateMsg(e,T("save_err"));render();});
 }
 function gateMsg(e,dflt){var srv=e&&e.response&&e.response.message;return netErr(e)?T("offline"):(srv?srvT(srv):dflt)}
-/* the session is over (05:00 for a director, two days for a collaborator): sign in again; a director lands on his login form */
+/* the session is over (05:00 for a director, two hours for a collaborator): sign in again */
 function sessionExpired(){
   logout(T("sess_exp"));
   GATE={step:"cod"};
@@ -640,13 +641,13 @@ function refreshData(){
 }
 document.addEventListener("visibilitychange",function(){
   if(document.visibilityState==="hidden"){hiddenAt=Date.now();return;}
-  if(ACCESS&&!LOCKED&&!needSetup()&&lockDue())lockScreen();
+  if(lockApplies()&&lockDue())lockScreen();
   hiddenAt=0;lastTouch=Date.now();
   selfCheck();refreshData();
 });
 /* the screen lock: any touch counts as activity; after IDLE_LOCK without one the code is asked again */
 ["pointerdown","touchstart","keydown","click","submit","input","scroll"].forEach(function(ev){document.addEventListener(ev,function(){lastTouch=Date.now()},{passive:true,capture:true})});
-setInterval(function(){if(ACCESS&&!LOCKED&&!needSetup()&&document.visibilityState!=="hidden"&&Date.now()-lastTouch>IDLE_LOCK)lockScreen()},10*1000);
+setInterval(function(){if(lockApplies()&&document.visibilityState!=="hidden"&&Date.now()-lastTouch>IDLE_LOCK)lockScreen()},10*1000);
 var RT=typeof window.EventSource==="function";
 function sub(col,topic,cb){
   if(!RT)return;
@@ -3471,7 +3472,7 @@ render();
   if(PB.authStore.isValid&&rec&&rec.id){
     enter(rec);
     if(expiryCheck())return; /* the session ran out while the app was closed: sign in again */
-    if(!needSetup())lockScreen(); /* every start of the app: the code again */
+    if(lockApplies())lockScreen(); /* every start of the app: an administrator types his code again */
     /* confirm the session with the server: a deactivated user or an expired director week ends it */
     selfCheck();
   }else{

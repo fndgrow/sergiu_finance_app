@@ -14,7 +14,7 @@ routerUse((e) => {
 
 /* ---- sign-in = PIN + authenticator code, for everyone (17 November 2026):  POST /api/ehl/login {cod, totp}
         A director's own code opens his administrator account (token until 05:00 Chișinău); his EHL code opens Casa EHL,
-        which has its own authenticator. A collaborator's PIN opens his account (token for two days).
+        which has its own authenticator. A collaborator's PIN opens his account (token for two hours, since 19 November 2026).
         Before the authenticator of that account is set up, the code alone signs the person in and the answer carries
         needSetup, so the app walks him through the setup at once. {needTotp}: the code was right, now the authenticator
         code (or a recovery code, used once). Failed attempts count per IP (8 in 15 minutes) on top of the rate limits.
@@ -97,7 +97,7 @@ routerAdd("POST", "/api/ehl/login", (e) => {
     first = true;
   }
   if (!rec || rec.getString("status") === "Inactiv") fail("Cod greșit sau utilizator dezactivat.");
-  var isDirector = rec.getString("rol") === "Director", seconds = isDirector ? T.secondsUntilFive() : T.TWO_DAYS;
+  var isDirector = rec.getString("rol") === "Director", seconds = isDirector ? T.secondsUntilFive() : T.COLAB_SECONDS; /* 05:00 for a director, two hours for a collaborator */
   if (rec.getBool(viaEHL ? "twoFAEHL" : "twoFA")) {
     /* the code names the account, the account's authenticator confirms */
     if (!totp) return e.json(200, { needTotp: true, nume: rec.getString("nume"), ehl: viaEHL, human: human });
@@ -117,8 +117,9 @@ routerAdd("POST", "/api/ehl/login", (e) => {
 /* ---- 2FA setup, step 1: the server hands back a fresh secret for the authenticator app of the account in use
         ({ehl: true} = the director's Casa EHL account). POST /api/ehl/2fa/setup {ehl?, totp?}
         Someone who already has 2FA on that account must give a current authenticator code to start over. ---- */
-/* ---- the screen lock (19 November 2026): the app covers itself after 3 minutes without a touch, after 30 s in the
-        background and at every start; the code of the account in use opens it again — checked here, never on the device.
+/* ---- the screen lock (19 November 2026, administrators only): the app covers itself after 4 minutes without a touch,
+        after 30 s in the background and at every start; the code of the account in use opens it again — checked here, never
+        on the device. A collaborator has no lock: his whole session ends after two hours instead.
         POST /api/ehl/relock {cod, ehl?} with the session token ({ehl: true} = the director's Casa EHL screen wants his EHL
         code). Wrong codes count like failed sign-ins (8 per IP in 15 minutes). No human box, no authenticator: the session
         token already proves who signed in; the lock only stops whoever picks up an unlocked phone. ---- */
