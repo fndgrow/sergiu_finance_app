@@ -23,7 +23,7 @@ routerAdd("POST", "/api/ehl/login", (e) => {
   var T = require(__hooks + "/totp.js");
   var body = e.requestInfo().body || {};
   var cod = String(body.cod || "").trim(), totp = String(body.totp || "").trim();
-  if (!/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Cod invalid.");
+  if (cod.length < 4 || cod.length > 64) throw new BadRequestError("Cod invalid."); /* any characters since 20 November 2026 */
 
   var ip = e.realIP() || "unknown";
   var since = new Date(Date.now() - 15 * 60 * 1000).toISOString().replace("T", " ").slice(0, 19);
@@ -348,7 +348,33 @@ onRecordDeleteRequest((e) => {
 /* a salary payment is an expense like any other: its author (or a director) may correct or delete it; the schedule
    days it covered simply become unpaid again (see salCover on the client). */
 
-/* ---- users: random credentials, numeric codes, no self-lockout ---- */
+/* ---- a person changes his own access code (20 November 2026): POST /api/ehl/cod {vechi, nou, totp, ehl?} with the session
+        token. Any characters, 4–64, no spaces at the ends, unique across every cod and codEHL. Confirmed with the current
+        code of that account and its authenticator code; {ehl: true} = a director's Casa EHL code. Wrong tries count per IP. ---- */
+routerAdd("POST", "/api/ehl/cod", (e) => {
+  var T = require(__hooks + "/totp.js");
+  var rec = e.auth;
+  if (!rec) throw new ForbiddenError("Autentificare necesară.");
+  var body = e.requestInfo().body || {};
+  var ehl = !!body.ehl && rec.getString("rol") === "Director", F = ehl ? "codEHL" : "cod";
+  var vechi = String(body.vechi || ""), nou = String(body.nou || ""), totp = String(body.totp || "").trim();
+  var ip = e.realIP() || "unknown";
+  var since = new Date(Date.now() - 15 * 60 * 1000).toISOString().replace("T", " ").slice(0, 19);
+  if ($app.countRecords("login_attempts", $dbx.exp("ip = {:ip} AND created >= {:since}", { ip: ip, since: since })) >= 8) throw new ApiError(429, "Prea multe încercări. Așteptați 15 minute.", {});
+  var fail = function (msg) { var att = new Record($app.findCollectionByNameOrId("login_attempts")); att.set("ip", ip); $app.save(att); throw new UnauthorizedError(msg); };
+  if (!rec.getBool(ehl ? "twoFAEHL" : "twoFA")) throw new BadRequestError("Configurați mai întâi aplicația de autentificare.");
+  if (!vechi || vechi !== rec.getString(F)) fail("Codul actual este greșit.");
+  var S = ehl ? "totpSecretEHL" : "totpSecret", L = ehl ? "totpLastEHL" : "totpLast";
+  var step = T.verify(rec.getString(S), totp, rec.getInt(L));
+  if (!step) fail("Codul din aplicația de autentificare este greșit.");
+  if (nou.length < 4 || nou.length > 64 || nou !== nou.trim()) throw new BadRequestError("Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.");
+  if (nou === rec.getString(ehl ? "cod" : "codEHL") || $app.countRecords("utilizatori", $dbx.exp("id != {:id} AND (cod = {:c} OR codEHL = {:c})", { id: rec.id, c: nou })) > 0) throw new BadRequestError("Codul este deja folosit de alt cont.");
+  rec.set(F, nou); rec.set(L, step);
+  $app.save(rec);
+  return e.json(200, { ok: true, cod: rec.getString("cod"), codEHL: rec.getString("codEHL") });
+}, $apis.requireAuth("utilizatori"));
+
+/* ---- users: random credentials, codes of any kind (4–64 characters, unique across cod and codEHL), no self-lockout ---- */
 onRecordCreateRequest((e) => {
   /* only the EHL account makes users, and it makes collaborators: the body carries the signed-in director's EHL code as proof */
   var body = e.requestInfo().body || {}, who = e.auth;
@@ -357,12 +383,16 @@ onRecordCreateRequest((e) => {
   }
   e.record.set("rol", "Operator");
   e.record.set("codEHL", "");
-  var cod = String(e.record.getString("cod") || "").trim();
-  if (!/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Codul trebuie să aibă 4–8 cifre.");
+  var cod = String(e.record.getString("cod") || "");
+  if (cod.length < 4 || cod.length > 64 || cod !== cod.trim()) throw new BadRequestError("Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.");
   e.record.set("cod", cod);
   var codEHL = String(e.record.getString("codEHL") || "").trim();
-  if (codEHL && !/^[0-9]{4,8}$/.test(codEHL)) throw new BadRequestError("Codul EHL trebuie să aibă 4–8 cifre.");
+  if (codEHL && (codEHL.length < 4 || codEHL.length > 64)) throw new BadRequestError("Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.");
   e.record.set("codEHL", codEHL);
+  /* one code = one account: never another person's code, never the same as the other code of this person */
+  var selfId = String(e.record.id || "");
+  if ((codEHL && codEHL === cod) || $app.countRecords("utilizatori", $dbx.exp("id != {:id} AND (cod = {:c} OR codEHL = {:c})", { id: selfId, c: cod })) > 0) throw new BadRequestError("Codul este deja folosit de alt cont.");
+  if (codEHL && $app.countRecords("utilizatori", $dbx.exp("id != {:id} AND (cod = {:c} OR codEHL = {:c})", { id: selfId, c: codEHL })) > 0) throw new BadRequestError("Codul este deja folosit de alt cont.");
   if (!e.record.getString("status")) e.record.set("status", "Activ");
   if (!e.record.getString("rol")) e.record.set("rol", "Operator");
   e.record.set("email", $security.randomStringWithAlphabet(12, "abcdefghijklmnopqrstuvwxyz") + "@casieria.local");
@@ -372,12 +402,16 @@ onRecordCreateRequest((e) => {
 }, "utilizatori");
 
 onRecordUpdateRequest((e) => {
-  var cod = String(e.record.getString("cod") || "").trim();
-  if (!/^[0-9]{4,8}$/.test(cod)) throw new BadRequestError("Codul trebuie să aibă 4–8 cifre.");
+  var cod = String(e.record.getString("cod") || "");
+  if (cod.length < 4 || cod.length > 64 || cod !== cod.trim()) throw new BadRequestError("Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.");
   e.record.set("cod", cod);
   var codEHL = String(e.record.getString("codEHL") || "").trim();
-  if (codEHL && !/^[0-9]{4,8}$/.test(codEHL)) throw new BadRequestError("Codul EHL trebuie să aibă 4–8 cifre.");
+  if (codEHL && (codEHL.length < 4 || codEHL.length > 64)) throw new BadRequestError("Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.");
   e.record.set("codEHL", codEHL);
+  /* one code = one account: never another person's code, never the same as the other code of this person */
+  var selfId = String(e.record.id || "");
+  if ((codEHL && codEHL === cod) || $app.countRecords("utilizatori", $dbx.exp("id != {:id} AND (cod = {:c} OR codEHL = {:c})", { id: selfId, c: cod })) > 0) throw new BadRequestError("Codul este deja folosit de alt cont.");
+  if (codEHL && $app.countRecords("utilizatori", $dbx.exp("id != {:id} AND (cod = {:c} OR codEHL = {:c})", { id: selfId, c: codEHL })) > 0) throw new BadRequestError("Codul este deja folosit de alt cont.");
   if (e.record.original) { e.record.set("login", e.record.original().getString("login")); e.record.set("twoFA", e.record.original().getBool("twoFA")); e.record.set("twoFAEHL", e.record.original().getBool("twoFAEHL")); } /* set by the 2FA routes only */
   /* the administrators are fixed (Sergiu and Grigore): nobody is promoted or demoted */
   if (e.record.original && e.record.getString("rol") !== e.record.original().getString("rol")) {

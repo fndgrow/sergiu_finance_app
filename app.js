@@ -90,7 +90,7 @@ ro:{
  exp_t:"Export Excel",exp_tot:"Toate datele",exp_luna:"Doar luna aleasă",exp_btn:"Descarcă .xlsx",
  a_user:"Utilizator",u_deact:"Dezactivează",u_deact_h:"Colaboratorul pierde accesul pe loc și trece în Arhivă, de unde poate fi reactivat.",u_deact_done:"Colaboratorul a fost dezactivat.",u_ehl_only:"Colaboratorii se creează doar din contul EHL. Administratorii sunt Sergiu și Grigore.",a_user_d:"Acces pentru un angajat nou",r_user:"Utilizatori",
  f_rol:"Rol",rol_op:"Operator",rol_dir:"Director",f_cod:"Cod de acces",
- f_cod_h:"4–8 cifre pe care i le dați angajatului. Cu ele intră în aplicație de pe telefonul lui.",
+ f_cod_h:"Cel puțin 4 caractere (litere, cifre, semne), pe care i le dați angajatului; cu ele intră de pe telefonul lui și le poate schimba apoi din Setări.",
  also_ang:"Îl trec și la angajați, cu salariu",
  human_need:"Bifați mai întâi confirmarea „Sunt om”.",srv_human:"Confirmați că nu sunteți robot.",srv_human_exp:"Confirmarea „nu sunt robot” a expirat. Încercați din nou.",gate_t:"Cod de acces",gate_h:"Codul de acces: al dumneavoastră, sau codul EHL pentru Casa EHL. Apoi codul din aplicația de autentificare a contului respectiv; la prima intrare o configurați.",gate_bad:"Cod greșit sau utilizator dezactivat.",
  u_none:"Niciun utilizator încă",u_none_d:"Adăugați primul utilizator ca angajații să poată intra cu codul lor.",
@@ -104,7 +104,7 @@ ro:{
  install_ios_h:"Pe iPhone: apăsați butonul Partajare (pătratul cu săgeată) din Safari, apoi „Adaugă pe ecranul principal”.",
  install_android_h:"Deschideți această adresă în Chrome, apoi meniul ⋮ → „Instalează aplicația” sau „Adaugă pe ecranul principal”.",
  install_pc_h:"În Chrome sau Edge apăsați pictograma de instalare din bara de adrese (dreapta), apoi „Instalează”. Aplicația apare ca program separat.",
- cod_bad:"Codul trebuie să aibă 4–8 cifre și să nu fie folosit deja.",
+ cod_bad:"Codul trebuie să aibă între 4 și 64 de caractere, fără spații la capete, și să nu fie folosit deja.",
  self_lock:"Nu vă puteți dezactiva sau retrograda propriul cont.",
  pw_t:"Parola directorului",pw_h:"Pe un telefon nou directorul confirmă parola. Apoi se cere din nou o dată pe săptămână.",
  pw_week:"A trecut o săptămână de la ultima confirmare. Introduceți parola ca să continuați.",
@@ -164,14 +164,14 @@ ro:{
  gate_full_link:"Sunt administrator: login, parolă și cod de autentificare",gate_cod_link:"Am doar un cod de acces (colaborator)",full_bad:"Date de autentificare greșite.",
  totp_t:"Codul din aplicația de autentificare",totp_h:"Introduceți acum cele 6 cifre din aplicația de autentificare de pe telefon (sau un cod de recuperare).",totp_bad:"Codul din aplicația de autentificare este greșit.",
  su_t:"Autentificare în doi pași — configurare obligatorie",su_cred_h:"Alegeți un login și o parolă (cel puțin 8 caractere). De acum intrați cu ele plus codul din aplicația de autentificare; codul de acces nu mai deschide contul.",su_next:"Mai departe",
- su_secret_h:"Instalați Google Authenticator, Microsoft Authenticator sau Aegis. Scanați codul QR, sau apăsați butonul de deschidere pe telefon, sau introduceți cheia manual. Apoi scrieți codul de 6 cifre pe care îl arată aplicația.",su_key:"Cheia (dacă nu puteți scana):",su_other:"Alt utilizator (ieșire)",su_entry:"În aplicația de autentificare intrarea se va numi:",su_open_app:"Deschide în aplicația de autentificare",su_confirm:"Confirmă codul",
+ su_secret_h:"Instalați Google Authenticator, Microsoft Authenticator sau Aegis. Scanați codul QR, sau apăsați butonul de deschidere pe telefon, sau introduceți cheia manual. Apoi scrieți codul de 6 cifre pe care îl arată aplicația.",su_key:"Cheia (dacă nu puteți scana):",su_other:"Alt utilizator (ieșire)",sec_cod:"Schimbă codul de acces",sec_cod_ehl:"Schimbă codul Casa EHL",sec_cod_h:"Codul nou: cel puțin 4 caractere, oricare — litere, cifre, semne; fără spații la început sau la sfârșit. Se confirmă cu codul actual și cu codul din aplicația de autentificare.",f_cod_vechi:"Codul actual",f_cod_nou:"Codul nou",f_cod_nou2:"Încă o dată codul nou",cod_saved:"Codul a fost schimbat. De acum intrați cu el.",cod_mismatch:"Cele două coduri noi nu coincid.",cod_short:"Codul nou trebuie să aibă cel puțin 4 caractere, fără spații la capete.",cod_need:"Completați codul actual și codul din aplicația de autentificare.",srv_cod_vechi:"Codul actual este greșit.",srv_cod_dup:"Codul este deja folosit de alt cont.",srv_cod_fmt:"Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.",srv_cod_2fa:"Configurați mai întâi aplicația de autentificare.",su_entry:"În aplicația de autentificare intrarea se va numi:",su_open_app:"Deschide în aplicația de autentificare",su_confirm:"Confirmă codul",
  su_codes_t:"Coduri de recuperare",su_codes_h:"Dacă pierdeți telefonul cu aplicația de autentificare, un astfel de cod ține locul codului de 6 cifre, o singură dată fiecare. Notați-le undeva sigur acum: nu se mai afișează.",su_done:"Le-am notat, continuă",
  login_fmt:"Login: 3–40 de litere mici, cifre, punct, liniuță.",set_sec:"Securitate",set_sec_h:"Intrarea = codul de acces + codul din aplicația de autentificare. Directorul are două intrări în aplicație: una pentru contul lui, una pentru Casa EHL.",sec_2fa:"Autentificare în doi pași",sec_on:"activă",sec_off:"neconfigurată",
  sec_redo_h:"Telefon nou pentru aplicația de autentificare? Introduceți codul curent și configurați din nou.",sec_redo:"Reconfigurează aplicația de autentificare",sec_reset_h:"Cineva și-a pierdut telefonul: resetați-i autentificarea (confirmați cu codul dumneavoastră). La următoarea intrare o configurează din nou.",sec_reset:"Resetează",sec_reset_done:"Autentificarea a fost resetată.",
  op_primit:"Primit de la director",op_primit_dir:"Luat din Casa EHL",op_dat:"Dat mai departe",op_adv_dir:"Bani luați din Casa EHL",nav_ehl:"EHL",app_ehl:"Casa EHL · contul comun",op_chn:"Cheltuit numerar",op_prop:"Din banii mei",op_tr:"Prin transfer (din cont)",op_adv:"Bani primiți de la director",op_proj:"Cheltuieli pe proiect",
  cont_intra:"Pe cont intră",
  s_cont_minus:"Contul este în minus",l_cont_achitat:"De achitat pe cont",cont_minus_h:"Plățile prin transfer au depășit banii de pe cont. Mai jos sunt plățile care au dus contul în minus. Acoperiți-l cu o încasare prin transfer sau cu Ieșire din casă → Depus pe cont.",
- srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",din_casa:"din casă",cont_meu_disp:"Disponibil în contul meu",f_codehl:"Codul EHL",f_codehl_h:"Banii ies din Casa EHL: confirmați cu codul dumneavoastră EHL.",codehl_bad:"Codul EHL este greșit.",codehl_fmt:"Codul EHL trebuie să aibă 4–8 cifre.",codehl_none:"Nu aveți cod EHL: fără el nu se pot scoate bani din Casa EHL. Cereți-l în Setări → Utilizatori.",f_codehl_set:"Cod EHL (acces la Casa EHL)",f_codehl_set_h:"4–8 cifre. Doar un director cu cod EHL poate scoate bani din casa comună.",f_din:"Din",f_din_h:"Casa EHL este casa comună a directorilor; Contul meu sunt banii pe care i-am luat din ea.",din_casa_ehl:"Casa EHL",din_cont_meu:"Contul meu",s_dirs:"Conturile administratorilor",s_dirs_h:"Banii luați de fiecare director din Casa EHL, ce a dat mai departe sau a cheltuit, și ce mai are în mână.",l_dirs:"La administratori",
+ srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",din_casa:"din casă",cont_meu_disp:"Disponibil în contul meu",f_codehl:"Codul EHL",f_codehl_h:"Banii ies din Casa EHL: confirmați cu codul dumneavoastră EHL.",codehl_bad:"Codul EHL este greșit.",codehl_fmt:"Codul EHL trebuie să aibă între 4 și 64 de caractere.",codehl_none:"Nu aveți cod EHL: fără el nu se pot scoate bani din Casa EHL. Cereți-l în Setări → Utilizatori.",f_codehl_set:"Cod EHL (acces la Casa EHL)",f_codehl_set_h:"Cel puțin 4 caractere. Doar un director cu cod EHL poate scoate bani din casa comună.",f_din:"Din",f_din_h:"Casa EHL este casa comună a directorilor; Contul meu sunt banii pe care i-am luat din ea.",din_casa_ehl:"Casa EHL",din_cont_meu:"Contul meu",s_dirs:"Conturile administratorilor",s_dirs_h:"Banii luați de fiecare director din Casa EHL, ce a dat mai departe sau a cheltuit, și ce mai are în mână.",l_dirs:"La administratori",
  s_colab_exp:"Cheltuielile și chiriile colaboratorilor",s_tr:"Cheltuieli din cont (transfer)",tr_h:"La transfer banii se iau din contul bancar, nu de la persoană. Apăsați pe un nume ca să vedeți pe ce s-au cheltuit.",colab_tr:"Plătit prin transfer (din cont)",
  avans_lipsa:"Nu aveți destui bani din avans: disponibil {s} MDL. Cereți mai întâi bani de la director.",cont_meu_lipsa:"Nu aveți destui bani în contul dumneavoastră: disponibil {s} MDL. Luați mai întâi din Casa EHL.",ehl_dest:"Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.",avans_disp:"Disponibil din avansul meu",din_avans:"din avansul lui",colab_gave:"Ieșiri făcute din avans",
  f_pentru:"Cheltuiala este pentru",sc_t:"Zile acoperite de această plată",sc_days:"Acoperă: {d}",sc_part:"parțial",sc_rest:"restul",sc_rate:"o zi =",sc_over:"Suma depășește zilele bifate cu {s} MDL.",sc_left:"Rămân neachitate: {d}",sc_all:"Toate zilele bifate ale lunii sunt achitate.",sc_none:"Nu sunt zile bifate în grafic pentru luna aceasta; plata se socotește pe suma lunii.",sc_nothing:"Zilele bifate erau deja acoperite de plățile de dinainte.",gr_paid:"plătit",gr_tinta:"Ziua se trece pe",gr_tinta_h:"Se aplică zilelor pe care le bifați de acum. La o zi deja bifată pe altceva apare „Mută pe …”: o mută cel care a bifat-o, fără să o piardă.",gr_retag:"Mută pe {t}",pt_proiect:"Proiect",pt_proiecte:"Proiecte",pt_ehl:"EHL (firma)",pt_alte:"Altele",s_pentru:"Cheltuieli: proiecte, EHL, altele",
@@ -257,7 +257,7 @@ ru:{
  exp_t:"Выгрузка в Excel",exp_tot:"Все данные",exp_luna:"Только выбранный месяц",exp_btn:"Скачать .xlsx",
  a_user:"Пользователь",u_deact:"Деактивировать",u_deact_h:"Колаборатор сразу теряет доступ и попадает в Архив, откуда его можно вернуть.",u_deact_done:"Колаборатор деактивирован.",u_ehl_only:"Колабораторов создают только из аккаунта EHL. Администраторы — Sergiu и Grigore.",a_user_d:"Доступ новому сотруднику",r_user:"Пользователи",
  f_rol:"Роль",rol_op:"Оператор",rol_dir:"Директор",f_cod:"Код доступа",
- f_cod_h:"4–8 цифр, которые вы даёте сотруднику. По ним он входит со своего телефона.",
+ f_cod_h:"Не меньше 4 символов (буквы, цифры, знаки); вы даёте его сотруднику, он входит с ним со своего телефона и потом может сменить его в Setări.",
  also_ang:"Добавить и в сотрудники, с окладом",
  human_need:"Сначала отметьте «Я человек».",srv_human:"Подтвердите, что вы не робот.",srv_human_exp:"Подтверждение «я не робот» истекло. Попробуйте ещё раз.",gate_t:"Код доступа",gate_h:"Код доступа: ваш собственный, или код EHL для Casa EHL. Затем код из приложения-аутентификатора этого аккаунта; при первом входе вы его настроите.",gate_bad:"Неверный код или пользователь отключён.",
  u_none:"Пользователей пока нет",u_none_d:"Добавьте первого, чтобы сотрудники входили по своему коду.",
@@ -271,7 +271,7 @@ ru:{
  install_ios_h:"На iPhone: кнопка «Поделиться» (квадрат со стрелкой) в Safari, затем «На экран Домой».",
  install_android_h:"Откройте этот адрес в Chrome, затем меню ⋮ → «Установить приложение» или «Добавить на главный экран».",
  install_pc_h:"В Chrome или Edge нажмите значок установки в адресной строке (справа), затем «Установить». Приложение появится отдельной программой.",
- cod_bad:"Код должен быть из 4–8 цифр и не повторять другой.",
+ cod_bad:"Код должен быть от 4 до 64 символов, без пробелов по краям, и не повторять другой.",
  self_lock:"Нельзя отключить или понизить собственную учётную запись.",
  pw_t:"Пароль директора",pw_h:"На новом телефоне директор подтверждает пароль. Дальше он запрашивается раз в неделю.",
  pw_week:"Прошла неделя с последнего подтверждения. Введите пароль, чтобы продолжить.",
@@ -331,7 +331,7 @@ ru:{
  gate_full_link:"Я администратор: логин, пароль и код аутентификатора",gate_cod_link:"У меня только код доступа (колаборатор)",full_bad:"Неверные данные входа.",
  totp_t:"Код из приложения-аутентификатора",totp_h:"Теперь введите 6 цифр из приложения-аутентификатора на телефоне (или код восстановления).",totp_bad:"Код из приложения-аутентификатора неверный.",
  su_t:"Двухэтапный вход — обязательная настройка",su_cred_h:"Выберите логин и пароль (не меньше 8 символов). Дальше вы входите с ними плюс код из приложения-аутентификатора; код доступа аккаунт больше не открывает.",su_next:"Дальше",
- su_secret_h:"Установите Google Authenticator, Microsoft Authenticator или Aegis. Отсканируйте QR-код, или нажмите кнопку открытия на телефоне, или введите ключ вручную. Затем впишите 6-значный код, который показывает приложение.",su_entry:"В приложении-аутентификаторе запись будет называться:",su_other:"Другой пользователь (выход)",su_key:"Ключ (если не получается сканировать):",su_open_app:"Открыть в приложении-аутентификаторе",su_confirm:"Подтвердить код",
+ su_secret_h:"Установите Google Authenticator, Microsoft Authenticator или Aegis. Отсканируйте QR-код, или нажмите кнопку открытия на телефоне, или введите ключ вручную. Затем впишите 6-значный код, который показывает приложение.",su_entry:"В приложении-аутентификаторе запись будет называться:",su_other:"Другой пользователь (выход)",sec_cod:"Сменить код доступа",sec_cod_ehl:"Сменить код Casa EHL",sec_cod_h:"Новый код: не меньше 4 символов, любых — буквы, цифры, знаки; без пробелов в начале и в конце. Подтверждается текущим кодом и кодом из приложения-аутентификатора.",f_cod_vechi:"Текущий код",f_cod_nou:"Новый код",f_cod_nou2:"Новый код ещё раз",cod_saved:"Код изменён. Теперь входите с ним.",cod_mismatch:"Два новых кода не совпадают.",cod_short:"Новый код должен быть не короче 4 символов, без пробелов по краям.",cod_need:"Заполните текущий код и код из приложения-аутентификатора.",srv_cod_vechi:"Текущий код неверный.",srv_cod_dup:"Этот код уже использует другой аккаунт.",srv_cod_fmt:"Код должен быть от 4 до 64 символов, без пробелов в начале и в конце.",srv_cod_2fa:"Сначала настройте приложение-аутентификатор.",su_key:"Ключ (если не получается сканировать):",su_open_app:"Открыть в приложении-аутентификаторе",su_confirm:"Подтвердить код",
  su_codes_t:"Коды восстановления",su_codes_h:"Если потеряете телефон с аутентификатором, такой код заменит 6-значный, каждый — один раз. Запишите их сейчас в надёжное место: больше они не показываются.",su_done:"Записал, продолжить",
  login_fmt:"Логин: 3–40 строчных букв, цифр, точка, дефис.",set_sec:"Безопасность",set_sec_h:"Вход = код доступа + код из приложения-аутентификатора. У директора две записи в приложении: для своего счёта и для Casa EHL.",sec_2fa:"Двухэтапный вход",sec_on:"включён",sec_off:"не настроен",
  sec_redo_h:"Новый телефон для аутентификатора? Введите текущий код и настройте заново.",sec_redo:"Перенастроить аутентификатор",sec_reset_h:"Кто-то потерял телефон: сбросьте ему аутентификацию (подтвердите своим кодом). При следующем входе он настроит её заново.",sec_reset:"Сбросить",sec_reset_done:"Аутентификация сброшена.",
@@ -339,7 +339,7 @@ ru:{
  op_primit:"Получено от директора",op_primit_dir:"Взято из кассы EHL",op_dat:"Передано дальше",op_adv_dir:"Деньги, взятые из кассы EHL",nav_ehl:"EHL",app_ehl:"Касса EHL · общий счёт",op_chn:"Потрачено наличными",op_prop:"Из своих денег",op_tr:"Переводом (со счёта)",op_adv:"Деньги, полученные от директора",op_proj:"Расходы по проектам",
  cont_intra:"На счёт поступит",
  s_cont_minus:"Счёт в минусе",l_cont_achitat:"Нужно внести на счёт",cont_minus_h:"Платежи переводом превысили деньги на счёте. Ниже — платежи, которые увели счёт в минус. Покройте его поступлением переводом или Выдачей из кассы → Внесено на счёт.",
- srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",din_casa:"из кассы",cont_meu_disp:"Доступно на моём счёте",f_codehl:"Код EHL",f_codehl_h:"Деньги уходят из кассы EHL: подтвердите своим кодом EHL.",codehl_bad:"Код EHL неверный.",codehl_fmt:"Код EHL должен быть из 4–8 цифр.",codehl_none:"У вас нет кода EHL: без него нельзя брать деньги из кассы EHL. Задайте его в Настройки → Пользователи.",f_codehl_set:"Код EHL (доступ к кассе EHL)",f_codehl_set_h:"4–8 цифр. Брать деньги из общей кассы может только директор с кодом EHL.",f_din:"Откуда",f_din_h:"Касса EHL — общая касса директоров; Мой счёт — деньги, которые я взял из неё.",din_casa_ehl:"Касса EHL",din_cont_meu:"Мой счёт",s_dirs:"Счета администраторов",s_dirs_h:"Сколько каждый директор взял из кассы EHL, что передал дальше или потратил, и сколько у него на руках.",l_dirs:"У администраторов",
+ srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",din_casa:"из кассы",cont_meu_disp:"Доступно на моём счёте",f_codehl:"Код EHL",f_codehl_h:"Деньги уходят из кассы EHL: подтвердите своим кодом EHL.",codehl_bad:"Код EHL неверный.",codehl_fmt:"Код EHL должен быть от 4 до 64 символов.",codehl_none:"У вас нет кода EHL: без него нельзя брать деньги из кассы EHL. Задайте его в Настройки → Пользователи.",f_codehl_set:"Код EHL (доступ к кассе EHL)",f_codehl_set_h:"Не меньше 4 символов. Брать деньги из общей кассы может только директор с кодом EHL.",f_din:"Откуда",f_din_h:"Касса EHL — общая касса директоров; Мой счёт — деньги, которые я взял из неё.",din_casa_ehl:"Касса EHL",din_cont_meu:"Мой счёт",s_dirs:"Счета администраторов",s_dirs_h:"Сколько каждый директор взял из кассы EHL, что передал дальше или потратил, и сколько у него на руках.",l_dirs:"У администраторов",
  s_colab_exp:"Расходы и аренда сотрудников",s_tr:"Расходы со счёта (перевод)",tr_h:"При переводе деньги берутся с банковского счёта, а не у человека. Нажмите на имя, чтобы увидеть, на что они потрачены.",colab_tr:"Оплачено переводом (со счёта)",
  avans_lipsa:"В вашем авансе недостаточно денег: доступно {s} MDL. Сначала получите деньги у директора.",cont_meu_lipsa:"На вашем счёте недостаточно денег: доступно {s} MDL. Сначала возьмите из кассы EHL.",ehl_dest:"Из кассы EHL деньги идут только администраторам, на счёт или обратно учредителю.",avans_disp:"Доступно из моего аванса",din_avans:"из аванса:",colab_gave:"Выдачи из аванса",
  f_pentru:"Расход относится к",sc_t:"Дни, покрытые этой выплатой",sc_days:"Покрывает: {d}",sc_part:"частично",sc_rest:"остаток",sc_rate:"день =",sc_over:"Сумма превышает отмеченные дни на {s} MDL.",sc_left:"Не оплачены: {d}",sc_all:"Все отмеченные дни месяца оплачены.",sc_none:"В графике нет отмеченных дней за этот месяц; выплата считается по сумме месяца.",sc_nothing:"Отмеченные дни уже были покрыты предыдущими выплатами.",gr_paid:"оплачено",gr_tinta:"День относится к",gr_tinta_h:"Действует для дней, которые отмечаете с этого момента. У дня, отмеченного на другое, появляется «Перенести на …»: переносит тот, кто его отметил, не теряя день.",gr_retag:"Перенести на {t}",pt_proiect:"Проект",pt_proiecte:"Проекты",pt_ehl:"EHL (фирма)",pt_alte:"Прочее",s_pentru:"Расходы: проекты, EHL, прочее",
@@ -349,7 +349,7 @@ var lang="ro";
 try{var sl=localStorage.getItem("ehl.lang"); if(sl==="ro"||sl==="ru") lang=sl;}catch(e){}
 function T(k){var d=I18N[lang];return (d&&d[k])||I18N.ro[k]||k;}
 /* the server answers in Romanian; known messages are shown in the interface language */
-var SRV_MSG={"Confirmați că nu sunteți robot.":"srv_human","Confirmarea „nu sunt robot” a expirat. Încercați din nou.":"srv_human_exp","Date de autentificare greșite.":"full_bad","Codul din aplicația de autentificare este greșit.":"totp_bad","Codul din aplicația de autentificare este greșit. Verificați ora telefonului.":"totp_bad","Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Doar directorul poate șterge datele.":"srv_reset_dir","Plățile de salariu nu se mai schimbă și nu se șterg.":"srv_sal_lock","Codul de acces este greșit.":"srv_reset_cod","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans","Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.":"ehl_dest","Codul EHL este greșit.":"codehl_bad","Codul EHL trebuie să aibă 4–8 cifre.":"codehl_fmt","Nu aveți destui bani în contul dumneavoastră. Luați mai întâi din Casa EHL.":"cont_meu_lipsa","Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).":"srv_ies_op","Salariul se stabilește doar pentru angajații creați de dumneavoastră.":"srv_sal","Graficul se face doar pentru angajații creați de dumneavoastră.":"srv_grafic","Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).":"srv_ore","Zilele achitate nu se mai schimbă.":"srv_gr_lock","Zilele viitoare nu se bifează: doar azi și înapoi.":"gr_future","Ziua este deja bifată de alt utilizator.":"srv_gr_dup"};
+var SRV_MSG={"Codul actual este greșit.":"srv_cod_vechi","Codul este deja folosit de alt cont.":"srv_cod_dup","Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.":"srv_cod_fmt","Configurați mai întâi aplicația de autentificare.":"srv_cod_2fa","Confirmați că nu sunteți robot.":"srv_human","Confirmarea „nu sunt robot” a expirat. Încercați din nou.":"srv_human_exp","Date de autentificare greșite.":"full_bad","Codul din aplicația de autentificare este greșit.":"totp_bad","Codul din aplicația de autentificare este greșit. Verificați ora telefonului.":"totp_bad","Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Doar directorul poate șterge datele.":"srv_reset_dir","Plățile de salariu nu se mai schimbă și nu se șterg.":"srv_sal_lock","Codul de acces este greșit.":"srv_reset_cod","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans","Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.":"ehl_dest","Codul EHL este greșit.":"codehl_bad","Codul EHL trebuie să aibă 4–8 cifre.":"codehl_fmt","Nu aveți destui bani în contul dumneavoastră. Luați mai întâi din Casa EHL.":"cont_meu_lipsa","Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).":"srv_ies_op","Salariul se stabilește doar pentru angajații creați de dumneavoastră.":"srv_sal","Graficul se face doar pentru angajații creați de dumneavoastră.":"srv_grafic","Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).":"srv_ore","Zilele achitate nu se mai schimbă.":"srv_gr_lock","Zilele viitoare nu se bifează: doar azi și înapoi.":"gr_future","Ziua este deja bifată de alt utilizator.":"srv_gr_dup"};
 function srvT(m){var k=SRV_MSG[String(m||"").trim()];return k?T(k):m}
 
 /* ---------------- helpers ---------------- */
@@ -765,6 +765,7 @@ function flushQueue(){
 }
 window.addEventListener("online",function(){online=true;dbErr=false;if(ACCESS){if(!loaded.incasari)subscribe();else{flushQueue();refreshData()}}render()});
 window.addEventListener("offline",function(){online=false;render()});
+function codOk(c){c=String(c||"");return c.length>=4&&c.length<=64&&c===c.trim()} /* an access code: 4–64 characters of any kind, no spaces at the ends */
 function codNou(){
   for(var i=0;i<60;i++){
     var c=String(Math.floor(100000+Math.random()*900000));
@@ -2485,7 +2486,7 @@ function vPin(){
   var hint=relock?T(GATE.weekly?"relock_week":"relock_h"):T(locked?"gate_h":"pin_h");
   var h='<div class="sec"><div class="card pad"><h2 style="margin:0 0 6px;font-size:18px">'+esc(ttl)+'</h2>'
    +'<p class="hint" style="margin:0 0 12px">'+esc(hint)+'</p>'
-   +'<form id="pinf"><label><span>'+esc(T("f_cod"))+'</span><input type="password" inputmode="numeric" id="pinv" autocomplete="off"'+(gateBusy?" disabled":"")+'></label>'
+   +'<form id="pinf"><label><span>'+esc(T("f_cod"))+'</span><input type="password" id="pinv" autocomplete="off" autocapitalize="off" spellcheck="false"'+(gateBusy?" disabled":"")+'></label>'
    +(tsOn()&&!relock?'<div class="cfts" id="cfts"></div>':'')
    +'<p class="err" id="pinerr"'+(gateErr?"":" hidden")+'>'+esc(gateErr||T("gate_bad"))+'</p>'
    +'<button class="btn" type="submit"'+(gateBusy?" disabled":"")+'>'+esc(gateBusy?T("saving"):T("pin_ok"))+'</button>'
@@ -2577,7 +2578,7 @@ function vAdd(){
   }).join("")+'</div></div>';
   h+='</div><aside class="add-side">';
   h+=installNote();
-  if(!isDir)h+='<div class="sec"><button class="btn ghost" id="exitdir" type="button">'+esc(T("logout"))+'</button></div>';
+  if(!isDir)h+='<div class="sec"><div class="card pad">'+codChgForm()+'</div></div><div class="sec"><button class="btn ghost" id="exitdir" type="button">'+esc(T("logout"))+'</button></div>'; /* a collaborator has no Setări: his change-my-code form lives here */
   h+='</aside></div>';
   return h;
 }
@@ -2809,6 +2810,15 @@ function catChips(){
     +'<form id="catadd" class="cat-form"><label class="cg-cell cg-new"><span class="cg-b">'+icon("plus")+'</span><input name="nc" autocomplete="off" aria-label="'+esc(T("cat_add"))+'" placeholder="'+esc(T("cat_add"))+'"></label>'+setSave()+'</form>';
 }
 function catSave(list){saveCfg({categorii:list}).then(function(){toast(T("saved"));render()}).catch(function(){toast(T("offline"))})}
+/* the change-my-code form (Setări → Securitate for a director, the Adaugă screen for a collaborator): current code, new code twice, authenticator code */
+function codChgForm(){
+  return '<form id="codchgf"><p class="hint" style="margin:0 0 6px"><b>'+esc(isDir&&ehlMode()?T("sec_cod_ehl"):T("sec_cod"))+'</b> · '+esc(T("sec_cod_h"))+'</p>'
+    +'<label><span>'+esc(T("f_cod_vechi"))+'</span><input type="password" name="vechi" autocomplete="current-password" autocapitalize="off" spellcheck="false"></label>'
+    +'<label><span>'+esc(T("f_cod_nou"))+'</span><input type="password" name="nou" autocomplete="new-password" autocapitalize="off" spellcheck="false"></label>'
+    +'<label><span>'+esc(T("f_cod_nou2"))+'</span><input type="password" name="nou2" autocomplete="new-password" autocapitalize="off" spellcheck="false"></label>'
+    +'<label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"></label>'
+    +'<p class="err" id="codchgerr" hidden></p><button class="btn ghost" type="submit">'+esc(T("save"))+'</button></form>';
+}
 /* a setting card: icon, title and explanation on top, then the form */
 function setCard(ic,title,hint,body){
   return '<div class="sec"><div class="card set-card"><div class="set-h"><span class="ic-badge tint" style="--c:var(--accent)">'+icon(ic)+'</span><div><b>'+esc(title)+'</b>'+(hint?'<p>'+esc(hint)+'</p>':'')+'</div></div>'+body+'</div></div>';
@@ -2835,6 +2845,7 @@ function vSet(){
   h+=setCard("lock",T("set_sec"),T("set_sec_h"),
     '<p class="hint" style="margin:0 0 10px">'+esc(T("sec_2fa"))+' ('+esc(T("f_cont_admin"))+'): <b>'+esc(me0.twoFA?T("sec_on"):T("sec_off"))+'</b>'+(isDir?' · '+esc(T("sec_2fa"))+' (Casa EHL): <b>'+esc(me0.twoFAEHL?T("sec_on"):T("sec_off"))+'</b>':'')+'</p>'
     +'<form id="resetupf"><p class="hint" style="margin:0 0 6px">'+esc(T("sec_redo_h"))+'</p><label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"></label><button class="btn ghost" type="submit">'+esc(T("sec_redo"))+'</button></form>'
+    +'<hr>'+codChgForm()
     +(S.utilizatori.filter(function(u){return u.id!==ME&&u.status!=="Inactiv"}).length?'<hr><p class="hint" style="margin:0 0 6px">'+esc(T("sec_reset_h"))+'</p>'+S.utilizatori.filter(function(u){return u.id!==ME&&u.status!=="Inactiv"}).map(function(u){
       return '<form class="reset2fa" data-uid="'+esc(u.id)+'" style="display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-bottom:6px"><span style="flex:1;min-width:120px">'+esc(u.nume)+' · '+esc(u.twoFA?T("sec_on"):T("sec_off"))+'</span><label style="flex:0 0 120px"><span>'+esc(T("f_totp_mine"))+'</span><input type="text" name="totp" inputmode="numeric" placeholder="000000"></label><button class="btn sm danger" type="submit">'+esc(T("sec_reset"))+'</button></form>'}).join(""):''));
 
@@ -2955,7 +2966,7 @@ function fieldHtml(f,v){
   }
   if(f.k==="categorie")v=catLabel(v);
   var type=f.t==="number"?"number":(f.t==="date"?"date":(f.t==="month"?"month":(f.t==="pin"?"password":"text")));
-  var extra=f.t==="number"?' inputmode="decimal" step="'+(f.step||"0.01")+'"':(f.t==="pin"?' inputmode="numeric" autocomplete="off"':"");
+  var extra=f.t==="number"?' inputmode="decimal" step="'+(f.step||"0.01")+'"':(f.t==="pin"?' autocomplete="off" autocapitalize="off" spellcheck="false"':"");
   var list=f.list&&f.list.length?' list="dl-'+f.k+'" autocomplete="off"':"";
   if(f.noFuture)extra+=' max="'+today()+'"';
   return '<label for="'+id+'"><span>'+lbl+(f.req?" *":"")+'</span><input type="'+type+'" id="'+id+'" data-k="'+f.k+'" value="'+esc(v)+'"'+extra+list+((locked||ro)?' readonly':'')+'></label>'
@@ -3035,9 +3046,9 @@ function submitForm(){
   if(col==="utilizatori"){
     var ub={nume:String(d.nume).trim(),rol:st.id?d.rol:"Operator",cod:String(d.cod).trim(),codEHL:d.rol==="Director"?String(d.codEHL||"").trim():"",status:d.status};
     if(!st.id)ub.ehlCod=ehlCod(); /* the EHL code proves the user is made from the EHL account; the server checks it */
-    if(ub.codEHL&&!/^\d{4,8}$/.test(ub.codEHL)){st.err=T("codehl_fmt");if(btn){btn.disabled=false;btn.textContent=T("save")}drawSheet();return;}
+    if(ub.codEHL&&!codOk(ub.codEHL)){st.err=T("codehl_fmt");if(btn){btn.disabled=false;btn.textContent=T("save")}drawSheet();return;}
     var dup=S.utilizatori.filter(function(u){return u.id!==st.id&&String(u.cod)===ub.cod})[0];
-    if(dup||!/^\d{4,8}$/.test(ub.cod)){st.err=T("cod_bad");if(btn){btn.disabled=false;btn.textContent=T("save")}drawSheet();return;}
+    if(dup||!codOk(ub.cod)){st.err=T("cod_bad");if(btn){btn.disabled=false;btn.textContent=T("save")}drawSheet();return;}
     var self=!!(ACCESS&&st.id===ACCESS.user.id);
     if(self&&(ub.status==="Inactiv"||ub.rol!=="Director")){st.err=T("self_lock");if(btn){btn.disabled=false;btn.textContent=T("save")}drawSheet();return;}
     var oldU=st.id?((S.utilizatori.filter(function(u){return u.id===st.id})[0]||{}).nume||""):"";
@@ -3421,6 +3432,20 @@ document.addEventListener("submit",function(ev){
       if(ACCESS&&ACCESS.user){if(wasEHL)ACCESS.user.twoFAEHL=true;else ACCESS.user.twoFA=true;}
       render();
     }).catch(function(e){SETUP.busy=false;SETUP.err=gateMsg(e,T("totp_bad"));render();});
+    return;
+  }
+  if(f.id==="codchgf"){ /* one's own access code (or, on the Casa EHL screen, the EHL code): checked on the device, then by the server with the authenticator */
+    var cv=String(f.elements["vechi"].value||""),cn=String(f.elements["nou"].value||""),cn2=String(f.elements["nou2"].value||""),ct=String(f.elements["totp"].value||"").trim(),ce=$("#codchgerr");
+    var showErr=function(m){if(ce){ce.textContent=m;ce.hidden=false;}};
+    if(!codOk(cn)){showErr(T("cod_short"));return;}
+    if(cn!==cn2){showErr(T("cod_mismatch"));return;}
+    if(!cv||!ct){showErr(T("cod_need"));return;}
+    var isE=!!(isDir&&ehlMode());
+    PB.send("/api/ehl/cod",{method:"POST",body:{vechi:cv,nou:cn,totp:ct,ehl:isE},requestKey:null}).then(function(){
+      if(ACCESS&&ACCESS.user){if(isE)ACCESS.user.codEHL=cn;else ACCESS.user.cod=cn;}
+      if(isE){try{localStorage.setItem("ehl.ehlcod",cn)}catch(e){}}
+      toast(T("cod_saved"));render();
+    }).catch(function(e){showErr(gateMsg(e,T("save_err")))});
     return;
   }
   if(f.id==="resetupf"){

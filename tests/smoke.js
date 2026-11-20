@@ -214,6 +214,18 @@ class PocketBase {
       }
       return { ok: true };
     }
+    if (p === "/api/ehl/cod") { /* one's own access code, as the hook checks it */
+      const u = currentUser; if (!u) throw err(403, "Autentificare necesară.");
+      const ehl = !!o.body.ehl && u.rol === "Director", K = ehl ? "EHL" : "";
+      const nou = String(o.body.nou || ""), vechi = String(o.body.vechi || "");
+      if (!u["twoFA" + K]) throw err(400, "Configurați mai întâi aplicația de autentificare.");
+      if (vechi !== (ehl ? u.codEHL : u.cod)) throw err(401, "Codul actual este greșit.");
+      if (!verifyStep({ totpSecret: u["totpSecret" + K] }, String(o.body.totp || ""))) throw err(401, "Codul din aplicația de autentificare este greșit.");
+      if (nou.length < 4 || nou.length > 64 || nou !== nou.trim()) throw err(400, "Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.");
+      if (nou === (ehl ? u.cod : u.codEHL) || Object.values(store.utilizatori).some(x => x.id !== u.id && (x.cod === nou || x.codEHL === nou))) throw err(400, "Codul este deja folosit de alt cont.");
+      if (ehl) u.codEHL = nou; else u.cod = nou;
+      emit("utilizatori", "update", u); return { ok: true, cod: u.cod, codEHL: u.codEHL || "" };
+    }
     if (p === "/api/ehl/relock") { /* the screen lock: the code of the account in use, as the hook checks it */
       const u = currentUser; if (!u) throw err(403, "Autentificare necesară.");
       const ehl = !!o.body.ehl && u.rol === "Director";
@@ -981,6 +993,43 @@ const ls = (k) => window.localStorage.getItem(k);
   await codeLogin("258000"); await tick(40);
   check($("#role") && store.turnstileSeen.join() === "cf-1,cf-2", "a fresh token signs in again");
   store.turnstileSecret = ""; window.TURNSTILE_SITE_KEY = ""; delete window.turnstile;
+
+  console.log("\n18. Changing one's own access code: any characters, confirmed with the current code and the authenticator");
+  check(!$("#role") || !$("#pinv") || !$("#pinv").getAttribute("inputmode"), "the code field no longer forces a numeric keyboard");
+  click($('[data-view="set"]')); await tick();
+  check($("#codchgf") && /Schimbă codul de acces/.test(text()), "Setări → Securitate has the change-code form");
+  const dirU = store.utilizatori[dirId];
+  const fillCod = (v, n, n2, t) => { const f = $("#codchgf"); f.elements["vechi"].value = v; f.elements["nou"].value = n; f.elements["nou2"].value = n2; f.elements["totp"].value = t; submit(f); };
+  fillCod("258000", "Ab#2026!", "Ab#2027!", totpAt(dirU.totpSecret, nowStep())); await tick(40);
+  check(/nu coincid/.test(text()) && dirU.cod === "258000", "two different new codes are refused on the device");
+  fillCod("258000", "ab", "ab", "000000"); await tick(40);
+  check(/cel puțin 4/.test(text()) && dirU.cod === "258000", "a code shorter than 4 characters is refused");
+  fillCod("999999", "Ab#2026!", "Ab#2026!", totpAt(dirU.totpSecret, nowStep())); await tick(80);
+  check(/Codul actual este greșit/.test(text()) && dirU.cod === "258000", "a wrong current code is refused by the server");
+  fillCod("258000", "Ab#2026!", "Ab#2026!", "000000"); await tick(80);
+  check(/aplicația de autentificare este greșit/.test(text()) && dirU.cod === "258000", "a wrong authenticator code is refused");
+  fillCod("258000", "4141", "4141", totpAt(dirU.totpSecret, nowStep())); await tick(80);
+  check(/deja folosit/.test(text()) && dirU.cod === "258000", "a code another account already uses is refused");
+  fillCod("258000", "Ab#2026!", "Ab#2026!", totpAt(dirU.totpSecret, nowStep())); await tick(80);
+  check(dirU.cod === "Ab#2026!" && /Codul a fost schimbat/.test(window.document.body.textContent), "letters, digits and signs: the new code is saved");
+  await signOut();
+  $("#pinv").value = "258000"; submit($("#pinf")); await tick(80);
+  check($("#pinf") && /Cod greșit/.test(text()), "the old code opens nothing any more");
+  await codeLogin("Ab#2026!"); await tick(40);
+  check($("#role") && $("#role").textContent === "Director", "the new code + the authenticator sign him in");
+  await signOut(); await codeLogin("1111"); await tick(40); click($('[data-view="set"]')); await tick();
+  check(/Schimbă codul Casa EHL/.test(text()), "on the Casa EHL screen the form changes the EHL code");
+  fillCod("1111", "Casa-2026", "Casa-2026", totpAt(dirU.totpSecretEHL, nowStep())); await tick(80);
+  check(dirU.codEHL === "Casa-2026" && ls("ehl.ehlcod") === "Casa-2026", "the EHL code is changed and the till-outflow code on this device follows it");
+  await signOut(); await codeLogin("Casa-2026"); await tick(40);
+  check($("#role") && $("#role").textContent === "EHL", "the new EHL code opens Casa EHL");
+  await signOut(); await codeLogin("4141"); await tick(40); click($('[data-view="set"]') || $('[data-view="add"]')); await tick();
+  const opU = Object.values(store.utilizatori).find(x => x.cod === "4141");
+  check(!!$("#codchgf"), "a collaborator has the form too");
+  fillCod("4141", "parola.x1", "parola.x1", totpAt(opU.totpSecret, nowStep())); await tick(80);
+  check(opU.cod === "parola.x1", "the collaborator changes his PIN to a word with a sign");
+  await signOut(); await codeLogin("parola.x1"); await tick(40);
+  check($("#role") && $("#role").textContent === "Operator", "…and signs in with it");
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
