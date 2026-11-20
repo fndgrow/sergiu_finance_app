@@ -492,7 +492,7 @@ PocketBase runs with this command (from `casieria.service`):
 - on start-up new files from `pb_migrations` are applied (by name, once; the applied list is kept in the database);
 - `*.pb.js` hooks load at start-up and reload when the file changes.
 
-nginx accepts HTTPS on the domain and proxies everything to 8090 with the `X-Real-IP`, `X-Forwarded-*`, `Upgrade/Connection` headers; `proxy_buffering off` and `proxy_read_timeout 600s` are needed for SSE. The security headers are added at the nginx level.
+nginx accepts HTTPS on the domain and proxies everything to 8090 with the `X-Real-IP`, `X-Forwarded-*`, `Upgrade/Connection` headers; `proxy_buffering off` and `proxy_read_timeout 600s` are needed for SSE. The security headers are added at the nginx level. nginx also replaces PocketBase's Cache-Control with `no-store` on every response (20 November 2026): behind the Cloudflare proxy, static files got a 4-hour browser/edge TTL (Cloudflare's default Browser Cache TTL even rewrote an origin `no-cache`) and a deploy took hours to reach the phones; `no-store` is passed through (cf-cache-status BYPASS). Offline use is unaffected: the service worker keeps the shell in the Cache API, which ignores these headers.
 
 PocketBase settings made by migrations: `trustedProxy.headers = ["X-Real-IP"]` (so the attempt limit counts the client's address, not nginx's), the app name, the daily backup.
 
