@@ -78,7 +78,7 @@ function rates(D) { const o = { MDL: 1 }; ((D.config[0] || {}).valute || []).for
 function person(D, p) {
   const R = rates(D), dinAvans = (r) => r.sursa === "Avans" && String(r.platitDe || "").trim();
   const primit = D.iesiri.filter(r => r.destinatie === "Dat persoanei" && same(r.persoana, p)).reduce((a, r) => a + n(r.suma) * n(r.curs), 0);
-  const chn = D.cheltuieli.filter(r => r.mod !== "Transfer" && same(r.platitDe, p)).reduce((a, r) => a + n(r.suma), 0);
+  const chn = D.cheltuieli.filter(r => r.mod !== "Transfer" && same(r.platitDe, p)).reduce((a, r) => a + n(r.suma) * (n(r.curs) || 1), 0); /* lei value */
   const dat = D.iesiri.filter(r => dinAvans(r) && same(r.platitDe, p)).reduce((a, r) => a + n(r.suma) * n(r.curs), 0);
   const chr = D.chirii.filter(r => dinAvans(r) && r.mod !== "Transfer" && same(r.platitDe, p)).reduce((a, r) => a + (n(r.chirie) + n(r.gaj) + n(r.comunale) + n(r.avarii)) * n(r.curs), 0);
   const sch = D.schimburi.filter(r => same(r.persoana, p)).reduce((a, r) => a + n(r.sumaIn) * (R[r.valutaIn] || 1) - n(r.sumaDin) * (R[r.valutaDin] || 1), 0);
@@ -88,7 +88,7 @@ function person(D, p) {
     const gave = D.iesiri.filter(r => dinAvans(r) && same(r.platitDe, p) && (r.valuta || "MDL") === v).reduce((a, r) => a + n(r.suma), 0);
     const rent = D.chirii.filter(r => dinAvans(r) && r.mod !== "Transfer" && same(r.platitDe, p) && (r.valuta || "MDL") === v).reduce((a, r) => a + n(r.chirie) + n(r.gaj) + n(r.comunale) + n(r.avarii), 0);
     const xin = D.schimburi.filter(r => same(r.persoana, p) && r.valutaIn === v).reduce((a, r) => a + n(r.sumaIn), 0), xout = D.schimburi.filter(r => same(r.persoana, p) && r.valutaDin === v).reduce((a, r) => a + n(r.sumaDin), 0);
-    val[v] = r2(got - gave - rent + xin - xout - (v === "MDL" ? chn : 0));
+    val[v] = r2(got - gave - rent + xin - xout - D.cheltuieli.filter(r => r.mod !== "Transfer" && same(r.platitDe, p) && (r.valuta || "MDL") === v).reduce((a, r) => a + n(r.suma), 0));
   });
   return { primit: r2(primit), chn: r2(chn), dat: r2(dat), chr: r2(chr), sch: r2(sch), ramas: r2(primit - chn - dat - chr + sch), serverBal: r2(primit - chn - dat - chr), val };
 }

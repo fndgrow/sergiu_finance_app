@@ -78,7 +78,7 @@ const holdings = (nume, v, exclId) => {
   const gave = L("iesiri").filter(r => r.sursa === "Avans" && r.platitDe === nume && cur(r) === v && r.id !== exclId).reduce((a, r) => a + r.suma, 0);
   const rent = L("chirii").filter(r => r.sursa === "Avans" && r.mod !== "Transfer" && r.platitDe === nume && cur(r) === v).reduce((a, r) => a + (r.chirie || 0) + (r.gaj || 0) + (r.comunale || 0) + (r.avarii || 0), 0);
   const xin = L("schimburi").filter(r => r.persoana === nume && r.valutaIn === v && r.id !== exclId).reduce((a, r) => a + r.sumaIn, 0), xout = L("schimburi").filter(r => r.persoana === nume && r.valutaDin === v && r.id !== exclId).reduce((a, r) => a + r.sumaDin, 0);
-  const cash = v === "MDL" ? L("cheltuieli").filter(r => r.mod !== "Transfer" && r.platitDe === nume).reduce((a, r) => a + r.suma, 0) : 0;
+  const cash = L("cheltuieli").filter(r => r.mod !== "Transfer" && r.platitDe === nume && cur(r) === v).reduce((a, r) => a + r.suma, 0); /* cash expenses in that currency */
   return got - gave - rent + xin - xout - cash;
 };
 function collection(col) {
@@ -139,8 +139,9 @@ function collection(col) {
         if (data.mod !== "Transfer") {
           data.sursa = "Avans";
           const got = Object.values(store.iesiri || {}).filter(r => r.destinatie === "Dat persoanei" && r.persoana === currentUser.nume).reduce((a, r) => a + r.suma * r.curs, 0);
-          const spent = Object.values(store.cheltuieli || {}).filter(r => r.mod !== "Transfer" && r.platitDe === currentUser.nume).reduce((a, r) => a + r.suma, 0);
-          if (data.suma > got - spent + 0.004) throw err(400, "Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
+          const spent = Object.values(store.cheltuieli || {}).filter(r => r.mod !== "Transfer" && r.platitDe === currentUser.nume).reduce((a, r) => a + r.suma * (r.curs || 1), 0); /* in lei */
+          if (data.suma * (data.curs || 1) > got - spent + 0.004) throw err(400, "Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
+          if ((data.valuta || "MDL") !== "MDL" && !(data.curs > 0)) throw err(400, "Lipsește cursul valutei.");
         }
       }
       store[col] = store[col] || {};
@@ -971,6 +972,25 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="add"]')); await tick(); click($('[data-form="pontaj"]')); await tick(); setField("angajat", "Nou Venit"); await tick();
   check(!$('[data-k="extra"]') && !$('[data-k="complet"]'), "the timesheet form hides the bonus and the whole-month mark for an employee he did not create");
   setField("angajat", "Al Meu"); await tick(); check(!!$('[data-k="extra"]'), "…and shows them for his own employee");
+  click($("#closeSheet")); await tick();
+
+  console.log("\n16b. An expense in another currency (lei value in the totals, the currency in the person's holdings)");
+  if (!($("#role") && $("#role").textContent === "Operator")) await asOp(); /* the collaborator is already in after 16 */
+  const readSold = () => { const m = text().match(/Soldul meu\s*(-?[\d.]+,\d{2})/); return m ? Number(m[1].replace(/\./g, "").replace(",", ".")) : NaN; };
+  click($('[data-view="panou"]')); await tick(); const leiBefore = readSold();
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  check(!!$('[data-k="valuta"]') && !!$('[data-k="curs"]'), "the expense form offers the currency and the rate");
+  setField("valuta", "EUR"); await tick();
+  check(Number($('[data-k="curs"]').value) > 1, "choosing EUR fills the rate of the day from the settings (" + $('[data-k="curs"]').value + ")");
+  setField("suma", "10"); setField("descriere", "Vopsea EUR"); setField("categorie", "Materiale"); setField("pentru", "EHL"); submit($("#recf")); await tick(80);
+  const eurRow = Object.values(store.cheltuieli).find(r => r.descriere === "Vopsea EUR");
+  check(eurRow && eurRow.valuta === "EUR" && eurRow.curs > 1 && eurRow.suma === 10, "the row keeps 10 EUR and its rate");
+  click($('[data-view="panou"]')); await tick(); const leiAfter = readSold();
+  check(Math.abs((leiBefore - leiAfter) - 10 * eurRow.curs) < 0.02, "his lei balance went down by 10 × the rate (" + leiBefore + " → " + leiAfter + ")");
+  check(/-10,00 EUR|−10,00 EUR/.test(text()), "his holdings per currency show −10 EUR (spent euro he never received)");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  setField("valuta", "EUR"); await tick(); setField("suma", "100000"); setField("descriere", "prea mult EUR"); setField("categorie", "Materiale"); setField("pentru", "EHL"); submit($("#recf")); await tick(80);
+  check(/Nu aveți destui bani/.test($("#sheet").textContent) && !Object.values(store.cheltuieli).some(r => r.descriere === "prea mult EUR"), "an expense worth more lei than he holds is refused");
   click($("#closeSheet")); await tick();
 
   console.log("\n17. The human check (Cloudflare Turnstile) in front of the sign-in");
