@@ -71,22 +71,15 @@ routerAdd("POST", "/api/ehl/login", (e) => {
     }
     return false;
   };
-  var pubOf = function (rec) { return { id: rec.id, nume: rec.getString("nume"), rol: rec.getString("rol"), cod: rec.getString("cod"), codEHL: rec.getString("codEHL"), status: rec.getString("status"), login: rec.getString("login"), twoFA: rec.getBool("twoFA"), twoFAEHL: rec.getBool("twoFAEHL"), alarmaSet: rec.getBool("alarmaSet") }; };
+  var pubOf = function (rec) { var hidP = false; try { hidP = $app.findFirstRecordByFilter("config", "id != ''").getBool("ascuns"); } catch (err) { hidP = false; } if (hidP) return { id: rec.id, nume: rec.getString("nume"), rol: rec.getString("rol"), cod: rec.getString("cod"), codEHL: rec.getString("codEHL"), status: rec.getString("status"), login: rec.getString("login"), twoFA: rec.getBool("twoFA"), twoFAEHL: rec.getBool("twoFAEHL") }; return { id: rec.id, nume: rec.getString("nume"), rol: rec.getString("rol"), cod: rec.getString("cod"), codEHL: rec.getString("codEHL"), status: rec.getString("status"), login: rec.getString("login"), twoFA: rec.getBool("twoFA"), twoFAEHL: rec.getBool("twoFAEHL"), alarmaSet: rec.getBool("alarmaSet") }; };
   var sessionOf = function (rec, seconds) { return { token: rec.newStaticAuthToken(seconds * 1000000000), expires: Date.now() + seconds * 1000 }; };
 
-  /* ---- the hidden mode (20 November 2026). The reactivation code, typed here, ends it; a person's alarm code (below) opens
-          his account like his access code but switches it on: every register then answers empty to everyone, nothing on the
-          server changes, and the owner gets an e-mail. Both codes are kept only as hashes. ---- */
+  /* ---- the hidden mode (20 November 2026): a person's alarm code (below) opens his account like his access code but
+          switches it on — every register then answers empty to everyone, nothing on the server changes, and the owner
+          gets an e-mail. There is no way back from inside the app: the mode is switched off only on the server
+          (bash /opt/casieria/ascuns.sh off), so nobody can be forced to "undo" it. Only a hash of the code is kept. ---- */
   var cfgA = null; try { cfgA = $app.findFirstRecordByFilter("config", "id != ''"); } catch (err) { cfgA = null; }
   var hashA = $security.sha256(cod), stamp = new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC";
-  if (cfgA && cfgA.getString("reactivareHash") && cfgA.getString("reactivareHash") === hashA) {
-    if (cfgA.getBool("ascuns")) {
-      cfgA.set("ascuns", false); $app.save(cfgA);
-      try { $os.cmd("python3", __hooks + "/../send-mail.py", "CasaEHL: modul ascuns OPRIT", "Codul de reactivare a fost introdus la " + stamp + " de pe IP " + ip + ". Datele se văd din nou pe toate dispozitivele; pe server nu s-a schimbat nimic.").run(); } catch (err) {}
-      return e.json(200, { reactivated: true });
-    }
-    fail("Cod greșit sau utilizator dezactivat.");
-  }
   /* ---- the code: a user's own code, or a director's EHL code (Casa EHL), or a person's alarm code ---- */
   var rec = null, viaEHL = false, viaAlarm = false;
   try { rec = $app.findFirstRecordByFilter("utilizatori", "cod = {:cod}", { cod: cod }); } catch (err) { rec = null; }
@@ -95,7 +88,7 @@ routerAdd("POST", "/api/ehl/login", (e) => {
     try { $app.findRecordsByFilter("utilizatori", "alarmaHash != ''", "", 0, 0).forEach(function (u) { if (!rec && u.getString("alarmaHash") === hashA) { rec = u; viaAlarm = true; } }); } catch (err) {}
     if (viaAlarm && cfgA && !cfgA.getBool("ascuns")) {
       cfgA.set("ascuns", true); $app.save(cfgA);
-      try { $os.cmd("python3", __hooks + "/../send-mail.py", "CasaEHL: modul ascuns ACTIVAT", "Codul de alarmă al contului " + rec.getString("nume") + " a fost introdus la " + stamp + " de pe IP " + ip + ". Toate dispozitivele arată acum o aplicație goală (0,00); datele sunt neatinse pe server. Oprire: codul de reactivare, pe ecranul de intrare.").run(); } catch (err) {}
+      try { $os.cmd("python3", __hooks + "/../send-mail.py", "CasaEHL: modul ascuns ACTIVAT", "Codul de alarmă al contului " + rec.getString("nume") + " a fost introdus la " + stamp + " de pe IP " + ip + ". Toate dispozitivele arată acum o aplicație goală (0,00); datele sunt neatinse pe server. Revenirea se face numai de pe server: bash /opt/casieria/ascuns.sh off").run(); } catch (err) {}
     }
   }
   var first = false;
@@ -157,7 +150,7 @@ routerAdd("POST", "/api/ehl/relock", (e) => {
     var cfgR = null; try { cfgR = $app.findFirstRecordByFilter("config", "id != ''"); } catch (err) { cfgR = null; }
     if (cfgR && !cfgR.getBool("ascuns")) {
       cfgR.set("ascuns", true); $app.save(cfgR);
-      try { $os.cmd("python3", __hooks + "/../send-mail.py", "CasaEHL: modul ascuns ACTIVAT", "Codul de alarmă al contului " + rec.getString("nume") + " a fost introdus pe ecranul de blocare la " + new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC de pe IP " + ip + ". Toate dispozitivele arată acum o aplicație goală; datele sunt neatinse pe server. Oprire: codul de reactivare, pe ecranul de intrare.").run(); } catch (err) {}
+      try { $os.cmd("python3", __hooks + "/../send-mail.py", "CasaEHL: modul ascuns ACTIVAT", "Codul de alarmă al contului " + rec.getString("nume") + " a fost introdus pe ecranul de blocare la " + new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC de pe IP " + ip + ". Toate dispozitivele arată acum o aplicație goală; datele sunt neatinse pe server. Revenirea se face numai de pe server: bash /opt/casieria/ascuns.sh off").run(); } catch (err) {}
     }
   } else if (!cod || cod !== rec.getString(ehl ? "codEHL" : "cod")) {
     var att = new Record($app.findCollectionByNameOrId("login_attempts")); att.set("ip", ip); $app.save(att);
@@ -230,10 +223,10 @@ onRecordsListRequest((e) => {
   var hid = false; try { hid = $app.findFirstRecordByFilter("config", "id != ''").getBool("ascuns"); } catch (err) { hid = false; }
   if (!hid || !e.auth) { e.next(); return; }
   var u = e.auth, now = function (k) { return String(u.getString(k) || ""); };
-  var me = { id: u.id, collectionName: "utilizatori", nume: now("nume"), rol: now("rol"), cod: now("cod"), codEHL: now("codEHL"), status: now("status"), login: now("login"), twoFA: u.getBool("twoFA"), twoFAEHL: u.getBool("twoFAEHL"), alarmaSet: u.getBool("alarmaSet"), created: now("created"), updated: now("updated") };
+  var me = { id: u.id, collectionName: "utilizatori", nume: now("nume"), rol: now("rol"), cod: now("cod"), codEHL: now("codEHL"), status: now("status"), login: now("login"), twoFA: u.getBool("twoFA"), twoFAEHL: u.getBool("twoFAEHL"), created: now("created"), updated: now("updated") }; /* no alarmaSet here: the tools stay out of sight */
   if (e.collection.name === "utilizatori") return e.json(200, { page: 1, perPage: 500, totalItems: 1, totalPages: 1, items: [me] });
   var cfg = $app.findFirstRecordByFilter("config", "id != ''"), vj = function (k) { try { return JSON.parse(cfg.getString(k) || "null"); } catch (err) { return null; } };
-  return e.json(200, { page: 1, perPage: 500, totalItems: 1, totalPages: 1, items: [{ id: cfg.id, collectionName: "config", valute: vj("valute"), categorii: vj("categorii"), casier: cfg.getString("casier"), directori: [now("nume")], reactivareSet: cfg.getBool("reactivareSet"), created: String(cfg.getString("created") || ""), updated: String(cfg.getString("updated") || "") }] });
+  return e.json(200, { page: 1, perPage: 500, totalItems: 1, totalPages: 1, items: [{ id: cfg.id, collectionName: "config", valute: vj("valute"), categorii: vj("categorii"), casier: cfg.getString("casier"), directori: [now("nume")], created: String(cfg.getString("created") || ""), updated: String(cfg.getString("updated") || "") }] });
 }, "utilizatori", "config");
 onRecordViewRequest((e) => {
   var hid = false; try { hid = $app.findFirstRecordByFilter("config", "id != ''").getBool("ascuns"); } catch (err) { hid = false; }
@@ -247,9 +240,11 @@ onRecordDeleteRequest((e) => {
 }, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal");
 
 /* ---- a person sets his alarm code: POST /api/ehl/alarma {alarma, totp} — 6–64 characters, not any access code, confirmed
-        with his authenticator; a director sets the reactivation code: POST /api/ehl/reactivare {reactivare, totp} ---- */
+        with his authenticator. (Reactivation and the emergency reset exist only on the server: server/ascuns.sh.) ---- */
 routerAdd("POST", "/api/ehl/alarma", (e) => {
   var T = require(__hooks + "/totp.js");
+  var hidX = false; try { hidX = $app.findFirstRecordByFilter("config", "id != ''").getBool("ascuns"); } catch (err) { hidX = false; }
+  if (hidX) throw new NotFoundError("Nu există."); /* hidden mode: these tools are not here */
   var rec = e.auth; if (!rec) throw new ForbiddenError("Autentificare necesară.");
   var body = e.requestInfo().body || {}, v = String(body.alarma || "");
   if (!rec.getBool("twoFA")) throw new BadRequestError("Configurați mai întâi aplicația de autentificare.");
@@ -257,53 +252,11 @@ routerAdd("POST", "/api/ehl/alarma", (e) => {
   if (!step) throw new UnauthorizedError("Codul din aplicația de autentificare este greșit.");
   if (v.length < 6 || v.length > 64 || v !== v.trim()) throw new BadRequestError("Codul de alarmă trebuie să aibă între 6 și 64 de caractere, fără spații la capete.");
   if ($app.countRecords("utilizatori", $dbx.exp("cod = {:c} OR codEHL = {:c}", { c: v })) > 0) throw new BadRequestError("Codul de alarmă nu poate fi un cod de acces.");
-  var h = $security.sha256(v), cfg = null; try { cfg = $app.findFirstRecordByFilter("config", "id != ''"); } catch (err) { cfg = null; }
-  if (cfg && cfg.getString("reactivareHash") === h) throw new BadRequestError("Codul de alarmă nu poate fi codul de reactivare.");
+  var h = $security.sha256(v);
   rec.set("alarmaHash", h); rec.set("alarmaSet", true); rec.set("totpLast", step);
   $app.save(rec);
   return e.json(200, { ok: true });
 }, $apis.requireAuth("utilizatori"));
-routerAdd("POST", "/api/ehl/reactivare", (e) => {
-  var T = require(__hooks + "/totp.js");
-  var rec = e.auth; if (!rec || rec.getString("rol") !== "Director") throw new ForbiddenError("Doar directorul.");
-  var body = e.requestInfo().body || {}, v = String(body.reactivare || "");
-  if (!rec.getBool("twoFA")) throw new BadRequestError("Configurați mai întâi aplicația de autentificare.");
-  var step = T.verify(rec.getString("totpSecret"), String(body.totp || "").trim(), rec.getInt("totpLast"));
-  if (!step) throw new UnauthorizedError("Codul din aplicația de autentificare este greșit.");
-  if (v.length < 6 || v.length > 64 || v !== v.trim()) throw new BadRequestError("Codul de reactivare trebuie să aibă între 6 și 64 de caractere, fără spații la capete.");
-  if ($app.countRecords("utilizatori", $dbx.exp("cod = {:c} OR codEHL = {:c}", { c: v })) > 0) throw new BadRequestError("Codul de reactivare nu poate fi un cod de acces.");
-  var h = $security.sha256(v);
-  if ($app.countRecords("utilizatori", $dbx.exp("alarmaHash = {:h}", { h: h })) > 0) throw new BadRequestError("Codul de reactivare nu poate fi un cod de alarmă.");
-  var cfg = $app.findFirstRecordByFilter("config", "id != ''");
-  cfg.set("reactivareHash", h); cfg.set("reactivareSet", true); $app.save(cfg);
-  rec.set("totpLast", step); $app.save(rec);
-  return e.json(200, { ok: true });
-}, $apis.requireAuth("utilizatori"));
-
-/* ---- after a theft: POST /api/ehl/resetare-totala {totp} (director). Every session ends, every authenticator is cleared,
-        every account gets a new random access code (directors: an EHL code too), the hidden mode is switched off, and the
-        new codes go to the owner's e-mail. Nothing in the registers changes. ---- */
-routerAdd("POST", "/api/ehl/resetare-totala", (e) => {
-  var T = require(__hooks + "/totp.js");
-  var rec = e.auth; if (!rec || rec.getString("rol") !== "Director") throw new ForbiddenError("Doar directorul.");
-  var body = e.requestInfo().body || {};
-  if (!rec.getBool("twoFA")) throw new BadRequestError("Configurați mai întâi aplicația de autentificare.");
-  if (!T.verify(rec.getString("totpSecret"), String(body.totp || "").trim(), rec.getInt("totpLast"))) throw new UnauthorizedError("Codul din aplicația de autentificare este greșit.");
-  var used = {}, mk = function () { for (;;) { var c = $security.randomStringWithAlphabet(8, "23456789"); if (!used[c]) { used[c] = 1; return c; } } };
-  var lines = [];
-  $app.findRecordsByFilter("utilizatori", "id != ''", "nume", 0, 0).forEach(function (u) {
-    var isD = u.getString("rol") === "Director", c1 = mk(), c2 = isD ? mk() : "";
-    u.set("cod", c1); u.set("codEHL", c2);
-    u.set("twoFA", false); u.set("totpSecret", ""); u.set("totpLast", 0); u.set("recuperare", []);
-    u.set("twoFAEHL", false); u.set("totpSecretEHL", ""); u.set("totpLastEHL", 0); u.set("recuperareEHL", []);
-    u.refreshTokenKey(); $app.save(u);
-    lines.push(u.getString("nume") + " (" + (isD ? "administrator" : "colaborator") + "): cod " + c1 + (isD ? ", cod Casa EHL " + c2 : ""));
-  });
-  var cfg = null; try { cfg = $app.findFirstRecordByFilter("config", "id != ''"); if (cfg.getBool("ascuns")) { cfg.set("ascuns", false); $app.save(cfg); } } catch (err) {}
-  try { $os.cmd("python3", __hooks + "/../send-mail.py", "CasaEHL: RESETARE DE URGENȚĂ — coduri noi", "Resetarea de urgență a fost făcută de " + rec.getString("nume") + " la " + new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC. Toate sesiunile au fost închise și toate aplicațiile de autentificare anulate; fiecare o configurează din nou la prima intrare. Codurile noi (de schimbat apoi din Setări → Securitate):\n\n" + lines.join("\n") + "\n\nDatele din aplicație nu s-au schimbat.").run(); } catch (err) {}
-  return e.json(200, { ok: true, conturi: lines.length });
-}, $apis.requireAuth("utilizatori"));
-
 /* ---- every register row carries its author, set by the server, never by the client; in hidden mode the row is only
         acknowledged (a made-up id, nothing stored) ---- */
 onRecordCreateRequest((e) => {

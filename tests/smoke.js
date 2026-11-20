@@ -87,12 +87,13 @@ function collection(col) {
       if (NET_DOWN) throw err(0, "net");
       if (!canRead(col)) throw err(403, "forbidden");
       if (store.config && store.config.c1 && store.config.c1.ascuns) { /* hidden mode: every register empty, the only account in sight is mine */
-        if (col === "utilizatori") return [{ ...currentUser }];
-        if (col === "config") return [{ ...store.config.c1, directori: [currentUser.nume] }];
+        if (col === "utilizatori") { const me = { ...currentUser }; delete me.alarmaSet; delete me.alarma; return [me]; }
+        if (col === "config") { const c0 = { ...store.config.c1, directori: [currentUser.nume] }; delete c0.reactivareSet; delete c0.reactivare; delete c0.ascuns; return [c0]; }
         return [];
       }
       let items = Object.values(store[col] || {});
       items = items.filter(r => visible(col, r));
+      if (col === "utilizatori") items = items.map(r => ({ ...r, alarmaSet: !!r.alarmaSet })); /* the real field is always there */
       if (opts && opts.filter) { const m = opts.filter.match(/created >= "([^"]+)" && created <= "([^"]+)"/); if (m) items = items.filter(r => r.created >= m[1] && r.created <= m[2]);
         const mr = opts.filter.match(/^ref = "([^"]+)"$/); if (mr) items = items.filter(r => r.ref === mr[1]); }
       return items.map(r => ({ ...r }));
@@ -221,21 +222,13 @@ class PocketBase {
       }
       return { ok: true };
     }
-    if (p === "/api/ehl/alarma" || p === "/api/ehl/reactivare") {
-      const u = currentUser; if (!u) throw err(403, "x"); const isR = p === "/api/ehl/reactivare"; if (isR && u.rol !== "Director") throw err(403, "Doar directorul.");
+    if (p === "/api/ehl/alarma") {
+      const u = currentUser; if (!u) throw err(403, "x");
+      if (store.config && store.config.c1 && store.config.c1.ascuns) throw err(404, "Nu există.");
       if (!verifyStep({ totpSecret: u.totpSecret }, String(o.body.totp || ""))) throw err(401, "Codul din aplicația de autentificare este greșit.");
-      const v = String(o.body[isR ? "reactivare" : "alarma"] || ""); if (v.length < 6) throw err(400, "Codul trebuie să aibă între 6 și 64 de caractere, fără spații la capete.");
+      const v = String(o.body.alarma || ""); if (v.length < 6) throw err(400, "Codul trebuie să aibă între 6 și 64 de caractere, fără spații la capete.");
       if (Object.values(store.utilizatori).some(x => x.cod === v || x.codEHL === v)) throw err(400, "Codul nu poate fi un cod de acces.");
-      if (isR) { store.config.c1.reactivare = v; store.config.c1.reactivareSet = true; } else { u.alarma = v; u.alarmaSet = true; }
-      return { ok: true };
-    }
-    if (p === "/api/ehl/resetare-totala") {
-      const u = currentUser; if (!u || u.rol !== "Director") throw err(403, "Doar directorul.");
-      if (!verifyStep({ totpSecret: u.totpSecret }, String(o.body.totp || ""))) throw err(401, "Codul din aplicația de autentificare este greșit.");
-      const lines = []; let k = 10000000;
-      Object.values(store.utilizatori).forEach(x => { x.cod = String(k++); x.codEHL = x.rol === "Director" ? String(k++) : ""; x.twoFA = false; x.totpSecret = ""; x.twoFAEHL = false; x.totpSecretEHL = ""; x.tokenKey = newId(); lines.push(x.nume + ": " + x.cod); });
-      store.config.c1.ascuns = false; (store.mail = store.mail || []).push({ subject: "CasaEHL: RESETARE DE URGENȚĂ — coduri noi", body: lines.join("\n") });
-      currentUser = null; return { ok: true, conturi: lines.length };
+      u.alarma = v; u.alarmaSet = true; return { ok: true };
     }
     if (p === "/api/ehl/head") { /* the change signal: a count and a fingerprint per register */
       if (!currentUser) throw err(403, "Autentificare necesară.");
@@ -265,7 +258,7 @@ class PocketBase {
     if (p !== "/api/ehl/login") throw err(404, "nf");
     const cod = String(o.body.cod || ""), totp = String(o.body.totp || "").trim();
     store.utilizatori = store.utilizatori || {};
-    const pubOf = (x) => ({ id: x.id, nume: x.nume, rol: x.rol, cod: x.cod, codEHL: x.codEHL || "", status: x.status, login: x.login || "", twoFA: !!x.twoFA, twoFAEHL: !!x.twoFAEHL });
+    const pubOf = (x) => ({ id: x.id, nume: x.nume, rol: x.rol, cod: x.cod, codEHL: x.codEHL || "", status: x.status, login: x.login || "", twoFA: !!x.twoFA, twoFAEHL: !!x.twoFAEHL, ...(store.config && store.config.c1 && store.config.c1.ascuns ? {} : { alarmaSet: !!x.alarmaSet }) });
     const checkSecond = (x, ehl) => { const sec = ehl ? x.totpSecretEHL : x.totpSecret, rc = ehl ? (x.recuperareEHL || []) : (x.recuperare || []); if (verifyStep({ totpSecret: sec }, totp)) return true; const i = rc.indexOf(totp.toLowerCase()); if (i >= 0) { rc.splice(i, 1); return true; } return false; };
     if (store.turnstileSecret) { /* the human check, as the hook does it when pb_data/turnstile.secret exists */
       store.turnstileSeen = store.turnstileSeen || [];
@@ -275,10 +268,6 @@ class PocketBase {
         if (store.turnstileSeen.includes(cf)) throw err(428, "Confirmarea „nu sunt robot” a expirat. Încercați din nou.");
         store.turnstileSeen.push(cf);
       }
-    }
-    if (store.config && store.config.c1 && store.config.c1.reactivare && store.config.c1.reactivare === cod) { /* the reactivation code */
-      if (store.config.c1.ascuns) { store.config.c1.ascuns = false; (store.mail = store.mail || []).push({ subject: "CasaEHL: modul ascuns OPRIT", body: "" }); return { reactivated: true }; }
-      throw err(401, "Cod greșit sau utilizator dezactivat.");
     }
     let u = Object.values(store.utilizatori).find(x => x.cod === cod), viaEHL = false;
     if (!u) { u = Object.values(store.utilizatori).find(x => x.rol === "Director" && x.codEHL === cod); viaEHL = !!u; }
@@ -1119,17 +1108,15 @@ const ls = (k) => window.localStorage.getItem(k);
   await signOut();
   check($("#reloadbtn").hidden, "at the code screen the button is hidden");
 
-  console.log("\n20. The hidden mode: the alarm code opens an empty application for everyone; the reactivation code brings it back; the emergency reset");
+  console.log("\n20. The hidden mode: the alarm code opens an empty application for everyone; only the server can switch it off");
   await codeLogin("Ab#2026!"); await tick(40); click($('[data-view="set"]')); await tick();
   const dU = store.utilizatori[dirId];
-  check($("#alarmf") && $("#reactf") && $("#panicf") && /nesetat/.test(text()), "Setări → Securitate shows the alarm code, the reactivation code and the emergency reset, none set yet");
+  check($("#alarmf") && !$("#reactf") && !$("#panicf") && /Cod de alarmă/.test(text()) && /nesetat/.test(text()), "Setări → Securitate has the alarm-code form only (no reactivation code, no reset button in the app), none set yet");
   const fillA = (fid, nm, v1, v2, t) => { const f = $(fid); f.elements[nm].value = v1; f.elements[nm + "2"].value = v2; f.elements["totp"].value = t; submit(f); };
   fillA("#alarmf", "alarma", "Alarma#1", "Alarma#2", totpAt(dU.totpSecret, nowStep())); await tick(40);
   check(/nu coincid/.test(text()) && !dU.alarma, "two different alarm codes are refused");
   fillA("#alarmf", "alarma", "Alarma#1", "Alarma#1", totpAt(dU.totpSecret, nowStep())); await tick(80);
-  check(dU.alarma === "Alarma#1" && /Codul de alarmă a fost salvat/.test(window.document.body.textContent), "the alarm code is saved (confirmed with the authenticator)");
-  fillA("#reactf", "reactivare", "Reactiv#1", "Reactiv#1", totpAt(dU.totpSecret, nowStep())); await tick(80);
-  check(store.config.c1.reactivare === "Reactiv#1" && store.config.c1.reactivareSet === true, "the director sets the reactivation code");
+  check(dU.alarma === "Alarma#1" && /Codul de alarmă a fost salvat/.test(window.document.body.textContent) && /setat/.test(text()), "the alarm code is saved (confirmed with the authenticator)");
   const rowsBefore = Object.keys(store.cheltuieli).length;
   await signOut();
   $("#pinv").value = "Alarma#1"; submit($("#pinf")); await tick(80);
@@ -1142,25 +1129,15 @@ const ls = (k) => window.localStorage.getItem(k);
   check(!/Vopsea EUR/.test(text()) && !/577|14\.544/.test(text()), "the registers are empty, as in a freshly installed app");
   click($('[data-view="set"]')); await tick();
   check(window.document.querySelectorAll(".user-row").length === 1 && /Sergiu/.test(text()) && !/Ion Operator|Temp Om/.test(text()), "the users list shows only the administrator who signed in: no collaborators, no other administrator");
+  check(!$("#alarmf") && !/alarm/i.test(text()) && $("#codchgf"), "in hidden mode Setări shows no alarm form at all, nothing hints at the mechanism (the change-my-code form stays)");
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
   setField("mod", "Transfer"); await tick(); setField("suma", "5"); setField("descriere", "scris în mod ascuns"); setField("categorie", "Materiale"); setField("pentru", "EHL"); submit($("#recf")); await tick(80);
-  check(!$("#recf") && Object.keys(store.cheltuieli).length === rowsBefore && !Object.values(store.cheltuieli).some(r => r.descriere === "scris în mod ascuns"), "a row written in hidden mode is acknowledged on the screen but never stored (" + ($("#recf") ? "sheet still open: " + $("#sheet").textContent.slice(0, 80) : "closed") + ")");
-  await signOut();
-  $("#pinv").value = "Reactiv#1"; submit($("#pinf")); await tick(80);
-  check($("#pinf") && store.config.c1.ascuns === false && /revenit la normal/.test(window.document.body.textContent) && store.mail.some(m => /OPRIT/.test(m.subject)), "the reactivation code ends the hidden mode and says so; the owner was e-mailed");
-  await codeLogin("Ab#2026!"); await tick(40); click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
-  check(/Vopsea EUR/.test(text()), "the registers are back, untouched");
-  click($('[data-view="set"]')); await tick();
-  const codesBefore = Object.values(store.utilizatori).map(x => x.cod).join(",");
-  $("#panicf").elements["totp"].value = totpAt(dU.totpSecret, nowStep()); submit($("#panicf")); await tick(60);
-  check(/Înțeleg/.test(text()) && Object.values(store.utilizatori).map(x => x.cod).join(",") === codesBefore, "the emergency reset needs the checkbox first");
-  $("#panicf").elements["ok"].checked = true; $("#panicf").elements["totp"].value = totpAt(dU.totpSecret, nowStep()); submit($("#panicf")); await tick(1800);
-  const after = Object.values(store.utilizatori);
-  check(after.every(x => x.cod !== "Ab#2026!" && x.cod !== "parola.x1" && !x.twoFA && !x.totpSecret) && store.mail.some(m => /RESETARE DE URGENȚĂ/.test(m.subject) && /Sergiu: \d{8}/.test(m.body)), "every account got a new code and lost its authenticator; the codes went to the owner's e-mail (" + after.map(x => x.nume + "=" + x.cod + "/" + (x.twoFA ? "2fa" : "-")).join(", ") + "; err: " + (($("#panicerr") && !$("#panicerr").hidden) ? $("#panicerr").textContent : "-") + "; mails: " + store.mail.map(m => m.subject).join(" | ") + ")");
-  check($("#pinf") && !$("#nav").children.length, "the director himself is signed out");
-  $("#pinv").value = after.find(x => x.id === dirId).cod; submit($("#pinf")); await tick(80);
-  check($("[data-secret]"), "the new code opens the account and asks for a fresh authenticator setup");
-  click($("#suexit")); await tick(40);
+  check(!$("#recf") && Object.keys(store.cheltuieli).length === rowsBefore && !Object.values(store.cheltuieli).some(r => r.descriere === "scris în mod ascuns"), "a row written in hidden mode is acknowledged on the screen but never stored");
+  await signOut(); await codeLogin("Ab#2026!"); await tick(40); click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
+  check(!/Vopsea EUR/.test(text()), "a normal sign-in during hidden mode sees the empty application too");
+  store.config.c1.ascuns = false; /* the system administrator on the server: bash ascuns.sh off */ await tick(700);
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
+  check(/Vopsea EUR/.test(text()), "switched off on the server: within seconds the registers are back, untouched");
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
