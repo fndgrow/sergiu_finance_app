@@ -164,7 +164,7 @@ ro:{
  gate_full_link:"Sunt administrator: login, parolă și cod de autentificare",gate_cod_link:"Am doar un cod de acces (colaborator)",full_bad:"Date de autentificare greșite.",
  totp_t:"Codul din aplicația de autentificare",totp_h:"Introduceți acum cele 6 cifre din aplicația de autentificare de pe telefon (sau un cod de recuperare).",totp_bad:"Codul din aplicația de autentificare este greșit.",
  su_t:"Autentificare în doi pași — configurare obligatorie",su_cred_h:"Alegeți un login și o parolă (cel puțin 8 caractere). De acum intrați cu ele plus codul din aplicația de autentificare; codul de acces nu mai deschide contul.",su_next:"Mai departe",
- su_secret_h:"Instalați Google Authenticator, Microsoft Authenticator sau Aegis. Scanați codul QR, sau apăsați butonul de deschidere pe telefon, sau introduceți cheia manual. Apoi scrieți codul de 6 cifre pe care îl arată aplicația.",reload_t:"Reîncarcă datele de pe server",reloaded:"Datele sunt la zi.",su_key:"Cheia (dacă nu puteți scana):",su_other:"Alt utilizator (ieșire)",sec_cod:"Schimbă codul de acces",sec_cod_ehl:"Schimbă codul Casa EHL",sec_cod_h:"Codul nou: cel puțin 4 caractere, oricare — litere, cifre, semne; fără spații la început sau la sfârșit. Se confirmă cu codul actual și cu codul din aplicația de autentificare.",f_cod_vechi:"Codul actual",f_cod_nou:"Codul nou",f_cod_nou2:"Încă o dată codul nou",cod_saved:"Codul a fost schimbat. De acum intrați cu el.",cod_mismatch:"Cele două coduri noi nu coincid.",cod_short:"Codul nou trebuie să aibă cel puțin 4 caractere, fără spații la capete.",cod_need:"Completați codul actual și codul din aplicația de autentificare.",srv_cod_vechi:"Codul actual este greșit.",srv_cod_dup:"Codul este deja folosit de alt cont.",srv_cod_fmt:"Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.",srv_cod_2fa:"Configurați mai întâi aplicația de autentificare.",su_entry:"În aplicația de autentificare intrarea se va numi:",su_open_app:"Deschide în aplicația de autentificare",su_confirm:"Confirmă codul",
+ su_secret_h:"Instalați Google Authenticator, Microsoft Authenticator sau Aegis. Scanați codul QR, sau apăsați butonul de deschidere pe telefon, sau introduceți cheia manual. Apoi scrieți codul de 6 cifre pe care îl arată aplicația.",alarm_t:"Cod de alarmă",alarm_h:"Un cod al dumneavoastră, diferit de codul de acces (minim 6 caractere). Tastat la intrare în loc de codul de acces, deschide contul dumneavoastră ca de obicei, dar aplicația devine goală pentru toată lumea (0,00 peste tot, registre goale) și rămâne așa până la codul de reactivare. Pe server nu se șterge nimic; primiți un email.",alarm_set:"setat",alarm_unset:"nesetat",f_alarma:"Codul de alarmă",f_alarma2:"Încă o dată",alarm_saved:"Codul de alarmă a fost salvat.",react_t:"Cod de reactivare",react_h:"Tastat la intrare, oprește modul ascuns: datele se văd din nou peste tot. Îl setează directorul; păstrați-l separat de codul de alarmă.",f_react:"Codul de reactivare",f_react2:"Încă o dată",react_saved:"Codul de reactivare a fost salvat.",alarm_off:"Aplicația a revenit la normal. Intrați ca de obicei.",cod_mismatch6:"Cele două coduri nu coincid.",cod_short6:"Codul trebuie să aibă cel puțin 6 caractere, fără spații la capete.",panic_t:"Resetare de urgență (după un furt)",panic_h:"Închide toate sesiunile pe toate dispozitivele, anulează toate aplicațiile de autentificare și dă fiecărui cont un cod de acces nou, trimis pe emailul de rezervă. Datele nu se schimbă. Veți fi și dumneavoastră deconectat.",panic_ok:"Înțeleg: toată lumea primește coduri noi.",panic_btn:"Resetează tot",panic_done:"Gata: codurile noi au plecat pe email. Intrați cu codul nou.",reload_t:"Reîncarcă datele de pe server",reloaded:"Datele sunt la zi.",su_key:"Cheia (dacă nu puteți scana):",su_other:"Alt utilizator (ieșire)",sec_cod:"Schimbă codul de acces",sec_cod_ehl:"Schimbă codul Casa EHL",sec_cod_h:"Codul nou: cel puțin 4 caractere, oricare — litere, cifre, semne; fără spații la început sau la sfârșit. Se confirmă cu codul actual și cu codul din aplicația de autentificare.",f_cod_vechi:"Codul actual",f_cod_nou:"Codul nou",f_cod_nou2:"Încă o dată codul nou",cod_saved:"Codul a fost schimbat. De acum intrați cu el.",cod_mismatch:"Cele două coduri noi nu coincid.",cod_short:"Codul nou trebuie să aibă cel puțin 4 caractere, fără spații la capete.",cod_need:"Completați codul actual și codul din aplicația de autentificare.",srv_cod_vechi:"Codul actual este greșit.",srv_cod_dup:"Codul este deja folosit de alt cont.",srv_cod_fmt:"Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.",srv_cod_2fa:"Configurați mai întâi aplicația de autentificare.",su_entry:"În aplicația de autentificare intrarea se va numi:",su_open_app:"Deschide în aplicația de autentificare",su_confirm:"Confirmă codul",
  su_codes_t:"Coduri de recuperare",su_codes_h:"Dacă pierdeți telefonul cu aplicația de autentificare, un astfel de cod ține locul codului de 6 cifre, o singură dată fiecare. Notați-le undeva sigur acum: nu se mai afișează.",su_done:"Le-am notat, continuă",
  login_fmt:"Login: 3–40 de litere mici, cifre, punct, liniuță.",set_sec:"Securitate",set_sec_h:"Intrarea = codul de acces + codul din aplicația de autentificare. Directorul are două intrări în aplicație: una pentru contul lui, una pentru Casa EHL.",sec_2fa:"Autentificare în doi pași",sec_on:"activă",sec_off:"neconfigurată",
  sec_redo_h:"Telefon nou pentru aplicația de autentificare? Introduceți codul curent și configurați din nou.",sec_redo:"Reconfigurează aplicația de autentificare",sec_reset_h:"Cineva și-a pierdut telefonul: resetați-i autentificarea (confirmați cu codul dumneavoastră). La următoarea intrare o configurează din nou.",sec_reset:"Resetează",sec_reset_done:"Autentificarea a fost resetată.",
@@ -331,7 +331,7 @@ ru:{
  gate_full_link:"Я администратор: логин, пароль и код аутентификатора",gate_cod_link:"У меня только код доступа (колаборатор)",full_bad:"Неверные данные входа.",
  totp_t:"Код из приложения-аутентификатора",totp_h:"Теперь введите 6 цифр из приложения-аутентификатора на телефоне (или код восстановления).",totp_bad:"Код из приложения-аутентификатора неверный.",
  su_t:"Двухэтапный вход — обязательная настройка",su_cred_h:"Выберите логин и пароль (не меньше 8 символов). Дальше вы входите с ними плюс код из приложения-аутентификатора; код доступа аккаунт больше не открывает.",su_next:"Дальше",
- su_secret_h:"Установите Google Authenticator, Microsoft Authenticator или Aegis. Отсканируйте QR-код, или нажмите кнопку открытия на телефоне, или введите ключ вручную. Затем впишите 6-значный код, который показывает приложение.",reload_t:"Обновить данные с сервера",reloaded:"Данные обновлены.",su_entry:"В приложении-аутентификаторе запись будет называться:",su_other:"Другой пользователь (выход)",sec_cod:"Сменить код доступа",sec_cod_ehl:"Сменить код Casa EHL",sec_cod_h:"Новый код: не меньше 4 символов, любых — буквы, цифры, знаки; без пробелов в начале и в конце. Подтверждается текущим кодом и кодом из приложения-аутентификатора.",f_cod_vechi:"Текущий код",f_cod_nou:"Новый код",f_cod_nou2:"Новый код ещё раз",cod_saved:"Код изменён. Теперь входите с ним.",cod_mismatch:"Два новых кода не совпадают.",cod_short:"Новый код должен быть не короче 4 символов, без пробелов по краям.",cod_need:"Заполните текущий код и код из приложения-аутентификатора.",srv_cod_vechi:"Текущий код неверный.",srv_cod_dup:"Этот код уже использует другой аккаунт.",srv_cod_fmt:"Код должен быть от 4 до 64 символов, без пробелов в начале и в конце.",srv_cod_2fa:"Сначала настройте приложение-аутентификатор.",su_key:"Ключ (если не получается сканировать):",su_open_app:"Открыть в приложении-аутентификаторе",su_confirm:"Подтвердить код",
+ su_secret_h:"Установите Google Authenticator, Microsoft Authenticator или Aegis. Отсканируйте QR-код, или нажмите кнопку открытия на телефоне, или введите ключ вручную. Затем впишите 6-значный код, который показывает приложение.",alarm_t:"Код тревоги",alarm_h:"Ваш отдельный код, не совпадающий с кодом доступа (минимум 6 символов). Введённый при входе вместо кода доступа, он открывает ваш аккаунт как обычно, но приложение становится пустым для всех (0,00 везде, пустые журналы) до кода реактивации. На сервере ничего не удаляется; вам приходит письмо.",alarm_set:"задан",alarm_unset:"не задан",f_alarma:"Код тревоги",f_alarma2:"Ещё раз",alarm_saved:"Код тревоги сохранён.",react_t:"Код реактивации",react_h:"Введённый при входе, выключает скрытый режим: данные снова видны везде. Задаёт директор; храните отдельно от кода тревоги.",f_react:"Код реактивации",f_react2:"Ещё раз",react_saved:"Код реактивации сохранён.",alarm_off:"Приложение вернулось в обычный режим. Войдите как обычно.",cod_mismatch6:"Два кода не совпадают.",cod_short6:"Код должен быть не короче 6 символов, без пробелов по краям.",panic_t:"Экстренный сброс (после кражи)",panic_h:"Закрывает все сессии на всех устройствах, отменяет все приложения-аутентификаторы и даёт каждому аккаунту новый код доступа, который приходит на резервную почту. Данные не меняются. Вы тоже будете отключены.",panic_ok:"Понимаю: все получают новые коды.",panic_btn:"Сбросить всё",panic_done:"Готово: новые коды ушли на почту. Войдите с новым кодом.",reload_t:"Обновить данные с сервера",reloaded:"Данные обновлены.",su_entry:"В приложении-аутентификаторе запись будет называться:",su_other:"Другой пользователь (выход)",sec_cod:"Сменить код доступа",sec_cod_ehl:"Сменить код Casa EHL",sec_cod_h:"Новый код: не меньше 4 символов, любых — буквы, цифры, знаки; без пробелов в начале и в конце. Подтверждается текущим кодом и кодом из приложения-аутентификатора.",f_cod_vechi:"Текущий код",f_cod_nou:"Новый код",f_cod_nou2:"Новый код ещё раз",cod_saved:"Код изменён. Теперь входите с ним.",cod_mismatch:"Два новых кода не совпадают.",cod_short:"Новый код должен быть не короче 4 символов, без пробелов по краям.",cod_need:"Заполните текущий код и код из приложения-аутентификатора.",srv_cod_vechi:"Текущий код неверный.",srv_cod_dup:"Этот код уже использует другой аккаунт.",srv_cod_fmt:"Код должен быть от 4 до 64 символов, без пробелов в начале и в конце.",srv_cod_2fa:"Сначала настройте приложение-аутентификатор.",su_key:"Ключ (если не получается сканировать):",su_open_app:"Открыть в приложении-аутентификаторе",su_confirm:"Подтвердить код",
  su_codes_t:"Коды восстановления",su_codes_h:"Если потеряете телефон с аутентификатором, такой код заменит 6-значный, каждый — один раз. Запишите их сейчас в надёжное место: больше они не показываются.",su_done:"Записал, продолжить",
  login_fmt:"Логин: 3–40 строчных букв, цифр, точка, дефис.",set_sec:"Безопасность",set_sec_h:"Вход = код доступа + код из приложения-аутентификатора. У директора две записи в приложении: для своего счёта и для Casa EHL.",sec_2fa:"Двухэтапный вход",sec_on:"включён",sec_off:"не настроен",
  sec_redo_h:"Новый телефон для аутентификатора? Введите текущий код и настройте заново.",sec_redo:"Перенастроить аутентификатор",sec_reset_h:"Кто-то потерял телефон: сбросьте ему аутентификацию (подтвердите своим кодом). При следующем входе он настроит её заново.",sec_reset:"Сбросить",sec_reset_done:"Аутентификация сброшена.",
@@ -443,7 +443,7 @@ function logout(msg){
   gateErr=msg||"";view="add";render();
 }
 function needGate(){return !ACCESS||LOCKED}
-function userOf(r){return {id:r.id,nume:r.nume||"",rol:r.rol||"Operator",cod:r.cod||"",codEHL:r.codEHL||"",status:r.status||"Activ",parolaSetata:!!r.parolaSetata,login:r.login||"",twoFA:!!r.twoFA,twoFAEHL:!!r.twoFAEHL}}
+function userOf(r){return {id:r.id,nume:r.nume||"",rol:r.rol||"Operator",cod:r.cod||"",codEHL:r.codEHL||"",status:r.status||"Activ",parolaSetata:!!r.parolaSetata,login:r.login||"",twoFA:!!r.twoFA,twoFAEHL:!!r.twoFAEHL,alarmaSet:!!r.alarmaSet}}
 /* the authenticator of the account in use is not set up yet: nothing else until it is (a director has one per account) */
 function needSetup(){return !!(ACCESS&&ACCESS.user&&!(isDir&&ehlMode()?ACCESS.user.twoFAEHL:ACCESS.user.twoFA))}
 /* the EHL code of the signed-in director (taking money out of the common till needs it) */
@@ -522,6 +522,7 @@ function login(body){
   if(!PB)return Promise.reject({code:"no_db"});
   if(tsOn()){if(GATE.human)body.human=GATE.human;else if(GATE.cf)body.cf=GATE.cf;}
   return PB.send("/api/ehl/login",{method:"POST",body:body,requestKey:null}).then(function(res){
+    if(res.reactivated){toast(T("alarm_off"));GATE={step:"cod"};return res;} /* the reactivation code: the registers are back, now the usual sign-in */
     if(res.needTotp){GATE={step:"totp",nume:res.nume||"",base:body,ehl:!!res.ehl,human:res.human||""};return res;}
     PB.authStore.save(res.token,res.record);
     try{
@@ -2630,7 +2631,7 @@ function vAdd(){
   }).join("")+'</div></div>';
   h+='</div><aside class="add-side">';
   h+=installNote();
-  if(!isDir)h+='<div class="sec"><div class="card pad">'+codChgForm()+'</div></div><div class="sec"><button class="btn ghost" id="exitdir" type="button">'+esc(T("logout"))+'</button></div>'; /* a collaborator has no Setări: his change-my-code form lives here */
+  if(!isDir)h+='<div class="sec"><div class="card pad">'+codChgForm()+alarmForm()+'</div></div><div class="sec"><button class="btn ghost" id="exitdir" type="button">'+esc(T("logout"))+'</button></div>'; /* a collaborator has no Setări: his change-my-code and alarm forms live here */
   h+='</aside></div>';
   return h;
 }
@@ -2871,6 +2872,28 @@ function codChgForm(){
     +'<label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"></label>'
     +'<p class="err" id="codchgerr" hidden></p><button class="btn ghost" type="submit">'+esc(T("save"))+'</button></form>';
 }
+/* the alarm-code form, for everyone, next to the change-my-code form */
+function alarmForm(){
+  var me1=myUser()||{};
+  return '<hr><form id="alarmf"><p class="hint" style="margin:0 0 6px"><b>'+esc(T("alarm_t"))+'</b> · '+esc(me1.alarmaSet?T("alarm_set"):T("alarm_unset"))+' · '+esc(T("alarm_h"))+'</p>'
+    +'<label><span>'+esc(T("f_alarma"))+'</span><input type="password" name="alarma" autocomplete="new-password" autocapitalize="off" spellcheck="false"></label>'
+    +'<label><span>'+esc(T("f_alarma2"))+'</span><input type="password" name="alarma2" autocomplete="new-password" autocapitalize="off" spellcheck="false"></label>'
+    +'<label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"></label>'
+    +'<p class="err" id="alarmerr" hidden></p><button class="btn ghost" type="submit">'+esc(T("save"))+'</button></form>';
+}
+/* the director's reactivation code and the emergency reset */
+function directorSecForms(){
+  var rs=!!(cfg()&&cfg().reactivareSet);
+  return '<hr><form id="reactf"><p class="hint" style="margin:0 0 6px"><b>'+esc(T("react_t"))+'</b> · '+esc(rs?T("alarm_set"):T("alarm_unset"))+' · '+esc(T("react_h"))+'</p>'
+    +'<label><span>'+esc(T("f_react"))+'</span><input type="password" name="reactivare" autocomplete="new-password" autocapitalize="off" spellcheck="false"></label>'
+    +'<label><span>'+esc(T("f_react2"))+'</span><input type="password" name="reactivare2" autocomplete="new-password" autocapitalize="off" spellcheck="false"></label>'
+    +'<label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"></label>'
+    +'<p class="err" id="reacterr" hidden></p><button class="btn ghost" type="submit">'+esc(T("save"))+'</button></form>'
+    +'<hr><form id="panicf"><p class="hint" style="margin:0 0 6px"><b>'+esc(T("panic_t"))+'</b> · '+esc(T("panic_h"))+'</p>'
+    +'<label class="cb"><input type="checkbox" name="ok"><span>'+esc(T("panic_ok"))+'</span></label>'
+    +'<label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"></label>'
+    +'<p class="err" id="panicerr" hidden></p><button class="btn ghost" type="submit" style="color:var(--neg);border-color:var(--neg)">'+esc(T("panic_btn"))+'</button></form>';
+}
 /* a setting card: icon, title and explanation on top, then the form */
 function setCard(ic,title,hint,body){
   return '<div class="sec"><div class="card set-card"><div class="set-h"><span class="ic-badge tint" style="--c:var(--accent)">'+icon(ic)+'</span><div><b>'+esc(title)+'</b>'+(hint?'<p>'+esc(hint)+'</p>':'')+'</div></div>'+body+'</div></div>';
@@ -2897,7 +2920,7 @@ function vSet(){
   h+=setCard("lock",T("set_sec"),T("set_sec_h"),
     '<p class="hint" style="margin:0 0 10px">'+esc(T("sec_2fa"))+' ('+esc(T("f_cont_admin"))+'): <b>'+esc(me0.twoFA?T("sec_on"):T("sec_off"))+'</b>'+(isDir?' · '+esc(T("sec_2fa"))+' (Casa EHL): <b>'+esc(me0.twoFAEHL?T("sec_on"):T("sec_off"))+'</b>':'')+'</p>'
     +'<form id="resetupf"><p class="hint" style="margin:0 0 6px">'+esc(T("sec_redo_h"))+'</p><label><span>'+esc(T("f_totp"))+'</span><input type="text" name="totp" inputmode="numeric" autocomplete="one-time-code" placeholder="000000"></label><button class="btn ghost" type="submit">'+esc(T("sec_redo"))+'</button></form>'
-    +'<hr>'+codChgForm()
+    +'<hr>'+codChgForm()+alarmForm()+(isDir?directorSecForms():'')
     +(S.utilizatori.filter(function(u){return u.id!==ME&&u.status!=="Inactiv"}).length?'<hr><p class="hint" style="margin:0 0 6px">'+esc(T("sec_reset_h"))+'</p>'+S.utilizatori.filter(function(u){return u.id!==ME&&u.status!=="Inactiv"}).map(function(u){
       return '<form class="reset2fa" data-uid="'+esc(u.id)+'" style="display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-bottom:6px"><span style="flex:1;min-width:120px">'+esc(u.nume)+' · '+esc(u.twoFA?T("sec_on"):T("sec_off"))+'</span><label style="flex:0 0 120px"><span>'+esc(T("f_totp_mine"))+'</span><input type="text" name="totp" inputmode="numeric" placeholder="000000"></label><button class="btn sm danger" type="submit">'+esc(T("sec_reset"))+'</button></form>'}).join(""):''));
 
@@ -3462,7 +3485,7 @@ document.addEventListener("submit",function(ev){
     if(!v||gateBusy){$("#pinerr").hidden=false;return;}
     if(LOCKED){ /* the screen lock: the code of the account in use, checked by the server; no human box, no authenticator */
       gateBusy=true;gateErr="";render();
-      PB.send("/api/ehl/relock",{method:"POST",body:{cod:v,ehl:!!(isDir&&ehlMode())},requestKey:null}).then(function(){gateBusy=false;unlockScreen()}).catch(function(e){
+      PB.send("/api/ehl/relock",{method:"POST",body:{cod:v,ehl:!!(isDir&&ehlMode())},requestKey:null}).then(function(){return refreshData()}).then(function(){gateBusy=false;unlockScreen()}).catch(function(e){
         var m=String(e&&e.response&&e.response.message||"");
         if(e&&(e.status===403||(e.status===401&&/dezactivat/.test(m)))){logout(T("gate_bad"));return;} /* no session any more, or the user was switched off */
         gateFail(e,T("gate_bad"));
@@ -3510,6 +3533,30 @@ document.addEventListener("submit",function(ev){
       try{f.reset()}catch(e){}
       toast(T("cod_saved"));render();
     }).catch(function(e){showErr(gateMsg(e,T("save_err")))});
+    return;
+  }
+  if(f.id==="alarmf"||f.id==="reactf"){ /* the alarm code (anyone) or the reactivation code (a director): typed twice, confirmed with the authenticator */
+    var isR=f.id==="reactf",nm=isR?"reactivare":"alarma",v1=String(f.elements[nm].value||""),v2=String(f.elements[nm+"2"].value||""),tt=String(f.elements["totp"].value||"").trim(),er=$(isR?"#reacterr":"#alarmerr");
+    var sayErr=function(m){if(er){er.textContent=m;er.hidden=false;}};
+    if(v1.length<6||v1.length>64||v1!==v1.trim()){sayErr(T("cod_short6"));return;}
+    if(v1!==v2){sayErr(T("cod_mismatch6"));return;}
+    if(!tt){sayErr(T("cod_need"));return;}
+    var bodyA={totp:tt};bodyA[nm]=v1;
+    PB.send(isR?"/api/ehl/reactivare":"/api/ehl/alarma",{method:"POST",body:bodyA,requestKey:null}).then(function(){
+      if(!isR&&ACCESS&&ACCESS.user)ACCESS.user.alarmaSet=true;
+      if(isR&&S.cfg)S.cfg.reactivareSet=true;
+      try{f.reset()}catch(e){}
+      toast(T(isR?"react_saved":"alarm_saved"));render();
+    }).catch(function(e){sayErr(gateMsg(e,T("save_err")))});
+    return;
+  }
+  if(f.id==="panicf"){ /* the emergency reset: everyone's sessions, authenticators and codes; the director confirms with his authenticator */
+    var pe=$("#panicerr"),pt=String(f.elements["totp"].value||"").trim();
+    if(!f.elements["ok"].checked){if(pe){pe.textContent=T("panic_ok");pe.hidden=false;}return;}
+    if(!pt){if(pe){pe.textContent=T("cod_need");pe.hidden=false;}return;}
+    PB.send("/api/ehl/resetare-totala",{method:"POST",body:{totp:pt},requestKey:null}).then(function(){
+      toast(T("panic_done"));setTimeout(function(){logout(T("panic_done"))},1500);
+    }).catch(function(e){if(pe){pe.textContent=gateMsg(e,T("save_err"));pe.hidden=false;}});
     return;
   }
   if(f.id==="resetupf"){

@@ -28,7 +28,7 @@ scp -q "$STAGE"/pb_hooks/*.js "$HOST:$DIR/pb_hooks/"
 scp -q "$STAGE"/pb_migrations/*.js "$HOST:$DIR/pb_migrations/"
 scp -q "$STAGE"/server/* "$HOST:$DIR/"
 # the service user only needs to read these; pb_data stays its own
-ssh "$HOST" "chmod -R a+rX $DIR/pb_public $DIR/pb_hooks $DIR/pb_migrations; chmod 700 $DIR/*.sh $DIR/*.py 2>/dev/null || true"
+ssh "$HOST" "chmod -R a+rX $DIR/pb_public $DIR/pb_hooks $DIR/pb_migrations; chmod 700 $DIR/*.sh $DIR/*.py 2>/dev/null || true; chgrp casieria $DIR/send-mail.py $DIR/mail.conf 2>/dev/null && chmod 750 $DIR/send-mail.py && chmod 640 $DIR/mail.conf || true"   # the service sends the hidden-mode e-mails itself
 
 if ssh "$HOST" "systemctl is-enabled casieria >/dev/null 2>&1"; then
   echo "== restart service (new migrations apply on start)"

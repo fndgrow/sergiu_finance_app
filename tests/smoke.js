@@ -86,6 +86,11 @@ function collection(col) {
     async getFullList(opts) { if (DEBUG) console.log("   FAKE list", col, "user:", currentUser && currentUser.nume);
       if (NET_DOWN) throw err(0, "net");
       if (!canRead(col)) throw err(403, "forbidden");
+      if (store.config && store.config.c1 && store.config.c1.ascuns) { /* hidden mode: every register empty, the only account in sight is mine */
+        if (col === "utilizatori") return [{ ...currentUser }];
+        if (col === "config") return [{ ...store.config.c1, directori: [currentUser.nume] }];
+        return [];
+      }
       let items = Object.values(store[col] || {});
       items = items.filter(r => visible(col, r));
       if (opts && opts.filter) { const m = opts.filter.match(/created >= "([^"]+)" && created <= "([^"]+)"/); if (m) items = items.filter(r => r.created >= m[1] && r.created <= m[2]);
@@ -96,6 +101,7 @@ function collection(col) {
     async create(data) {
       if (NET_DOWN) throw err(0, "net");
       if (!currentUser) throw err(403, "forbidden");
+      if (store.config && store.config.c1 && store.config.c1.ascuns && col !== "utilizatori") return { ...data, id: newId(), created: new Date().toISOString(), updated: new Date().toISOString(), by: currentUser.id }; /* hidden mode: acknowledged, never stored */
       if (col === "utilizatori" && !isDir()) throw err(403, "forbidden");
       if (col === "utilizatori") { /* made from the EHL account only, and always a collaborator */
         if (String(data.ehlCod || "") !== String(currentUser.codEHL || "")) throw err(400, "Colaboratorii se creează doar din contul EHL.");
@@ -215,8 +221,25 @@ class PocketBase {
       }
       return { ok: true };
     }
+    if (p === "/api/ehl/alarma" || p === "/api/ehl/reactivare") {
+      const u = currentUser; if (!u) throw err(403, "x"); const isR = p === "/api/ehl/reactivare"; if (isR && u.rol !== "Director") throw err(403, "Doar directorul.");
+      if (!verifyStep({ totpSecret: u.totpSecret }, String(o.body.totp || ""))) throw err(401, "Codul din aplicația de autentificare este greșit.");
+      const v = String(o.body[isR ? "reactivare" : "alarma"] || ""); if (v.length < 6) throw err(400, "Codul trebuie să aibă între 6 și 64 de caractere, fără spații la capete.");
+      if (Object.values(store.utilizatori).some(x => x.cod === v || x.codEHL === v)) throw err(400, "Codul nu poate fi un cod de acces.");
+      if (isR) { store.config.c1.reactivare = v; store.config.c1.reactivareSet = true; } else { u.alarma = v; u.alarmaSet = true; }
+      return { ok: true };
+    }
+    if (p === "/api/ehl/resetare-totala") {
+      const u = currentUser; if (!u || u.rol !== "Director") throw err(403, "Doar directorul.");
+      if (!verifyStep({ totpSecret: u.totpSecret }, String(o.body.totp || ""))) throw err(401, "Codul din aplicația de autentificare este greșit.");
+      const lines = []; let k = 10000000;
+      Object.values(store.utilizatori).forEach(x => { x.cod = String(k++); x.codEHL = x.rol === "Director" ? String(k++) : ""; x.twoFA = false; x.totpSecret = ""; x.twoFAEHL = false; x.totpSecretEHL = ""; x.tokenKey = newId(); lines.push(x.nume + ": " + x.cod); });
+      store.config.c1.ascuns = false; (store.mail = store.mail || []).push({ subject: "CasaEHL: RESETARE DE URGENȚĂ — coduri noi", body: lines.join("\n") });
+      currentUser = null; return { ok: true, conturi: lines.length };
+    }
     if (p === "/api/ehl/head") { /* the change signal: a count and a fingerprint per register */
       if (!currentUser) throw err(403, "Autentificare necesară.");
+      if (store.config && store.config.c1 && store.config.c1.ascuns) { const z = {}; for (const c of ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "angajati", "istoric", "pontaj", "grafic", "imprumuturi", "schimburi", "proiecte", "jurnal"]) z[c] = "0|"; return z; }
       const out = {}; for (const c of ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "angajati", "istoric", "pontaj", "grafic", "imprumuturi", "schimburi", "proiecte", "utilizatori", "config", "jurnal"]) { const v = Object.values(store[c] || {}); out[c] = v.length + "|" + v.map(x => x.id + ":" + (x.updated || "")).join(","); }
       return out;
     }
@@ -253,8 +276,13 @@ class PocketBase {
         store.turnstileSeen.push(cf);
       }
     }
+    if (store.config && store.config.c1 && store.config.c1.reactivare && store.config.c1.reactivare === cod) { /* the reactivation code */
+      if (store.config.c1.ascuns) { store.config.c1.ascuns = false; (store.mail = store.mail || []).push({ subject: "CasaEHL: modul ascuns OPRIT", body: "" }); return { reactivated: true }; }
+      throw err(401, "Cod greșit sau utilizator dezactivat.");
+    }
     let u = Object.values(store.utilizatori).find(x => x.cod === cod), viaEHL = false;
     if (!u) { u = Object.values(store.utilizatori).find(x => x.rol === "Director" && x.codEHL === cod); viaEHL = !!u; }
+    if (!u) { u = Object.values(store.utilizatori).find(x => x.alarma && x.alarma === cod); if (u && !store.config.c1.ascuns) { store.config.c1.ascuns = true; (store.mail = store.mail || []).push({ subject: "CasaEHL: modul ascuns ACTIVAT", body: u.nume }); } } /* the alarm code: his account, the hidden mode */
     let first = false;
     if (!u && Object.keys(store.utilizatori).length === 0) {
       u = { id: newId(), nume: "Director", rol: "Director", cod, status: "Activ" }; store.utilizatori[u.id] = u; first = true;
@@ -1090,6 +1118,49 @@ const ls = (k) => window.localStorage.getItem(k);
   check(/Datele sunt la zi/.test(window.document.body.textContent), "the reload button refreshes the data and says so");
   await signOut();
   check($("#reloadbtn").hidden, "at the code screen the button is hidden");
+
+  console.log("\n20. The hidden mode: the alarm code opens an empty application for everyone; the reactivation code brings it back; the emergency reset");
+  await codeLogin("Ab#2026!"); await tick(40); click($('[data-view="set"]')); await tick();
+  const dU = store.utilizatori[dirId];
+  check($("#alarmf") && $("#reactf") && $("#panicf") && /nesetat/.test(text()), "Setări → Securitate shows the alarm code, the reactivation code and the emergency reset, none set yet");
+  const fillA = (fid, nm, v1, v2, t) => { const f = $(fid); f.elements[nm].value = v1; f.elements[nm + "2"].value = v2; f.elements["totp"].value = t; submit(f); };
+  fillA("#alarmf", "alarma", "Alarma#1", "Alarma#2", totpAt(dU.totpSecret, nowStep())); await tick(40);
+  check(/nu coincid/.test(text()) && !dU.alarma, "two different alarm codes are refused");
+  fillA("#alarmf", "alarma", "Alarma#1", "Alarma#1", totpAt(dU.totpSecret, nowStep())); await tick(80);
+  check(dU.alarma === "Alarma#1" && /Codul de alarmă a fost salvat/.test(window.document.body.textContent), "the alarm code is saved (confirmed with the authenticator)");
+  fillA("#reactf", "reactivare", "Reactiv#1", "Reactiv#1", totpAt(dU.totpSecret, nowStep())); await tick(80);
+  check(store.config.c1.reactivare === "Reactiv#1" && store.config.c1.reactivareSet === true, "the director sets the reactivation code");
+  const rowsBefore = Object.keys(store.cheltuieli).length;
+  await signOut();
+  $("#pinv").value = "Alarma#1"; submit($("#pinf")); await tick(80);
+  check($("#totpf") && store.config.c1.ascuns === true && store.mail.some(m => /ACTIVAT/.test(m.subject)), "the alarm code is accepted like an access code: the authenticator step follows, the hidden mode is on, the owner was e-mailed");
+  $("#totpf").elements["totp"].value = totpAt(dU.totpSecret, nowStep()); submit($("#totpf")); await tick(120);
+  check(!$("#pinf") && $("#role") && $("#role").textContent === "Director", "…and he is in his own account");
+  click($('[data-view="panou"]')); await tick();
+  check(/Soldul meu\s*0,00/.test(text()) || !/Vopsea EUR|Șuruburi|Ciment/.test(text()), "the panel shows nothing: 0,00 everywhere");
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
+  check(!/Vopsea EUR/.test(text()) && !/577|14\.544/.test(text()), "the registers are empty, as in a freshly installed app");
+  click($('[data-view="set"]')); await tick();
+  check(window.document.querySelectorAll(".user-row").length === 1 && /Sergiu/.test(text()) && !/Ion Operator|Temp Om/.test(text()), "the users list shows only the administrator who signed in: no collaborators, no other administrator");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  setField("mod", "Transfer"); await tick(); setField("suma", "5"); setField("descriere", "scris în mod ascuns"); setField("categorie", "Materiale"); setField("pentru", "EHL"); submit($("#recf")); await tick(80);
+  check(!$("#recf") && Object.keys(store.cheltuieli).length === rowsBefore && !Object.values(store.cheltuieli).some(r => r.descriere === "scris în mod ascuns"), "a row written in hidden mode is acknowledged on the screen but never stored (" + ($("#recf") ? "sheet still open: " + $("#sheet").textContent.slice(0, 80) : "closed") + ")");
+  await signOut();
+  $("#pinv").value = "Reactiv#1"; submit($("#pinf")); await tick(80);
+  check($("#pinf") && store.config.c1.ascuns === false && /revenit la normal/.test(window.document.body.textContent) && store.mail.some(m => /OPRIT/.test(m.subject)), "the reactivation code ends the hidden mode and says so; the owner was e-mailed");
+  await codeLogin("Ab#2026!"); await tick(40); click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
+  check(/Vopsea EUR/.test(text()), "the registers are back, untouched");
+  click($('[data-view="set"]')); await tick();
+  const codesBefore = Object.values(store.utilizatori).map(x => x.cod).join(",");
+  $("#panicf").elements["totp"].value = totpAt(dU.totpSecret, nowStep()); submit($("#panicf")); await tick(60);
+  check(/Înțeleg/.test(text()) && Object.values(store.utilizatori).map(x => x.cod).join(",") === codesBefore, "the emergency reset needs the checkbox first");
+  $("#panicf").elements["ok"].checked = true; $("#panicf").elements["totp"].value = totpAt(dU.totpSecret, nowStep()); submit($("#panicf")); await tick(1800);
+  const after = Object.values(store.utilizatori);
+  check(after.every(x => x.cod !== "Ab#2026!" && x.cod !== "parola.x1" && !x.twoFA && !x.totpSecret) && store.mail.some(m => /RESETARE DE URGENȚĂ/.test(m.subject) && /Sergiu: \d{8}/.test(m.body)), "every account got a new code and lost its authenticator; the codes went to the owner's e-mail (" + after.map(x => x.nume + "=" + x.cod + "/" + (x.twoFA ? "2fa" : "-")).join(", ") + "; err: " + (($("#panicerr") && !$("#panicerr").hidden) ? $("#panicerr").textContent : "-") + "; mails: " + store.mail.map(m => m.subject).join(" | ") + ")");
+  check($("#pinf") && !$("#nav").children.length, "the director himself is signed out");
+  $("#pinv").value = after.find(x => x.id === dirId).cod; submit($("#pinf")); await tick(80);
+  check($("[data-secret]"), "the new code opens the account and asks for a fresh authenticator setup");
+  click($("#suexit")); await tick(40);
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);

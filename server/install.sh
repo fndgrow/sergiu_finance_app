@@ -69,6 +69,8 @@ fi
 mkdir -p /var/lib/casieria-backups; chmod 755 /var/lib/casieria-backups
 [ -s "$DIR/backup.pass" ] || { umask 077; openssl rand -base64 24 | tr -d '/+=' | cut -c1-24 > "$DIR/backup.pass"; umask 022; echo "== archive password made: $DIR/backup.pass"; }
 [ -f "$DIR/mail.conf" ] || { umask 077; printf 'smtp_host: smtp.gmail.com\nsmtp_port: 587\nsmtp_user: \nsmtp_pass: \nfrom: \nfrom_name: CasaEHL BackUP\nto: \ndomain: %s\n' "$DOMAIN" > "$DIR/mail.conf"; umask 022; echo "== fill in $DIR/mail.conf (Gmail app password) for the backup e-mails"; }
+# the service itself sends the hidden-mode / emergency e-mails (hook → send-mail.py), so it may read mail.conf
+chgrp casieria "$DIR/send-mail.py" "$DIR/mail.conf" 2>/dev/null && chmod 750 "$DIR/send-mail.py" && chmod 640 "$DIR/mail.conf" || true
 cat > /etc/cron.d/casieria-backup <<EOF
 # Casieria EHL: the owner's weekly backup (Friday 04:00) and the daily removal of links older than 3 days
 0 4 * * 5 root $DIR/backup-weekly.sh >> $DIR/backup-weekly.log 2>&1
