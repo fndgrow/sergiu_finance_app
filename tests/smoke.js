@@ -214,6 +214,11 @@ class PocketBase {
       }
       return { ok: true };
     }
+    if (p === "/api/ehl/head") { /* the change signal: a count and a fingerprint per register */
+      if (!currentUser) throw err(403, "Autentificare necesară.");
+      const out = {}; for (const c of ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "angajati", "istoric", "pontaj", "grafic", "imprumuturi", "schimburi", "proiecte", "utilizatori", "config", "jurnal"]) { const v = Object.values(store[c] || {}); out[c] = v.length + "|" + v.map(x => x.id + ":" + (x.updated || "")).join(","); }
+      return out;
+    }
     if (p === "/api/ehl/cod") { /* one's own access code, as the hook checks it */
       const u = currentUser; if (!u) throw err(403, "Autentificare necesară.");
       const ehl = !!o.body.ehl && u.rol === "Director", K = ehl ? "EHL" : "";
@@ -266,6 +271,7 @@ class PocketBase {
 }
 window.PocketBase = PocketBase;
 window.PB_URL = "";
+window.EHL_POLL_MS = 150; /* the change poll, fast for the test */
 window.EventSource = function EventSource() {}; /* realtime exists in browsers; the fake SDK does not use it */
 window.ExcelJS = undefined;
 
@@ -1030,6 +1036,17 @@ const ls = (k) => window.localStorage.getItem(k);
   check(opU.cod === "parola.x1", "the collaborator changes his PIN to a word with a sign");
   await signOut(); await codeLogin("parola.x1"); await tick(40);
   check($("#role") && $("#role").textContent === "Operator", "…and signs in with it");
+
+  console.log("\n19. The reload button and the change poll: another person's entry shows up within seconds");
+  check($("#reloadbtn") && !$("#reloadbtn").hidden, "the header has the reload button while signed in");
+  const colabU = Object.values(store.utilizatori).find(x => x.cod === "parola.x1");
+  const rid = newId(); store.iesiri[rid] = { id: rid, data: dAgo(0), destinatie: "Dat persoanei", persoana: colabU.nume, suma: 777, valuta: "MDL", curs: 1, sursa: "Avans", platitDe: "Sergiu Cervoneac", by: dirId, created: new Date().toISOString(), updated: new Date().toISOString() }; /* written behind the app's back: no realtime event */
+  await tick(700); click($('[data-view="panou"]')); await tick(60);
+  check(/777,00/.test(text()), "the poll noticed the new register row and the app reloaded its data by itself (" + (S_text => S_text)("") + "no realtime event was sent)");
+  click($("#reloadbtn")); await tick(120);
+  check(/Datele sunt la zi/.test(window.document.body.textContent), "the reload button refreshes the data and says so");
+  await signOut();
+  check($("#reloadbtn").hidden, "at the code screen the button is hidden");
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);

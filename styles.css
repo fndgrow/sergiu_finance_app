@@ -58,7 +58,7 @@ body.ehl-mode .bar{background:#173126;color:#fff;border-bottom:3px solid #D4A72C
 body.ehl-mode .bar h1,body.ehl-mode .bar .me-t b{color:#fff}
 body.ehl-mode .bar .logo{background:#D4A72C;color:#173126}
 body.ehl-mode .bar .role,body.ehl-mode .bar .role.on{background:#D4A72C;color:#173126;border-radius:999px;padding:1px 8px;font-weight:700;letter-spacing:.06em}
-body.ehl-mode .bar .langbtn,body.ehl-mode .bar .burger{border-color:rgba(255,255,255,.45);color:#fff}
+body.ehl-mode .bar .langbtn,body.ehl-mode .bar .burger,body.ehl-mode .bar .reload{border-color:rgba(255,255,255,.45);color:#fff}
 body.ehl-mode .bar .av{background:rgba(212,167,44,.25);color:#fff}
 /* the EHL account wears its own colours everywhere, not only in the header: deep green and gold on a warm paper,
    so the common till is told apart from an administrator's account at a glance */
@@ -587,6 +587,10 @@ hr{border:0;border-top:1px solid var(--line);margin:12px 0}
 /* 4. quick-jump menu */
 .burger{display:none;place-items:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;flex:0 0 auto}
 .burger .ic-svg{width:18px;height:18px}
+.reload{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;flex:0 0 auto}
+.reload .ic-svg{width:18px;height:18px}
+.reload.spin .ic-svg{animation:reload-spin .9s linear infinite}
+@keyframes reload-spin{to{transform:rotate(360deg)}}
 /* phones: language, then the signed-in person, then the menu */
 @media (max-width:899px){.burger:not([hidden]){display:grid}.bar-end .langbtn{order:1}.bar-end .me{order:2}.bar-end .burger{order:3}}
 #menu{position:fixed;inset:0;z-index:70}

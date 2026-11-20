@@ -348,6 +348,18 @@ onRecordDeleteRequest((e) => {
 /* a salary payment is an expense like any other: its author (or a director) may correct or delete it; the schedule
    days it covered simply become unpaid again (see salCover on the client). */
 
+/* ---- a change signal for the phones (20 November 2026): one small answer with, per register, how many rows there are
+        and the newest "updated"; the app asks every few seconds and reloads its data only when something moved. Nothing of
+        the rows themselves leaves here — a collaborator learns only that some register changed. ---- */
+routerAdd("GET", "/api/ehl/head", (e) => {
+  if (!e.auth) throw new ForbiddenError("Autentificare necesară.");
+  var out = {};
+  ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "angajati", "istoric", "pontaj", "grafic", "imprumuturi", "schimburi", "proiecte", "utilizatori", "config", "jurnal"].forEach(function (c) {
+    try { var r = new DynamicModel({ n: 0, u: "" }); $app.db().newQuery("SELECT COUNT(*) AS n, COALESCE(MAX(updated), '') AS u FROM " + c).one(r); out[c] = String(r.n) + "|" + String(r.u); } catch (err) { out[c] = "?"; }
+  });
+  return e.json(200, out);
+}, $apis.requireAuth("utilizatori"));
+
 /* ---- a person changes his own access code (20 November 2026): POST /api/ehl/cod {vechi, nou, totp, ehl?} with the session
         token. Any characters, 4–64, no spaces at the ends, unique across every cod and codEHL. Confirmed with the current
         code of that account and its authenticator code; {ehl: true} = a director's Casa EHL code. Wrong tries count per IP. ---- */

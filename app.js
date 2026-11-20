@@ -164,7 +164,7 @@ ro:{
  gate_full_link:"Sunt administrator: login, parolă și cod de autentificare",gate_cod_link:"Am doar un cod de acces (colaborator)",full_bad:"Date de autentificare greșite.",
  totp_t:"Codul din aplicația de autentificare",totp_h:"Introduceți acum cele 6 cifre din aplicația de autentificare de pe telefon (sau un cod de recuperare).",totp_bad:"Codul din aplicația de autentificare este greșit.",
  su_t:"Autentificare în doi pași — configurare obligatorie",su_cred_h:"Alegeți un login și o parolă (cel puțin 8 caractere). De acum intrați cu ele plus codul din aplicația de autentificare; codul de acces nu mai deschide contul.",su_next:"Mai departe",
- su_secret_h:"Instalați Google Authenticator, Microsoft Authenticator sau Aegis. Scanați codul QR, sau apăsați butonul de deschidere pe telefon, sau introduceți cheia manual. Apoi scrieți codul de 6 cifre pe care îl arată aplicația.",su_key:"Cheia (dacă nu puteți scana):",su_other:"Alt utilizator (ieșire)",sec_cod:"Schimbă codul de acces",sec_cod_ehl:"Schimbă codul Casa EHL",sec_cod_h:"Codul nou: cel puțin 4 caractere, oricare — litere, cifre, semne; fără spații la început sau la sfârșit. Se confirmă cu codul actual și cu codul din aplicația de autentificare.",f_cod_vechi:"Codul actual",f_cod_nou:"Codul nou",f_cod_nou2:"Încă o dată codul nou",cod_saved:"Codul a fost schimbat. De acum intrați cu el.",cod_mismatch:"Cele două coduri noi nu coincid.",cod_short:"Codul nou trebuie să aibă cel puțin 4 caractere, fără spații la capete.",cod_need:"Completați codul actual și codul din aplicația de autentificare.",srv_cod_vechi:"Codul actual este greșit.",srv_cod_dup:"Codul este deja folosit de alt cont.",srv_cod_fmt:"Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.",srv_cod_2fa:"Configurați mai întâi aplicația de autentificare.",su_entry:"În aplicația de autentificare intrarea se va numi:",su_open_app:"Deschide în aplicația de autentificare",su_confirm:"Confirmă codul",
+ su_secret_h:"Instalați Google Authenticator, Microsoft Authenticator sau Aegis. Scanați codul QR, sau apăsați butonul de deschidere pe telefon, sau introduceți cheia manual. Apoi scrieți codul de 6 cifre pe care îl arată aplicația.",reload_t:"Reîncarcă datele de pe server",reloaded:"Datele sunt la zi.",su_key:"Cheia (dacă nu puteți scana):",su_other:"Alt utilizator (ieșire)",sec_cod:"Schimbă codul de acces",sec_cod_ehl:"Schimbă codul Casa EHL",sec_cod_h:"Codul nou: cel puțin 4 caractere, oricare — litere, cifre, semne; fără spații la început sau la sfârșit. Se confirmă cu codul actual și cu codul din aplicația de autentificare.",f_cod_vechi:"Codul actual",f_cod_nou:"Codul nou",f_cod_nou2:"Încă o dată codul nou",cod_saved:"Codul a fost schimbat. De acum intrați cu el.",cod_mismatch:"Cele două coduri noi nu coincid.",cod_short:"Codul nou trebuie să aibă cel puțin 4 caractere, fără spații la capete.",cod_need:"Completați codul actual și codul din aplicația de autentificare.",srv_cod_vechi:"Codul actual este greșit.",srv_cod_dup:"Codul este deja folosit de alt cont.",srv_cod_fmt:"Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.",srv_cod_2fa:"Configurați mai întâi aplicația de autentificare.",su_entry:"În aplicația de autentificare intrarea se va numi:",su_open_app:"Deschide în aplicația de autentificare",su_confirm:"Confirmă codul",
  su_codes_t:"Coduri de recuperare",su_codes_h:"Dacă pierdeți telefonul cu aplicația de autentificare, un astfel de cod ține locul codului de 6 cifre, o singură dată fiecare. Notați-le undeva sigur acum: nu se mai afișează.",su_done:"Le-am notat, continuă",
  login_fmt:"Login: 3–40 de litere mici, cifre, punct, liniuță.",set_sec:"Securitate",set_sec_h:"Intrarea = codul de acces + codul din aplicația de autentificare. Directorul are două intrări în aplicație: una pentru contul lui, una pentru Casa EHL.",sec_2fa:"Autentificare în doi pași",sec_on:"activă",sec_off:"neconfigurată",
  sec_redo_h:"Telefon nou pentru aplicația de autentificare? Introduceți codul curent și configurați din nou.",sec_redo:"Reconfigurează aplicația de autentificare",sec_reset_h:"Cineva și-a pierdut telefonul: resetați-i autentificarea (confirmați cu codul dumneavoastră). La următoarea intrare o configurează din nou.",sec_reset:"Resetează",sec_reset_done:"Autentificarea a fost resetată.",
@@ -331,7 +331,7 @@ ru:{
  gate_full_link:"Я администратор: логин, пароль и код аутентификатора",gate_cod_link:"У меня только код доступа (колаборатор)",full_bad:"Неверные данные входа.",
  totp_t:"Код из приложения-аутентификатора",totp_h:"Теперь введите 6 цифр из приложения-аутентификатора на телефоне (или код восстановления).",totp_bad:"Код из приложения-аутентификатора неверный.",
  su_t:"Двухэтапный вход — обязательная настройка",su_cred_h:"Выберите логин и пароль (не меньше 8 символов). Дальше вы входите с ними плюс код из приложения-аутентификатора; код доступа аккаунт больше не открывает.",su_next:"Дальше",
- su_secret_h:"Установите Google Authenticator, Microsoft Authenticator или Aegis. Отсканируйте QR-код, или нажмите кнопку открытия на телефоне, или введите ключ вручную. Затем впишите 6-значный код, который показывает приложение.",su_entry:"В приложении-аутентификаторе запись будет называться:",su_other:"Другой пользователь (выход)",sec_cod:"Сменить код доступа",sec_cod_ehl:"Сменить код Casa EHL",sec_cod_h:"Новый код: не меньше 4 символов, любых — буквы, цифры, знаки; без пробелов в начале и в конце. Подтверждается текущим кодом и кодом из приложения-аутентификатора.",f_cod_vechi:"Текущий код",f_cod_nou:"Новый код",f_cod_nou2:"Новый код ещё раз",cod_saved:"Код изменён. Теперь входите с ним.",cod_mismatch:"Два новых кода не совпадают.",cod_short:"Новый код должен быть не короче 4 символов, без пробелов по краям.",cod_need:"Заполните текущий код и код из приложения-аутентификатора.",srv_cod_vechi:"Текущий код неверный.",srv_cod_dup:"Этот код уже использует другой аккаунт.",srv_cod_fmt:"Код должен быть от 4 до 64 символов, без пробелов в начале и в конце.",srv_cod_2fa:"Сначала настройте приложение-аутентификатор.",su_key:"Ключ (если не получается сканировать):",su_open_app:"Открыть в приложении-аутентификаторе",su_confirm:"Подтвердить код",
+ su_secret_h:"Установите Google Authenticator, Microsoft Authenticator или Aegis. Отсканируйте QR-код, или нажмите кнопку открытия на телефоне, или введите ключ вручную. Затем впишите 6-значный код, который показывает приложение.",reload_t:"Обновить данные с сервера",reloaded:"Данные обновлены.",su_entry:"В приложении-аутентификаторе запись будет называться:",su_other:"Другой пользователь (выход)",sec_cod:"Сменить код доступа",sec_cod_ehl:"Сменить код Casa EHL",sec_cod_h:"Новый код: не меньше 4 символов, любых — буквы, цифры, знаки; без пробелов в начале и в конце. Подтверждается текущим кодом и кодом из приложения-аутентификатора.",f_cod_vechi:"Текущий код",f_cod_nou:"Новый код",f_cod_nou2:"Новый код ещё раз",cod_saved:"Код изменён. Теперь входите с ним.",cod_mismatch:"Два новых кода не совпадают.",cod_short:"Новый код должен быть не короче 4 символов, без пробелов по краям.",cod_need:"Заполните текущий код и код из приложения-аутентификатора.",srv_cod_vechi:"Текущий код неверный.",srv_cod_dup:"Этот код уже использует другой аккаунт.",srv_cod_fmt:"Код должен быть от 4 до 64 символов, без пробелов в начале и в конце.",srv_cod_2fa:"Сначала настройте приложение-аутентификатор.",su_key:"Ключ (если не получается сканировать):",su_open_app:"Открыть в приложении-аутентификаторе",su_confirm:"Подтвердить код",
  su_codes_t:"Коды восстановления",su_codes_h:"Если потеряете телефон с аутентификатором, такой код заменит 6-значный, каждый — один раз. Запишите их сейчас в надёжное место: больше они не показываются.",su_done:"Записал, продолжить",
  login_fmt:"Логин: 3–40 строчных букв, цифр, точка, дефис.",set_sec:"Безопасность",set_sec_h:"Вход = код доступа + код из приложения-аутентификатора. У директора две записи в приложении: для своего счёта и для Casa EHL.",sec_2fa:"Двухэтапный вход",sec_on:"включён",sec_off:"не настроен",
  sec_redo_h:"Новый телефон для аутентификатора? Введите текущий код и настройте заново.",sec_redo:"Перенастроить аутентификатор",sec_reset_h:"Кто-то потерял телефон: сбросьте ему аутентификацию (подтвердите своим кодом). При следующем входе он настроит её заново.",sec_reset:"Сбросить",sec_reset_done:"Аутентификация сброшена.",
@@ -622,6 +622,35 @@ function signedOut(){
     .then(function(m){if(ACCESS)logout(m)});
 }
 setInterval(function(){selfCheck();refreshData()},3*60*1000);
+/* live data (20 November 2026): besides the realtime stream, every POLL_MS the app asks /api/ehl/head — one tiny answer
+   with a count and the newest "updated" per register — and reloads everything only when something moved. So a phone
+   shows another person's entry within seconds even where the stream is cut (proxies, sleeping tabs). */
+var POLL_MS=window.EHL_POLL_MS||5000,lastHead="",polling=false;
+function pollChanges(){
+  if(!PB||!ACCESS||!online||LOCKED||refreshing||polling||document.visibilityState==="hidden")return;
+  polling=true;
+  PB.send("/api/ehl/head",{method:"GET",requestKey:null}).then(function(h){
+    var k=JSON.stringify(h||{});
+    if(lastHead&&k!==lastHead)refreshData();
+    lastHead=k;
+  }).catch(function(){}).then(function(){polling=false});
+}
+setInterval(pollChanges,POLL_MS);
+/* the reload button in the header: the data again from the server and, when a newer version of the app is on the
+   server, the page itself (an administrator is not asked his code for that one restart) */
+function manualReload(){
+  var b=$("#reloadbtn");if(!b||b.classList.contains("spin"))return;
+  b.classList.add("spin");
+  var newVer=false;
+  var verCheck=(typeof fetch==="function"?fetch("./sw.js",{cache:"no-store"}):Promise.reject()).then(function(r){return r.text()}).then(function(t){
+    var m=/casieria-ehl-v(\d+)/.exec(t||"");if(!m||!window.caches)return;
+    return caches.keys().then(function(keys){if(keys.length&&keys.indexOf("casieria-ehl-v"+m[1])<0)newVer=true});
+  }).catch(function(){});
+  Promise.all([refreshData(),verCheck]).then(function(){
+    if(newVer){try{sessionStorage.setItem("ehl.nolock","1")}catch(e){}location.reload();return;}
+    lastHead="";toast(T("reloaded"));
+  }).catch(function(){}).then(function(){b.classList.remove("spin")});
+}
 /* Live updates arrive over the realtime stream, but events missed while the page sat in the background or offline never
    come again (phones cut the stream). So the lists are fetched afresh on every return to the foreground, on every
    reconnection and every 3 minutes — without resetting S, so nothing flickers — and the screen is redrawn. */
@@ -1954,6 +1983,7 @@ function render(){
   if(mp&&ms.scrollWidth>ms.clientWidth)ms.scrollLeft=Math.max(0,mp.offsetLeft+mp.offsetWidth-ms.clientWidth+16);
   else if(ms)ms.scrollLeft=oldSl;
   var bg=$("#burger");if(bg)bg.hidden=!(isDir&&ACCESS&&!needGate());
+  var rb=$("#reloadbtn");if(rb){rb.hidden=!(ACCESS&&!needGate());rb.title=T("reload_t");rb.setAttribute("aria-label",T("reload_t"));}
   fitRing();
   tsMount();
 }
@@ -3340,6 +3370,7 @@ document.addEventListener("click",function(ev){
   if(df){if(df.dataset.armed==="1"){dropFailed(parseInt(df.getAttribute("data-dropfailed"),10))}else{df.dataset.armed="1";df.textContent=T("del_yes")}return;}
   if(t.closest&&t.closest("#expbtn")){exportRun(JUR.luna,false);return;}
   if(t.closest&&t.closest("#exitdir")){try{localStorage.removeItem("ehl.cod");localStorage.removeItem("ehl.exp")}catch(e){}logout();return;}
+  if(t.closest&&t.closest("#reloadbtn")){manualReload();return;}
   if(t.closest&&t.closest("#gateback")){GATE={step:"cod"};gateErr="";render();return;}
   if(t.closest&&t.closest("#suexit")){SETUP={step:"",secret:"",uri:"",login:"",codes:null,busy:false,err:""};GATE={step:"cod"};logout();return;} /* leaves the setup; the next sign-in with that code starts it afresh */
   if(t.closest&&t.closest("#sudone")){SETUP={step:"",secret:"",uri:"",login:"",codes:null,busy:false,err:""};view=homeView();render();return;}
@@ -3499,7 +3530,8 @@ render();
   if(PB.authStore.isValid&&rec&&rec.id){
     enter(rec);
     if(expiryCheck())return; /* the session ran out while the app was closed: sign in again */
-    if(lockApplies())lockScreen(); /* every start of the app: an administrator types his code again */
+    var skipLock=false;try{skipLock=sessionStorage.getItem("ehl.nolock")==="1";sessionStorage.removeItem("ehl.nolock")}catch(e){}
+    if(lockApplies()&&!skipLock)lockScreen(); /* every start of the app: an administrator types his code again (not after the reload button's own restart) */
     /* confirm the session with the server: a deactivated user or an expired director week ends it */
     selfCheck();
   }else{
