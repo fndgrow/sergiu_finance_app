@@ -68,6 +68,8 @@ body.ehl-mode .tile{background:#F4F7EE;border-color:#C9D5C3}
 body.ehl-mode .tile.big{background:linear-gradient(135deg,#173126,#0C1C15);border-color:transparent;color:#F7E9C4}
 body.ehl-mode .tile.big .v{color:#D4A72C}
 body.ehl-mode .tile.big .k,body.ehl-mode .tile.big .t-sub{color:#F7E9C4}
+body.ehl-mode .tile.big .t-cur{color:#F7E9C4}
+body.ehl-mode .tile.big .t-cur.neg{color:#FFB4AB}
 body.ehl-mode .sec h2{color:#173126}
 body.ehl-mode .card{border-color:#C9D5C3}
 body.ehl-mode .t-ic{background:#DDE8D6;color:#173126}
@@ -111,6 +113,10 @@ main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px
 .tile .t-sub{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:500;color:var(--ink)}
 .tile .t-cur{display:flex;align-items:center;gap:7px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .tile .t-cur.neg{color:var(--neg)}
+/* on the dark balance tile the per-currency lines read in light ink; a minus in light red, never the dark red of the light tiles */
+.tile.big .t-cur{color:var(--accent-ink);font-weight:600;font-size:15px;opacity:.96}
+.tile.big .t-cur.neg{color:#FFB4AB}
+.tile.big .t-cur .cur-b{box-shadow:0 0 0 1px rgba(255,255,255,.35)}
 .tile .t-cur .cur-b{width:18px;height:18px;font-size:11px;flex:0 0 auto}
 .tile.big{grid-column:1/-1;background:var(--accent);border-color:transparent;color:var(--accent-ink)}
 .tile.big .k{color:var(--accent-ink);opacity:.72}

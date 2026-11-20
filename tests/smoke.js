@@ -265,9 +265,9 @@ class PocketBase {
     if (viaEHL ? u.twoFAEHL : u.twoFA) { /* the code names the account, its authenticator confirms */
       if (!totp) return { needTotp: true, nume: u.nume, ehl: viaEHL, human: store.turnstileSecret ? "pass:" + store.turnstileSecret : "" };
       if (!checkSecond(u, viaEHL)) throw err(401, "Codul din aplicația de autentificare este greșit.");
-      return { token: "tok-" + u.id, expires: Date.now() + (u.rol === "Director" ? 12 * 3600000 : 2 * 3600000), record: pubOf(u), ehl: viaEHL }; /* 05:00 for a director (about), two hours for a collaborator */
+      return { token: "tok-" + u.id, expires: Date.now() + 24 * 3600000, record: pubOf(u), ehl: viaEHL }; /* 24 hours for everyone */
     }
-    return { token: "tok-" + u.id, expires: Date.now() + (u.rol === "Director" ? 12 * 3600000 : 2 * 3600000), first, record: pubOf(u), needSetup: true, ehl: viaEHL };
+    return { token: "tok-" + u.id, expires: Date.now() + 24 * 3600000, first, record: pubOf(u), needSetup: true, ehl: viaEHL };
   }
 }
 window.PocketBase = PocketBase;
@@ -948,11 +948,14 @@ const ls = (k) => window.localStorage.getItem(k);
   /* the operator was deactivated in section 9: bring him back as the administrator, then sign in as him */
   store.utilizatori[op.id].status = "Activ"; emit("utilizatori", "update", store.utilizatori[op.id]); await tick(30); /* the administrator is still signed in from section 15 */
   await asOp(); check($("#role").textContent === "Operator", "the collaborator is signed in again");
-  { /* no screen lock for a collaborator: his session ends after two hours instead */
+  { /* the lock applies to a collaborator too (20 November 2026): his personal code on return, the authenticator once a day */
     const realNow2 = window.Date.now; goHidden(); window.Date.now = () => realNow2() + 60 * 1000; goVisible(); await tick(40); window.Date.now = realNow2;
-    check(!$("#pinf") && $("#role").textContent === "Operator", "a collaborator back after a minute away is not asked for his code (no lock for collaborators)");
+    check($("#pinf") && /Introduceți din nou codul/.test(text()), "a collaborator back after a minute away is asked for his personal code");
+    const opNow = Object.values(store.utilizatori).find(x => x.rol === "Operator" && x.status !== "Inactiv" && $("#pinf") && new RegExp(x.nume).test(text())) || Object.values(store.utilizatori).find(x => x.rol === "Operator" && x.status !== "Inactiv");
+    $("#pinv").value = opNow.cod; submit($("#pinf")); await tick(80);
+    check(!$("#pinf") && $("#role").textContent === "Operator", "…and it opens the screen again without the authenticator");
     const exp = Number(ls("ehl.exp")) - Date.now();
-    check(exp > 1.9 * 3600000 && exp < 2.1 * 3600000, "a collaborator's session ends after two hours (" + Math.round(exp / 60000) + " min left)");
+    check(exp > 23.9 * 3600000 && exp < 24.1 * 3600000, "the session lasts 24 hours (" + Math.round(exp / 3600000) + " h left)");
   }
   const sal = await collection("iesiri").create({ data: dAgo(0), destinatie: "Salarii", persoana: "Nou Venit", luna: dAgo(0).slice(0, 7), valuta: "MDL", curs: 1, suma: 1 });
   const forged = await collection("iesiri").update(sal.id, { destinatie: "Dat persoanei", persoana: "Ion Operator", suma: 500000 });
@@ -988,9 +991,21 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="panou"]')); await tick(); const leiAfter = readSold();
   check(Math.abs((leiBefore - leiAfter) - 10 * eurRow.curs) < 0.02, "his lei balance went down by 10 × the rate (" + leiBefore + " → " + leiAfter + ")");
   check(/-10,00 EUR|−10,00 EUR/.test(text()), "his holdings per currency show −10 EUR (spent euro he never received)");
+  click($('[data-view="add"]')); await tick(); click($("#exitdir")); await tick(30); await codeLogin("258000"); await tick(40); click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick(); /* the director's register lists every expense */
+  const amtCells = Array.from(window.document.querySelectorAll("#app td.amt")).map(td => td.textContent.replace(/s+/g, " ").trim()); const eurCell = amtCells.find(t => /10,00/.test(t) && /EUR|€/.test(t));
+  check(!!eurCell && /= 202,20 MDL/.test(eurCell), "the register shows the row as 10 EUR with its lei value beside it (" + (eurCell || ("cells: " + amtCells.slice(0, 6).join(" | ") + " tab:" + (($('[data-tab=\"cheltuieli\"]') || {}).getAttribute ? $('[data-tab=\"cheltuieli\"]').getAttribute("aria-current") : "?"))) + ")");
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
   setField("valuta", "EUR"); await tick(); setField("suma", "100000"); setField("descriere", "prea mult EUR"); setField("categorie", "Materiale"); setField("pentru", "EHL"); submit($("#recf")); await tick(80);
   check(/Nu aveți destui bani/.test($("#sheet").textContent) && !Object.values(store.cheltuieli).some(r => r.descriere === "prea mult EUR"), "an expense worth more lei than he holds is refused");
+  click($("#closeSheet")); await tick();
+  /* the exchange form converts by itself at the settings' rates (USD 17.5, EUR 20.22), and lets the person type over it */
+  click($('[data-view="add"]')); await tick(); click($('[data-form="schimburi"]')); await tick();
+  setField("valutaDin", "USD"); await tick(); setField("sumaDin", "100"); await tick();
+  check($('[data-k="sumaIn"]').value === "1750", "100 USD → 1 750 MDL is filled in by itself (" + $('[data-k="sumaIn"]').value + ")");
+  setField("valutaIn", "EUR"); await tick();
+  check($('[data-k="sumaIn"]').value === String(Math.round(100 * 17.5 / 20.22 * 100) / 100), "switching the received currency to EUR converts again (" + $('[data-k="sumaIn"]').value + ")");
+  setField("sumaIn", "90"); await tick();
+  check($('[data-k="sumaIn"]').value === "90" && /0[.,]9000/.test($("#sheet").textContent), "a sum typed by hand stays and the footer shows the resulting rate (" + $('[data-k="sumaIn"]').value + " / " + ($("#sheet").textContent.match(/\d[.,]\d{4}/) || [""])[0] + ")");
   click($("#closeSheet")); await tick();
 
   console.log("\n17. The human check (Cloudflare Turnstile) in front of the sign-in");
@@ -1024,6 +1039,14 @@ const ls = (k) => window.localStorage.getItem(k);
   check(!$("#role") || !$("#pinv") || !$("#pinv").getAttribute("inputmode"), "the code field no longer forces a numeric keyboard");
   click($('[data-view="set"]')); await tick();
   check($("#codchgf") && /Schimbă codul de acces/.test(text()), "Setări → Securitate has the change-code form");
+  { /* the screen is re-drawn every few seconds when data moves: what is typed must survive it */
+    const f0 = $("#codchgf"); f0.elements["vechi"].value = "abc"; f0.elements["nou"].value = "Nou#1"; f0.elements["nou"].focus();
+    const rid2 = newId(); store.jurnal[rid2] = { id: rid2, nume: "x", actiune: "t", created: new Date().toISOString(), updated: new Date().toISOString() }; await tick(700);
+    const f1 = $("#codchgf");
+    check(f1 && f1 !== f0 && f1.elements["vechi"].value === "abc" && f1.elements["nou"].value === "Nou#1", "a re-draw caused by new data keeps what was typed in the form (" + (f1 ? f1.elements["vechi"].value + "/" + f1.elements["nou"].value : "no form") + ")");
+    check(window.document.activeElement === f1.elements["nou"], "…and the cursor stays in the same field");
+    f1.elements["vechi"].value = ""; f1.elements["nou"].value = "";
+  }
   const dirU = store.utilizatori[dirId];
   const fillCod = (v, n, n2, t) => { const f = $("#codchgf"); f.elements["vechi"].value = v; f.elements["nou"].value = n; f.elements["nou2"].value = n2; f.elements["totp"].value = t; submit(f); };
   fillCod("258000", "Ab#2026!", "Ab#2027!", totpAt(dirU.totpSecret, nowStep())); await tick(40);
