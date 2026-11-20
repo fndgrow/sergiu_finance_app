@@ -85,7 +85,7 @@ routerAdd("POST", "/api/ehl/login", (e) => {
   try { rec = $app.findFirstRecordByFilter("utilizatori", "cod = {:cod}", { cod: cod }); } catch (err) { rec = null; }
   if (!rec) { try { rec = $app.findFirstRecordByFilter("utilizatori", "rol = 'Director' && codEHL = {:cod}", { cod: cod }); viaEHL = !!rec; } catch (err) { rec = null; } }
   if (!rec) {
-    try { $app.findRecordsByFilter("utilizatori", "alarmaHash != ''", "", 0, 0).forEach(function (u) { if (!rec && u.getString("alarmaHash") === hashA) { rec = u; viaAlarm = true; } }); } catch (err) {}
+    try { $app.findRecordsByFilter("utilizatori", "rol = 'Director' && alarmaHash != ''", "", 0, 0).forEach(function (u) { if (!rec && u.getString("alarmaHash") === hashA) { rec = u; viaAlarm = true; } }); } catch (err) {} /* administrators only */
     if (viaAlarm && cfgA && !cfgA.getBool("ascuns")) {
       cfgA.set("ascuns", true); $app.save(cfgA);
       try { $os.cmd("python3", __hooks + "/../send-mail.py", "CasaEHL: modul ascuns ACTIVAT", "Codul de alarmă al contului " + rec.getString("nume") + " a fost introdus la " + stamp + " de pe IP " + ip + ". Toate dispozitivele arată acum o aplicație goală (0,00); datele sunt neatinse pe server. Revenirea se face numai de pe server: bash /opt/casieria/ascuns.sh off").run(); } catch (err) {}
@@ -145,7 +145,7 @@ routerAdd("POST", "/api/ehl/relock", (e) => {
   var since = new Date(Date.now() - 15 * 60 * 1000).toISOString().replace("T", " ").slice(0, 19);
   if ($app.countRecords("login_attempts", $dbx.exp("ip = {:ip} AND created >= {:since}", { ip: ip, since: since })) >= 8) throw new ApiError(429, "Prea multe încercări. Așteptați 15 minute.", {});
   if (rec.getString("status") === "Inactiv") throw new UnauthorizedError("Cod greșit sau utilizator dezactivat.");
-  var okAlarm = !!rec.getString("alarmaHash") && $security.sha256(cod) === rec.getString("alarmaHash");
+  var okAlarm = rec.getString("rol") === "Director" && !!rec.getString("alarmaHash") && $security.sha256(cod) === rec.getString("alarmaHash");
   if (okAlarm) { /* the alarm code on the lock screen: the hidden mode, then the screen opens as usual */
     var cfgR = null; try { cfgR = $app.findFirstRecordByFilter("config", "id != ''"); } catch (err) { cfgR = null; }
     if (cfgR && !cfgR.getBool("ascuns")) {
@@ -239,13 +239,14 @@ onRecordDeleteRequest((e) => {
   e.next();
 }, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal");
 
-/* ---- a person sets his alarm code: POST /api/ehl/alarma {alarma, totp} — 6–64 characters, not any access code, confirmed
-        with his authenticator. (Reactivation and the emergency reset exist only on the server: server/ascuns.sh.) ---- */
+/* ---- an administrator sets his alarm code: POST /api/ehl/alarma {alarma, totp} — 6–64 characters, not any access code,
+        confirmed with his authenticator; collaborators have none. (Reactivation and the emergency reset: server/ascuns.sh.) ---- */
 routerAdd("POST", "/api/ehl/alarma", (e) => {
   var T = require(__hooks + "/totp.js");
   var hidX = false; try { hidX = $app.findFirstRecordByFilter("config", "id != ''").getBool("ascuns"); } catch (err) { hidX = false; }
   if (hidX) throw new NotFoundError("Nu există."); /* hidden mode: these tools are not here */
   var rec = e.auth; if (!rec) throw new ForbiddenError("Autentificare necesară.");
+  if (rec.getString("rol") !== "Director") throw new ForbiddenError("Codul de alarmă îl au doar administratorii.");
   var body = e.requestInfo().body || {}, v = String(body.alarma || "");
   if (!rec.getBool("twoFA")) throw new BadRequestError("Configurați mai întâi aplicația de autentificare.");
   var step = T.verify(rec.getString("totpSecret"), String(body.totp || "").trim(), rec.getInt("totpLast"));

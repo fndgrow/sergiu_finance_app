@@ -225,6 +225,7 @@ class PocketBase {
     if (p === "/api/ehl/alarma") {
       const u = currentUser; if (!u) throw err(403, "x");
       if (store.config && store.config.c1 && store.config.c1.ascuns) throw err(404, "Nu există.");
+      if (u.rol !== "Director") throw err(403, "Codul de alarmă îl au doar administratorii.");
       if (!verifyStep({ totpSecret: u.totpSecret }, String(o.body.totp || ""))) throw err(401, "Codul din aplicația de autentificare este greșit.");
       const v = String(o.body.alarma || ""); if (v.length < 6) throw err(400, "Codul trebuie să aibă între 6 și 64 de caractere, fără spații la capete.");
       if (Object.values(store.utilizatori).some(x => x.cod === v || x.codEHL === v)) throw err(400, "Codul nu poate fi un cod de acces.");
@@ -271,7 +272,7 @@ class PocketBase {
     }
     let u = Object.values(store.utilizatori).find(x => x.cod === cod), viaEHL = false;
     if (!u) { u = Object.values(store.utilizatori).find(x => x.rol === "Director" && x.codEHL === cod); viaEHL = !!u; }
-    if (!u) { u = Object.values(store.utilizatori).find(x => x.alarma && x.alarma === cod); if (u && !store.config.c1.ascuns) { store.config.c1.ascuns = true; (store.mail = store.mail || []).push({ subject: "CasaEHL: modul ascuns ACTIVAT", body: u.nume }); } } /* the alarm code: his account, the hidden mode */
+    if (!u) { u = Object.values(store.utilizatori).find(x => x.rol === "Director" && x.alarma && x.alarma === cod); if (u && !store.config.c1.ascuns) { store.config.c1.ascuns = true; (store.mail = store.mail || []).push({ subject: "CasaEHL: modul ascuns ACTIVAT", body: u.nume }); } } /* the alarm code: his account, the hidden mode */
     let first = false;
     if (!u && Object.keys(store.utilizatori).length === 0) {
       u = { id: newId(), nume: "Director", rol: "Director", cod, status: "Activ" }; store.utilizatori[u.id] = u; first = true;
@@ -1138,6 +1139,11 @@ const ls = (k) => window.localStorage.getItem(k);
   store.config.c1.ascuns = false; /* the system administrator on the server: bash ascuns.sh off */ await tick(700);
   click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
   check(/Vopsea EUR/.test(text()), "switched off on the server: within seconds the registers are back, untouched");
+  await signOut(); await codeLogin("parola.x1"); await tick(40); click($('[data-view="add"]')); await tick();
+  check($("#codchgf") && !$("#alarmf") && !/Cod de alarmă/.test(text()), "a collaborator has no alarm code: his screen shows only the change-my-code form");
+  let fr = null; try { fr = await new window.PocketBase("").send("/api/ehl/alarma", { method: "POST", body: { alarma: "Alarma#x", totp: "000000" } }); } catch (e) { fr = e; }
+  check(fr && fr.status === 403, "…and the server refuses him an alarm code (" + (fr && fr.status) + ")");
+  await signOut();
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
