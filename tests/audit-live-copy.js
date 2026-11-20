@@ -61,6 +61,9 @@ async function login(codOrUser, ehl) {
     if (r.status === 200 && r.body.needSetup && r.body.token) { await enrol(u, K, r.body.token); continue; }
     if (r.status === 200) throw new Error("login needs more: " + JSON.stringify(r.body));
     if (r.status === 429 && i < 24) { await new Promise(z => setTimeout(z, 5000)); continue; }
+    if (r.status === 401 && /autentificare/.test(String(r.body && r.body.message || "")) && i < 3) { /* a code refused at a step boundary: wait for the next step and try again */
+      const now = Math.floor(Date.now() / 30000); usedStep[u.id + K] = Math.max(usedStep[u.id + K] || 0, now); await new Promise(z => setTimeout(z, (now + 1) * 30000 - Date.now() + 500)); continue;
+    }
     throw new Error("login failed " + r.status + " " + JSON.stringify(r.body));
   }
 }
