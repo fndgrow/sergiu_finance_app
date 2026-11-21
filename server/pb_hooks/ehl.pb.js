@@ -771,7 +771,8 @@ onRecordUpdateRequest((e) => {
         $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(res);
         var back = e.record.original().getString("mod") !== "Transfer" ? e.record.original().getFloat("suma") * (e.record.original().getFloat("curs") || 1) : 0;
         var need = e.record.getFloat("suma") * (e.record.getFloat("curs") || 1);
-        if (need > back && need > parseFloat(res.v || "0") + back + 0.004) throw new BadRequestError("Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
+        /* a row switched from "din banii mei" back to the advance is checked in full: the old sum was never advance money */
+        if ((need > back || oS === "Proprii") && need > parseFloat(res.v || "0") + back + 0.004) throw new BadRequestError("Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
       }
     }
   }
