@@ -19,7 +19,7 @@ DIR="${DIR:-/opt/casieria}"
 echo "== files to $DIR"
 mkdir -p "$DIR"
 cp -r "$HERE/pb_public" "$HERE/pb_hooks" "$HERE/pb_migrations" "$DIR/"
-for f in install.sh nginx-site.conf backup-weekly.sh send-mail.py export-xlsx.py backup-offsite.sh harden-ssh-firewall.sh restore.sh; do [ -f "$HERE/$f" ] && cp "$HERE/$f" "$DIR/$f"; done
+for f in install.sh nginx-site.conf backup-weekly.sh send-mail.py export-xlsx.py export-txt.py backup-offsite.sh harden-ssh-firewall.sh restore.sh; do [ -f "$HERE/$f" ] && cp "$HERE/$f" "$DIR/$f"; done
 chmod 700 "$DIR"/*.sh "$DIR"/*.py 2>/dev/null || true
 chmod -R a+rX "$DIR/pb_public" "$DIR/pb_hooks" "$DIR/pb_migrations"
 umask 077; printf 'admin UI: only from the server (ssh -L 8090:127.0.0.1:8090, then http://127.0.0.1:8090/_/)\nemail: %s\npassword: %s\n' "$EMAIL" "$PASS" > "$DIR/ADMIN.txt"; umask 022

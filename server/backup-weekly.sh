@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Casieria EHL — weekly backup for the owner (cron: Friday 04:00 server time, plus a daily "expire" run).
-#   The database (a consistent SQLite copy), an Excel workbook of every register, the app (pb_public), hooks, migrations,
+#   The database (a consistent SQLite copy), an Excel workbook of every register, a plain-text file with every transaction in
+#   the order it was entered plus the journal of changes (export-txt.py, 21 November 2026), the app (pb_public), hooks, migrations,
 #   the server scripts, restore.sh and CITESTE-MA.txt (what is inside, how to read the data, how to move to a new server) go into one
 #   AES-256 zip (password: /opt/casieria/backup.pass — opens with 7-Zip / WinRAR), published under a random link on the
 #   app's domain (nginx: /backup/<token>/…) for KEEP_DAYS days; the link is e-mailed to the owner (server/send-mail.py,
@@ -40,10 +41,13 @@ for f in ("data.db", "auxiliary.db"):
         s = sqlite3.connect("file:%s?mode=ro" % p, uri=True); d = sqlite3.connect(os.path.join(dst, f)); s.backup(d); d.close(); s.close()
 PY
 cp -r "$DIR/pb_hooks" "$DIR/pb_migrations" "$DIR/pb_public" "$WORK/$NAME/"
-for f in install.sh nginx-site.conf backup-weekly.sh send-mail.py export-xlsx.py restore.sh backup-offsite.sh harden-ssh-firewall.sh; do [ -f "$DIR/$f" ] && cp "$DIR/$f" "$WORK/$NAME/"; done
+for f in install.sh nginx-site.conf backup-weekly.sh send-mail.py export-xlsx.py export-txt.py restore.sh backup-offsite.sh harden-ssh-firewall.sh; do [ -f "$DIR/$f" ] && cp "$DIR/$f" "$WORK/$NAME/"; done
 # every register as Excel, from the copy just taken (python3-openpyxl); a missing module is reported, the archive is still made
 XLSX="Casieria_EHL_date_$STAMP.xlsx"
 python3 "$DIR/export-xlsx.py" "$WORK/$NAME/pb_data/data.db" "$WORK/$NAME/$XLSX" >/dev/null || { log "Excel export failed (python3-openpyxl?)"; XLSX="(Excel lipsă la această copie: exportul a eșuat, vezi backup-weekly.log)"; }
+# every transaction as plain text, in the order it was entered, with the journal of changes (standard library only)
+TXT="Casieria_EHL_tranzactii_$STAMP.txt"
+python3 "$DIR/export-txt.py" "$WORK/$NAME/pb_data/data.db" "$WORK/$NAME/$TXT" >/dev/null || { log "text export failed"; TXT="(fișierul text lipsește la această copie: exportul a eșuat, vezi backup-weekly.log)"; }
 SHOWN="$(date '+%d.%m.%Y %H:%M')"
 cat > "$WORK/$NAME/CITESTE-MA.txt" <<EOF
 CASA EHL — COPIE DE REZERVĂ din $SHOWN (ora Chișinăului)
@@ -55,6 +59,11 @@ CE ESTE ÎN ARHIVĂ
       Împrumuturi, Schimburi valutare, Proiecte, Angajați, Salarii, Pontaj, Grafic, Utilizatori (doar nume/rol/stare),
       Jurnal, Setări; prima foaie „Cuprins” spune câte rânduri are fiecare. Se deschide cu Excel, LibreOffice sau
       Google Sheets. Este pentru citit și arhivat; aplicația nu importă din el.
+  $TXT
+      TOATE TRANZACȚIILE ÎN TEXT SIMPLU, câte una pe rând, în ordinea în care au fost introduse: când și de cine a fost
+      introdusă, registrul, data operației, suma în valuta ei (și în lei), descrierea, toate celelalte câmpuri
+      (câmp=valoare) și id-ul. Apoi jurnalul modificărilor (adăugat / modificat / șters, de cine, când, cu datele rândului)
+      și celelalte registre. Se deschide cu orice editor de text (Notepad); după el datele se pot reintroduce manual.
   pb_data/data.db
       BAZA DE DATE COMPLETĂ (SQLite): date, utilizatori, coduri de intrare, autentificatoare, jurnal. Din ea se
       restaurează aplicația. Se poate deschide și cu „DB Browser for SQLite” (sqlitebrowser.org); tabelele poartă
@@ -62,7 +71,7 @@ CE ESTE ÎN ARHIVĂ
   pb_data/auxiliary.db        jurnalul tehnic al cererilor (nu e nevoie de el la restaurare).
   pb_public/                  aplicația însăși (ce se deschide pe telefon), inclusiv app-config.js cu cheia publică Turnstile.
   pb_hooks/, pb_migrations/   logica serverului și schema bazei de date.
-  install.sh, nginx-site.conf, backup-weekly.sh, send-mail.py, export-xlsx.py   scripturile serverului.
+  install.sh, nginx-site.conf, backup-weekly.sh, send-mail.py, export-xlsx.py, export-txt.py   scripturile serverului.
   restore.sh                  instalarea pe un server nou cu aceste date, dintr-o singură comandă (mai jos).
   NU sunt în arhivă, fiind secrete: parola superutilizatorului PocketBase, secretul Turnstile, setările de e-mail,
   parola arhivelor. Toate se refac în câteva minute (vezi mai jos).
@@ -134,6 +143,7 @@ Mărime: $SIZE. Linkul funcționează până la $UNTIL; după aceea fișierul es
 
 Arhiva este criptată: se deschide cu 7-Zip sau WinRAR (pe Linux: 7z x fișier.zip) cu parola arhivelor, trimisă o singură dată, la prima copie. Înăuntru:
   - $XLSX — toate datele, câte o foaie Excel pe registru;
+  - $TXT — toate tranzacțiile în text simplu, una pe rând, în ordinea introducerii, cu jurnalul modificărilor;
   - pb_data/data.db — baza de date completă, din care se restaurează aplicația;
   - CITESTE-MA.txt — ce este în arhivă, cum se citesc datele, cum se mută aplicația pe alt server (restore.sh, o singură comandă) și cum se pun datele la loc pe serverul actual." \
   && log "link e-mailed" || { log "e-mail FAILED (link: $LINK)"; exit 1; }
