@@ -306,7 +306,7 @@ onRecordCreateRequest((e) => {
       " - (SELECT COALESCE(SUM(COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0)),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n} AND COALESCE(NULLIF(valuta,''),'MDL')={:v})" +
       " + (SELECT COALESCE(SUM(sumaIn),0) FROM schimburi WHERE TRIM(persoana)={:n} AND valutaIn={:v} AND id<>{:x})" +
       " - (SELECT COALESCE(SUM(sumaDin),0) FROM schimburi WHERE TRIM(persoana)={:n} AND valutaDin={:v} AND id<>{:x})" +
-      " - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n} AND COALESCE(NULLIF(valuta,''),'MDL')={:v})" +
+      " - (SELECT COALESCE(SUM(suma),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n} AND COALESCE(NULLIF(valuta,''),'MDL')={:v})" +
       " AS TEXT) AS v").bind({ n: String(e.record.getString("persoana") || "").trim(), v: din, x: String(e.record.id || "") }).one(hs);
   if (e.record.getFloat("sumaDin") > parseFloat(hs.v || "0") + 0.004) throw new BadRequestError("Nu aveți atâta în valuta dată (" + din + ").");
   e.next();
@@ -324,7 +324,7 @@ onRecordUpdateRequest((e) => {
       " - (SELECT COALESCE(SUM(COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0)),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n} AND COALESCE(NULLIF(valuta,''),'MDL')={:v})" +
       " + (SELECT COALESCE(SUM(sumaIn),0) FROM schimburi WHERE TRIM(persoana)={:n} AND valutaIn={:v} AND id<>{:x})" +
       " - (SELECT COALESCE(SUM(sumaDin),0) FROM schimburi WHERE TRIM(persoana)={:n} AND valutaDin={:v} AND id<>{:x})" +
-      " - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n} AND COALESCE(NULLIF(valuta,''),'MDL')={:v})" +
+      " - (SELECT COALESCE(SUM(suma),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n} AND COALESCE(NULLIF(valuta,''),'MDL')={:v})" +
       " AS TEXT) AS v").bind({ n: String(e.record.getString("persoana") || "").trim(), v: din, x: String(e.record.id || "") }).one(hs);
   if (e.record.getFloat("sumaDin") > parseFloat(hs.v || "0") + 0.004) throw new BadRequestError("Nu aveți atâta în valuta dată (" + din + ").");
   e.next();
@@ -638,8 +638,6 @@ onRecordCreateRequest((e) => {
       var want = String(e.record.getString("sursa") || "");
       if (want === "Avans" && !(cas && me.toLowerCase() === cas)) {
         e.record.set("sursa", "Avans"); e.record.set("platitDe", me);
-        var resD = new DynamicModel({ v: "" });
-        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(resD);
         /* 21 November 2026: an administrator may go below zero — he spends his own money, the firm owes it back (shown as a negative account) */
       }
       else {
@@ -653,18 +651,16 @@ onRecordCreateRequest((e) => {
           if (!okDest) throw new BadRequestError("Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.");
         }
         /* the till holds what came in cash, per currency; it never goes below zero */
-        var vC = String(e.record.getString("valuta") || "MDL") || "MDL", hc = new DynamicModel({ v: "" });
-        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma),0) FROM incasari WHERE [[mod]]<>'Transfer' AND COALESCE(NULLIF(valuta,''),'MDL')={:v}) - (SELECT COALESCE(SUM(suma),0) FROM iesiri WHERE sursa='Casa' AND COALESCE(NULLIF(valuta,''),'MDL')={:v} AND id<>{:x}) AS TEXT) AS v").bind({ v: vC, x: String(e.record.id || "") }).one(hc);
-        if (e.record.getFloat("suma") > parseFloat(hc.v || "0") + 0.004) throw new BadRequestError("În Casa EHL nu sunt destui bani în " + vC + ".");
+        var vC = String(e.record.getString("valuta") || "MDL") || "MDL"; var SV = require(__hooks + "/sold.js")($app, DynamicModel);
+        if (e.record.getFloat("suma") > SV.casaV(vC, String(e.record.id || "")) + 0.004) throw new BadRequestError("În Casa EHL nu sunt destui bani în " + vC + ".");
         e.record.set("sursa", "Casa"); e.record.set("platitDe", "");
       }
     } else {
       /* a collaborator takes money out of his advance only to pay a salary (the "Achitat" box of a timesheet),
          and never more than the advance still holds */
       if (e.record.getString("destinatie") !== "Salarii") throw new BadRequestError("Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).");
-      var res = new DynamicModel({ v: "" });
-      $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(res);
-      if (e.record.getFloat("suma") * (e.record.getFloat("curs") || 1) > parseFloat(res.v || "0") + 0.004) throw new BadRequestError("Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
+      var vA = String(e.record.getString("valuta") || "MDL") || "MDL"; var SV = require(__hooks + "/sold.js")($app, DynamicModel); /* strict per currency (21 November 2026): a salary in USD leaves his USD */
+      if (e.record.getFloat("suma") > SV.persV(me, vA) + 0.004) throw new BadRequestError("Nu aveți destui bani din avans în " + vA + ". Cereți mai întâi bani de la director.");
       e.record.set("sursa", "Avans"); e.record.set("platitDe", me);
     }
   }
@@ -679,13 +675,12 @@ onRecordUpdateRequest((e) => {
     var was = o.getFloat("suma") * (o.getFloat("curs") || 1), now = e.record.getFloat("suma") * (e.record.getFloat("curs") || 1);
     if (now > was + 0.004) {
       if (o.getString("sursa") === "Casa") {
-        var vU = String(o.getString("valuta") || "MDL") || "MDL", hu = new DynamicModel({ v: "" });
-        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma),0) FROM incasari WHERE [[mod]]<>'Transfer' AND COALESCE(NULLIF(valuta,''),'MDL')={:v}) - (SELECT COALESCE(SUM(suma),0) FROM iesiri WHERE sursa='Casa' AND COALESCE(NULLIF(valuta,''),'MDL')={:v} AND id<>{:x}) AS TEXT) AS v").bind({ v: vU, x: String(e.record.id || "") }).one(hu);
-        if (e.record.getFloat("suma") > parseFloat(hu.v || "0") + 0.004) throw new BadRequestError("În Casa EHL nu sunt destui bani în " + vU + ".");
-      } else if (o.getString("sursa") === "Avans" && o.getString("destinatie") !== "Salarii") {
-        var hv = new DynamicModel({ v: "" });
-        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n} AND id<>{:x}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: String(o.getString("platitDe") || "").trim(), x: String(e.record.id || "") }).one(hv);
-        /* 21 November 2026: an administrator may go below zero — he spends his own money, the firm owes it back (shown as a negative account) */
+        var vU = String(o.getString("valuta") || "MDL") || "MDL"; var SV = require(__hooks + "/sold.js")($app, DynamicModel);
+        if (e.record.getFloat("suma") > SV.casaV(vU, String(e.record.id || "")) + 0.004) throw new BadRequestError("În Casa EHL nu sunt destui bani în " + vU + ".");
+      } else if (o.getString("sursa") === "Avans" && e.auth && e.auth.getString("rol") !== "Director") {
+        /* a collaborator raising an outflow from his advance: strict per currency, the row itself left out (an administrator may go below zero) */
+        var vV = String(o.getString("valuta") || "MDL") || "MDL"; var SV = require(__hooks + "/sold.js")($app, DynamicModel);
+        if (e.record.getFloat("suma") > SV.persV(o.getString("platitDe"), vV, String(e.record.id || "")) + 0.004) throw new BadRequestError("Nu aveți destui bani din avans în " + vV + ". Cereți mai întâi bani de la director.");
       }
     }
   }
@@ -697,9 +692,9 @@ onRecordUpdateRequest((e) => {
 onRecordCreateRequest((e) => {
   /* the payer is the account that records the expense — salaries included, even when the employee is a collaborator
      with an account of his own: his salary is his money, not an advance of the firm's. */
-  /* the currency (20 November 2026): lei unless said otherwise, then a rate of the day is required; a salary row is always in lei */
+  /* the currency (20 November 2026): lei unless said otherwise, then a rate of the day is required (salary rows included since 21 November) */
   { var vX = String(e.record.getString("valuta") || "MDL").trim().toUpperCase() || "MDL";
-    if (vX === "MDL" || e.record.getString("categorie") === "Salarii") { e.record.set("valuta", "MDL"); e.record.set("curs", 1); }
+    if (vX === "MDL") { e.record.set("valuta", "MDL"); e.record.set("curs", 1); } /* 21 November 2026: salaries too may be paid in another currency (the firm pays in USD as well) */
     else { e.record.set("valuta", vX); if (!(e.record.getFloat("curs") > 0)) throw new BadRequestError("Lipsește cursul valutei."); } }
   if (e.auth && e.auth.getString("rol") === "Director") {
     {
@@ -707,9 +702,11 @@ onRecordCreateRequest((e) => {
       var meD = String(e.auth.getString("nume") || "").trim(), casD = "";
       try { casD = String($app.findFirstRecordByFilter("config", "id != ''").getString("casier") || "").trim(); } catch (err) { casD = ""; }
       e.record.set("platitDe", meD); e.record.set("sursa", (casD && casD === meD) ? "" : "Avans");
+      if (casD && casD === meD && e.record.getString("mod") !== "Transfer") { /* the cashier pays from the till: strict per currency (21 November 2026) */
+        var vT = String(e.record.getString("valuta") || "MDL") || "MDL"; var SV = require(__hooks + "/sold.js")($app, DynamicModel);
+        if (e.record.getFloat("suma") > SV.casaV(vT) + 0.004) throw new BadRequestError("În Casa EHL nu sunt destui bani în " + vT + ".");
+      }
       if (!(casD && casD === meD) && e.record.getString("mod") !== "Transfer" && e.record.getString("categorie") !== "Salarii") {
-        var resE = new DynamicModel({ v: "" });
-        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: meD }).one(resE);
         /* 21 November 2026: an administrator may go below zero — he spends his own money, the firm owes it back (shown as a negative account) */
       }
     }
@@ -718,6 +715,10 @@ onRecordCreateRequest((e) => {
     var me = String(e.auth.getString("nume") || "").trim();
     var cas = "";
     try { cas = String($app.findFirstRecordByFilter("config", "id != ''").getString("casier") || "").trim(); } catch (err) { cas = ""; }
+    if (cas && cas === me) { /* a cashier who is not a director: from the till, strict per currency (21 November 2026) */
+      e.record.set("platitDe", me); e.record.set("sursa", "");
+      if (e.record.getString("mod") !== "Transfer") { var vT2 = String(e.record.getString("valuta") || "MDL") || "MDL"; var SV = require(__hooks + "/sold.js")($app, DynamicModel); if (e.record.getFloat("suma") > SV.casaV(vT2) + 0.004) throw new BadRequestError("În Casa EHL nu sunt destui bani în " + vT2 + "."); }
+    }
     if (!(cas && cas === me)) {
       e.record.set("platitDe", me);
       if (e.record.getString("mod") !== "Transfer") {
@@ -725,9 +726,8 @@ onRecordCreateRequest((e) => {
         var own = String((e.requestInfo().body || {}).sursa || "") === "Proprii";
         e.record.set("sursa", own ? "Proprii" : "Avans");
         if (own || e.record.getString("categorie") === "Salarii") { e.next(); return; } /* a salary may take the advance below zero (the firm's rule) */
-        var res = new DynamicModel({ v: "" });
-        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(res);
-        if (e.record.getFloat("suma") * (e.record.getFloat("curs") || 1) > parseFloat(res.v || "0") + 0.004) throw new BadRequestError("Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
+        var vA = String(e.record.getString("valuta") || "MDL") || "MDL"; var SV = require(__hooks + "/sold.js")($app, DynamicModel); /* strict per currency (21 November 2026): dollars leave his dollars, lei his lei */
+        if (e.record.getFloat("suma") > SV.persV(me, vA) + 0.004) throw new BadRequestError("Nu aveți destui bani din avans în " + vA + ". Cereți mai întâi bani de la director.");
       }
     }
   }
@@ -740,10 +740,18 @@ onRecordUpdateRequest((e) => {
     if (wasSal !== isSal) throw new BadRequestError("O plată de salariu nu se transformă în altă cheltuială și invers: ștergeți rândul și introduceți-l din nou.");
     if (wasSal) { e.record.set("angajat", oc.getString("angajat")); e.record.set("luna", oc.getString("luna")); e.record.set("mod", oc.getString("mod")); e.record.set("avans", oc.getBool("avans")); } /* an advance stays an advance */
   }
-  /* the currency (20 November 2026): lei unless said otherwise, then a rate of the day is required; a salary row is always in lei */
+  /* the currency (20 November 2026): lei unless said otherwise, then a rate of the day is required (salary rows included since 21 November) */
   { var vX = String(e.record.getString("valuta") || "MDL").trim().toUpperCase() || "MDL";
-    if (vX === "MDL" || e.record.getString("categorie") === "Salarii") { e.record.set("valuta", "MDL"); e.record.set("curs", 1); }
+    if (vX === "MDL") { e.record.set("valuta", "MDL"); e.record.set("curs", 1); } /* 21 November 2026: salaries too may be paid in another currency (the firm pays in USD as well) */
     else { e.record.set("valuta", vX); if (!(e.record.getFloat("curs") > 0)) throw new BadRequestError("Lipsește cursul valutei."); } }
+  /* a cashier's cash row (no source, paid by the cashier) is checked against the till per currency when it grows (21 November 2026) */
+  if (e.record.original && e.record.getString("mod") !== "Transfer") {
+    var SVc = require(__hooks + "/sold.js")($app, DynamicModel), oT = e.record.original(), cL = SVc.casierLower(), pL = String(oT.getString("platitDe") || "").trim().toLowerCase();
+    if (cL && pL === cL && oT.getString("sursa") === "") {
+      var vT3 = String(e.record.getString("valuta") || "MDL") || "MDL", bT = (oT.getString("mod") !== "Transfer" && (String(oT.getString("valuta") || "MDL") || "MDL") === vT3) ? oT.getFloat("suma") : 0;
+      if (e.record.getFloat("suma") > bT && e.record.getFloat("suma") > SVc.casaV(vT3) + bT + 0.004) throw new BadRequestError("În Casa EHL nu sunt destui bani în " + vT3 + ".");
+    }
+  }
   /* the payer and the source never change on edit, for a director too; a director's cash correction is checked like a creation */
   if (e.auth && e.auth.getString("rol") === "Director" && e.record.original) {
     e.record.set("platitDe", e.record.original().getString("platitDe"));
@@ -751,8 +759,6 @@ onRecordUpdateRequest((e) => {
     if (e.record.getString("mod") !== "Transfer" && e.record.getString("categorie") !== "Salarii" && e.record.getString("sursa") === "Avans") {
       var backD = e.record.original().getString("mod") !== "Transfer" ? e.record.original().getFloat("suma") * (e.record.original().getFloat("curs") || 1) : 0, needD = e.record.getFloat("suma") * (e.record.getFloat("curs") || 1);
       if (needD > backD) {
-        var rd = new DynamicModel({ v: "" });
-        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n} AND id<>{:x}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: String(e.record.getString("platitDe") || "").trim(), x: String(e.record.id || "") }).one(rd);
         /* 21 November 2026: an administrator may go below zero — he spends his own money, the firm owes it back (shown as a negative account) */
       }
     }
@@ -767,12 +773,12 @@ onRecordUpdateRequest((e) => {
         var bS = String((e.requestInfo().body || {}).sursa || ""), oS = e.record.original().getString("sursa"), ownU = bS === "Proprii" || (bS === "" && oS === "Proprii");
         e.record.set("sursa", ownU ? "Proprii" : "Avans");
         if (ownU || e.record.getString("categorie") === "Salarii") { e.next(); return; } /* own money, or a salary: no limit */
-        var res = new DynamicModel({ v: "" });
-        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(res);
-        var back = e.record.original().getString("mod") !== "Transfer" ? e.record.original().getFloat("suma") * (e.record.original().getFloat("curs") || 1) : 0;
-        var need = e.record.getFloat("suma") * (e.record.getFloat("curs") || 1);
-        /* a row switched from "din banii mei" back to the advance is checked in full: the old sum was never advance money */
-        if ((need > back || oS === "Proprii") && need > parseFloat(res.v || "0") + back + 0.004) throw new BadRequestError("Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
+        var vA = String(e.record.getString("valuta") || "MDL") || "MDL", oR = e.record.original(); var SV = require(__hooks + "/sold.js")($app, DynamicModel);
+        var back = (oR.getString("mod") !== "Transfer" && (String(oR.getString("valuta") || "MDL") || "MDL") === vA) ? oR.getFloat("suma") : 0; /* the old sum, in the same currency */
+        var need = e.record.getFloat("suma");
+        /* a row switched from "din banii mei" back to the advance is checked in full: the old sum was never advance money.
+           Strict per currency (21 November 2026): the row itself is left out of his balance, so the comparison is direct */
+        if ((need > back || oS === "Proprii") && need > SV.persV(me, vA, "", String(e.record.id || "")) + 0.004) throw new BadRequestError("Nu aveți destui bani din avans în " + vA + ". Cereți mai întâi bani de la director.");
       }
     }
   }
@@ -790,8 +796,6 @@ onRecordCreateRequest((e) => {
     else if (e.auth.getString("rol") === "Director") {
       e.record.set("sursa", "Avans"); e.record.set("platitDe", me); /* from his own account, within what it holds */
       if (e.record.getString("mod") !== "Transfer") {
-        var resR = new DynamicModel({ v: "" });
-        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(resR);
         var needR = (e.record.getFloat("chirie") + e.record.getFloat("gaj") + e.record.getFloat("comunale") + e.record.getFloat("avarii")) * (e.record.getFloat("curs") || 1);
         /* 21 November 2026: an administrator may go below zero — he spends his own money, the firm owes it back (shown as a negative account) */
       }
@@ -799,10 +803,8 @@ onRecordCreateRequest((e) => {
     else {
       e.record.set("sursa", "Avans"); e.record.set("platitDe", me);
       if (e.record.getString("mod") !== "Transfer") {
-        var res = new DynamicModel({ v: "" });
-        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me }).one(res);
-        var need = (e.record.getFloat("chirie") + e.record.getFloat("gaj") + e.record.getFloat("comunale") + e.record.getFloat("avarii")) * (e.record.getFloat("curs") || 1);
-        if (need > parseFloat(res.v || "0") + 0.004) throw new BadRequestError("Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
+        var vA = String(e.record.getString("valuta") || "MDL") || "MDL", need = e.record.getFloat("chirie") + e.record.getFloat("gaj") + e.record.getFloat("comunale") + e.record.getFloat("avarii"); var SV = require(__hooks + "/sold.js")($app, DynamicModel);
+        if (need > SV.persV(me, vA) + 0.004) throw new BadRequestError("Nu aveți destui bani din avans în " + vA + ". Cereți mai întâi bani de la director."); /* strict per currency (21 November 2026) */
       }
     }
   }
@@ -815,12 +817,11 @@ onRecordUpdateRequest((e) => {
     /* a collaborator raising a cash rent paid from his advance may not go past what he holds */
     if (e.auth && e.auth.getString("rol") !== "Director" && e.record.getString("sursa") === "Avans" && e.record.getString("mod") !== "Transfer") {
       var me2 = String(e.auth.getString("nume") || "").trim(), o = e.record.original();
-      var tot = function (r) { return (r.getFloat("chirie") + r.getFloat("gaj") + r.getFloat("comunale") + r.getFloat("avarii")) * (r.getFloat("curs") || 1); };
-      var back = o.getString("mod") !== "Transfer" ? tot(o) : 0, need = tot(e.record);
-      if (need > back) {
-        var res2 = new DynamicModel({ v: "" });
-        $app.db().newQuery("SELECT CAST((SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE destinatie='Dat persoanei' AND TRIM(persoana)={:n}) - (SELECT COALESCE(SUM(suma*COALESCE(NULLIF(curs,0),1)),0) FROM cheltuieli WHERE [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM(suma*curs),0) FROM iesiri WHERE sursa='Avans' AND TRIM(platitDe)={:n}) - (SELECT COALESCE(SUM((COALESCE(chirie,0)+COALESCE(gaj,0)+COALESCE(comunale,0)+COALESCE(avarii,0))*curs),0) FROM chirii WHERE sursa='Avans' AND [[mod]]<>'Transfer' AND TRIM(platitDe)={:n}) AS TEXT) AS v").bind({ n: me2 }).one(res2);
-        if (need > parseFloat(res2.v || "0") + back + 0.004) throw new BadRequestError("Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
+      var tot = function (r) { return r.getFloat("chirie") + r.getFloat("gaj") + r.getFloat("comunale") + r.getFloat("avarii"); }; /* in the row's currency */
+      var vR = String(e.record.getString("valuta") || "MDL") || "MDL", back = (o.getString("mod") !== "Transfer" && (String(o.getString("valuta") || "MDL") || "MDL") === vR) ? tot(o) : 0, need = tot(e.record);
+      if (need > back) { /* strict per currency (21 November 2026): the row itself is left out of his balance */
+        var SV = require(__hooks + "/sold.js")($app, DynamicModel);
+        if (need > SV.persV(me2, vR, "", "", String(e.record.id || "")) + 0.004) throw new BadRequestError("Nu aveți destui bani din avans în " + vR + ". Cereți mai întâi bani de la director.");
       }
     }
   }

@@ -870,3 +870,6 @@ label>span .cur-b{width:16px;height:16px;font-size:10px}
 .note.alert b{color:var(--neg);flex:1 1 100%}
 .note.alert span{flex:1 1 220px}
 .note.alert .btn{background:var(--neg);color:#fff}
+.tile .v.multi{font-size:19px;line-height:1.3}
+.tile .v .cl,.row .r .cl{display:block}
+.row .r .cl.neg,.tile .v .cl.neg{color:var(--neg)}

@@ -144,7 +144,7 @@ ro:{
  cont_lei:"Pe cont intră doar lei: alegeți MDL.",
  d_rest:"Restituire fondator",s_fond:"Datorii către fondatori",l_fond_primit:"Împrumutat de la fondatori",l_fond_dat:"Datorie",
  pontaj_h:"Pontajul se face doar pentru angajații pe care i-ați creat dumneavoastră.",
- pontaj_pay:"Achitat: plătesc acum",pontaj_pay_h:"Se creează cheltuieli „Salarii” pe proiectele din zilele lunii (sau EHL). Banii ies din avansul dvs.; la director, din casă. Plata merge și dacă banii lipsesc.",pontaj_suma:"Achit acum (MDL)",pontaj_suma_h:"Gol = toată suma rămasă pe lună, inclusiv zilele bifate de alți colaboratori. Puteți scrie și o parte, de exemplu doar zilele dvs.",
+ pontaj_pay:"Achitat: plătesc acum",pontaj_pay_h:"Se creează cheltuieli „Salarii” pe proiectele din zilele lunii (sau EHL). Banii ies din avansul dvs.; la director, din casă. Plata merge și dacă banii lipsesc.",pontaj_suma:"Achit acum",pontaj_suma_h:"Gol = toată suma rămasă pe lună (în valuta aleasă), inclusiv zilele bifate de alți colaboratori. Puteți scrie și o parte, de exemplu doar zilele dvs.",pay_multi:"Încă o valută",pay_multi_h:"Salariul poate fi dat în 2–3 valute deodată, de exemplu 100 USD + 200 MDL. Fiecare sumă se scade strict din valuta ei.",
  pontaj_paid:"Achitat deja",ang_deact:"Șterge angajatul",ang_deact_h:"Angajatul trece în arhivă: dispare din liste, dar pontajele, salariile și istoricul lui rămân.",ang_deact_yes:"Da, trece în arhivă",ang_deact_done:"Angajat trecut în arhivă",pontaj_dinavans:"Colaborator: salariul se scade din avansul lui, nu din casă",pontaj_due:"De achitat",pontaj_nosal:"Angajatul nu are salariu stabilit, nu este nimic de achitat.",pontaj_nota:"Salariu pontaj",
  srv_ies_op:"Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).",
  a_grafic:"Grafic de lucru",a_grafic_d:"Ore lucrate, zi cu zi",gr_full:"8h",gr_ore:"ore",gr_h1:"Ore 1–15",gr_h2:"Ore 16–sfârșit",gr_tot:"Total ore",gr_zile:"Zile (8 ore = o zi)",
@@ -173,7 +173,7 @@ ro:{
  s_cont_minus:"Contul este în minus",l_cont_achitat:"De achitat pe cont",cont_minus_h:"Plățile prin transfer au depășit banii de pe cont. Mai jos sunt plățile care au dus contul în minus. Acoperiți-l cu o încasare prin transfer sau cu Ieșire din casă → Depus pe cont.",
  srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",din_casa:"din casă",cont_meu_disp:"Disponibil în contul meu",f_codehl:"Codul EHL",f_codehl_h:"Banii ies din Casa EHL: confirmați cu codul dumneavoastră EHL.",codehl_bad:"Codul EHL este greșit.",codehl_fmt:"Codul EHL trebuie să aibă între 4 și 64 de caractere.",codehl_none:"Nu aveți cod EHL: fără el nu se pot scoate bani din Casa EHL. Cereți-l în Setări → Utilizatori.",f_codehl_set:"Cod EHL (acces la Casa EHL)",f_codehl_set_h:"Cel puțin 4 caractere. Doar un director cu cod EHL poate scoate bani din casa comună.",f_din:"Din",f_din_h:"Casa EHL este casa comună a directorilor; Contul meu sunt banii pe care i-am luat din ea.",din_casa_ehl:"Casa EHL",din_cont_meu:"Contul meu",s_dirs:"Conturile administratorilor",s_dirs_h:"Banii luați de fiecare director din Casa EHL, ce a dat mai departe sau a cheltuit, și ce mai are în mână. Un sold negativ înseamnă că a plătit din banii lui: firma îi datorează suma și i-o dă înapoi din Casa EHL.",l_dirs:"La administratori",
  s_colab_exp:"Cheltuielile și chiriile colaboratorilor",s_tr:"Cheltuieli din cont (transfer)",tr_h:"La transfer banii se iau din contul bancar, nu de la persoană. Apăsați pe un nume ca să vedeți pe ce s-au cheltuit.",colab_tr:"Plătit prin transfer (din cont)",
- avans_lipsa:"Nu aveți destui bani din avans: disponibil {s} MDL. Cereți mai întâi bani de la director.",cont_meu_lipsa:"Nu aveți destui bani în contul dumneavoastră: disponibil {s} MDL. Luați mai întâi din Casa EHL.",ehl_dest:"Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.",avans_disp:"Disponibil din avansul meu",din_avans:"din avansul lui",colab_gave:"Ieșiri făcute din avans",
+ avans_lipsa:"Nu aveți destui bani din avans: disponibil {s} {v}. Cereți mai întâi bani de la director.",cont_meu_lipsa:"Nu aveți destui bani în contul dumneavoastră: disponibil {s} {v}. Luați mai întâi din Casa EHL.",ehl_dest:"Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.",avans_disp:"Disponibil din avansul meu",din_avans:"din avansul lui",colab_gave:"Ieșiri făcute din avans",
  f_pentru:"Cheltuiala este pentru",sc_t:"Zile acoperite de această plată",sc_days:"Acoperă: {d}",sc_part:"parțial",sc_rest:"restul",sc_rate:"o zi =",sc_over:"Suma depășește zilele bifate cu {s} MDL.",sc_left:"Rămân neachitate: {d}",sc_all:"Toate zilele bifate ale lunii sunt achitate.",sc_none:"Nu sunt zile bifate în grafic pentru luna aceasta; plata se socotește pe suma lunii.",sc_nothing:"Zilele bifate erau deja acoperite de plățile de dinainte.",gr_paid:"plătit",gr_tinta:"Ziua se trece pe",gr_tinta_h:"Se aplică zilelor pe care le bifați de acum. La o zi deja bifată pe altceva apare „Mută pe …”: o mută cel care a bifat-o, fără să o piardă.",gr_retag:"Mută pe {t}",pt_proiect:"Proiect",pt_proiecte:"Proiecte",pt_ehl:"EHL (firma)",pt_alte:"Altele",s_pentru:"Cheltuieli: proiecte, EHL, altele",
  fond_h:"Banii puși de un fondator sunt un împrumut către firmă: datoria crește cu fiecare încasare de la el și scade prin Ieșire din casă → Restituire fondator."
 },
@@ -316,7 +316,7 @@ ru:{
  srv_ies_op:"Сотрудник записывает из аванса только выплаты зарплаты (галочка «Оплачено» в табеле).",
  a_grafic:"График работы",a_grafic_d:"Часы по дням",gr_full:"8ч",gr_ore:"ч",gr_h1:"Часы 1–15",gr_h2:"Часы 16–конец",gr_tot:"Всего часов",gr_zile:"Дней (8 часов = день)",
  gr_din:"Дни берутся из графика работы и вручную не вводятся.",arch_ang:"Архив: неактивные сотрудники",arch_ang_h:"Не показываются в графике, табеле и отчётах; их записи остаются. Можно вернуть в любой момент.",inact_lbl:"Неактивные",
- gr_mode_ang:"По сотруднику",gr_mode_zi:"По дню",gr_zi:"День",gr_half:"½ дня",gr_mine:"мои дни",pontaj_suma:"Выплачиваю сейчас (MDL)",pontaj_suma_h:"Пусто = весь остаток за месяц, включая дни, отмеченные другими. Можно указать часть, например только свои дни.",
+ gr_mode_ang:"По сотруднику",gr_mode_zi:"По дню",gr_zi:"День",gr_half:"½ дня",gr_mine:"мои дни",pontaj_suma:"Выплачиваю сейчас",pontaj_suma_h:"Пусто = весь остаток за месяц (в выбранной валюте), включая дни, отмеченные другими. Можно указать часть, например только свои дни.",pay_multi:"Ещё одна валюта",pay_multi_h:"Зарплату можно выдать в 2–3 валютах сразу, например 100 USD + 200 MDL. Каждая сумма списывается строго со своей валюты.",
  gr_h_zi:"Выберите дату, затем у каждого сотрудника отметьте полный день или половину. Каждая отметка сохраняется сразу, с вашим именем.",
  gr_lock:"Дни до последней выплаты закрыты и больше не меняются.",srv_gr_dup:"Этот день уже отмечен другим пользователем.",gr_other:"День внёс другой пользователь, изменить его нельзя.",
  f_complet:"Полный оклад (за весь месяц, независимо от дней)",f_complet_h:"Выплачивается весь месячный оклад плюс премия.",
@@ -341,7 +341,7 @@ ru:{
  s_cont_minus:"Счёт в минусе",l_cont_achitat:"Нужно внести на счёт",cont_minus_h:"Платежи переводом превысили деньги на счёте. Ниже — платежи, которые увели счёт в минус. Покройте его поступлением переводом или Выдачей из кассы → Внесено на счёт.",
  srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",din_casa:"из кассы",cont_meu_disp:"Доступно на моём счёте",f_codehl:"Код EHL",f_codehl_h:"Деньги уходят из кассы EHL: подтвердите своим кодом EHL.",codehl_bad:"Код EHL неверный.",codehl_fmt:"Код EHL должен быть от 4 до 64 символов.",codehl_none:"У вас нет кода EHL: без него нельзя брать деньги из кассы EHL. Задайте его в Настройки → Пользователи.",f_codehl_set:"Код EHL (доступ к кассе EHL)",f_codehl_set_h:"Не меньше 4 символов. Брать деньги из общей кассы может только директор с кодом EHL.",f_din:"Откуда",f_din_h:"Касса EHL — общая касса директоров; Мой счёт — деньги, которые я взял из неё.",din_casa_ehl:"Касса EHL",din_cont_meu:"Мой счёт",s_dirs:"Счета администраторов",s_dirs_h:"Сколько каждый директор взял из кассы EHL, что передал дальше или потратил, и сколько у него на руках. Отрицательный остаток значит, что он платил из своих денег: фирма ему должна и вернёт из кассы EHL.",l_dirs:"У администраторов",
  s_colab_exp:"Расходы и аренда сотрудников",s_tr:"Расходы со счёта (перевод)",tr_h:"При переводе деньги берутся с банковского счёта, а не у человека. Нажмите на имя, чтобы увидеть, на что они потрачены.",colab_tr:"Оплачено переводом (со счёта)",
- avans_lipsa:"В вашем авансе недостаточно денег: доступно {s} MDL. Сначала получите деньги у директора.",cont_meu_lipsa:"На вашем счёте недостаточно денег: доступно {s} MDL. Сначала возьмите из кассы EHL.",ehl_dest:"Из кассы EHL деньги идут только администраторам, на счёт или обратно учредителю.",avans_disp:"Доступно из моего аванса",din_avans:"из аванса:",colab_gave:"Выдачи из аванса",
+ avans_lipsa:"В вашем авансе недостаточно денег: доступно {s} {v}. Сначала получите деньги у директора.",cont_meu_lipsa:"На вашем счёте недостаточно денег: доступно {s} {v}. Сначала возьмите из кассы EHL.",ehl_dest:"Из кассы EHL деньги идут только администраторам, на счёт или обратно учредителю.",avans_disp:"Доступно из моего аванса",din_avans:"из аванса:",colab_gave:"Выдачи из аванса",
  f_pentru:"Расход относится к",sc_t:"Дни, покрытые этой выплатой",sc_days:"Покрывает: {d}",sc_part:"частично",sc_rest:"остаток",sc_rate:"день =",sc_over:"Сумма превышает отмеченные дни на {s} MDL.",sc_left:"Не оплачены: {d}",sc_all:"Все отмеченные дни месяца оплачены.",sc_none:"В графике нет отмеченных дней за этот месяц; выплата считается по сумме месяца.",sc_nothing:"Отмеченные дни уже были покрыты предыдущими выплатами.",gr_paid:"оплачено",gr_tinta:"День относится к",gr_tinta_h:"Действует для дней, которые отмечаете с этого момента. У дня, отмеченного на другое, появляется «Перенести на …»: переносит тот, кто его отметил, не теряя день.",gr_retag:"Перенести на {t}",pt_proiect:"Проект",pt_proiecte:"Проекты",pt_ehl:"EHL (фирма)",pt_alte:"Прочее",s_pentru:"Расходы: проекты, EHL, прочее",
  fond_h:"Деньги, внесённые учредителем, — это заём фирме: долг растёт с каждым поступлением от него и уменьшается через Выдачу из кассы → Возврат учредителю."
 }};
@@ -938,7 +938,7 @@ function salCover(angajat,luna){
     .map(function(r){return {iso:r.data,d:parseInt(String(r.data).slice(8,10),10),half:n(r.ore)<8,val:round2(n(r.ore)/8*pz)}});
   var extra=0;S.pontaj.forEach(function(r){if(sameP(r.angajat,angajat)&&r.luna===luna)extra+=n(r.extra)});
   if(extra>0)days.push({iso:"",d:0,extra:true,val:round2(extra)});
-  var S0=FULL||S,pays=S0.cheltuieli.filter(function(r){return r.categorie==="Salarii"&&r.luna===luna&&sameP(r.angajat,angajat)}).map(function(r){return {id:r.id,data:r.data,ts:r.ts||r.created||"",suma:n(r.suma)}})
+  var S0=FULL||S,pays=S0.cheltuieli.filter(function(r){return r.categorie==="Salarii"&&r.luna===luna&&sameP(r.angajat,angajat)}).map(function(r){return {id:r.id,data:r.data,ts:r.ts||r.created||"",suma:chLei(r)}})
     .concat(S0.iesiri.filter(function(r){return r.destinatie==="Salarii"&&r.luna===luna&&sameP(r.persoana,angajat)}).map(function(r){return {id:r.id,data:r.data,ts:r.ts||r.created||"",suma:round2(n(r.suma)*n(r.curs))}}))
     .sort(function(a,b){return String(a.data).localeCompare(String(b.data))||String(a.ts).localeCompare(String(b.ts))});
   var i=0,used=0,byPay={},map={};
@@ -986,12 +986,12 @@ function salCoverHtml(rec){
 /* every salary payment for an employee and month, by anyone: the expenses "Salarii" and the old-style outflows */
 var FULL=null; /* the unfiltered lists while a personal view (mineView) narrows S: salary payments by anyone must stay visible */
 function platiSalariu(angajat,luna){var S0=FULL||S;
-  return S0.cheltuieli.filter(function(r){return r.categorie==="Salarii"&&r.luna===luna&&sameP(r.angajat,angajat)}).map(function(r){return {by:r.by,data:r.data,suma:n(r.suma),nume:byName(r)||r.platitDe||""}})
+  return S0.cheltuieli.filter(function(r){return r.categorie==="Salarii"&&r.luna===luna&&sameP(r.angajat,angajat)}).map(function(r){return {by:r.by,data:r.data,suma:chLei(r),nume:byName(r)||r.platitDe||""}})
     .concat(S0.iesiri.filter(function(r){return r.destinatie==="Salarii"&&r.luna===luna&&sameP(r.persoana,angajat)}).map(function(r){return {by:r.by,data:r.data,suma:round2(n(r.suma)*n(r.curs)),nume:byName(r)||r.platitDe||""}}));
 }
 /* the salary advances of an employee in a month (Salarii rows marked avans): who gave how much and when */
 function avansuri(angajat,luna){var S0=FULL||S,list=S0.cheltuieli.filter(function(r){return r.categorie==="Salarii"&&r.avans&&r.luna===luna&&(!angajat||sameP(r.angajat,angajat))}).sort(function(a,b){return String(a.data).localeCompare(String(b.data))})
-  .map(function(r){return {id:r.id,angajat:r.angajat,data:r.data,suma:n(r.suma),nume:byName(r)||r.platitDe||""}});return {list:list,total:round2(list.reduce(function(a,x){return a+x.suma},0))}}
+  .map(function(r){return {id:r.id,angajat:r.angajat,data:r.data,suma:chLei(r),cur:chCur(r),sumaCur:n(r.suma),nume:byName(r)||r.platitDe||""}});return {list:list,total:round2(list.reduce(function(a,x){return a+x.suma},0))}}
 /* a day is closed once anyone paid the employee on that day or later: what was paid for does not move any more */
 function ziInchisa(angajat,iso){return platiSalariu(angajat,String(iso).slice(0,7)).some(function(p){return String(p.data||"")>=String(iso)})}
 function lunaAchitata(angajat,luna){return platiSalariu(angajat,luna).length>0}
@@ -1001,16 +1001,33 @@ function directorNames(){var c=cfg().directori;return uniq((Array.isArray(c)?c:[
 /* the employees one can schedule and pay: the active ones that are not directors (nobody pays a director's salary) */
 function angajatiLucru(){var d=directorNames();return angajatiActivi().filter(function(nm){return !d.some(function(x){return sameP(x,nm)})})}
 function angajatiPontaj(){return angajatiLucru()}
-function platesteSalariu(angajat,luna,due){
+/* the currency lines of a payment typed in a form (21 November 2026): the main sum and up to two more — a salary may be
+   handed over as 100 USD + 200 MDL. Each line is {suma, valuta, curs, lei}; an empty main sum means the whole remainder
+   (dueLei) in the chosen currency, at its rate */
+function payLines(d,dueLei){
+  var out=[],add=function(s,v,c){v=String(v||"MDL");c=v==="MDL"?1:(n(c)||1);if(n(s)>0)out.push({suma:round2(n(s)),valuta:v,curs:c,lei:round2(n(s)*c)})};
+  if(d.multi2)add(d.suma2,d.valuta2,d.curs2);
+  if(d.multi2&&d.multi3)add(d.suma3,d.valuta3,d.curs3);
+  var v1=String(d.valuta||"MDL"),c1=v1==="MDL"?1:(n(d.curs)||1),rest=round2((dueLei||0)-out.reduce(function(a,x){return a+x.lei},0));
+  if(n(d.suma)>0)out.unshift({suma:round2(n(d.suma)),valuta:v1,curs:c1,lei:round2(n(d.suma)*c1)});
+  else if(rest>0.004){var s1=round2(rest/c1);out.unshift({suma:s1,valuta:v1,curs:c1,lei:round2(s1*c1)});}
+  return out;
+}
+function platesteSalariu(angajat,luna,lines){
   var rows=S.grafic.filter(function(r){return sameP(r.angajat,angajat)&&String(r.data||"").slice(0,7)===luna&&n(r.ore)>0}); /* everyone's days: the payment covers the whole month */
   var groups={},tot=0;rows.forEach(function(r){var k=(r.pentru==="Proiect"&&r.proiect)?"Proiect|"+r.proiect:"EHL|";groups[k]=(groups[k]||0)+n(r.ore);tot+=n(r.ore)});
   var keys=Object.keys(groups);if(!keys.length||!(tot>0)){keys=["EHL|"];groups["EHL|"]=1;tot=1;}
-  var payer=meName(),left=round2(due),p=Promise.resolve(); /* whoever pays, pays from his own account — also for an employee who is a collaborator */
-  keys.forEach(function(k,i){
-    var share=i===keys.length-1?left:round2(due*groups[k]/tot);left=round2(left-share);if(!(share>0))return;
-    var pt=k.split("|")[0],pr=k.split("|")[1],pj=S.proiecte.filter(function(x){return sameP(x.nume,pr)})[0];
-    p=p.then(function(){return saveDoc("cheltuieli",{data:today(),suma:share,categorie:"Salarii",descriere:T("sal_descr")+" "+angajat+" · "+monthName(luna),
-      client:pj?(pj.client||""):"",proiect:pt==="Proiect"?pr:"",pentru:pt,platitDe:payer,mod:"Numerar",sursa:"Avans",angajat:angajat,luna:luna})});
+  var payer=meName(),p=Promise.resolve(); /* whoever pays, pays from his own account — also for an employee who is a collaborator */
+  /* one row per currency line and per project of the month's days: a line is split over the projects by their hours,
+     each row in the line's currency (strict per currency: the dollars leave the payer's dollars) */
+  (lines||[]).forEach(function(ln){
+    var left=round2(ln.suma);
+    keys.forEach(function(k,i){
+      var share=i===keys.length-1?left:round2(ln.suma*groups[k]/tot);left=round2(left-share);if(!(share>0))return;
+      var pt=k.split("|")[0],pr=k.split("|")[1],pj=S.proiecte.filter(function(x){return sameP(x.nume,pr)})[0];
+      p=p.then(function(){return saveDoc("cheltuieli",{data:today(),suma:share,valuta:ln.valuta,curs:ln.curs,categorie:"Salarii",descriere:T("sal_descr")+" "+angajat+" · "+monthName(luna),
+        client:pj?(pj.client||""):"",proiect:pt==="Proiect"?pr:"",pentru:pt,platitDe:payer,mod:"Numerar",sursa:"Avans",angajat:angajat,luna:luna})});
+    });
   });
   return p;
 }
@@ -1207,6 +1224,7 @@ function casaNeed(col,d){
   if(col==="iesiri")return (dinAvans(d)||(d.destinatie==="Dat persoanei"&&isTillPayer(d.persoana)))?null:{v:d.valuta||"MDL",s:n(d.suma)};
   if(col==="chirii")return (d.mod==="Numerar"&&!dinAvans(d))?{v:d.valuta||"MDL",s:chirieTotal(d)}:null;
   if(col==="imprumuturi")return d.dinCasa?{v:d.valuta||"MDL",s:n(d.suma)}:null;
+  if(col==="cheltuieli")return (d.mod==="Numerar"&&(d.platitDe?isTillPayer(d.platitDe):isCasierMe()))?{v:d.valuta||"MDL",s:n(d.suma)}:null; /* the cashier's cash expense leaves the till, in its currency */
   return null;
 }
 /* An outflow recorded by a collaborator is paid from the money the director gave him (his advance), never from the
@@ -1222,34 +1240,35 @@ function soldAvans(nume){var C=calc(),x=C.colab.concat(C.dirs||[]).filter(functi
 /* a collaborator cannot hand out more than he holds; an edit that takes no more than before always passes */
 function avansErr(col,d,id){
   if(isDir&&!isCasierMe())return ""; /* an administrator pays from his own account and may go below zero: the firm owes him the difference */
-  var need=0,old=null;
-  if(col==="iesiri"){if(!ieseDinAvans(id))return "";need=n(d.suma)*n(d.curs);old=id?S.iesiri.filter(function(r){return r.id===id})[0]:null;}
+  /* strict per currency (21 November 2026): what leaves in USD must be there in USD; lei never cover a dollar */
+  var v=String(d.valuta||"MDL"),need=0,back=0,who=meName(),hint="";
+  if(col==="iesiri"){
+    if(!ieseDinAvans(id))return "";need=n(d.suma);
+    var oi=id?S.iesiri.filter(function(r){return r.id===id})[0]:null;
+    if(oi){who=oi.platitDe||who;v=String(oi.valuta||"MDL");back=n(oi.suma);}
+  }
   else if(col==="chirii"){
     /* a collaborator's cash rent comes out of his advance and cannot take it below zero */
     if(isCasierMe()||d.mod==="Transfer")return "";
-    var or=id?S.chirii.filter(function(r){return r.id===id})[0]:null,bkr=(or&&dinAvans(or)&&or.mod!=="Transfer")?round2(chirieTotal(or)*n(or.curs)):0,ndr=round2(chirieTotal(d)*n(d.curs));
-    if(!(ndr>0)||(bkr&&ndr<=bkr))return "";
-    var frr=round2(soldAvans(meName())+bkr);
-    return ndr>frr+0.004?T(isDir?"cont_meu_lipsa":"avans_lipsa").replace("{s}",money(Math.max(0,frr))):"";
+    var or=id?S.chirii.filter(function(r){return r.id===id})[0]:null;need=round2(chirieTotal(d));
+    if(or&&dinAvans(or)&&or.mod!=="Transfer"&&String(or.valuta||"MDL")===v)back=round2(chirieTotal(or));
   }
-  else if(col==="imprumuturi"){if(id||!d.dinCasa||isCasierMe())return "";need=n(d.suma)*(n(d.curs)||1);} /* a loan is handed out of the lender's own account */
+  else if(col==="imprumuturi"){if(id||!d.dinCasa||isCasierMe())return "";need=n(d.suma);} /* a loan is handed out of the lender's own account */
   else if(col==="cheltuieli"){
     /* cash from the advance cannot go below zero; ticked "Din banii mei" it may (his own money). A transfer is paid by the firm's account. */
     if(isCasierMe()||d.mod==="Transfer"||d.proprii)return "";
-    var oc=id?S.cheltuieli.filter(function(r){return r.id===id})[0]:null,bk=(oc&&oc.mod!=="Transfer")?chLei(oc):0,nd=round2(n(d.suma)*(n(d.curs)||1));
-    if(!(nd>0)||(bk&&nd<=bk))return "";
-    var fr=round2(soldAvans(meName())+bk);
-    return nd>fr+0.004?T("avans_lipsa").replace("{s}",money(Math.max(0,fr)))+" "+T("avans_proprii_hint"):"";
+    var oc=id?S.cheltuieli.filter(function(r){return r.id===id})[0]:null;need=n(d.suma);
+    if(oc&&oc.mod!=="Transfer"&&String(oc.valuta||"MDL")===v)back=n(oc.suma);
+    hint=" "+T("avans_proprii_hint");
   }
   else return "";
   need=round2(need);if(!(need>0))return "";
-  var back=old?round2(n(old.suma)*n(old.curs)):0;
-  if(back&&need<=back)return "";
-  var free=round2(soldAvans(old?old.platitDe:meName())+back);
-  return need>free+0.004?T(isDir?"cont_meu_lipsa":"avans_lipsa").replace("{s}",money(Math.max(0,free))):"";
+  if(back&&need<=back)return ""; /* an edit that takes no more than before, in the same currency, always passes */
+  var free=round2(soldVal(who,v)+back);
+  return need>free+0.004?T("avans_lipsa").replace("{s}",money(Math.max(0,free))).replace("{v}",v)+hint:"";
 }
 function casaErr(col,d,id){
-  if(!isDir)return ""; /* a collaborator does not see the till; what leaves it is recorded by a director */
+  if(!isDir&&!isCasierMe())return ""; /* a collaborator does not see the till; what leaves it is recorded by a director or the cashier */
   if(col==="iesiri"&&ieseDinAvans(id,d))return "";
   if(col==="imprumuturi")return ""; /* loans never come out of Casa EHL */
   var need=casaNeed(col,d);if(!need||!(need.s>0))return "";
@@ -1377,9 +1396,18 @@ var FORMS={
  cheltuieli:{title:"a_chelt",icon:"up",fields:function(){return[
    {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
    /* the currency (20 November 2026): lei by default; another currency carries the rate of the day, the totals use the lei value */
-   {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs",showIf:function(d){return d.categorie!=="Salarii"}},
-   {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1",lockIf:function(d){return (d.valuta||"MDL")==="MDL"},showIf:function(d){return d.categorie!=="Salarii"}},
+   {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs"},
+   {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1",lockIf:function(d){return (d.valuta||"MDL")==="MDL"}},
    {k:"suma",t:"number",l:"f_suma",req:1,step:"0.01"},
+   /* a salary handed over in two or three currencies at once (21 November 2026): one row per currency is written */
+   {k:"multi2",t:"checkbox",l:"pay_multi",hint:"pay_multi_h",showIf:function(d){return catMain(catRaw(d.categorie))==="Salarii"&&!(sheetState&&sheetState.id)}},
+   {k:"suma2",t:"number",l:"f_suma",req:1,step:"0.01",showIf:function(d){return catMain(catRaw(d.categorie))==="Salarii"&&!(sheetState&&sheetState.id)&&!!d.multi2}},
+   {k:"valuta2",t:"select",l:"f_valuta",half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs2",showIf:function(d){return catMain(catRaw(d.categorie))==="Salarii"&&!(sheetState&&sheetState.id)&&!!d.multi2}},
+   {k:"curs2",t:"number",l:"f_curs",half:1,step:"0.0001",def:"1",lockIf:function(d){return (d.valuta2||"MDL")==="MDL"},showIf:function(d){return catMain(catRaw(d.categorie))==="Salarii"&&!(sheetState&&sheetState.id)&&!!d.multi2}},
+   {k:"multi3",t:"checkbox",l:"pay_multi",showIf:function(d){return catMain(catRaw(d.categorie))==="Salarii"&&!(sheetState&&sheetState.id)&&!!d.multi2}},
+   {k:"suma3",t:"number",l:"f_suma",req:1,step:"0.01",showIf:function(d){return catMain(catRaw(d.categorie))==="Salarii"&&!(sheetState&&sheetState.id)&&!!d.multi2&&!!d.multi3}},
+   {k:"valuta3",t:"select",l:"f_valuta",half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs3",showIf:function(d){return catMain(catRaw(d.categorie))==="Salarii"&&!(sheetState&&sheetState.id)&&!!d.multi2&&!!d.multi3}},
+   {k:"curs3",t:"number",l:"f_curs",half:1,step:"0.0001",def:"1",lockIf:function(d){return (d.valuta3||"MDL")==="MDL"},showIf:function(d){return catMain(catRaw(d.categorie))==="Salarii"&&!(sheetState&&sheetState.id)&&!!d.multi2&&!!d.multi3}},
    {k:"descriere",t:"text",l:"f_descr_req",req:1,hint:"f_descr_h",minlen:3},
    /* the category is chosen, never typed: the list comes from the settings (and from what was used before) */
    {k:"categorie",t:"select",l:"f_categ",req:1,allowEmpty:1,opts:catMains().map(function(c){return {v:c,l:catLabel(c)}})},
@@ -1396,7 +1424,7 @@ var FORMS={
    /* who pays is never chosen: the account that records the expense. A director or the cashier pays from the till,
       a collaborator from his advance; a transfer comes from the firm's account for everyone. */
    if(isCasierMe())return [{l:T("f_mod"),v:d.mod==="Transfer"?T("op_tr_h"):T("din_casa")}];
-   return d.mod==="Transfer"?[{l:T("f_mod"),v:T("op_tr_h")}]:[{l:isDir?T("cont_meu_disp"):T("avans_disp"),v:money(soldAvans(meName()))+" MDL"}]}},
+   return d.mod==="Transfer"?[{l:T("f_mod"),v:T("op_tr_h")}]:[{l:isDir?T("cont_meu_disp"):T("avans_disp"),v:money(soldVal(meName(),d.valuta||"MDL"))+" "+(d.valuta||"MDL")}]}},
 
  iesiri:{title:"a_ies",icon:"send",fields:function(){return[
    {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
@@ -1411,7 +1439,7 @@ var FORMS={
    {k:"luna",t:"month",l:"f_luna",def:curMonth(),showIf:function(d){return d.destinatie==="Salarii"}},
    {k:"nota",t:"text",l:"f_nota"}
  ]},calc:function(d){var out=[{l:d.destinatie==="Depus pe cont"?T("cont_intra"):T("eq"),v:money(n(d.suma)*n(d.curs))+" MDL"}];
-   if(ieseDinAvans(sheetState&&sheetState.id,d))out.push({l:isDir?T("cont_meu_disp"):T("avans_disp"),v:money(soldAvans(meName()))+" MDL"});
+   if(ieseDinAvans(sheetState&&sheetState.id,d))out.push({l:isDir?T("cont_meu_disp"):T("avans_disp"),v:money(soldVal(meName(),d.valuta||"MDL"))+" "+(d.valuta||"MDL")});
    return out}},
 
  chirii:{title:"a_chirie",icon:"home",fields:function(){return[
@@ -1430,7 +1458,7 @@ var FORMS={
  ]},calc:function(d){var t=n(d.chirie)+n(d.gaj)+n(d.comunale)+n(d.avarii);
    var out=[{l:T("tot"),v:money(t)+" "+(d.valuta||"")},{l:T("eq"),v:money(t*n(d.curs))+" MDL"}];
    /* a collaborator pays the rent from his advance (cash) or from the firm's account (transfer) */
-   if(!isCasierMe())out.push(d.mod==="Transfer"?{l:T("f_mod"),v:T("op_tr_h")}:{l:isDir?T("cont_meu_disp"):T("avans_disp"),v:money(soldAvans(meName()))+" MDL"});
+   if(!isCasierMe())out.push(d.mod==="Transfer"?{l:T("f_mod"),v:T("op_tr_h")}:{l:isDir?T("cont_meu_disp"):T("avans_disp"),v:money(soldVal(meName(),d.valuta||"MDL"))+" "+(d.valuta||"MDL")});
    return out}},
 
  imprumuturi:{title:"a_impr",icon:"clock",fields:function(){return[
@@ -1472,12 +1500,16 @@ var FORMS={
    {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
    fAngajatPontaj(),
    {k:"luna",t:"month",l:"f_luna_avans",req:1,def:curMonth(),hint:"f_luna_avans_h"},
+   {k:"valuta",t:"select",l:"f_valuta",req:1,half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs"},
+   {k:"curs",t:"number",l:"f_curs",req:1,half:1,step:"0.0001",def:"1",lockIf:function(d){return (d.valuta||"MDL")==="MDL"}},
    {k:"suma",t:"number",l:"f_suma",req:1,step:"0.01"},
    {k:"nota",t:"text",l:"f_nota"}
  ]},calc:function(d){
    if(!d.angajat||!d.luna)return [];
-   var L=pontajLuna(d.angajat,d.luna),av=avansuri(d.angajat,d.luna),sal=salariuLa(d.angajat,monthEnd(d.luna));
-   return [{l:T("f_salariu"),v:money(sal)+" MDL"},{l:T("av_pana_acum"),v:money(L.tot)+" MDL"},{l:T("av_date"),v:money(av.total)+" MDL"},{l:T("l_plata"),v:money(L.paid)+" MDL"},{l:T("l_rest"),v:money(round2(L.due-n(d.suma)))+" MDL"}]}},
+   var L=pontajLuna(d.angajat,d.luna),av=avansuri(d.angajat,d.luna),sal=salariuLa(d.angajat,monthEnd(d.luna)),lei=round2(n(d.suma)*(n(d.curs)||1));
+   var out=[{l:T("f_salariu"),v:money(sal)+" MDL"},{l:T("av_pana_acum"),v:money(L.tot)+" MDL"},{l:T("av_date"),v:money(av.total)+" MDL"},{l:T("l_plata"),v:money(L.paid)+" MDL"}];
+   if((d.valuta||"MDL")!=="MDL"&&n(d.suma)>0)out.push({l:T("f_sumamdl"),v:money(lei)+" MDL"});
+   out.push({l:T("l_rest"),v:money(round2(L.due-lei))+" MDL"});return out}},
  pontaj:{title:"a_pontaj",icon:"calendar",fields:function(){return[
    {k:"luna",t:"month",l:"f_luna",req:1,def:curMonth()},
    fAngajatPontaj(),
@@ -1490,7 +1522,18 @@ var FORMS={
    /* "paid now": expenses "Salarii" on the projects of my days, for what is still due; from my advance (a director: from the till) */
    {k:"achitat",t:"checkbox",l:"pontaj_pay",hint:"pontaj_pay_h",showIf:function(d){return !!d.angajat&&pontajDue(dPlin(d))>0.004}},
    /* the whole remainder by default; a part (for instance one's own days only) when a sum is typed */
-   {k:"suma",t:"number",l:"pontaj_suma",step:"0.01",hint:"pontaj_suma_h",showIf:function(d){return !!d.angajat&&!!d.achitat&&pontajDue(dPlin(d))>0.004}}
+   {k:"suma",t:"number",l:"pontaj_suma",step:"0.01",hint:"pontaj_suma_h",showIf:function(d){return !!d.angajat&&!!d.achitat&&pontajDue(dPlin(d))>0.004}},
+   /* in which currency (21 November 2026): the salary may be handed over in two or three currencies at once, each taken from its own */
+   {k:"valuta",t:"select",l:"f_valuta",half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs",showIf:function(d){return !!d.angajat&&!!d.achitat&&pontajDue(dPlin(d))>0.004}},
+   {k:"curs",t:"number",l:"f_curs",half:1,step:"0.0001",def:"1",lockIf:function(d){return (d.valuta||"MDL")==="MDL"},showIf:function(d){return !!d.angajat&&!!d.achitat&&pontajDue(dPlin(d))>0.004}},
+   {k:"multi2",t:"checkbox",l:"pay_multi",hint:"pay_multi_h",showIf:function(d){return !!d.angajat&&!!d.achitat&&pontajDue(dPlin(d))>0.004}},
+   {k:"suma2",t:"number",l:"f_suma",req:1,step:"0.01",showIf:function(d){return !!d.angajat&&!!d.achitat&&!!d.multi2}},
+   {k:"valuta2",t:"select",l:"f_valuta",half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs2",showIf:function(d){return !!d.angajat&&!!d.achitat&&!!d.multi2}},
+   {k:"curs2",t:"number",l:"f_curs",half:1,step:"0.0001",def:"1",lockIf:function(d){return (d.valuta2||"MDL")==="MDL"},showIf:function(d){return !!d.angajat&&!!d.achitat&&!!d.multi2}},
+   {k:"multi3",t:"checkbox",l:"pay_multi",showIf:function(d){return !!d.angajat&&!!d.achitat&&!!d.multi2}},
+   {k:"suma3",t:"number",l:"f_suma",req:1,step:"0.01",showIf:function(d){return !!d.angajat&&!!d.achitat&&!!d.multi2&&!!d.multi3}},
+   {k:"valuta3",t:"select",l:"f_valuta",half:1,opts:opt(valute().map(function(v){return v.cod})),def:"MDL",onchg:"curs3",showIf:function(d){return !!d.angajat&&!!d.achitat&&!!d.multi2&&!!d.multi3}},
+   {k:"curs3",t:"number",l:"f_curs",half:1,step:"0.0001",def:"1",lockIf:function(d){return (d.valuta3||"MDL")==="MDL"},showIf:function(d){return !!d.angajat&&!!d.achitat&&!!d.multi2&&!!d.multi3}}
  ]},calc:function(d0){var d=dPlin(d0),wd=workdays(d.luna),sal=salariuLa(d.angajat,d.luna?monthEnd(d.luna):today()),pz=wd?sal/wd:0;
    var out=[{l:(lang==="ru"?"Раб. дней":"Zile lucr."),v:String(wd)}];
    if(!d.angajat)return out;
@@ -1506,7 +1549,9 @@ var FORMS={
      var paid=pontajPlatit(d),due=pontajDue(d);
      if(paid>0)out.push({l:T("pontaj_paid"),v:money(paid)+" MDL"});
      if(due>0.004)out.push({l:T("pontaj_due"),v:money(due)+" MDL",cls:"tot"});
-     if(d.achitat&&due>0.004)out.push({l:T("pontaj_suma"),v:money(n(d.suma)>0?n(d.suma):due)+" MDL",cls:"tot"});
+     if(d.achitat&&due>0.004){var pls=payLines(d,due); /* each currency line, then the lei total when there are several */
+       pls.forEach(function(x){out.push({l:T("pontaj_suma")+(pls.length>1?" · "+x.valuta:""),v:money(x.suma)+" "+x.valuta+(x.valuta!=="MDL"?" = "+money(x.lei)+" MDL":""),cls:"tot"})});
+       if(pls.length>1)out.push({l:T("tot"),v:money(pls.reduce(function(a,x){return a+x.lei},0))+" MDL",cls:"tot"});}
      if(isDir&&colabUser(d.angajat))out.push({l:T("pontaj_dinavans"),v:money(soldAvans(d.angajat))+" MDL"});
    }
    /* who paid what for this employee and month, everyone included */
@@ -2258,14 +2303,25 @@ function flowSvg(months){
   });
   return '<svg class="flow" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(T("ov_flux"))+'"><line class="base" x1="0" x2="'+W+'" y1="'+base+'" y2="'+base+'"/>'+out+'</svg>';
 }
+/* a person's balances per currency: lei first, then every other currency that moved or is held (21 November 2026) */
+function curList(x,vals){
+  if(!x||!x.val)return [{v:"MDL",s:round2((x&&x.ramas)||0)}];
+  var ks=(vals||calc().vals).filter(function(v){return v!=="MDL"&&((x.mov&&x.mov[v])||Math.abs(x.val[v]||0)>0.004)});
+  return [{v:"MDL",s:round2(x.val.MDL||0)}].concat(ks.map(function(v){return {v:v,s:round2(x.val[v]||0)}}));
+}
+function owedOf(cl){return cl.filter(function(c){return c.s<-0.004}).map(function(c){return money(-c.s)+" "+c.v}).join(" · ")}
+function persCur(nume){var C=calc(),x=C.colab.concat(C.dirs||[]).filter(function(c){return sameP(c.nume,nume)})[0];return curList(x,C.vals)}
+function curHtml(cl,sep){return cl.map(function(c){return '<span class="cl'+(c.s<-0.004?" neg":"")+'">'+money(c.s)+' <span class="u">'+esc(c.v)+'</span></span>'}).join(sep||"<br>")}
+/* what the firm owes a group of people, per currency (the negative balances added up) */
+function owedCur(list){var o={};list.forEach(function(x){if(!x.val)return;Object.keys(x.val).forEach(function(v){if(x.val[v]<-0.004)o[v]=round2((o[v]||0)-x.val[v])})});var ks=Object.keys(o).sort(function(a,b){return a==="MDL"?-1:(b==="MDL"?1:0)});return ks.length?ks.map(function(v){return money(o[v])+" "+v}).join(" · "):""}
 function colabRow(x){
-  var state=x.ramas<0?T("colab_owed"):(x.ramas>0?T("colab_has"):T("colab_zero"));
-  var sub=T("l_primit")+" "+money(x.primit)+" · "+T("l_cheltuit")+" "+money(x.cheltuit)+(x.proprii?" · "+T("colab_proprii")+" "+money(x.proprii):"");
-  if(x.val&&x.mov){var cur=Object.keys(x.val).filter(function(v){return v!=="MDL"&&(x.mov[v]||x.val[v])});if(cur.length)sub+=" · "+cur.map(function(v){return money(x.val[v])+" "+v}).join(" · ")+" · "+money(x.val.MDL)+" MDL";}
-  var tone=x.ramas<0?"neg":(x.ramas>0?"warnc":"pos");
-  /* initials on a tint picked from the name, so a person keeps the same colour; the state sits right of the name */
+  var cl=curList(x),pos=cl.some(function(c){return c.s>0.004}),neg=!pos&&cl.some(function(c){return c.s<-0.004}); /* owed only when nothing positive is left in any currency */
+  var state=neg?T("colab_owed"):(pos?T("colab_has"):T("colab_zero"));
+  var ow=owedOf(cl),sub=T("l_primit")+" "+money(x.primit)+" · "+T("l_cheltuit")+" "+money(x.cheltuit)+(x.proprii?" · "+T("colab_proprii")+" "+money(x.proprii):"")+((ow&&!neg)?" · "+T("colab_owed")+" "+ow:"")+(cl.length>1?" · ≈ "+money(x.ramas)+" MDL":"");
+  var tone=neg?"neg":(pos?"warnc":"pos");
+  /* initials on a tint picked from the name, so a person keeps the same colour; the state sits right of the name; the balance per currency */
   return '<button type="button" class="tap row person" data-colab="'+esc(x.nume)+'"><span class="av" style="--c:'+toneOf(x.nume)+'">'+esc(initials(x.nume))+'</span><span class="l"><span class="nm-row">'+esc(x.nume)+'<span class="tagc '+tone+'">'+esc(state)+'</span></span></span>'
-    +'<span class="r '+tone+'">'+money(x.ramas)+'</span><span class="pm">'+esc(sub)+'</span></button>';
+    +'<span class="r '+tone+'">'+curHtml(cl)+'</span><span class="pm">'+esc(sub)+'</span></button>';
 }
 /* who received what and what they spent for the company, newest first */
 function openColab(name){
@@ -2276,7 +2332,8 @@ function openColab(name){
     .concat(S.chirii.filter(function(r){return dinAvans(r)&&r.mod==="Numerar"&&sameP(r.platitDe,name)}).map(function(r){return {col:"chirii",id:r.id,data:r.dataInceput,persoana:r.locatia,nota:r.chirias,suma:chirieTotal(r),curs:r.curs}}))
     .sort(function(a,b){return String(b.data).localeCompare(String(a.data))});
   var h='<div class="sheet"><div class="sheet-in"><div class="sheet-head"><h2>'+esc(name)+'</h2><button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div>';
-  h+='<div class="tiles"><div class="tile big" style="background:'+(x.ramas<0?"var(--neg)":"var(--accent)")+'"><span class="k">'+esc(x.ramas<0?T("colab_owed"):T("colab_has"))+'</span><span class="v">'+money(Math.abs(x.ramas))+'<span class="u">MDL</span></span></div>'
+  var clx=curList(x,C.vals),owx=owedOf(clx),negx=!!owx&&!clx.some(function(c){return c.s>0.004}); /* per currency: a minus in one of them is what the firm owes him in that currency */
+  h+='<div class="tiles"><div class="tile big" style="background:'+(negx?"var(--neg)":"var(--accent)")+'"><span class="k">'+esc(negx?T("colab_owed"):T("colab_has"))+'</span><span class="v'+(clx.length>1?" multi":"")+'">'+curHtml(clx)+'</span>'+((owx&&!negx)?'<span class="t-sub">'+esc(T("colab_owed")+" "+owx)+'</span>':'')+'</div>'
     +tile(T("l_primit"),money(x.primit),"MDL")+tile(T("l_cheltuit"),money(x.cheltuit),"MDL")+'</div>';
   if(x.proprii)h+='<p class="note" style="margin-top:10px">'+esc(T("colab_proprii_h").replace("{s}",money(x.proprii)))+'</p>';
   h+='<div class="sec"><h2>'+esc(T("colab_spent"))+'</h2>'+(spent.length?'<div class="card rows">'+spent.map(function(r){
@@ -2396,7 +2453,7 @@ function vPanouOp(){
     var sold=soldAvans(me); /* taken minus everything paid out of the account, cash rents included: the same figure as on the EHL tab */
     var h=vOverview()+'<div class="dash-grid">';
     h+='<div class="sec sec-wide"><div class="tiles">'
-      +tile(sold<0?T("my_owed"):T("my_sold"),money(Math.abs(sold)),"MDL",sold<0?"neg":"",1,"wallet",soldPeValute(me))
+      +(function(){var cl=persCur(me),ow=owedOf(cl),ng=!!ow&&!cl.some(function(c){return c.s>0.004});return tile(ng?T("my_owed"):T("my_sold"),curHtml(cl),"",ng?"neg":"",1,"wallet",(ow&&!ng)?'<span class="neg">'+esc(T("my_owed")+" "+ow)+'</span>':"")})() /* strict per currency: dollars are dollars */
       +tile(T(isDir?"op_primit_dir":"op_primit"),money(primit),"MDL","pos",0,"inArrow")
       +tile(T("op_chn"),money(chn),"MDL","neg",0,"cash")
       +(dat>0?tile(T("op_dat"),money(dat),"MDL","neg",0,"send"):"")
@@ -2505,10 +2562,10 @@ function vPanouEHL(){
   ])+'</div>';
 
   /* the administrators' accounts: what each director took from the EHL till, what he handed on or spent, what he still holds */
-  if(C.dirs.length){var owed=round2(C.dirs.reduce(function(a,x){return a+(x.ramas<0?-x.ramas:0)},0));
-    h+='<div class="sec"><h2>'+esc(T("s_dirs"))+'</h2><div class="card rows">'+C.dirs.map(function(x){return colabRow(x)}).join("")+(owed>0?r2(T("dirs_owed"),money(owed),null,"neg",1):'')+'</div><p class="hint" style="margin-top:8px">'+esc(T("s_dirs_h"))+'</p></div>';}
-  if(C.colab.length){var owedC=round2(C.colab.reduce(function(a,x){return a+(x.ramas<0?-x.ramas:0)},0));
-    h+='<div class="sec"><h2>'+esc(T("s_colab"))+'</h2><div class="card rows">'+C.colab.map(function(x){return colabRow(x)}).join("")+(owedC>0?r2(T("colab_owed_tot"),money(owedC),null,"neg",1):'')+'</div></div>';}
+  if(C.dirs.length){var owed=owedCur(C.dirs);
+    h+='<div class="sec"><h2>'+esc(T("s_dirs"))+'</h2><div class="card rows">'+C.dirs.map(function(x){return colabRow(x)}).join("")+(owed?r2(T("dirs_owed"),esc(owed),null,"neg",1):'')+'</div><p class="hint" style="margin-top:8px">'+esc(T("s_dirs_h"))+'</p></div>';}
+  if(C.colab.length){var owedC=owedCur(C.colab);
+    h+='<div class="sec"><h2>'+esc(T("s_colab"))+'</h2><div class="card rows">'+C.colab.map(function(x){return colabRow(x)}).join("")+(owedC?r2(T("colab_owed_tot"),esc(owedC),null,"neg",1):'')+'</div></div>';}
   /* every expense the collaborators recorded, newest first: the director sees them all without opening the registers */
   var byColab=function(r){var u=S.utilizatori.filter(function(x){return x.id===r.by})[0];return !!(u&&u.rol!=="Director")};
   var colabExp=S.cheltuieli.filter(byColab).map(function(r){var pt=pentruOf(r);return {col:"cheltuieli",id:r.id,data:r.data,ts:r.ts,t:r.descriere||catLabel(r.categorie)||"—",s:[shortDate(r.data),byName(r),catLabel(r.categorie),pt==="Proiect"?r.proiect:(pt==="EHL"?T("pt_ehl"):T("pt_alte")),r.mod==="Transfer"?T("transfer"):T("numerar"),chNote(r)],val:chLei(r)}})
@@ -2838,7 +2895,7 @@ function vSalarii(){
       var perA={},ordA=[];avAll.list.forEach(function(x){var k=String(x.angajat||"").trim();if(!(k in perA)){perA[k]=[];ordA.push(k)}perA[k].push(x)});
       h+='<div class="card rows">'+ordA.map(function(k){
         var L=pontajLuna(k,lunaAv),tot=round2(perA[k].reduce(function(a,x){return a+x.suma},0));
-        return '<div class="row wrap user-row"><span class="l">'+esc(k)+'<span class="s">'+esc(perA[k].map(function(x){return shortDate(x.data)+" "+money(x.suma)+(x.nume?" · "+x.nume:"")}).join(" · "))+'</span><span class="s">'+esc(T("f_salariu")+" "+money(L.sal)+" · "+T("l_castigat")+" "+money(L.tot)+" · "+T("l_plata")+" "+money(L.paid)+" · "+T("av_rest")+" "+money(L.due))+'</span></span><span class="r warnc">'+money(tot)+'</span></div>';
+        return '<div class="row wrap user-row"><span class="l">'+esc(k)+'<span class="s">'+esc(perA[k].map(function(x){return shortDate(x.data)+" "+(x.cur!=="MDL"?money(x.sumaCur)+" "+x.cur+" = ":"")+money(x.suma)+(x.nume?" · "+x.nume:"")}).join(" · "))+'</span><span class="s">'+esc(T("f_salariu")+" "+money(L.sal)+" · "+T("l_castigat")+" "+money(L.tot)+" · "+T("l_plata")+" "+money(L.paid)+" · "+T("av_rest")+" "+money(L.due))+'</span></span><span class="r warnc">'+money(tot)+'</span></div>';
       }).join("")+r2(T("l_total"),money(avAll.total),null,"warnc",1)+'</div>';
     }
     h+='</div>';
@@ -3007,7 +3064,7 @@ function openForm(col,id){
   var data={};
   def.fields().forEach(function(f){data[f.k]=rec?(rec[f.k]!=null?rec[f.k]:""):(f.def!=null?f.def:"")});
   if(rec&&col==="angajati"){data.salariu=salariuLa(rec.nume,today());data.dinSal=today();}
-  if(col==="cheltuieli"){var full=data.categorie;data.categorie=catMain(full);data.subcat=catSub(full);if(rec){data.pentru=pentruOf(rec);data.proprii=rec.sursa==="Proprii";}}
+  if(col==="cheltuieli"){var full=data.categorie;data.categorie=catMain(full);data.subcat=catSub(full);if(rec){data.pentru=pentruOf(rec);data.proprii=rec.sursa==="Proprii";if(!data.valuta){data.valuta="MDL";data.curs=1;}}}
   if(col==="pontaj")pontajDinGrafic(data);
   sheetState={col:col,id:id||null,data:data,err:""};
   sheetOpened();
@@ -3225,7 +3282,7 @@ function submitForm(){
     });
   }else if(col==="avans"){ /* a salary advance: a Salarii expense of the month, marked avans, paid by the account itself */
     var ab={data:d.data,suma:n(d.suma),categorie:"Salarii",descriere:T("avans_descr")+" "+String(d.angajat).trim()+" · "+monthName(d.luna)+(String(d.nota||"").trim()?" · "+String(d.nota).trim():""),
-      pentru:"EHL",proiect:"",client:"",mod:"Numerar",platitDe:meName(),sursa:isCasierMe()?"":"Avans",angajat:String(d.angajat).trim(),luna:d.luna,avans:true,valuta:"MDL",curs:1};
+      pentru:"EHL",proiect:"",client:"",mod:"Numerar",platitDe:meName(),sursa:isCasierMe()?"":"Avans",angajat:String(d.angajat).trim(),luna:d.luna,avans:true,valuta:d.valuta||"MDL",curs:(d.valuta||"MDL")==="MDL"?1:(n(d.curs)||1)};
     p=saveDoc("cheltuieli",ab,st.id);
   }else if(col==="imprumuturi"){
     var ib={data:d.data,persoana:String(d.persoana).trim(),suma:n(d.suma),valuta:d.valuta||"MDL",curs:(d.valuta||"MDL")==="MDL"?1:(n(d.curs)||1),termen:d.termen,status:d.status,nota:d.nota};
@@ -3237,7 +3294,8 @@ function submitForm(){
     var b={};fields.forEach(function(f){
       if(f.t==="checkbox")return;
       if(f.newOnly&&st.id)return;
-      if(col==="pontaj"&&f.k==="suma")return; /* the sum paid now is not a column of the Salarii row */
+      if(col==="pontaj"&&/^(suma|valuta|curs)/.test(f.k))return; /* the sum paid now and its currency lines are not columns of the timesheet */
+      if(/^(suma|valuta|curs)[23]$/.test(f.k))return; /* the extra currency lines of a salary become rows of their own */
       b[f.k]=(f.t==="number")?n(d[f.k]):String(d[f.k]==null?"":d[f.k]).trim();
     });
     if(col==="cheltuieli"){b.categorie=catJoin(catRaw(b.categorie),b.subcat);delete b.subcat;
@@ -3250,10 +3308,16 @@ function submitForm(){
     if(col==="proiecte"&&!st.id)b.responsabili=meName(); /* the project belongs to the account that created it */
     if(col==="schimburi"&&!st.id)b.persoana=meName(); /* the exchange is the account's own; the server sets the same */
     p=saveDoc(col,b,st.id);
+    if(col==="cheltuieli"&&!st.id&&catMain(b.categorie)==="Salarii"){ /* a salary handed over in two or three currencies: one row per currency (21 November 2026) */
+      payLines({suma:0,multi2:d.multi2,suma2:d.suma2,valuta2:d.valuta2,curs2:d.curs2,multi3:d.multi3,suma3:d.suma3,valuta3:d.valuta3,curs3:d.curs3},0).forEach(function(x){
+        p=p.then(function(){return saveDoc("cheltuieli",Object.assign({},b,{suma:x.suma,valuta:x.valuta,curs:x.curs}))});
+      });
+    }
     if(col==="pontaj"){b.complet=!!d.complet;}
     if(col==="pontaj"&&d.achitat){
-      var dueB=dPlin({angajat:b.angajat,luna:b.luna,z1:b.z1,z2:b.z2,extra:b.extra,complet:!!d.complet}),due=pontajDue(dueB),pay=n(d.suma)>0?Math.min(round2(n(d.suma)),due):due;
-      if(pay>0.004)p=p.then(function(){return platesteSalariu(b.angajat,b.luna,pay)});
+      var dueB=dPlin({angajat:b.angajat,luna:b.luna,z1:b.z1,z2:b.z2,extra:b.extra,complet:!!d.complet}),due=pontajDue(dueB),lines=payLines(d,due);
+      if(lines.length===1&&lines[0].valuta==="MDL"&&lines[0].lei>due)lines=[{suma:due,valuta:"MDL",curs:1,lei:due}]; /* lei alone never pay more than is due (as before) */
+      if(lines.reduce(function(a,x){return a+x.lei},0)>0.004)p=p.then(function(){return platesteSalariu(b.angajat,b.luna,lines)});
     }
   }
   p.then(function(){closeSheet();toast(T("saved"))})
@@ -3517,7 +3581,7 @@ document.addEventListener("change",function(ev){
   if(!sheetState||!el.dataset||!el.dataset.k)return;
   var k=el.dataset.k;
   sheetState.data[k]=(el.type==="checkbox")?el.checked:el.value;
-  if(k==="valuta"){sheetState.data.curs=String(cursAzi(el.value));drawSheet();return;}
+  if(/^valuta[23]?$/.test(k)){sheetState.data["curs"+k.slice(6)]=String(cursAzi(el.value));drawSheet();return;} /* valuta → curs, valuta2 → curs2, valuta3 → curs3 */
   if(sheetState.col==="schimburi"&&(k==="valutaDin"||k==="valutaIn")){schimbAuto();drawSheet();return;} /* a currency changed: convert again */
   if(k==="proiect"){var pj=S.proiecte.filter(function(p){return sameP(p.nume,el.value)})[0];if(pj&&pj.client){sheetState.data.client=pj.client;drawSheet();}return;}
   if(sheetState.col==="proiecte"&&(k==="contractEUR"||k==="contractCash")){var pd=sheetState.data;pd.contractTransfer=String(Math.max(0,round2(n(pd.contractEUR)-n(pd.contractCash))));drawSheet();return;} /* the transfer part is what is left of the contract */

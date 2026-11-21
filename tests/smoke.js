@@ -145,9 +145,10 @@ function collection(col) {
         data = { ...data, platitDe: currentUser.nume };
         if (data.mod !== "Transfer" && data.sursa !== "Proprii") { /* "Din banii mei" has no limit, as the hook */
           data.sursa = "Avans";
-          const got = Object.values(store.iesiri || {}).filter(r => r.destinatie === "Dat persoanei" && r.persoana === currentUser.nume).reduce((a, r) => a + r.suma * r.curs, 0);
-          const spent = Object.values(store.cheltuieli || {}).filter(r => r.mod !== "Transfer" && r.platitDe === currentUser.nume).reduce((a, r) => a + r.suma * (r.curs || 1), 0); /* in lei */
-          if (data.suma * (data.curs || 1) > got - spent + 0.004) throw err(400, "Nu aveți destui bani din avans. Cereți mai întâi bani de la director.");
+          const cv = data.valuta || "MDL", inCur = r => (r.valuta || "MDL") === cv; /* strict per currency, as the hook */
+          const got = Object.values(store.iesiri || {}).filter(r => r.destinatie === "Dat persoanei" && r.persoana === currentUser.nume && inCur(r)).reduce((a, r) => a + r.suma, 0);
+          const spent = Object.values(store.cheltuieli || {}).filter(r => r.mod !== "Transfer" && r.platitDe === currentUser.nume && inCur(r)).reduce((a, r) => a + r.suma, 0);
+          if (data.suma > got - spent + 0.004) throw err(400, "Nu aveți destui bani din avans în " + cv + ". Cereți mai întâi bani de la director.");
           if ((data.valuta || "MDL") !== "MDL" && !(data.curs > 0)) throw err(400, "Lipsește cursul valutei.");
         }
       }
@@ -1006,17 +1007,19 @@ const ls = (k) => window.localStorage.getItem(k);
 
   console.log("\n16b. An expense in another currency (lei value in the totals, the currency in the person's holdings)");
   if (!($("#role") && $("#role").textContent === "Operator")) await asOp(); /* the collaborator is already in after 16 */
-  const readSold = () => { const m = text().match(/Soldul meu\s*(-?[\d.]+,\d{2})/); return m ? Number(m[1].replace(/\./g, "").replace(",", ".")) : NaN; };
+  const readSold = () => { const m = text().match(/(?:Soldul meu|Firma îmi datorează)\s*(-?[\d.]+,\d{2})/); return m ? Number(m[1].replace(/\./g, "").replace(",", ".")) : NaN; }; /* the lei line comes first on the tile */
   click($('[data-view="panou"]')); await tick(); const leiBefore = readSold();
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
   check(!!$('[data-k="valuta"]') && !!$('[data-k="curs"]'), "the expense form offers the currency and the rate");
   setField("valuta", "EUR"); await tick();
   check(Number($('[data-k="curs"]').value) > 1, "choosing EUR fills the rate of the day from the settings (" + $('[data-k="curs"]').value + ")");
   setField("suma", "10"); setField("descriere", "Vopsea EUR"); setField("categorie", "Materiale"); setField("pentru", "EHL"); submit($("#recf")); await tick(80);
+  check($("#recf") && /disponibil 0,00 EUR/.test($("#sheet").textContent), "strict per currency: with no euro in hand, 10 EUR is refused even though his lei would cover it");
+  { const cbE = $('[data-k="proprii"]'); cbE.checked = true; cbE.dispatchEvent(new window.Event("change", { bubbles: true })); await tick(); submit($("#recf")); await tick(100); }
   const eurRow = Object.values(store.cheltuieli).find(r => r.descriere === "Vopsea EUR");
   check(eurRow && eurRow.valuta === "EUR" && eurRow.curs > 1 && eurRow.suma === 10, "the row keeps 10 EUR and its rate");
   click($('[data-view="panou"]')); await tick(); const leiAfter = readSold();
-  check(Math.abs((leiBefore - leiAfter) - 10 * eurRow.curs) < 0.02, "his lei balance went down by 10 × the rate (" + leiBefore + " → " + leiAfter + ")");
+  check(Math.abs(leiBefore - leiAfter) < 0.005, "his lei balance is untouched: the euro came out of euro, not of lei (" + leiBefore + " → " + leiAfter + ")");
   check(/-10,00 EUR|−10,00 EUR/.test(text()), "his holdings per currency show −10 EUR (spent euro he never received)");
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
   setField("valuta", "EUR"); await tick(); setField("suma", "100000"); setField("descriere", "prea mult EUR"); setField("categorie", "Materiale"); setField("pentru", "EHL"); submit($("#recf")); await tick(80);
@@ -1183,6 +1186,17 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="ehl"]')); await tick();
   check(/Firma îi datorează/.test(text()) && /De returnat administratorilor/.test(text()), "the EHL tab shows the negative account and the total to return to administrators");
 
+  console.log("\n21b. A salary paid in USD counts in lei toward the month");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  setField("categorie", "Salarii"); await tick();
+  check(!!$('[data-k="valuta"]') && !!$('[data-k="curs"]'), "a salary expense offers the currency too");
+  setField("valuta", "USD"); await tick(); setField("suma", "100"); setField("descriere", "salariu in dolari"); setField("pentru", "EHL");
+  if ($('[data-k="angajat"]')) setField("angajat", empl.nume); if ($('[data-k="luna"]')) setField("luna", new Date().toISOString().slice(0, 7));
+  submit($("#recf")); await tick(100);
+  const usdSal = Object.values(store.cheltuieli).find(r => r.descriere === "salariu in dolari");
+  check(usdSal && usdSal.valuta === "USD" && usdSal.curs === 17.5 && usdSal.suma === 100, "the row keeps 100 USD at the day's rate (" + (usdSal ? usdSal.valuta + " " + usdSal.curs : "missing") + ")");
+  if ($("#recf")) click($("#closeSheet"));
+
   console.log("\n22. A collaborator below zero: only with 'Din banii mei' ticked");
   await signOut(); await codeLogin("parola.x1"); await tick(40);
   click($('[data-view="panou"]')); await tick(); const soldX = readSold();
@@ -1222,6 +1236,31 @@ const ls = (k) => window.localStorage.getItem(k);
   check($("#totpf"), "a dead kept session is forgotten and the full sign-in follows (the authenticator is asked)");
   const dirU2 = store.utilizatori[dirId]; $("#totpf").elements["totp"].value = totpAt(dirU2.totpSecret, nowStep() + 1); submit($("#totpf")); await tick(120);
   check($("#role") && $("#role").textContent === "Director" && JSON.parse(window.localStorage.getItem("ehl.sessions"))["own:" + dirId].token !== "tok-dead", "…and the fresh session is kept again");
+
+  console.log("\n24. Strict per currency: a dollar expense needs dollars, not lei");
+  await signOut(); await codeLogin("parola.x1"); await tick(40);
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  setField("valuta", "USD"); await tick(); setField("suma", "10"); setField("descriere", "benzina in dolari"); setField("categorie", "Transport"); setField("pentru", "EHL"); submit($("#recf")); await tick(80);
+  check($("#recf") && /disponibil 0,00 USD/.test($("#sheet").textContent), "with lei in hand but no dollars, 10 USD is refused: available 0,00 USD");
+  const cbU = $('[data-k="proprii"]'); cbU.checked = true; cbU.dispatchEvent(new window.Event("change", { bubbles: true })); await tick(); submit($("#recf")); await tick(100);
+  const usdOwn = Object.values(store.cheltuieli).find(r => r.descriere === "benzina in dolari");
+  check(!$("#recf") && usdOwn && usdOwn.valuta === "USD" && usdOwn.sursa === "Proprii", "ticked 'Din banii mei' it is saved in USD");
+  click($('[data-view="panou"]')); await tick();
+  check(/-10,00\s*USD/.test(text()) && /Firma îmi datorează/.test(text()), "his panel shows the firm owes him 10 USD, apart from his lei");
+  await signOut(); await codeLogin("Ab#2026!"); await tick(40);
+
+  console.log("\n25. A salary handed over in two currencies at once: one row per currency");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  setField("categorie", "Salarii"); await tick();
+  check(!!$('[data-k="multi2"]') && !$('[data-k="suma2"]'), "a salary expense offers 'Încă o valută'; the second line waits for the tick");
+  setField("valuta", "USD"); await tick(); setField("suma", "100"); setField("descriere", "salariu in doua valute"); setField("pentru", "EHL");
+  if ($('[data-k="angajat"]')) setField("angajat", empl.nume); if ($('[data-k="luna"]')) setField("luna", new Date().toISOString().slice(0, 7));
+  { const cbM = $('[data-k="multi2"]'); cbM.checked = true; cbM.dispatchEvent(new window.Event("change", { bubbles: true })); await tick(); }
+  check(!!$('[data-k="suma2"]') && !!$('[data-k="valuta2"]') && !!$('[data-k="multi3"]'), "ticked, the second line appears (sum, currency, rate) and a third may follow");
+  setField("suma2", "200"); submit($("#recf")); await tick(150);
+  const twoCur = Object.values(store.cheltuieli).filter(r => r.descriere === "salariu in doua valute");
+  check(twoCur.length === 2 && twoCur.some(r => r.valuta === "USD" && r.suma === 100 && r.curs === 17.5) && twoCur.some(r => r.valuta === "MDL" && r.suma === 200 && r.curs === 1), "two Salarii rows are written: 100 USD at 17,5 and 200 MDL, same description (" + twoCur.map(r => r.suma + " " + r.valuta).join(" + ") + ")");
+  check(twoCur.every(r => r.categorie === "Salarii" && r.platitDe === twoCur[0].platitDe && !("suma2" in r) && !("multi2" in r)), "both rows are plain salary rows of the same payer, without the form's helper fields");
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
