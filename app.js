@@ -27,7 +27,7 @@ ro:{
  a_chirie:"Chirie / cazare",a_chirie_d:"Plată locație",
  a_impr:"Împrumut",a_impr_d:"Bani dați cu termen",a_schimb:"Schimb valutar",a_schimb_d:"Din banii mei: dintr-o valută în alta",r_schimb:"Schimb valutar",f_val_din:"Valuta dată",f_suma_din:"Suma dată",f_val_in:"Valuta primită",f_suma_in:"Suma primită",sch_same:"Alegeți două valute diferite.",sch_lipsa:"Nu aveți atâta în valuta dată.",sch_curs:"Curs rezultat",sch_dupa:"Rămâne în valuta dată",
  a_contr:"Contract",a_contr_d:"Sumă și plan de încasare",
- a_pontaj:"Salarii",a_pontaj_d:"Zilele mele din grafic, achitare",
+ a_pontaj:"Salarii",a_pontaj_d:"Zilele mele din grafic, achitare",a_avans:"Avans salarial",a_avans_d:"Bani dați angajatului în contul salariului",f_luna_avans:"Din salariul lunii",f_luna_avans_h:"Luna din al cărei salariu se scade avansul.",avans_descr:"Avans salariu",av_pana_acum:"Câștigat până acum (din grafic)",av_date:"Avansuri date deja",av_short:"avansuri",s_avans:"Avansuri din salariu",av_none:"Niciun avans în luna aceasta.",av_rest:"rest de plătit",my_owed:"Firma îmi datorează",dirs_owed:"De returnat administratorilor din Casa EHL",
  a_ang:"Angajat",a_ang_d:"Nume, salariu, status",
  // fields
  f_data:"Data",f_client:"Client",f_proiect:"Proiect",f_descr:"Descriere",f_valuta:"Valuta",
@@ -171,7 +171,7 @@ ro:{
  op_primit:"Primit de la director",op_primit_dir:"Luat din Casa EHL",op_dat:"Dat mai departe",op_adv_dir:"Bani luați din Casa EHL",nav_ehl:"EHL",app_ehl:"Casa EHL · contul comun",op_chn:"Cheltuit numerar",op_prop:"Din banii mei",op_tr:"Prin transfer (din cont)",op_adv:"Bani primiți de la director",op_proj:"Cheltuieli pe proiect",
  cont_intra:"Pe cont intră",
  s_cont_minus:"Contul este în minus",l_cont_achitat:"De achitat pe cont",cont_minus_h:"Plățile prin transfer au depășit banii de pe cont. Mai jos sunt plățile care au dus contul în minus. Acoperiți-l cu o încasare prin transfer sau cu Ieșire din casă → Depus pe cont.",
- srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",din_casa:"din casă",cont_meu_disp:"Disponibil în contul meu",f_codehl:"Codul EHL",f_codehl_h:"Banii ies din Casa EHL: confirmați cu codul dumneavoastră EHL.",codehl_bad:"Codul EHL este greșit.",codehl_fmt:"Codul EHL trebuie să aibă între 4 și 64 de caractere.",codehl_none:"Nu aveți cod EHL: fără el nu se pot scoate bani din Casa EHL. Cereți-l în Setări → Utilizatori.",f_codehl_set:"Cod EHL (acces la Casa EHL)",f_codehl_set_h:"Cel puțin 4 caractere. Doar un director cu cod EHL poate scoate bani din casa comună.",f_din:"Din",f_din_h:"Casa EHL este casa comună a directorilor; Contul meu sunt banii pe care i-am luat din ea.",din_casa_ehl:"Casa EHL",din_cont_meu:"Contul meu",s_dirs:"Conturile administratorilor",s_dirs_h:"Banii luați de fiecare director din Casa EHL, ce a dat mai departe sau a cheltuit, și ce mai are în mână.",l_dirs:"La administratori",
+ srv_cont:"Pe cont nu sunt destui bani. Depuneți mai întâi din casă.",srv_avans:"Nu aveți destui bani din avans. Cereți mai întâi bani de la director.",op_tr_h:"din contul firmei",din_casa:"din casă",cont_meu_disp:"Disponibil în contul meu",f_codehl:"Codul EHL",f_codehl_h:"Banii ies din Casa EHL: confirmați cu codul dumneavoastră EHL.",codehl_bad:"Codul EHL este greșit.",codehl_fmt:"Codul EHL trebuie să aibă între 4 și 64 de caractere.",codehl_none:"Nu aveți cod EHL: fără el nu se pot scoate bani din Casa EHL. Cereți-l în Setări → Utilizatori.",f_codehl_set:"Cod EHL (acces la Casa EHL)",f_codehl_set_h:"Cel puțin 4 caractere. Doar un director cu cod EHL poate scoate bani din casa comună.",f_din:"Din",f_din_h:"Casa EHL este casa comună a directorilor; Contul meu sunt banii pe care i-am luat din ea.",din_casa_ehl:"Casa EHL",din_cont_meu:"Contul meu",s_dirs:"Conturile administratorilor",s_dirs_h:"Banii luați de fiecare director din Casa EHL, ce a dat mai departe sau a cheltuit, și ce mai are în mână. Un sold negativ înseamnă că a plătit din banii lui: firma îi datorează suma și i-o dă înapoi din Casa EHL.",l_dirs:"La administratori",
  s_colab_exp:"Cheltuielile și chiriile colaboratorilor",s_tr:"Cheltuieli din cont (transfer)",tr_h:"La transfer banii se iau din contul bancar, nu de la persoană. Apăsați pe un nume ca să vedeți pe ce s-au cheltuit.",colab_tr:"Plătit prin transfer (din cont)",
  avans_lipsa:"Nu aveți destui bani din avans: disponibil {s} MDL. Cereți mai întâi bani de la director.",cont_meu_lipsa:"Nu aveți destui bani în contul dumneavoastră: disponibil {s} MDL. Luați mai întâi din Casa EHL.",ehl_dest:"Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.",avans_disp:"Disponibil din avansul meu",din_avans:"din avansul lui",colab_gave:"Ieșiri făcute din avans",
  f_pentru:"Cheltuiala este pentru",sc_t:"Zile acoperite de această plată",sc_days:"Acoperă: {d}",sc_part:"parțial",sc_rest:"restul",sc_rate:"o zi =",sc_over:"Suma depășește zilele bifate cu {s} MDL.",sc_left:"Rămân neachitate: {d}",sc_all:"Toate zilele bifate ale lunii sunt achitate.",sc_none:"Nu sunt zile bifate în grafic pentru luna aceasta; plata se socotește pe suma lunii.",sc_nothing:"Zilele bifate erau deja acoperite de plățile de dinainte.",gr_paid:"plătit",gr_tinta:"Ziua se trece pe",gr_tinta_h:"Se aplică zilelor pe care le bifați de acum. La o zi deja bifată pe altceva apare „Mută pe …”: o mută cel care a bifat-o, fără să o piardă.",gr_retag:"Mută pe {t}",pt_proiect:"Proiect",pt_proiecte:"Proiecte",pt_ehl:"EHL (firma)",pt_alte:"Altele",s_pentru:"Cheltuieli: proiecte, EHL, altele",
@@ -199,7 +199,7 @@ ru:{
  a_chirie:"Аренда / проживание",a_chirie_d:"Оплата жилья или помещения",
  a_impr:"Заём",a_impr_d:"Деньги в долг со сроком",a_schimb:"Обмен валюты",a_schimb_d:"Из моих денег: из одной валюты в другую",r_schimb:"Обмен валюты",f_val_din:"Отдал валюту",f_suma_din:"Отдал сумму",f_val_in:"Получил валюту",f_suma_in:"Получил сумму",sch_same:"Выберите две разные валюты.",sch_lipsa:"У вас нет столько в отданной валюте.",sch_curs:"Курс обмена",sch_dupa:"Останется в отданной валюте",
  a_contr:"Договор",a_contr_d:"Сумма и план поступлений",
- a_pontaj:"Зарплата",a_pontaj_d:"Мои дни из графика, выплата",
+ a_pontaj:"Зарплата",a_pontaj_d:"Мои дни из графика, выплата",a_avans:"Аванс по зарплате",a_avans_d:"Деньги работнику в счёт зарплаты",f_luna_avans:"Из зарплаты за месяц",f_luna_avans_h:"Месяц, из зарплаты которого вычитается аванс.",avans_descr:"Аванс по зарплате",av_pana_acum:"Заработано на сегодня (по графику)",av_date:"Уже выданные авансы",av_short:"авансы",s_avans:"Авансы по зарплате",av_none:"В этом месяце авансов нет.",av_rest:"остаток к выплате",my_owed:"Фирма должна мне",dirs_owed:"Вернуть администраторам из кассы EHL",
  a_ang:"Сотрудник",a_ang_d:"Имя, оклад, статус",
  f_data:"Дата",f_client:"Клиент",f_proiect:"Проект",f_descr:"Описание",f_valuta:"Валюта",
  f_curs:"Курс на дату",f_suma:"Сумма",f_sumamdl:"Сумма (MDL)",f_mod:"Способ",f_categ:"Категория",
@@ -339,7 +339,7 @@ ru:{
  op_primit:"Получено от директора",op_primit_dir:"Взято из кассы EHL",op_dat:"Передано дальше",op_adv_dir:"Деньги, взятые из кассы EHL",nav_ehl:"EHL",app_ehl:"Касса EHL · общий счёт",op_chn:"Потрачено наличными",op_prop:"Из своих денег",op_tr:"Переводом (со счёта)",op_adv:"Деньги, полученные от директора",op_proj:"Расходы по проектам",
  cont_intra:"На счёт поступит",
  s_cont_minus:"Счёт в минусе",l_cont_achitat:"Нужно внести на счёт",cont_minus_h:"Платежи переводом превысили деньги на счёте. Ниже — платежи, которые увели счёт в минус. Покройте его поступлением переводом или Выдачей из кассы → Внесено на счёт.",
- srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",din_casa:"из кассы",cont_meu_disp:"Доступно на моём счёте",f_codehl:"Код EHL",f_codehl_h:"Деньги уходят из кассы EHL: подтвердите своим кодом EHL.",codehl_bad:"Код EHL неверный.",codehl_fmt:"Код EHL должен быть от 4 до 64 символов.",codehl_none:"У вас нет кода EHL: без него нельзя брать деньги из кассы EHL. Задайте его в Настройки → Пользователи.",f_codehl_set:"Код EHL (доступ к кассе EHL)",f_codehl_set_h:"Не меньше 4 символов. Брать деньги из общей кассы может только директор с кодом EHL.",f_din:"Откуда",f_din_h:"Касса EHL — общая касса директоров; Мой счёт — деньги, которые я взял из неё.",din_casa_ehl:"Касса EHL",din_cont_meu:"Мой счёт",s_dirs:"Счета администраторов",s_dirs_h:"Сколько каждый директор взял из кассы EHL, что передал дальше или потратил, и сколько у него на руках.",l_dirs:"У администраторов",
+ srv_cont:"На счёте недостаточно денег. Сначала внесите из кассы.",srv_avans:"В вашем авансе недостаточно денег. Сначала получите деньги у директора.",op_tr_h:"со счёта фирмы",din_casa:"из кассы",cont_meu_disp:"Доступно на моём счёте",f_codehl:"Код EHL",f_codehl_h:"Деньги уходят из кассы EHL: подтвердите своим кодом EHL.",codehl_bad:"Код EHL неверный.",codehl_fmt:"Код EHL должен быть от 4 до 64 символов.",codehl_none:"У вас нет кода EHL: без него нельзя брать деньги из кассы EHL. Задайте его в Настройки → Пользователи.",f_codehl_set:"Код EHL (доступ к кассе EHL)",f_codehl_set_h:"Не меньше 4 символов. Брать деньги из общей кассы может только директор с кодом EHL.",f_din:"Откуда",f_din_h:"Касса EHL — общая касса директоров; Мой счёт — деньги, которые я взял из неё.",din_casa_ehl:"Касса EHL",din_cont_meu:"Мой счёт",s_dirs:"Счета администраторов",s_dirs_h:"Сколько каждый директор взял из кассы EHL, что передал дальше или потратил, и сколько у него на руках. Отрицательный остаток значит, что он платил из своих денег: фирма ему должна и вернёт из кассы EHL.",l_dirs:"У администраторов",
  s_colab_exp:"Расходы и аренда сотрудников",s_tr:"Расходы со счёта (перевод)",tr_h:"При переводе деньги берутся с банковского счёта, а не у человека. Нажмите на имя, чтобы увидеть, на что они потрачены.",colab_tr:"Оплачено переводом (со счёта)",
  avans_lipsa:"В вашем авансе недостаточно денег: доступно {s} MDL. Сначала получите деньги у директора.",cont_meu_lipsa:"На вашем счёте недостаточно денег: доступно {s} MDL. Сначала возьмите из кассы EHL.",ehl_dest:"Из кассы EHL деньги идут только администраторам, на счёт или обратно учредителю.",avans_disp:"Доступно из моего аванса",din_avans:"из аванса:",colab_gave:"Выдачи из аванса",
  f_pentru:"Расход относится к",sc_t:"Дни, покрытые этой выплатой",sc_days:"Покрывает: {d}",sc_part:"частично",sc_rest:"остаток",sc_rate:"день =",sc_over:"Сумма превышает отмеченные дни на {s} MDL.",sc_left:"Не оплачены: {d}",sc_all:"Все отмеченные дни месяца оплачены.",sc_none:"В графике нет отмеченных дней за этот месяц; выплата считается по сумме месяца.",sc_nothing:"Отмеченные дни уже были покрыты предыдущими выплатами.",gr_paid:"оплачено",gr_tinta:"День относится к",gr_tinta_h:"Действует для дней, которые отмечаете с этого момента. У дня, отмеченного на другое, появляется «Перенести на …»: переносит тот, кто его отметил, не теряя день.",gr_retag:"Перенести на {t}",pt_proiect:"Проект",pt_proiecte:"Проекты",pt_ehl:"EHL (фирма)",pt_alte:"Прочее",s_pentru:"Расходы: проекты, EHL, прочее",
@@ -953,6 +953,9 @@ function platiSalariu(angajat,luna){var S0=FULL||S;
   return S0.cheltuieli.filter(function(r){return r.categorie==="Salarii"&&r.luna===luna&&sameP(r.angajat,angajat)}).map(function(r){return {by:r.by,data:r.data,suma:n(r.suma),nume:byName(r)||r.platitDe||""}})
     .concat(S0.iesiri.filter(function(r){return r.destinatie==="Salarii"&&r.luna===luna&&sameP(r.persoana,angajat)}).map(function(r){return {by:r.by,data:r.data,suma:round2(n(r.suma)*n(r.curs)),nume:byName(r)||r.platitDe||""}}));
 }
+/* the salary advances of an employee in a month (Salarii rows marked avans): who gave how much and when */
+function avansuri(angajat,luna){var S0=FULL||S,list=S0.cheltuieli.filter(function(r){return r.categorie==="Salarii"&&r.avans&&r.luna===luna&&(!angajat||sameP(r.angajat,angajat))}).sort(function(a,b){return String(a.data).localeCompare(String(b.data))})
+  .map(function(r){return {id:r.id,angajat:r.angajat,data:r.data,suma:n(r.suma),nume:byName(r)||r.platitDe||""}});return {list:list,total:round2(list.reduce(function(a,x){return a+x.suma},0))}}
 /* a day is closed once anyone paid the employee on that day or later: what was paid for does not move any more */
 function ziInchisa(angajat,iso){return platiSalariu(angajat,String(iso).slice(0,7)).some(function(p){return String(p.data||"")>=String(iso)})}
 function lunaAchitata(angajat,luna){return platiSalariu(angajat,luna).length>0}
@@ -1182,6 +1185,7 @@ function imprLei(r){return round2(n(r.suma)*(n(r.curs)||1))} /* a loan in lei: o
 function soldAvans(nume){var C=calc(),x=C.colab.concat(C.dirs||[]).filter(function(c){return sameP(c.nume,nume)})[0];return x?x.ramas:0} /* a collaborator's advance or a director's own account */
 /* a collaborator cannot hand out more than he holds; an edit that takes no more than before always passes */
 function avansErr(col,d,id){
+  if(isDir&&!isCasierMe())return ""; /* an administrator pays from his own account and may go below zero: the firm owes him the difference */
   var need=0,old=null;
   if(col==="iesiri"){if(!ieseDinAvans(id))return "";need=n(d.suma)*n(d.curs);old=id?S.iesiri.filter(function(r){return r.id===id})[0]:null;}
   else if(col==="chirii"){
@@ -1424,6 +1428,18 @@ var FORMS={
    {k:"nota",t:"text",l:"f_nota"}
  ]},calc:function(d){return [{l:T("f_decash"),v:money(n(d.deIncasatCash))},{l:T("transfer"),v:money(n(d.sumaContract)-n(d.deIncasatCash))}]}},
 
+ /* a salary advance (21 November 2026): a sum given to an employee during the month, deducted from the salary he is due;
+    saved as a Salarii expense of that month marked avans, paid by the account that records it */
+ avans:{title:"a_avans",icon:"cash",fields:function(){return[
+   {k:"data",t:"date",l:"f_data",req:1,def:today(),noFuture:1},
+   fAngajatPontaj(),
+   {k:"luna",t:"month",l:"f_luna_avans",req:1,def:curMonth(),hint:"f_luna_avans_h"},
+   {k:"suma",t:"number",l:"f_suma",req:1,step:"0.01"},
+   {k:"nota",t:"text",l:"f_nota"}
+ ]},calc:function(d){
+   if(!d.angajat||!d.luna)return [];
+   var L=pontajLuna(d.angajat,d.luna),av=avansuri(d.angajat,d.luna),sal=salariuLa(d.angajat,monthEnd(d.luna));
+   return [{l:T("f_salariu"),v:money(sal)+" MDL"},{l:T("av_pana_acum"),v:money(L.tot)+" MDL"},{l:T("av_date"),v:money(av.total)+" MDL"},{l:T("l_plata"),v:money(L.paid)+" MDL"},{l:T("l_rest"),v:money(round2(L.due-n(d.suma)))+" MDL"}]}},
  pontaj:{title:"a_pontaj",icon:"calendar",fields:function(){return[
    {k:"luna",t:"month",l:"f_luna",req:1,def:curMonth()},
    fAngajatPontaj(),
@@ -2320,7 +2336,8 @@ function vAngajatiiMei(){
   mine.forEach(function(a){
     var L=pontajLuna(a.nume,luna),sal=salariuLa(a.nume,today()),gt=L.g,tot=L.tot,paid=L.paid,due=L.due,aut=zilePeAutorTxt(a.nume,luna),pl=platitDeTxt(a.nume,luna);
     var line1=T("f_salariu")+" "+money(sal)+" · "+monthName(luna)+": "+fmt(gt.z1+gt.z2,2)+" "+T("gr_zile_s")+(aut?" ("+aut+")":"");
-    var line2=(gt.n||L.complet||L.extra>0||paid>0)?(T("tot")+" "+money(tot)+(L.extra>0?" ("+T("f_extra")+" "+money(L.extra)+")":"")+" · "+T("l_plata")+" "+money(paid)+(pl?" ("+pl+")":"")):T("pontaj_lipsa");
+    var avE=avansuri(a.nume,luna).total;
+    var line2=(gt.n||L.complet||L.extra>0||paid>0)?(T("tot")+" "+money(tot)+(L.extra>0?" ("+T("f_extra")+" "+money(L.extra)+")":"")+" · "+T("l_plata")+" "+money(paid)+(avE?" ("+T("av_short")+" "+money(avE)+")":"")+(pl?" ("+pl+")":"")):T("pontaj_lipsa");
     dueAll=round2(dueAll+due);
     rows.push('<div class="row wrap user-row"><span class="l">'+esc(a.nume)+'<span class="s">'+esc(line1)+'</span><span class="s">'+esc(line2)+'</span></span><span class="r '+(due>0?"warnc":"pos")+'">'+money(due)+'</span>'
       +'<button type="button" class="btn sm ghost" data-grafic="'+esc(a.nume)+'" title="'+esc(T("a_grafic"))+'">'+icon("clock")+'</button>'
@@ -2341,7 +2358,7 @@ function vPanouOp(){
     var sold=soldAvans(me); /* taken minus everything paid out of the account, cash rents included: the same figure as on the EHL tab */
     var h=vOverview()+'<div class="dash-grid">';
     h+='<div class="sec sec-wide"><div class="tiles">'
-      +tile(sold<0?T("colab_owed"):T("my_sold"),money(Math.abs(sold)),"MDL",sold<0?"neg":"",1,"wallet",soldPeValute(me))
+      +tile(sold<0?T("my_owed"):T("my_sold"),money(Math.abs(sold)),"MDL",sold<0?"neg":"",1,"wallet",soldPeValute(me))
       +tile(T(isDir?"op_primit_dir":"op_primit"),money(primit),"MDL","pos",0,"inArrow")
       +tile(T("op_chn"),money(chn),"MDL","neg",0,"cash")
       +(dat>0?tile(T("op_dat"),money(dat),"MDL","neg",0,"send"):"")
@@ -2450,7 +2467,8 @@ function vPanouEHL(){
   ])+'</div>';
 
   /* the administrators' accounts: what each director took from the EHL till, what he handed on or spent, what he still holds */
-  if(C.dirs.length)h+='<div class="sec"><h2>'+esc(T("s_dirs"))+'</h2><div class="card rows">'+C.dirs.map(function(x){return colabRow(x)}).join("")+'</div><p class="hint" style="margin-top:8px">'+esc(T("s_dirs_h"))+'</p></div>';
+  if(C.dirs.length){var owed=round2(C.dirs.reduce(function(a,x){return a+(x.ramas<0?-x.ramas:0)},0));
+    h+='<div class="sec"><h2>'+esc(T("s_dirs"))+'</h2><div class="card rows">'+C.dirs.map(function(x){return colabRow(x)}).join("")+(owed>0?r2(T("dirs_owed"),money(owed),null,"neg",1):'')+'</div><p class="hint" style="margin-top:8px">'+esc(T("s_dirs_h"))+'</p></div>';}
   if(C.colab.length)h+='<div class="sec"><h2>'+esc(T("s_colab"))+'</h2><div class="card rows">'+C.colab.map(function(x){return colabRow(x)}).join("")+'</div></div>';
   /* every expense the collaborators recorded, newest first: the director sees them all without opening the registers */
   var byColab=function(r){var u=S.utilizatori.filter(function(x){return x.id===r.by})[0];return !!(u&&u.rol!=="Director")};
@@ -2617,11 +2635,11 @@ function vWho(){
 }
 function vAdd(){
   var h=statusNote()+'<div class="add-layout"><div class="add-main">'+vWho()+vMyBalance();
-  var order=["cheltuieli","schimburi","grafic","pontaj","chirii","angajati"]; /* client incomes, contracts, clients, till outflows and loans are the director's */
+  var order=["cheltuieli","schimburi","grafic","pontaj","avans","chirii","angajati"]; /* client incomes, contracts, clients, till outflows and loans are the director's */
   /* the EHL account records the firm's money and its projects; an administrator records what he spends from his own account */
-  if(isDir)order=ehlMode()?["incasari","iesiri","proiecte","utilizatori"]:["cheltuieli","iesiri","chirii","schimburi","imprumuturi","grafic","pontaj","angajati"]; /* users are made in the EHL account only */
+  if(isDir)order=ehlMode()?["incasari","iesiri","proiecte","utilizatori"]:["cheltuieli","iesiri","chirii","schimburi","imprumuturi","grafic","pontaj","avans","angajati"]; /* users are made in the EHL account only */
   var desc={incasari:"a_inc_d",cheltuieli:"a_chelt_d",iesiri:"a_ies_d",chirii:"a_chirie_d",
-    imprumuturi:"a_impr_d",schimburi:"a_schimb_d",contracte:"a_contr_d",pontaj:"a_pontaj_d",grafic:"a_grafic_d",angajati:"a_ang_d",proiecte:"a_proj_d",utilizatori:"a_user_d"};
+    imprumuturi:"a_impr_d",schimburi:"a_schimb_d",contracte:"a_contr_d",pontaj:"a_pontaj_d",avans:"a_avans_d",grafic:"a_grafic_d",angajati:"a_ang_d",proiecte:"a_proj_d",utilizatori:"a_user_d"};
   h+='<div class="sec"><h2>'+esc(T("add_t"))+'</h2><div class="grid2">'+order.map(function(k,i){
     return '<button type="button" class="act'+(i<2?" primary":"")+'" data-form="'+k+'">'
       +'<span class="m">'+icon(FORMS[k].icon)+'</span>'
@@ -2770,8 +2788,22 @@ function pager(pg,pages,n){
 function vSalarii(){
   var C=calc(),h="";
   if(C.salLuni.length)h+='<div class="sec"><h2>'+esc(T("s_sal"))+'</h2>'+rowsCard(C.salLuni.map(function(m){
-    return r2(monthName(m.luna),money(m.rest),T("l_castigat")+" "+money(m.castigat)+" · "+T("l_plata")+" "+money(m.platit),m.rest>0?"warnc":"pos");
+    var avM=avansuri(null,m.luna).total;
+    return r2(monthName(m.luna),money(m.rest),T("l_castigat")+" "+money(m.castigat)+" · "+T("l_plata")+" "+money(m.platit)+(avM?" ("+T("av_short")+" "+money(avM)+")":""),m.rest>0?"warnc":"pos");
   }))+'</div>';
+  { /* the advances of the chosen month, per employee, with what is still due to each */
+    var lunaAv=OV.luna||curMonth(),avAll=avansuri(null,lunaAv);
+    h+='<div class="sec"><h2>'+esc(T("s_avans"))+' · '+esc(monthName(lunaAv))+'</h2>';
+    if(!avAll.list.length)h+='<div class="card"><div class="empty">'+esc(T("av_none"))+'</div></div>';
+    else{
+      var perA={},ordA=[];avAll.list.forEach(function(x){var k=String(x.angajat||"").trim();if(!(k in perA)){perA[k]=[];ordA.push(k)}perA[k].push(x)});
+      h+='<div class="card rows">'+ordA.map(function(k){
+        var L=pontajLuna(k,lunaAv),tot=round2(perA[k].reduce(function(a,x){return a+x.suma},0));
+        return '<div class="row wrap user-row"><span class="l">'+esc(k)+'<span class="s">'+esc(perA[k].map(function(x){return shortDate(x.data)+" "+money(x.suma)+(x.nume?" · "+x.nume:"")}).join(" · "))+'</span><span class="s">'+esc(T("f_salariu")+" "+money(L.sal)+" · "+T("l_castigat")+" "+money(L.tot)+" · "+T("l_plata")+" "+money(L.paid)+" · "+T("av_rest")+" "+money(L.due))+'</span></span><span class="r warnc">'+money(tot)+'</span></div>';
+      }).join("")+r2(T("l_total"),money(avAll.total),null,"warnc",1)+'</div>';
+    }
+    h+='</div>';
+  }
   if(C.pontaj.length){
     h+='<div class="sec"><h2>'+esc(T("a_pontaj"))+'</h2><div class="card rows">'
     +C.pontaj.slice().sort(function(a,b){return String(b.luna).localeCompare(String(a.luna))}).map(function(p){
@@ -3152,6 +3184,10 @@ function submitForm(){
       var same=hist.filter(function(h){return h.dinData===din})[0];
       return saveDoc("istoric",{angajat:body.nume,salariu:sal,dinData:din},same?same.id:null);
     });
+  }else if(col==="avans"){ /* a salary advance: a Salarii expense of the month, marked avans, paid by the account itself */
+    var ab={data:d.data,suma:n(d.suma),categorie:"Salarii",descriere:T("avans_descr")+" "+String(d.angajat).trim()+" · "+monthName(d.luna)+(String(d.nota||"").trim()?" · "+String(d.nota).trim():""),
+      pentru:"EHL",proiect:"",client:"",mod:"Numerar",platitDe:meName(),sursa:isCasierMe()?"":"Avans",angajat:String(d.angajat).trim(),luna:d.luna,avans:true,valuta:"MDL",curs:1};
+    p=saveDoc("cheltuieli",ab,st.id);
   }else if(col==="imprumuturi"){
     var ib={data:d.data,persoana:String(d.persoana).trim(),suma:n(d.suma),valuta:d.valuta||"MDL",curs:(d.valuta||"MDL")==="MDL"?1:(n(d.curs)||1),termen:d.termen,status:d.status,nota:d.nota};
     p=saveDoc("imprumuturi",ib,st.id).then(function(){

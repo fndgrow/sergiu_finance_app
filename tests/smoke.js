@@ -1009,12 +1009,9 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="panou"]')); await tick(); const leiAfter = readSold();
   check(Math.abs((leiBefore - leiAfter) - 10 * eurRow.curs) < 0.02, "his lei balance went down by 10 × the rate (" + leiBefore + " → " + leiAfter + ")");
   check(/-10,00 EUR|−10,00 EUR/.test(text()), "his holdings per currency show −10 EUR (spent euro he never received)");
-  click($('[data-view="add"]')); await tick(); click($("#exitdir")); await tick(30); await codeLogin("258000"); await tick(40); click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick(); /* the director's register lists every expense */
-  const amtCells = Array.from(window.document.querySelectorAll("#app td.amt")).map(td => td.textContent.replace(/s+/g, " ").trim()); const eurCell = amtCells.find(t => /10,00/.test(t) && /EUR|€/.test(t));
-  check(!!eurCell && /= 202,20 MDL/.test(eurCell), "the register shows the row as 10 EUR with its lei value beside it (" + (eurCell || ("cells: " + amtCells.slice(0, 6).join(" | ") + " tab:" + (($('[data-tab=\"cheltuieli\"]') || {}).getAttribute ? $('[data-tab=\"cheltuieli\"]').getAttribute("aria-current") : "?"))) + ")");
   click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
   setField("valuta", "EUR"); await tick(); setField("suma", "100000"); setField("descriere", "prea mult EUR"); setField("categorie", "Materiale"); setField("pentru", "EHL"); submit($("#recf")); await tick(80);
-  check(/Nu aveți destui bani/.test($("#sheet").textContent) && !Object.values(store.cheltuieli).some(r => r.descriere === "prea mult EUR"), "an expense worth more lei than he holds is refused");
+  check(/Nu aveți destui bani/.test($("#sheet").textContent) && !Object.values(store.cheltuieli).some(r => r.descriere === "prea mult EUR"), "a collaborator's expense worth more lei than he holds is refused");
   click($("#closeSheet")); await tick();
   /* the exchange form converts by itself at the settings' rates (USD 17.5, EUR 20.22), and lets the person type over it */
   click($('[data-view="add"]')); await tick(); click($('[data-form="schimburi"]')); await tick();
@@ -1025,6 +1022,9 @@ const ls = (k) => window.localStorage.getItem(k);
   setField("sumaIn", "90"); await tick();
   check($('[data-k="sumaIn"]').value === "90" && /0[.,]9000/.test($("#sheet").textContent), "a sum typed by hand stays and the footer shows the resulting rate (" + $('[data-k="sumaIn"]').value + " / " + ($("#sheet").textContent.match(/\d[.,]\d{4}/) || [""])[0] + ")");
   click($("#closeSheet")); await tick();
+  click($('[data-view="add"]')); await tick(); click($("#exitdir")); await tick(30); await codeLogin("258000"); await tick(40); click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick(); /* the director's register lists every expense */
+  const amtCells = Array.from(window.document.querySelectorAll("#app td.amt")).map(td => td.textContent.replace(/\s+/g, " ").trim()); const eurCell = amtCells.find(t => /10,00/.test(t) && /EUR|€/.test(t));
+  check(!!eurCell && /= 202,20 MDL/.test(eurCell), "the register shows the row as 10 EUR with its lei value beside it (" + (eurCell || ("cells: " + amtCells.slice(0, 6).join(" | "))) + ")");
 
   console.log("\n17. The human check (Cloudflare Turnstile) in front of the sign-in");
   const signOut = async () => { if (!$("#exitdir")) { click($('[data-view="set"]') || $('[data-view="add"]')); await tick(); } click($("#exitdir")); await tick(30); }; /* the exit button sits in Setări for a director, on the Adaugă screen for a collaborator */
@@ -1144,6 +1144,33 @@ const ls = (k) => window.localStorage.getItem(k);
   let fr = null; try { fr = await new window.PocketBase("").send("/api/ehl/alarma", { method: "POST", body: { alarma: "Alarma#x", totp: "000000" } }); } catch (e) { fr = e; }
   check(fr && fr.status === 403, "…and the server refuses him an alarm code (" + (fr && fr.status) + ")");
   await signOut();
+
+  console.log("\n21. Salary advances, and an administrator below zero");
+  await codeLogin("Ab#2026!"); await tick(40);
+  click($('[data-view="add"]')); await tick();
+  check(!!$('[data-form="avans"]'), "the Adaugă screen has 'Avans salarial'");
+  click($('[data-form="avans"]')); await tick();
+  const empl = Object.values(store.angajati).find(a => a.status !== "Inactiv" && !["Sergiu"].includes(a.nume));
+  setField("angajat", empl.nume); await tick(); setField("suma", "500"); await tick();
+  check(/Avansuri date deja/.test($("#sheet").textContent) && /Rest de achitat/.test($("#sheet").textContent), "the form shows the salary, what is earned so far, the advances given and what will remain");
+  submit($("#recf")); await tick(100);
+  const avRow = Object.values(store.cheltuieli).find(r => r.avans === true && r.angajat === empl.nume);
+  check(avRow && avRow.categorie === "Salarii" && avRow.suma === 500 && avRow.luna === new Date().toISOString().slice(0, 7) && /Avans salariu/.test(avRow.descriere) && avRow.platitDe === "Sergiu", "the advance is a Salarii row of the month, marked avans, paid by the administrator");
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="salarii"]')); await tick();
+  check(/Avansuri din salariu/.test(text()) && new RegExp(empl.nume).test(text()) && /500,00/.test(text()) && /rest de plătit/.test(text()), "Registre → Salarii lists the month's advances per employee with what is still due");
+  click($('[data-view="add"]')); await tick(); click($('[data-form="pontaj"]')); await tick();
+  setField("angajat", empl.nume); await tick();
+  check(/Plătit\s*500,00/.test($("#sheet").textContent) || /500,00/.test($("#sheet").textContent), "the timesheet counts the advance as already paid");
+  click($("#closeSheet")); await tick();
+  click($('[data-view="panou"]')); await tick();
+  const soldNow = (() => { const m = text().match(/(Soldul meu|Firma îmi datorează)\s*(-?[\d.]+,\d{2})/); return m ? { owed: m[1] !== "Soldul meu", v: Number(m[2].replace(/\./g, "").replace(",", ".")) } : null; })();
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  setField("suma", String(Math.round((soldNow && !soldNow.owed ? soldNow.v : 0) + 1000))); setField("descriere", "din banii mei"); setField("categorie", "Materiale"); setField("pentru", "EHL"); submit($("#recf")); await tick(100);
+  check(!$("#recf") && Object.values(store.cheltuieli).some(r => r.descriere === "din banii mei"), "an administrator may spend more than his account holds: his own money (" + ($("#recf") ? $("#sheet").textContent.slice(0, 80) : "saved") + ")");
+  click($('[data-view="panou"]')); await tick();
+  check(/Firma îmi datorează/.test(text()), "his panel now says what the firm owes him");
+  click($('[data-view="ehl"]')); await tick();
+  check(/Firma îi datorează/.test(text()) && /De returnat administratorilor/.test(text()), "the EHL tab shows the negative account and the total to return to administrators");
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
