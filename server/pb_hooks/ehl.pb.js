@@ -216,7 +216,7 @@ onRecordsListRequest((e) => {
   var hid = false; try { hid = $app.findFirstRecordByFilter("config", "id != ''").getBool("ascuns"); } catch (err) { hid = false; }
   if (hid) return e.json(200, { page: 1, perPage: 500, totalItems: 0, totalPages: 0, items: [] });
   e.next();
-}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal");
+}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal", "cereri");
 /* in hidden mode the only account in sight is the one signed in: no collaborators, no other administrator; the settings
    name him as the only founder */
 onRecordsListRequest((e) => {
@@ -232,12 +232,12 @@ onRecordViewRequest((e) => {
   var hid = false; try { hid = $app.findFirstRecordByFilter("config", "id != ''").getBool("ascuns"); } catch (err) { hid = false; }
   if (hid) throw new NotFoundError("Nu există.");
   e.next();
-}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal");
+}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal", "cereri");
 onRecordDeleteRequest((e) => {
   var hid = false; try { hid = $app.findFirstRecordByFilter("config", "id != ''").getBool("ascuns"); } catch (err) { hid = false; }
   if (hid) throw new NotFoundError("Nu există.");
   e.next();
-}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal");
+}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal", "cereri");
 
 /* ---- an administrator sets his alarm code: POST /api/ehl/alarma {alarma, totp} — 6–64 characters, not any access code,
         confirmed with his authenticator; collaborators have none. (Reactivation and the emergency reset: server/ascuns.sh.) ---- */
@@ -270,20 +270,76 @@ onRecordCreateRequest((e) => {
   }
   if (e.auth) e.record.set("by", e.auth.id);
   e.next();
-}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal");
+}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic", "jurnal", "cereri");
 
 onRecordUpdateRequest((e) => {
   var hidU = false; try { hidU = $app.findFirstRecordByFilter("config", "id != ''").getBool("ascuns"); } catch (err) { hidU = false; }
   if (hidU) throw new NotFoundError("Nu există."); /* hidden mode: nothing to edit */
   /* the author never changes on edit */
   if (e.record.original) e.record.set("by", e.record.original().getString("by"));
-  /* an operator may correct his own rows for 15 days; afterwards only the director (employee cards excepted) */
-  if (e.auth && e.auth.getString("rol") !== "Director" && e.record.original && e.record.collection().name !== "angajati") {
+  /* 12 hours (21 November 2026): a transaction may be corrected for 12 hours after it was written. Later only with an
+     approval (collection cereri): a collaborator's from an administrator, an administrator's from the other administrator;
+     an approval opens 24 hours for that row and that person. Employee cards, projects, schedule rows and timesheets are
+     not transactions: there the 15-day rule for collaborators stays. */
+  var colN = e.record.collection().name, MONEY = ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi"];
+  if (e.auth && e.record.original && MONEY.indexOf(colN) >= 0) {
+    var cMs = Date.parse(String(e.record.original().getString("created")).replace(" ", "T"));
+    if (cMs && Date.now() - cMs > 12 * 3600 * 1000) {
+      var okA = false;
+      try {
+        var since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+        okA = $app.findRecordsByFilter("cereri", "col = {:c} && rid = {:r} && by = {:u} && status = 'Aprobat' && aprobatLa >= {:s}", "-aprobatLa", 1, 0, { c: colN, r: e.record.id, u: e.auth.id, s: since }).length > 0;
+      } catch (err) { okA = false; }
+      if (!okA) throw new BadRequestError(e.auth.getString("rol") === "Director"
+        ? "Înregistrarea are mai mult de 12 ore. Modificarea se face doar cu aprobarea celuilalt administrator (butonul «Cere aprobare»)."
+        : "Înregistrarea are mai mult de 12 ore. Modificarea se face doar cu aprobarea unui administrator (butonul «Cere aprobare»).");
+    }
+  } else if (e.auth && e.auth.getString("rol") !== "Director" && e.record.original && colN !== "angajati") {
     var createdMs = Date.parse(String(e.record.original().getString("created")).replace(" ", "T"));
     if (createdMs && Date.now() - createdMs > 15 * 24 * 3600 * 1000) throw new BadRequestError("Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.");
   }
   e.next();
 }, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi", "proiecte", "angajati", "istoric", "pontaj", "grafic");
+
+/* ---- deleting a transaction older than 12 hours needs the same approval as editing it (21 November 2026) ---- */
+onRecordDeleteRequest((e) => {
+  if (!e.auth) throw new ForbiddenError("Autentificare necesară.");
+  var cMs = Date.parse(String(e.record.getString("created")).replace(" ", "T"));
+  if (cMs && Date.now() - cMs > 12 * 3600 * 1000) {
+    var okA = false;
+    try {
+      var since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+      okA = $app.findRecordsByFilter("cereri", "col = {:c} && rid = {:r} && by = {:u} && status = 'Aprobat' && aprobatLa >= {:s}", "-aprobatLa", 1, 0, { c: e.record.collection().name, r: e.record.id, u: e.auth.id, s: since }).length > 0;
+    } catch (err) { okA = false; }
+    if (!okA) throw new BadRequestError("Înregistrarea are mai mult de 12 ore. Ștergerea se face doar cu aprobarea celuilalt administrator (butonul «Cere aprobare»).");
+  }
+  e.next();
+}, "incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi");
+
+/* ---- change requests (21 November 2026): who asks, for which row, and who may answer ---- */
+onRecordCreateRequest((e) => {
+  if (!e.auth) throw new ForbiddenError("Autentificare necesară.");
+  var col = String(e.record.getString("col") || "").trim(), rid = String(e.record.getString("rid") || "").trim(), MONEY = ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi"];
+  if (MONEY.indexOf(col) < 0) throw new BadRequestError("Cererea se face doar pentru o înregistrare din registre.");
+  var row; try { row = $app.findRecordById(col, rid); } catch (err) { throw new BadRequestError("Înregistrarea nu există."); }
+  if (e.auth.getString("rol") !== "Director" && row.getString("by") !== e.auth.id) throw new ForbiddenError("Puteți cere modificarea doar pentru înregistrările dumneavoastră.");
+  if ($app.countRecords("cereri", $dbx.exp("col = {:c} AND rid = {:r} AND by = {:u} AND status = 'Așteaptă'", { c: col, r: rid, u: e.auth.id })) > 0) throw new BadRequestError("Cererea pentru această înregistrare așteaptă deja răspunsul.");
+  e.record.set("by", e.auth.id); e.record.set("deNume", String(e.auth.getString("nume") || "").trim()); e.record.set("status", "Așteaptă");
+  e.record.set("aprobatDe", ""); e.record.set("aprobatLa", "");
+  e.record.set("motiv", String(e.record.getString("motiv") || "").trim().slice(0, 500)); e.record.set("rezumat", String(e.record.getString("rezumat") || "").trim().slice(0, 500));
+  e.next();
+}, "cereri");
+onRecordUpdateRequest((e) => {
+  if (!e.auth || e.auth.getString("rol") !== "Director") throw new ForbiddenError("Cererile le aprobă administratorii.");
+  var o = e.record.original();
+  ["col", "rid", "motiv", "by", "deNume", "rezumat"].forEach(function (k) { e.record.set(k, o.getString(k)); });
+  if (o.getString("status") !== "Așteaptă") throw new BadRequestError("Cererea a primit deja un răspuns.");
+  var st = e.record.getString("status");
+  if (st !== "Aprobat" && st !== "Respins") throw new BadRequestError("Răspunsul este Aprobat sau Respins.");
+  if (o.getString("by") === e.auth.id) throw new BadRequestError("Cererea proprie o aprobă celălalt administrator.");
+  e.record.set("aprobatDe", String(e.auth.getString("nume") || "").trim()); e.record.set("aprobatLa", new Date().toISOString());
+  e.next();
+}, "cereri");
 
 /* ---- a project is never deleted (the rule is locked too): finish it or pause it, its money stays on it ---- */
 onRecordDeleteRequest((e) => {
@@ -432,7 +488,7 @@ onRecordDeleteRequest((e) => {
 routerAdd("GET", "/api/ehl/head", (e) => {
   if (!e.auth) throw new ForbiddenError("Autentificare necesară.");
   var out = {}, hidH = false; try { hidH = $app.findFirstRecordByFilter("config", "id != ''").getBool("ascuns"); } catch (err) { hidH = false; }
-  ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "angajati", "istoric", "pontaj", "grafic", "imprumuturi", "schimburi", "proiecte", "utilizatori", "config", "jurnal"].forEach(function (c) {
+  ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "angajati", "istoric", "pontaj", "grafic", "imprumuturi", "schimburi", "proiecte", "utilizatori", "config", "jurnal", "cereri"].forEach(function (c) {
     if (hidH && c !== "utilizatori" && c !== "config") { out[c] = "0|"; return; } /* hidden mode: every register looks empty */
     try { var r = new DynamicModel({ n: 0, u: "" }); $app.db().newQuery("SELECT COUNT(*) AS n, COALESCE(MAX(updated), '') AS u FROM " + c).one(r); out[c] = String(r.n) + "|" + String(r.u); } catch (err) { out[c] = "?"; }
   });

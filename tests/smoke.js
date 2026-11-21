@@ -44,6 +44,7 @@ const visible = (col, r) => {
   if (!currentUser) return false; if (isDir()) return true;
   const me = currentUser;
   if (col === "utilizatori") return r.id === me.id;
+  if (col === "cereri") return r.by === me.id; /* a request is its author's; the directors read them all */
   if (["incasari", "contracte", "imprumuturi", "jurnal"].includes(col)) return false;
   if (col === "istoric" || col === "angajati" || col === "grafic") return true; /* migration 17: employees, salaries and the schedule are shared */
   if (col === "cheltuieli") return r.by === me.id || r.platitDe === me.nume || r.categorie === "Salarii"; /* salary payments are shared, like the employees */
@@ -104,6 +105,12 @@ function collection(col) {
       if (!currentUser) throw err(403, "forbidden");
       if (store.config && store.config.c1 && store.config.c1.ascuns && col !== "utilizatori") return { ...data, id: newId(), created: new Date().toISOString(), updated: new Date().toISOString(), by: currentUser.id }; /* hidden mode: acknowledged, never stored */
       if (col === "utilizatori" && !isDir()) throw err(403, "forbidden");
+      if (col === "cereri") { /* the hook: a transaction of the registers, the author's own unless a director; one pending request at a time */
+        const row = store[data.col] && store[data.col][data.rid]; if (!row) throw err(400, "Înregistrarea nu există.");
+        if (!isDir() && row.by !== currentUser.id) throw err(403, "Puteți cere modificarea doar pentru înregistrările dumneavoastră.");
+        if (Object.values(store.cereri || {}).some(c => c.col === data.col && c.rid === data.rid && c.by === currentUser.id && c.status === "Așteaptă")) throw err(400, "Cererea pentru această înregistrare așteaptă deja răspunsul.");
+        data = { ...data, deNume: currentUser.nume, status: "Așteaptă", aprobatDe: "", aprobatLa: "" };
+      }
       if (col === "utilizatori") { /* made from the EHL account only, and always a collaborator */
         if (String(data.ehlCod || "") !== String(currentUser.codEHL || "")) throw err(400, "Colaboratorii se creează doar din contul EHL.");
         delete data.ehlCod; data.rol = "Operator"; data.codEHL = "";
@@ -178,8 +185,19 @@ function collection(col) {
       }
       if (col === "utilizatori" && !isDir()) throw err(403, "forbidden");
       if (col === "utilizatori" && data.rol && data.rol !== r.rol) throw err(400, "Rolul nu se schimbă: administratorii sunt Sergiu și Grigore.");
+      if (col === "cereri") { /* the hook: a director answers, never his own request */
+        if (!isDir()) throw err(403, "Cererile le aprobă administratorii.");
+        if (r.status !== "Așteaptă") throw err(400, "Cererea a primit deja un răspuns.");
+        if (r.by === currentUser.id) throw err(400, "Cererea proprie o aprobă celălalt administrator.");
+        data = { status: data.status, aprobatDe: currentUser.nume, aprobatLa: new Date().toISOString() };
+      }
       if (col !== "utilizatori" && col !== "config" && !isDir() && r.by !== currentUser.id) throw err(403, "forbidden");
-      if (col !== "utilizatori" && col !== "config" && !isDir() && Date.now() - Date.parse(r.created.replace(" ", "T")) > 15 * 86400000) throw err(400, "Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.");
+      const MONEY = ["incasari", "cheltuieli", "iesiri", "chirii", "contracte", "imprumuturi", "schimburi"];
+      if (MONEY.includes(col) && Date.now() - Date.parse(r.created.replace(" ", "T")) > 12 * 3600000) { /* the hook: 12 hours, then an approval of the last 24 hours */
+        const okA = Object.values(store.cereri || {}).some(c => c.col === col && c.rid === id && c.by === currentUser.id && c.status === "Aprobat" && c.aprobatLa && Date.now() - Date.parse(c.aprobatLa) < 24 * 3600000);
+        if (!okA) throw err(400, isDir() ? "Înregistrarea are mai mult de 12 ore. Modificarea se face doar cu aprobarea celuilalt administrator (butonul «Cere aprobare»)." : "Înregistrarea are mai mult de 12 ore. Modificarea se face doar cu aprobarea unui administrator (butonul «Cere aprobare»).");
+      }
+      if (!MONEY.includes(col) && col !== "utilizatori" && col !== "config" && col !== "cereri" && !isDir() && Date.now() - Date.parse(r.created.replace(" ", "T")) > 15 * 86400000) throw err(400, "Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.");
       Object.assign(r, data, { updated: new Date().toISOString().replace("T", " ") }); emit(col, "update", r); return { ...r };
     },
     async delete(id) {
@@ -819,7 +837,7 @@ const ls = (k) => window.localStorage.getItem(k);
   click($("#closeSheet")); await tick();
   own.created = "2020-01-01 00:00:00.000Z"; emit("cheltuieli", "update", own); await tick();
   click($('[data-view="mine"]')); await tick(); click($('[data-edit="cheltuieli"][data-id="' + own.id + '"]')); await tick();
-  check(!$("#savebtn") && /15 zile/.test($("#sheet").textContent) && $('[data-k="suma"]').disabled, "an own row older than 15 days opens read-only with the note");
+  check(!$("#savebtn") && $("#cerbtn") && /12 ore/.test($("#sheet").textContent) && $('[data-k="suma"]').disabled, "an own expense older than 12 hours opens read-only, with the 'Cere aprobare' button");
   click($("#closeSheet")); await tick(); click($('[data-view="add"]')); await tick();
   click($('[data-form="cheltuieli"]')); await tick();
   click($("#closeSheet")); await tick();
@@ -1261,6 +1279,46 @@ const ls = (k) => window.localStorage.getItem(k);
   const twoCur = Object.values(store.cheltuieli).filter(r => r.descriere === "salariu in doua valute");
   check(twoCur.length === 2 && twoCur.some(r => r.valuta === "USD" && r.suma === 100 && r.curs === 17.5) && twoCur.some(r => r.valuta === "MDL" && r.suma === 200 && r.curs === 1), "two Salarii rows are written: 100 USD at 17,5 and 200 MDL, same description (" + twoCur.map(r => r.suma + " " + r.valuta).join(" + ") + ")");
   check(twoCur.every(r => r.categorie === "Salarii" && r.platitDe === twoCur[0].platitDe && !("suma2" in r) && !("multi2" in r)), "both rows are plain salary rows of the same payer, without the form's helper fields");
+
+  console.log("\n26. Changes after 12 hours only with an approval: collaborator → administrator, administrator → the other administrator");
+  await signOut(); await codeLogin("parola.x1"); await tick(40);
+  const oldRow = Object.values(store.cheltuieli).find(r => r.descriere === "din buzunarul meu");
+  oldRow.created = new Date(Date.now() - 13 * 3600000).toISOString().replace("T", " "); emit("cheltuieli", "update", oldRow); await tick();
+  click($('[data-view="mine"]')); await tick(); click($('[data-edit="cheltuieli"][data-id="' + oldRow.id + '"]')); await tick();
+  check(!$("#savebtn") && !!$("#cerbtn") && /12 ore/.test($("#sheet").textContent) && $('[data-k="suma"]').disabled, "13 hours after writing it, his row is read-only and offers 'Cere aprobare'");
+  $("#cermotiv").value = "am gresit suma"; click($("#cerbtn")); await tick(120);
+  const cer1 = Object.values(store.cereri || {}).find(c => c.rid === oldRow.id);
+  check(cer1 && cer1.status === "Așteaptă" && cer1.by === store.utilizatori[cer1.by].id && cer1.deNume === "Ion Operator" && cer1.motiv === "am gresit suma" && /Cheltuieli|cheltuieli/i.test(cer1.rezumat || ""), "the request is written: pending, from Ion Operator (x1), with the reason and a summary of the row (" + (cer1 ? cer1.rezumat : "missing") + ")");
+  check(!$("#cerbtn") && /așteaptă aprobarea/.test($("#sheet").textContent), "the sheet now says the request waits for the approval");
+  click($("#closeSheet")); await tick();
+  await signOut(); await codeLogin("Ab#2026!"); await tick(40);
+  check(/Cereri de modificare/.test(text()) && /Ion Operator/.test(text()) && !!$('[data-cer-ok="' + cer1.id + '"]'), "the administrator's Panou lists the request with Aprobă / Respinge");
+  check(!!$('#nav [data-view="panou"] .bdg') && $('#nav [data-view="panou"] .bdg').textContent === "1", "the Panou tab carries a badge with one waiting request");
+  click($('[data-cer-ok="' + cer1.id + '"]')); await tick(120);
+  check(store.cereri[cer1.id].status === "Aprobat" && store.cereri[cer1.id].aprobatDe === "Sergiu" && !$('#nav [data-view="panou"] .bdg'), "approved by Sergiu; the badge is gone");
+  await signOut(); await codeLogin("parola.x1"); await tick(40);
+  click($('[data-view="mine"]')); await tick(); click($('[data-edit="cheltuieli"][data-id="' + oldRow.id + '"]')); await tick();
+  check(!!$("#savebtn") && !$('[data-k="suma"]').disabled && /Aprobat de Sergiu/.test($("#sheet").textContent), "with the approval the row opens editable, naming who approved and until when");
+  const oldSum = oldRow.suma; setField("suma", String(oldSum + 1)); submit($("#recf")); await tick(120);
+  check(!$("#recf") && store.cheltuieli[oldRow.id].suma === oldSum + 1, "…and the correction is saved");
+  click($('[data-view="panou"]')); await tick();
+  check(/Cererea mea/.test(text()) && /Aprobat/.test(text()), "his Panou shows his request as approved, with the deadline");
+  await signOut(); await codeLogin("Ab#2026!"); await tick(40);
+  const dirOld = Object.values(store.cheltuieli).find(r => r.descriere === "din banii mei"); /* a plain expense of his: salary rows sit on the Salarii tab */
+  dirOld.created = new Date(Date.now() - 13 * 3600000).toISOString().replace("T", " "); emit("cheltuieli", "update", dirOld); await tick();
+  click($('[data-view="reg"]')); await tick(); click($('[data-tab="cheltuieli"]')); await tick();
+  for (let pg = 1; pg < 20 && !$('[data-edit="cheltuieli"][data-id="' + dirOld.id + '"]'); pg++) { const nx = $('.pager [data-page="' + pg + '"]:not([disabled])'); if (!nx) break; click(nx); await tick(); } /* the register pages 15 rows */
+  click($('[data-edit="cheltuieli"][data-id="' + dirOld.id + '"]')); await tick();
+  check(!$("#savebtn") && !$("#delbtn") && !!$("#cerbtn") && /celuilalt administrator/.test($("#sheet").textContent), "an administrator's own row older than 12 hours: no save, no delete, 'Cere aprobare' from the other administrator");
+  click($("#cerbtn")); await tick(120);
+  const cer2 = Object.values(store.cereri || {}).find(c => c.rid === dirOld.id);
+  check(cer2 && cer2.status === "Așteaptă", "his request is written");
+  click($("#closeSheet")); await tick(); click($('[data-view="panou"]')); await tick();
+  check(/Cererea mea/.test(text()) && !$('[data-cer-ok="' + cer2.id + '"]'), "on his Panou it is 'Cererea mea' with no Aprobă button: only the other administrator can answer");
+  let selfErr = ""; try { await collection("cereri").update(cer2.id, { status: "Aprobat" }); } catch (e) { selfErr = String(e && e.response && e.response.message || e.message || e); }
+  check(/celălalt administrator/.test(selfErr), "approving his own request is refused by the server rule (" + selfErr + ")");
+  let oldErr = ""; try { await collection("cheltuieli").update(dirOld.id, { suma: dirOld.suma + 5 }); } catch (e) { oldErr = String(e && e.response && e.response.message || ""); }
+  check(/12 ore/.test(oldErr) && store.cheltuieli[dirOld.id].suma === dirOld.suma, "and a direct edit of the old row is refused until the approval comes");
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);

@@ -873,3 +873,10 @@ label>span .cur-b{width:16px;height:16px;font-size:10px}
 .tile .v.multi{font-size:19px;line-height:1.3}
 .tile .v .cl,.row .r .cl{display:block}
 .row .r .cl.neg,.tile .v .cl.neg{color:var(--neg)}
+.ic{position:relative}.ic .bdg{position:absolute;top:-6px;right:-10px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--neg);color:#fff;font-size:10.5px;font-weight:700;line-height:16px;text-align:center;font-family:var(--d)}
+.row.cer .r{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.cer-note label{display:block;margin:8px 0}
+.note.ok{color:var(--pos)}
+/* a minus on the green tile (21 November 2026): red digits on a light pill, so the red reads clearly */
+.tile.big .v .cl.neg,.tile.big .t-sub .neg{color:var(--neg);background:rgba(255,255,255,.93);padding:1px 10px;border-radius:10px;display:inline-block;margin:2px 0;line-height:1.25}
+body.ehl-mode .tile.big .v .cl.neg{color:var(--neg)}

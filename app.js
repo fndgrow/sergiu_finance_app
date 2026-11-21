@@ -46,7 +46,13 @@ ro:{
  saved:"Salvat",deleted:"Șters",edit:"Editare",
  eq:"Echivalent MDL",tot:"Total",
  impr_cash:"Banii au ieșit din casă acum",impr_cash_h:"Creează automat și o ieșire din casă, ca să nu rămână casa umflată.",
- req:"Completați câmpurile obligatorii.",date_future:"Data nu poate fi în viitor.",lock_old:"Înregistrarea a fost introdusă de altcineva sau are mai mult de 15 zile: o poate modifica doar cel care a introdus-o, în primele 15 zile. Dumneavoastră o puteți doar vedea.",srv_old:"Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.",
+ req:"Completați câmpurile obligatorii.",date_future:"Data nu poate fi în viitor.",lock_old:"Înregistrarea a fost introdusă de altcineva sau are mai mult de 15 zile: o poate modifica doar cel care a introdus-o, în primele 15 zile. Dumneavoastră o puteți doar vedea.",
+ cer_t:"Cereri de modificare",cer_h:"O tranzacție se modifică liber 12 ore de la introducere. După aceea autorul are nevoie de aprobarea dumneavoastră; aprobarea e valabilă 24 de ore. Cererile dumneavoastră le aprobă celălalt administrator.",
+ cer_old:"Înregistrarea are peste 12 ore. Pentru a o modifica, cereți aprobarea unui administrator: el primește cererea pe Panou, iar după aprobare puteți modifica timp de 24 de ore.",
+ cer_old_dir:"Înregistrarea are peste 12 ore. Pentru a o modifica sau a o șterge, cereți aprobarea celuilalt administrator: el primește cererea pe Panou, iar după aprobare aveți 24 de ore.",
+ cer_pending:"Cererea de modificare a fost trimisă ({d}) și așteaptă aprobarea. Veți putea modifica după ce un administrator o aprobă.",
+ cer_ok:"Aprobat de {n}: puteți modifica (sau șterge) până la {t}.",cer_btn:"Cere aprobare",cer_motiv:"Motivul (opțional)",cer_sent:"Cererea a fost trimisă administratorilor.",
+ cer_ok_btn:"Aprobă",cer_no_btn:"Respinge",cer_mine:"Cererea mea",cer_wait:"Așteaptă",cer_approved:"Aprobat",cer_rejected:"Respins",cer_until:"până la {t}",cer_done_ok:"Cererea a fost aprobată: autorul poate modifica 24 de ore.",cer_done_no:"Cererea a fost respinsă.",srv_old:"Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.",
  // registers
  r_inc:"Încasări",r_chelt:"Cheltuieli",r_ies:"Ieșiri din casă",r_chirii:"Chirii",
  r_contr:"Contracte",r_sal:"Salarii",r_impr:"Împrumuturi",
@@ -216,7 +222,13 @@ ru:{
  saved:"Сохранено",deleted:"Удалено",edit:"Изменить",
  eq:"Эквивалент MDL",tot:"Итого",
  impr_cash:"Деньги вышли из кассы сейчас",impr_cash_h:"Автоматически создаст и выдачу из кассы, чтобы касса не была завышена.",
- req:"Заполните обязательные поля.",date_future:"Дата не может быть в будущем.",lock_old:"Запись внёс другой человек или ей больше 15 дней: изменить её может только автор, в первые 15 дней. Вы можете только смотреть.",srv_old:"Записи больше 15 дней, изменить её может только директор.",
+ req:"Заполните обязательные поля.",date_future:"Дата не может быть в будущем.",cer_t:"Запросы на изменение",cer_h:"Операцию можно менять свободно 12 часов после ввода. Потом автору нужно ваше одобрение; оно действует 24 часа. Ваши запросы одобряет другой администратор.",
+ cer_old:"Записи больше 12 часов. Чтобы изменить её, запросите одобрение администратора: он увидит запрос на Сводке, после одобрения у вас будет 24 часа.",
+ cer_old_dir:"Записи больше 12 часов. Чтобы изменить или удалить её, запросите одобрение другого администратора: он увидит запрос на Сводке, после одобрения у вас будет 24 часа.",
+ cer_pending:"Запрос на изменение отправлен ({d}) и ждёт одобрения. Изменить можно будет после одобрения администратором.",
+ cer_ok:"Одобрил(а) {n}: можно изменить (или удалить) до {t}.",cer_btn:"Запросить одобрение",cer_motiv:"Причина (необязательно)",cer_sent:"Запрос отправлен администраторам.",
+ cer_ok_btn:"Одобрить",cer_no_btn:"Отклонить",cer_mine:"Мой запрос",cer_wait:"Ожидает",cer_approved:"Одобрено",cer_rejected:"Отклонено",cer_until:"до {t}",cer_done_ok:"Запрос одобрен: автор может менять запись 24 часа.",cer_done_no:"Запрос отклонён.",
+ lock_old:"Запись внёс другой человек или ей больше 15 дней: изменить её может только автор, в первые 15 дней. Вы можете только смотреть.",srv_old:"Записи больше 15 дней, изменить её может только директор.",
  r_inc:"Поступления",r_chelt:"Расходы",r_ies:"Выдачи из кассы",r_chirii:"Аренда",
  r_contr:"Договоры",r_sal:"Зарплаты",r_impr:"Займы",
  mine_t:"Мои записи",mine_e:"Вы ещё ничего не вносили.",
@@ -349,7 +361,7 @@ var lang="ro";
 try{var sl=localStorage.getItem("ehl.lang"); if(sl==="ro"||sl==="ru") lang=sl;}catch(e){}
 function T(k){var d=I18N[lang];return (d&&d[k])||I18N.ro[k]||k;}
 /* the server answers in Romanian; known messages are shown in the interface language */
-var SRV_MSG={"Codul actual este greșit.":"srv_cod_vechi","Codul este deja folosit de alt cont.":"srv_cod_dup","Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.":"srv_cod_fmt","Configurați mai întâi aplicația de autentificare.":"srv_cod_2fa","Confirmați că nu sunteți robot.":"srv_human","Confirmarea „nu sunt robot” a expirat. Încercați din nou.":"srv_human_exp","Date de autentificare greșite.":"full_bad","Codul din aplicația de autentificare este greșit.":"totp_bad","Codul din aplicația de autentificare este greșit. Verificați ora telefonului.":"totp_bad","Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Doar directorul poate șterge datele.":"srv_reset_dir","Plățile de salariu nu se mai schimbă și nu se șterg.":"srv_sal_lock","Codul de acces este greșit.":"srv_reset_cod","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans","Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.":"ehl_dest","Codul EHL este greșit.":"codehl_bad","Codul EHL trebuie să aibă 4–8 cifre.":"codehl_fmt","Nu aveți destui bani în contul dumneavoastră. Luați mai întâi din Casa EHL.":"cont_meu_lipsa","Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).":"srv_ies_op","Salariul se stabilește doar pentru angajații creați de dumneavoastră.":"srv_sal","Graficul se face doar pentru angajații creați de dumneavoastră.":"srv_grafic","Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).":"srv_ore","Zilele achitate nu se mai schimbă.":"srv_gr_lock","Zilele viitoare nu se bifează: doar azi și înapoi.":"gr_future","Ziua este deja bifată de alt utilizator.":"srv_gr_dup"};
+var SRV_MSG={"Înregistrarea are mai mult de 12 ore. Modificarea se face doar cu aprobarea unui administrator (butonul «Cere aprobare»).":"cer_old","Înregistrarea are mai mult de 12 ore. Modificarea se face doar cu aprobarea celuilalt administrator (butonul «Cere aprobare»).":"cer_old_dir","Codul actual este greșit.":"srv_cod_vechi","Codul este deja folosit de alt cont.":"srv_cod_dup","Codul trebuie să aibă între 4 și 64 de caractere, fără spații la început sau la sfârșit.":"srv_cod_fmt","Configurați mai întâi aplicația de autentificare.":"srv_cod_2fa","Confirmați că nu sunteți robot.":"srv_human","Confirmarea „nu sunt robot” a expirat. Încercați din nou.":"srv_human_exp","Date de autentificare greșite.":"full_bad","Codul din aplicația de autentificare este greșit.":"totp_bad","Codul din aplicația de autentificare este greșit. Verificați ora telefonului.":"totp_bad","Cod invalid.":"srv_cod","Prea multe încercări. Așteptați 15 minute.":"srv_many","Cod greșit sau utilizator dezactivat.":"srv_bad_user","Parola trebuie să aibă cel puțin 8 caractere.":"srv_pw8","Parolă greșită.":"srv_pw_bad","Doar directorul are parolă.":"srv_pw_dir","Parola nouă trebuie să aibă cel puțin 8 caractere.":"srv_pw_new8","Parola actuală este greșită.":"srv_pw_cur","Codul trebuie să aibă 4–8 cifre.":"srv_cod48","Nu vă puteți dezactiva sau retrograda propriul cont.":"srv_self_lock","Nu vă puteți șterge propriul cont.":"srv_self_del","Doar directorul poate șterge datele.":"srv_reset_dir","Plățile de salariu nu se mai schimbă și nu se șterg.":"srv_sal_lock","Codul de acces este greșit.":"srv_reset_cod","Scrieți pe ce s-au cheltuit banii (descrierea este obligatorie).":"srv_descr","Înregistrarea are mai mult de 15 zile; o poate modifica doar directorul.":"srv_old","Codul fondatorului este greșit.":"codfond_bad","Pontajul se face doar pentru angajații creați de dumneavoastră.":"pontaj_h","Pe cont nu sunt destui bani. Depuneți mai întâi din casă.":"srv_cont","Nu aveți destui bani din avans. Cereți mai întâi bani de la director.":"srv_avans","Din Casa EHL banii merg doar la administratori, pe cont sau înapoi la fondator.":"ehl_dest","Codul EHL este greșit.":"codehl_bad","Codul EHL trebuie să aibă 4–8 cifre.":"codehl_fmt","Nu aveți destui bani în contul dumneavoastră. Luați mai întâi din Casa EHL.":"cont_meu_lipsa","Colaboratorul înregistrează din avans doar plăți de salariu (bifa Achitat din pontaj).":"srv_ies_op","Salariul se stabilește doar pentru angajații creați de dumneavoastră.":"srv_sal","Graficul se face doar pentru angajații creați de dumneavoastră.":"srv_grafic","Ziua se bifează întreagă (8 ore) sau jumătate (4 ore).":"srv_ore","Zilele achitate nu se mai schimbă.":"srv_gr_lock","Zilele viitoare nu se bifează: doar azi și înapoi.":"gr_future","Ziua este deja bifată de alt utilizator.":"srv_gr_dup"};
 function srvT(m){var k=SRV_MSG[String(m||"").trim()];return k?T(k):m}
 
 /* ---------------- helpers ---------------- */
@@ -378,8 +390,8 @@ function monthEnd(ym){var y=parseInt(ym.slice(0,4),10),m=parseInt(ym.slice(5,7),
 var DEF_CFG={valute:[{cod:"MDL",curs:1},{cod:"EUR",curs:20.22},{cod:"USD",curs:17.5}],casier:"",
   categorii:["Materiale","Materiale / Fundația","Materiale / Finisaje exterioare","Materiale / Instalații sanitare și electrice","Materiale / Acoperiș","Materiale / Finisaje interioare","Arhitectură","Tâmplărie","Combustibil","Transport","Servicii terțe","Taxe și impozite","Instrumente și unelte","Reparații administrative","Marketing","Comision","Consumabile","Cheltuieli neplanificate","Kit MgO"],pin:"1234"};
 var S={cfg:null,incasari:[],cheltuieli:[],iesiri:[],chirii:[],contracte:[],angajati:[],istoric:[],pontaj:[],grafic:[],imprumuturi:[],proiecte:[],utilizatori:[]};
-var COLS=["incasari","cheltuieli","iesiri","chirii","contracte","angajati","istoric","pontaj","grafic","imprumuturi","schimburi","proiecte","utilizatori"];
-var DATA_COLS=["incasari","cheltuieli","iesiri","chirii","contracte","angajati","istoric","pontaj","grafic","imprumuturi","schimburi","proiecte"];
+var COLS=["incasari","cheltuieli","iesiri","chirii","contracte","angajati","istoric","pontaj","grafic","imprumuturi","schimburi","proiecte","utilizatori","cereri"];
+var DATA_COLS=["incasari","cheltuieli","iesiri","chirii","contracte","angajati","istoric","pontaj","grafic","imprumuturi","schimburi","proiecte","cereri"];
 var PB=null,ME=null,DL=true,loaded={},loadTimer=null,stale=false,dbErr=false,authErr="",noCfg=false;
 /* ACCESS: null (locked) | {user:{id,nume,rol,cod,status}}; QUEUE: writes waiting for the network */
 var ACCESS=null,gateBusy=false,gateErr="",subs=[],installEvt=null,online=true,QUEUE=[],flushing=false;
@@ -473,7 +485,44 @@ var SETUP={step:"",secret:"",uri:"",login:"",codes:null,busy:false,err:""};
 function lastUnlock(){try{return parseInt(localStorage.getItem("ehl.unlock")||"0",10)||0}catch(e){return 0}}
 function markUnlock(){try{localStorage.setItem("ehl.unlock",String(Date.now()))}catch(e){}}
 function lockDue(){return !!hiddenAt&&Date.now()-hiddenAt>HIDDEN_LOCK}
-var EDIT_DAYS=15; /* an operator may correct his own rows for this many days; afterwards only the director */
+var EDIT_DAYS=15; /* an operator may correct his own employee cards, schedule and timesheet rows for this many days; afterwards only the director */
+/* transactions (21 November 2026): corrected for 12 hours after they were written; later only with an approval — a collaborator's
+   from an administrator, an administrator's from the other administrator — which opens 24 hours (collection cereri) */
+var EDIT_HOURS=12,APPROVAL_HOURS=24,MONEY_COLS=["incasari","cheltuieli","iesiri","chirii","contracte","imprumuturi","schimburi"];
+function recAgeMs(r){var t=Date.parse(String((r&&r.created)||"").replace(" ","T"));return t?Date.now()-t:0}
+function cereriFor(col,id){return (S.cereri||[]).filter(function(c){return c.col===col&&c.rid===id})}
+function approvalFor(col,id){return cereriFor(col,id).filter(function(c){return c.by===ME&&c.status==="Aprobat"&&c.aprobatLa&&Date.now()-Date.parse(c.aprobatLa)<APPROVAL_HOURS*3600000}).sort(function(a,b){return String(b.aprobatLa).localeCompare(String(a.aprobatLa))})[0]||null}
+function pendingFor(col,id){return cereriFor(col,id).filter(function(c){return c.by===ME&&c.status==="Așteaptă"})[0]||null}
+/* may this account change the row now? {ok, why: "other" | "old15" | "old", pending, approval} */
+function editState(col,r){
+  if(!r)return {ok:true};
+  if(r.by!==ME)return {ok:false,why:"other"}; /* a row is corrected by the one who wrote it */
+  if(MONEY_COLS.indexOf(col)<0){if(!isDir&&recAgeMs(r)>EDIT_DAYS*86400000)return {ok:false,why:"old15"};return {ok:true};}
+  if(recAgeMs(r)<=EDIT_HOURS*3600000)return {ok:true};
+  var ap=approvalFor(col,r.id);if(ap)return {ok:true,approval:ap};
+  return {ok:false,why:"old",pending:pendingFor(col,r.id)};
+}
+function cereriPending(){return isDir?(S.cereri||[]).filter(function(c){return c.status==="Așteaptă"&&c.by!==ME}):[]} /* what waits for this administrator */
+function rowSummary(col,r){
+  if(!r)return "";var amt=col==="chirii"?chirieTotal(r):(col==="schimburi"?n(r.sumaDin):n(r.suma)),cur=col==="schimburi"?(r.valutaDin||"MDL"):(r.valuta||"MDL");
+  return [REGDEF[col]&&REGDEF[col].t?T(REGDEF[col].t):col,shortDate(dateOf(r)||r.data||r.dataInceput),String(r.descriere||r.nota||r.destinatie||r.client||r.locatie||r.persoana||"").slice(0,60),money(amt)+" "+cur].filter(Boolean).join(" · ");
+}
+function fmtWhen(iso){var d=new Date(iso);if(isNaN(d))return "";return shortDate(d.toISOString().slice(0,10))+" "+p2(d.getHours())+":"+p2(d.getMinutes())}
+/* the requests block of the Panou: an administrator answers the others' requests; everyone sees his own */
+function cereriSection(){
+  var all=S.cereri||[],pend=cereriPending(),mine=all.filter(function(c){return c.by===ME&&(c.status==="Așteaptă"||(c.aprobatLa&&Date.now()-Date.parse(c.aprobatLa)<APPROVAL_HOURS*3600000))});
+  if(!pend.length&&!mine.length)return "";
+  var h='<div class="sec" id="cereri"><div class="sec-h"><h2>'+esc(T("cer_t"))+(pend.length?' <span class="cnt">'+pend.length+'</span>':'')+'</h2></div>'+(isDir?'<p class="hint" style="margin:0 0 8px">'+esc(T("cer_h"))+'</p>':'')+'<div class="card rows">';
+  pend.sort(function(a,b){return String(b.created).localeCompare(String(a.created))}).forEach(function(c){
+    h+='<div class="row wrap cer"><span class="l">'+esc(c.deNume||"—")+'<span class="s">'+esc([c.rezumat,c.motiv,fmtWhen(c.created)].filter(Boolean).join(" · "))+'</span></span>'
+      +'<span class="r"><button type="button" class="btn sm" data-cer-ok="'+esc(c.id)+'">'+esc(T("cer_ok_btn"))+'</button><button type="button" class="btn sm ghost" data-cer-no="'+esc(c.id)+'">'+esc(T("cer_no_btn"))+'</button></span></div>';
+  });
+  mine.forEach(function(c){
+    var tag=c.status==="Așteaptă"?'<span class="tagc warnc">'+esc(T("cer_wait"))+'</span>':(c.status==="Aprobat"?'<span class="tagc pos">'+esc(T("cer_approved")+" · "+T("cer_until").replace("{t}",fmtWhen(Date.parse(c.aprobatLa)+APPROVAL_HOURS*3600000)))+'</span>':'<span class="tagc neg">'+esc(T("cer_rejected"))+'</span>');
+    h+='<div class="row"><span class="l">'+esc(T("cer_mine"))+(c.aprobatDe?' · '+esc(c.aprobatDe):'')+'<span class="s">'+esc([c.rezumat,c.motiv].filter(Boolean).join(" · "))+'</span></span><span class="r">'+tag+'</span></div>';
+  });
+  return h+'</div></div>';
+}
 function lockScreen(){
   if(!ACCESS||LOCKED)return;
   LOCKED=true;LOCKVIEW=view;gateErr="";
@@ -2147,7 +2196,8 @@ function renderNav(){
     ?[["ehl",icon("wallet"),T("nav_ehl")],["panou",icon("chart"),T("nav_panou")],["add",icon("plus"),T("nav_add")],["reg",icon("list"),T("nav_reg")],["set",icon("gear"),T("nav_set")]]
     :[["add",icon("plus"),T("nav_add")],["panou",icon("chart"),T("nav_panou")],["mine",icon("list"),T("nav_mine")]];
   $("#nav").innerHTML=items.map(function(it){
-    return '<button type="button" data-view="'+it[0]+'"'+(view===it[0]?' aria-current="page"':'')+'><span class="ic">'+it[1]+'</span><span class="lb">'+esc(it[2])+'</span></button>';
+    var nb=(it[0]==="panou"&&ACCESS)?cereriPending().length:0; /* requests waiting for this administrator */
+    return '<button type="button" data-view="'+it[0]+'"'+(view===it[0]?' aria-current="page"':'')+'><span class="ic">'+it[1]+(nb?'<span class="bdg">'+nb+'</span>':'')+'</span><span class="lb">'+esc(it[2])+'</span></button>';
   }).join("");
 }
 /* Install button: the browser's own prompt where it exists (Chrome/Edge on Android and desktop),
@@ -2443,7 +2493,7 @@ function vAngajatiiMei(){
   return h+rowsCardMore(rows,5,true)+(offMine.length?'<p class="hint" style="margin-top:8px">'+esc(T("inact_lbl")+": "+offMine.join(", "))+'</p>':'')+'<p class="hint" style="margin-top:8px">'+esc(T("op_ang_h"))+'</p></div>';
 }
 function vPanouOp(){
-  return statusNote()+mineView(function(me,adv){
+  return statusNote()+cereriSection()+mineView(function(me,adv){
     var C=calc(),sumBy=function(f){var t=0;S.cheltuieli.forEach(function(r){t+=f(r)||0});return round2(t)};
     var primit=round2(adv.reduce(function(a,r){return a+n(r.suma)*n(r.curs)},0));
     var chn=sumBy(function(r){return r.mod==="Numerar"&&sameP(r.platitDe,me)?n(r.suma):0});
@@ -3099,7 +3149,7 @@ function drawSheet(){
   var st=sheetState,def=FORMS[st.col],fields=def.fields();
   var rec0=st.id?(S[st.col]||[]).filter(function(r){return r.id===st.id})[0]:null;
   var salPay=!!(rec0&&st.col==="cheltuieli"&&rec0.categorie==="Salarii"); /* a salary payment: shows the days it covers; editable like any expense */
-  var lockedOld=!!(rec0&&(rec0.by!==ME||(!isDir&&rec0.created&&Date.now()-Date.parse(String(rec0.created).replace(" ","T"))>EDIT_DAYS*86400000)));
+  var es=rec0?editState(st.col,rec0):{ok:true},lockedOld=!es.ok; /* the author, within 12 hours or with an approval (transactions); 15 days for the rest */
   var body=fields.filter(function(f){
     if(f.showIf&&!f.showIf(st.data))return false;
     if(f.newOnly&&st.id&&st.col!=="angajati")return false;
@@ -3124,14 +3174,20 @@ function drawSheet(){
     +'<button class="x" type="button" id="closeSheet" aria-label="'+esc(T("cancel"))+'">'+icon("x")+'</button></div>'
     +'<form id="recf" novalidate>'+out+calcHtml
     +(st.err?'<p class="err">'+esc(st.err)+'</p>':'')
+    +(es.approval?'<p class="note ok">'+esc(T("cer_ok").replace("{n}",es.approval.aprobatDe||"").replace("{t}",fmtWhen(Date.parse(es.approval.aprobatLa)+APPROVAL_HOURS*3600000)))+'</p>':'')
     +'<div class="form-act"><button class="btn" type="submit" id="savebtn">'+esc(T("save"))+'</button>'
     +((st.id&&st.col==="angajati"&&rec0&&rec0.by===ME&&st.data.status!=="Inactiv")?'<button class="btn danger" type="button" id="deact" title="'+esc(T("ang_deact_h"))+'">'+icon("trash")+'<span>'+esc(T("ang_deact"))+'</span></button>':'')
-    +((st.id&&isDir&&st.col!=="angajati"&&st.col!=="proiecte"&&rec0&&rec0.by===ME)?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
+    +((st.id&&isDir&&st.col!=="angajati"&&st.col!=="proiecte"&&rec0&&rec0.by===ME&&!lockedOld)?'<button class="btn danger" type="button" id="delbtn" aria-label="'+esc(T("del"))+'" title="'+esc(T("del"))+'">'+icon("trash")+'</button>':'')
     +'</div></form>'+(salPay?salCoverHtml(rec0):'')+(st.id&&isDir?'<div class="sec" id="rec-hist"><h2>'+esc(T("rec_hist"))+'</h2><div class="card"><div class="empty">'+esc(T("j_loading"))+'</div></div></div>':'')+dls+'</div></div>';
   if(st.id&&isDir)loadRecHist(st.col,st.id);
   document.body.style.overflow="hidden";
-  if(lockedOld){var sb=$("#savebtn");if(sb){var nt=document.createElement("p");nt.className="note";nt.textContent=T("lock_old");sb.parentNode.replaceChild(nt,sb);}
-    Array.prototype.forEach.call($("#recf").querySelectorAll("input,select,textarea,button[data-pick]"),function(el){el.disabled=true});}
+  if(lockedOld){var sb=$("#savebtn");if(sb){var nt=document.createElement("div");nt.className="note cer-note";
+      if(es.why==="old"){ /* a transaction older than 12 hours: the request button, or the state of the request already sent */
+        nt.innerHTML='<p>'+esc(es.pending?T("cer_pending").replace("{d}",fmtWhen(es.pending.created)):T(isDir?"cer_old_dir":"cer_old"))+'</p>'
+          +(es.pending?'':'<label><span>'+esc(T("cer_motiv"))+'</span><input type="text" id="cermotiv" maxlength="200"></label><button type="button" class="btn" id="cerbtn">'+esc(T("cer_btn"))+'</button>');
+      } else nt.textContent=T("lock_old");
+      sb.parentNode.replaceChild(nt,sb);}
+    Array.prototype.forEach.call($("#recf").querySelectorAll("input,select,textarea,button[data-pick]"),function(el){if(el.id!=="cermotiv"&&el.id!=="cerbtn")el.disabled=true});}
   dpClose();enhanceDates($("#sheet"));
 }
 function fieldHtml(f,v){
@@ -3507,6 +3563,20 @@ document.addEventListener("click",function(ev){
       saveDoc("angajati",{nume:String(nmA).trim(),dataInceput:sheetState.data.dataInceput,status:"Inactiv"},oldA).then(function(){closeSheet();toast(T("ang_deact_done"))})
         .catch(function(e){if(!sheetState)return;sheetState.err=saveErr(e);drawSheet()});
     }else{db.dataset.armed="1";db.innerHTML=icon("trash")+'<span>'+esc(T("ang_deact_yes"))+'</span>';}
+    return;
+  }
+  if(t.closest&&t.closest("#cerbtn")){ /* ask for the approval of a change to a row older than 12 hours */
+    var stc=sheetState;if(!stc||!stc.id)return;
+    var mv=$("#cermotiv"),rc=(S[stc.col]||[]).filter(function(r){return r.id===stc.id})[0],bc=t.closest("#cerbtn");bc.disabled=true;
+    saveDoc("cereri",{col:stc.col,rid:stc.id,motiv:String(mv?mv.value:"").trim().slice(0,200),rezumat:rowSummary(stc.col,rc)})
+      .then(function(){toast(T("cer_sent"));if(sheetState)drawSheet()})
+      .catch(function(e){if(!sheetState)return;sheetState.err=saveErr(e);drawSheet()});
+    return;
+  }
+  var cok=t.closest&&t.closest("[data-cer-ok]"),cno=t.closest&&t.closest("[data-cer-no]");
+  if(cok||cno){ /* an administrator answers a request (never his own: the server refuses) */
+    var cid=(cok||cno).getAttribute(cok?"data-cer-ok":"data-cer-no");(cok||cno).disabled=true;
+    saveDoc("cereri",{status:cok?"Aprobat":"Respins"},cid).then(function(){toast(T(cok?"cer_done_ok":"cer_done_no"));render()}).catch(function(e){toast(saveErr(e));render()});
     return;
   }
   if(t.closest&&t.closest("#delbtn")){
