@@ -143,7 +143,7 @@ function collection(col) {
       if (col === "cheltuieli" && isDir()) data = { ...data, platitDe: currentUser.nume, sursa: "Avans" }; /* a director pays from his own account, salaries included */
       if (col === "cheltuieli" && !isDir()) { /* a collaborator pays himself; cash cannot take his balance below zero (server hook) */
         data = { ...data, platitDe: currentUser.nume };
-        if (data.mod !== "Transfer") {
+        if (data.mod !== "Transfer" && data.sursa !== "Proprii") { /* "Din banii mei" has no limit, as the hook */
           data.sursa = "Avans";
           const got = Object.values(store.iesiri || {}).filter(r => r.destinatie === "Dat persoanei" && r.persoana === currentUser.nume).reduce((a, r) => a + r.suma * r.curs, 0);
           const spent = Object.values(store.cheltuieli || {}).filter(r => r.mod !== "Transfer" && r.platitDe === currentUser.nume).reduce((a, r) => a + r.suma * (r.curs || 1), 0); /* in lei */
@@ -1171,6 +1171,25 @@ const ls = (k) => window.localStorage.getItem(k);
   check(/Firma îmi datorează/.test(text()), "his panel now says what the firm owes him");
   click($('[data-view="ehl"]')); await tick();
   check(/Firma îi datorează/.test(text()) && /De returnat administratorilor/.test(text()), "the EHL tab shows the negative account and the total to return to administrators");
+
+  console.log("\n22. A collaborator below zero: only with 'Din banii mei' ticked");
+  await signOut(); await codeLogin("parola.x1"); await tick(40);
+  click($('[data-view="panou"]')); await tick(); const soldX = readSold();
+  click($('[data-view="add"]')); await tick(); click($('[data-form="cheltuieli"]')); await tick();
+  check(!!$('[data-k="proprii"]'), "a collaborator's expense form has the 'Din banii mei' box");
+  const prea = Math.round(Math.max(0, soldX) + 50);
+  setField("suma", String(prea)); setField("descriere", "din buzunarul meu"); setField("categorie", "Transport"); setField("pentru", "EHL"); submit($("#recf")); await tick(80);
+  check($("#recf") && /Nu aveți destui bani din avans/.test($("#sheet").textContent) && /Din banii mei/.test($("#sheet").textContent), "more than his advance holds is refused, with the hint to tick 'Din banii mei'");
+  const cbP = $('[data-k="proprii"]'); cbP.checked = true; cbP.dispatchEvent(new window.Event("change", { bubbles: true })); await tick();
+  submit($("#recf")); await tick(100);
+  const ownRow = Object.values(store.cheltuieli).find(r => r.descriere === "din buzunarul meu");
+  const meX = Object.values(store.utilizatori).find(x => x.cod === "parola.x1").nume;
+  check(!$("#recf") && ownRow && ownRow.sursa === "Proprii" && ownRow.platitDe === meX, "ticked, it is saved as paid from his own money (sursa Proprii, payer " + (ownRow && ownRow.platitDe) + ")");
+  click($('[data-view="panou"]')); await tick();
+  check(/Firma îmi datorează/.test(text()), "his panel says what the firm owes him");
+  click($('[data-view="add"]')); await tick(); click($('[data-edit="cheltuieli"][data-id="' + ownRow.id + '"]') || $('[data-form="cheltuieli"]')); await tick();
+  await signOut(); await codeLogin("Ab#2026!"); await tick(40); click($('[data-view="ehl"]')); await tick();
+  check(/din banii proprii/.test(text()) && /De returnat colaboratorilor/.test(text()), "the EHL tab shows his own-money spending and the total to return to collaborators");
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);

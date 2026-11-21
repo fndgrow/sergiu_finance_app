@@ -27,7 +27,7 @@ ro:{
  a_chirie:"Chirie / cazare",a_chirie_d:"Plată locație",
  a_impr:"Împrumut",a_impr_d:"Bani dați cu termen",a_schimb:"Schimb valutar",a_schimb_d:"Din banii mei: dintr-o valută în alta",r_schimb:"Schimb valutar",f_val_din:"Valuta dată",f_suma_din:"Suma dată",f_val_in:"Valuta primită",f_suma_in:"Suma primită",sch_same:"Alegeți două valute diferite.",sch_lipsa:"Nu aveți atâta în valuta dată.",sch_curs:"Curs rezultat",sch_dupa:"Rămâne în valuta dată",
  a_contr:"Contract",a_contr_d:"Sumă și plan de încasare",
- a_pontaj:"Salarii",a_pontaj_d:"Zilele mele din grafic, achitare",a_avans:"Avans salarial",a_avans_d:"Bani dați angajatului în contul salariului",f_luna_avans:"Din salariul lunii",f_luna_avans_h:"Luna din al cărei salariu se scade avansul.",avans_descr:"Avans salariu",av_pana_acum:"Câștigat până acum (din grafic)",av_date:"Avansuri date deja",av_short:"avansuri",s_avans:"Avansuri din salariu",av_none:"Niciun avans în luna aceasta.",av_rest:"rest de plătit",my_owed:"Firma îmi datorează",dirs_owed:"De returnat administratorilor din Casa EHL",
+ a_pontaj:"Salarii",a_pontaj_d:"Zilele mele din grafic, achitare",f_proprii:"Din banii mei",f_proprii_h:"Bifați când plătiți din banii dumneavoastră, nu din avans. Nu există limită; suma vă va fi returnată, iar soldul va arăta «Firma îmi datorează».",avans_proprii_hint:"Dacă plătiți din banii dumneavoastră, bifați «Din banii mei».",colab_owed_tot:"De returnat colaboratorilor",a_avans:"Avans salarial",a_avans_d:"Bani dați angajatului în contul salariului",f_luna_avans:"Din salariul lunii",f_luna_avans_h:"Luna din al cărei salariu se scade avansul.",avans_descr:"Avans salariu",av_pana_acum:"Câștigat până acum (din grafic)",av_date:"Avansuri date deja",av_short:"avansuri",s_avans:"Avansuri din salariu",av_none:"Niciun avans în luna aceasta.",av_rest:"rest de plătit",my_owed:"Firma îmi datorează",dirs_owed:"De returnat administratorilor din Casa EHL",
  a_ang:"Angajat",a_ang_d:"Nume, salariu, status",
  // fields
  f_data:"Data",f_client:"Client",f_proiect:"Proiect",f_descr:"Descriere",f_valuta:"Valuta",
@@ -199,7 +199,7 @@ ru:{
  a_chirie:"Аренда / проживание",a_chirie_d:"Оплата жилья или помещения",
  a_impr:"Заём",a_impr_d:"Деньги в долг со сроком",a_schimb:"Обмен валюты",a_schimb_d:"Из моих денег: из одной валюты в другую",r_schimb:"Обмен валюты",f_val_din:"Отдал валюту",f_suma_din:"Отдал сумму",f_val_in:"Получил валюту",f_suma_in:"Получил сумму",sch_same:"Выберите две разные валюты.",sch_lipsa:"У вас нет столько в отданной валюте.",sch_curs:"Курс обмена",sch_dupa:"Останется в отданной валюте",
  a_contr:"Договор",a_contr_d:"Сумма и план поступлений",
- a_pontaj:"Зарплата",a_pontaj_d:"Мои дни из графика, выплата",a_avans:"Аванс по зарплате",a_avans_d:"Деньги работнику в счёт зарплаты",f_luna_avans:"Из зарплаты за месяц",f_luna_avans_h:"Месяц, из зарплаты которого вычитается аванс.",avans_descr:"Аванс по зарплате",av_pana_acum:"Заработано на сегодня (по графику)",av_date:"Уже выданные авансы",av_short:"авансы",s_avans:"Авансы по зарплате",av_none:"В этом месяце авансов нет.",av_rest:"остаток к выплате",my_owed:"Фирма должна мне",dirs_owed:"Вернуть администраторам из кассы EHL",
+ a_pontaj:"Зарплата",a_pontaj_d:"Мои дни из графика, выплата",f_proprii:"Из своих денег",f_proprii_h:"Отметьте, когда платите своими деньгами, а не из аванса. Лимита нет; сумму вам вернут, а баланс покажет «Фирма должна мне».",avans_proprii_hint:"Если платите своими деньгами, отметьте «Из своих денег».",colab_owed_tot:"Вернуть сотрудникам",a_avans:"Аванс по зарплате",a_avans_d:"Деньги работнику в счёт зарплаты",f_luna_avans:"Из зарплаты за месяц",f_luna_avans_h:"Месяц, из зарплаты которого вычитается аванс.",avans_descr:"Аванс по зарплате",av_pana_acum:"Заработано на сегодня (по графику)",av_date:"Уже выданные авансы",av_short:"авансы",s_avans:"Авансы по зарплате",av_none:"В этом месяце авансов нет.",av_rest:"остаток к выплате",my_owed:"Фирма должна мне",dirs_owed:"Вернуть администраторам из кассы EHL",
  a_ang:"Сотрудник",a_ang_d:"Имя, оклад, статус",
  f_data:"Дата",f_client:"Клиент",f_proiect:"Проект",f_descr:"Описание",f_valuta:"Валюта",
  f_curs:"Курс на дату",f_suma:"Сумма",f_sumamdl:"Сумма (MDL)",f_mod:"Способ",f_categ:"Категория",
@@ -1198,12 +1198,12 @@ function avansErr(col,d,id){
   }
   else if(col==="imprumuturi"){if(id||!d.dinCasa||isCasierMe())return "";need=n(d.suma)*(n(d.curs)||1);} /* a loan is handed out of the lender's own account */
   else if(col==="cheltuieli"){
-    /* cash is his own pocket of the firm's money: it cannot go below zero. A transfer is paid by the firm's account. */
-    if(isCasierMe()||d.mod==="Transfer")return "";
+    /* cash from the advance cannot go below zero; ticked "Din banii mei" it may (his own money). A transfer is paid by the firm's account. */
+    if(isCasierMe()||d.mod==="Transfer"||d.proprii)return "";
     var oc=id?S.cheltuieli.filter(function(r){return r.id===id})[0]:null,bk=(oc&&oc.mod!=="Transfer")?chLei(oc):0,nd=round2(n(d.suma)*(n(d.curs)||1));
     if(!(nd>0)||(bk&&nd<=bk))return "";
     var fr=round2(soldAvans(meName())+bk);
-    return nd>fr+0.004?T(isDir?"cont_meu_lipsa":"avans_lipsa").replace("{s}",money(Math.max(0,fr))):"";
+    return nd>fr+0.004?T("avans_lipsa").replace("{s}",money(Math.max(0,fr)))+" "+T("avans_proprii_hint"):"";
   }
   else return "";
   need=round2(need);if(!(need>0))return "";
@@ -1354,6 +1354,8 @@ var FORMS={
    onlyIf(fProiect(),function(d){return pentruOf(d)==="Proiect"},1),
    onlyIf(fClient(0),function(d){return pentruOf(d)==="Proiect"}),
    {k:"mod",t:"select",l:"f_mod",req:1,opts:[{v:"Numerar",l:T("numerar")},{v:"Transfer",l:T("transfer")}],def:"Numerar"},
+   /* a collaborator paying from his own pocket (21 November 2026): no limit, the firm owes it back */
+   {k:"proprii",t:"checkbox",l:"f_proprii",hint:"f_proprii_h",showIf:function(d){return !isDir&&!isCasierMe()&&d.mod!=="Transfer"}},
  ]},calc:function(d){
    /* who pays is never chosen: the account that records the expense. A director or the cashier pays from the till,
       a collaborator from his advance; a transfer comes from the firm's account for everyone. */
@@ -2469,7 +2471,8 @@ function vPanouEHL(){
   /* the administrators' accounts: what each director took from the EHL till, what he handed on or spent, what he still holds */
   if(C.dirs.length){var owed=round2(C.dirs.reduce(function(a,x){return a+(x.ramas<0?-x.ramas:0)},0));
     h+='<div class="sec"><h2>'+esc(T("s_dirs"))+'</h2><div class="card rows">'+C.dirs.map(function(x){return colabRow(x)}).join("")+(owed>0?r2(T("dirs_owed"),money(owed),null,"neg",1):'')+'</div><p class="hint" style="margin-top:8px">'+esc(T("s_dirs_h"))+'</p></div>';}
-  if(C.colab.length)h+='<div class="sec"><h2>'+esc(T("s_colab"))+'</h2><div class="card rows">'+C.colab.map(function(x){return colabRow(x)}).join("")+'</div></div>';
+  if(C.colab.length){var owedC=round2(C.colab.reduce(function(a,x){return a+(x.ramas<0?-x.ramas:0)},0));
+    h+='<div class="sec"><h2>'+esc(T("s_colab"))+'</h2><div class="card rows">'+C.colab.map(function(x){return colabRow(x)}).join("")+(owedC>0?r2(T("colab_owed_tot"),money(owedC),null,"neg",1):'')+'</div></div>';}
   /* every expense the collaborators recorded, newest first: the director sees them all without opening the registers */
   var byColab=function(r){var u=S.utilizatori.filter(function(x){return x.id===r.by})[0];return !!(u&&u.rol!=="Director")};
   var colabExp=S.cheltuieli.filter(byColab).map(function(r){var pt=pentruOf(r);return {col:"cheltuieli",id:r.id,data:r.data,ts:r.ts,t:r.descriere||catLabel(r.categorie)||"—",s:[shortDate(r.data),byName(r),catLabel(r.categorie),pt==="Proiect"?r.proiect:(pt==="EHL"?T("pt_ehl"):T("pt_alte")),r.mod==="Transfer"?T("transfer"):T("numerar"),chNote(r)],val:chLei(r)}})
@@ -2968,7 +2971,7 @@ function openForm(col,id){
   var data={};
   def.fields().forEach(function(f){data[f.k]=rec?(rec[f.k]!=null?rec[f.k]:""):(f.def!=null?f.def:"")});
   if(rec&&col==="angajati"){data.salariu=salariuLa(rec.nume,today());data.dinSal=today();}
-  if(col==="cheltuieli"){var full=data.categorie;data.categorie=catMain(full);data.subcat=catSub(full);if(rec)data.pentru=pentruOf(rec);}
+  if(col==="cheltuieli"){var full=data.categorie;data.categorie=catMain(full);data.subcat=catSub(full);if(rec){data.pentru=pentruOf(rec);data.proprii=rec.sursa==="Proprii";}}
   if(col==="pontaj")pontajDinGrafic(data);
   sheetState={col:col,id:id||null,data:data,err:""};
   sheetOpened();
@@ -3202,7 +3205,8 @@ function submitForm(){
       b[f.k]=(f.t==="number")?n(d[f.k]):String(d[f.k]==null?"":d[f.k]).trim();
     });
     if(col==="cheltuieli"){b.categorie=catJoin(catRaw(b.categorie),b.subcat);delete b.subcat;
-      if(!st.id){b.platitDe=meName();b.sursa=isCasierMe()?"":"Avans";} /* the payer is the account itself (a director from his own account); the server sets the same */
+      if(!st.id){b.platitDe=meName();b.sursa=isCasierMe()?"":((!isDir&&d.proprii)?"Proprii":"Avans");} /* the payer is the account itself (a director from his own account); the server sets the same */
+      else if(!isDir&&!isCasierMe()&&b.mod!=="Transfer")b.sursa=d.proprii?"Proprii":"Avans"; /* a collaborator may switch a row to / from his own money */
       if(b.pentru!=="Proiect"){b.proiect="";b.client="";}} /* "EHL" and "Altele" carry no project and no client */
     if(b.valuta==="MDL"&&("curs" in b))b.curs=1; /* lei never carry a rate */
     if(col==="iesiri"){delete b.din;if(!st.id){if(ieseDinAvans(null,d)){b.sursa="Avans";b.platitDe=meName();delete b.codEHL}else{b.sursa="Casa";b.platitDe=""}}else delete b.codEHL}
