@@ -518,12 +518,47 @@ function tsMount(){
     el.setAttribute("data-w",String(w||"1"));
   }catch(e){}
 }
+/* ---- sessions kept per account on this device (21 November 2026). A director who alternates between his own account and
+        Casa EHL on the same device (or two people sharing a computer) signs in fully — human box, code, authenticator —
+        once per account per 24 hours; afterwards, typing an account's code on the code screen only checks the code
+        (the server's relock, with that account's kept token) and switches to its session. A dead session (expired,
+        keys rotated) is forgotten and the full sign-in follows. Nothing of this touches the server or the data. ---- */
+function sessSlots(){try{var o=JSON.parse(localStorage.getItem("ehl.sessions")||"{}"),now=Date.now(),out={};Object.keys(o).forEach(function(k){if(o[k]&&o[k].token&&o[k].record&&n(o[k].expires)>now+60000)out[k]=o[k]});return out}catch(e){return {}}}
+function sessKey(rec,ehl){return (ehl?"ehl":"own")+":"+String((rec&&rec.id)||"")}
+function sessWrite(o){try{localStorage.setItem("ehl.sessions",JSON.stringify(o))}catch(e){}}
+function sessSave(token,rec,expires,ehl){var o=sessSlots();o[sessKey(rec,ehl)]={token:token,record:rec,expires:n(expires),ehl:!!ehl};sessWrite(o)}
+function sessDrop(rec,ehl){var o=sessSlots();delete o[sessKey(rec,ehl)];sessWrite(o)}
+function sessDropCurrent(){if(ACCESS&&ACCESS.user)sessDrop(ACCESS.user,ehlMode())}
+function trySlots(cod){
+  var slots=sessSlots(),keys=Object.keys(slots),i=0;
+  if(!PB||!keys.length)return Promise.resolve(false);
+  var next=function(){
+    if(i>=keys.length)return Promise.resolve(false);
+    var k=keys[i++],s=slots[k];
+    return PB.send("/api/ehl/relock",{method:"POST",body:{cod:cod,ehl:!!s.ehl},headers:{Authorization:s.token},requestKey:null}).then(function(){
+      PB.authStore.save(s.token,s.record);
+      try{
+        if(s.ehl){localStorage.setItem("ehl.mode","1");localStorage.setItem("ehl.ehlcod",String((s.record&&s.record.codEHL)||""))}
+        else{localStorage.removeItem("ehl.mode");localStorage.removeItem("ehl.ehlcod")}
+        localStorage.setItem("ehl.exp",String(s.expires||0));
+      }catch(e){}
+      markUnlock();enter(s.record);return true;
+    },function(e){
+      var m=String((e&&e.response&&e.response.message)||"");
+      if(!(e&&e.status===401&&/greșit\./.test(m))&&!netErr(e)){delete slots[k];sessWrite(slots);} /* not "wrong code": the session is dead, forget it */
+      if(netErr(e))return false;
+      return next();
+    });
+  };
+  return next();
+}
 function login(body){
   if(!PB)return Promise.reject({code:"no_db"});
   if(tsOn()){if(GATE.human)body.human=GATE.human;else if(GATE.cf)body.cf=GATE.cf;}
   return PB.send("/api/ehl/login",{method:"POST",body:body,requestKey:null}).then(function(res){
     if(res.needTotp){GATE={step:"totp",nume:res.nume||"",base:body,ehl:!!res.ehl,human:res.human||""};return res;}
     PB.authStore.save(res.token,res.record);
+    sessSave(res.token,res.record,res.expires,!!res.ehl); /* kept for the switches of the next 24 hours */
     try{
       if(res.ehl){localStorage.setItem("ehl.mode","1");localStorage.setItem("ehl.ehlcod",String((res.record&&res.record.codEHL)||""))}
       else{localStorage.removeItem("ehl.mode");localStorage.removeItem("ehl.ehlcod")}
@@ -548,6 +583,7 @@ function setupSecret(body){
 function gateMsg(e,dflt){var srv=e&&e.response&&e.response.message;return netErr(e)?T("offline"):(srv?srvT(srv):dflt)}
 /* the session is over (05:00 for a director, two hours for a collaborator): sign in again */
 function sessionExpired(){
+  sessDropCurrent();
   logout(T("sess_exp"));
   GATE={step:"cod"};
   render();
@@ -579,7 +615,7 @@ function authErrOf(e){
     if(e.status===401){
       if(sessionExp()&&Date.now()>sessionExp()-30000){sessionExpired();return true;} /* the session simply ran out */
       /* the token died: the account was opened on another device (one session per account) */
-      logout(T("sess_other"));return true;
+      sessDropCurrent();logout(T("sess_other"));return true;
     }
     logout(T("gate_bad"));return true;
   }
@@ -619,7 +655,7 @@ function selfCheck(){
 function signedOut(){
   if(!PB||!ACCESS)return;
   PB.collection("utilizatori").authRefresh({requestKey:null}).then(function(){return T("gate_bad")},function(e){return (e&&e.status===401)?T("sess_other"):T("gate_bad")})
-    .then(function(m){if(ACCESS)logout(m)});
+    .then(function(m){if(ACCESS){sessDropCurrent();logout(m)}});
 }
 setInterval(function(){selfCheck();refreshData()},3*60*1000);
 /* live data (20 November 2026): besides the realtime stream, every POLL_MS the app asks /api/ehl/head — one tiny answer
@@ -3521,12 +3557,18 @@ document.addEventListener("submit",function(ev){
       });
       return;
     }
-    if(tsOn()&&!GATE.cf&&!GATE.human){ /* the code is typed but the box is not ticked: point at the box, keep the widget as it is */
-      gateErr=T("human_need");var pe0=$("#pinerr");if(pe0){pe0.textContent=gateErr;pe0.hidden=false;}
-      tsAttention();return;
-    }
+    var human0=tsOn()&&!GATE.cf&&!GATE.human;
+    var full=function(){ /* the full sign-in: the human box first, then the code to the server */
+      if(human0){gateErr=T("human_need");var pe0=$("#pinerr");if(pe0){pe0.textContent=gateErr;pe0.hidden=false;}tsAttention();return;} /* the code is typed but the box is not ticked: point at the box, keep the widget as it is */
+      gateBusy=true;gateErr="";render();
+      login({cod:v}).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("gate_bad"))});
+    };
+    if(!Object.keys(sessSlots()).length){full();return;}
     gateBusy=true;gateErr="";render();
-    login({cod:v}).then(function(){gateBusy=false;render()}).catch(function(e){gateFail(e,T("gate_bad"))});
+    trySlots(v).then(function(ok){ /* an account already signed in on this device: the code alone switches to it */
+      if(ok){gateBusy=false;render();return;}
+      gateBusy=false;render();full();
+    }).catch(function(e){gateFail(e,T("gate_bad"))});
     return;
   }
   if(f.id==="totpf"){

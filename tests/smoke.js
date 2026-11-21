@@ -201,6 +201,13 @@ class PocketBase {
   collection(c) { return collection(c); }
   async send(p, o) {
     if (NET_DOWN) throw err(0, "net");
+    if (p === "/api/ehl/relock" && o && o.headers && o.headers.Authorization) { /* a kept session's token, not the current one */
+      const u = store.utilizatori[String(o.headers.Authorization).replace(/^tok-/, "")]; if (!u) throw err(401, "The request requires valid record authorization token.");
+      const ehl = !!o.body.ehl && u.rol === "Director";
+      if (u.status === "Inactiv") throw err(401, "Cod greșit sau utilizator dezactivat.");
+      if (String(o.body.cod || "") !== (ehl ? u.codEHL : u.cod)) throw err(401, "Cod greșit.");
+      return { ok: true };
+    }
     if (false) { if (!currentUser || currentUser.rol !== "Director") throw err(403, "x"); if (currentUser.parolaSetata && o.body.veche !== currentUser.parola) throw err(400, "Parola actuală este greșită."); if (currentUser.twoFA && !verifyStep(currentUser, o.body.totp)) throw err(400, "Codul din aplicația de autentificare este greșit."); currentUser.parola = o.body.noua; currentUser.parolaSetata = true; return { ok: true, token: "tok-" + currentUser.id, expires: Date.now() + 7 * 86400000 }; }
     if (p === "/api/ehl/2fa/setup") { /* step 1: a director's login + password (kept when he already has them), a fresh secret */
       const u = currentUser; if (!u) throw err(403, "x");
@@ -697,6 +704,7 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="set"]')); await tick();
   click($("#exitdir")); await tick(30);
   check($("#pinf") && !ls("ehl.cache"), "locked again, cache cleared");
+  window.localStorage.removeItem("ehl.sessions"); /* as on a new device: the full sign-in is expected here */
   $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
   check($("#totpf") && /Sergiu/.test(text()) && !/Casa EHL/.test($("#sheet,#app h2") ? $("#app h2").textContent : ""), "the director's own code alone opens nothing: the authenticator code of his account is asked");
   $("#totpf").elements["totp"].value = "000000"; submit($("#totpf")); await tick(40);
@@ -785,6 +793,7 @@ const ls = (k) => window.localStorage.getItem(k);
   check(opSetup.codes.length === 8 && $("#role").textContent === "Operator" && Object.values(store.utilizatori).find(x => x.cod === "4141").twoFA === true, "the collaborator's authenticator is active, with his own recovery codes");
   click($('[data-view="set"]') || $('[data-view="add"]')); await tick();
   if ($("#exitdir")) { click($("#exitdir")); await tick(30); } else { click($(".exit-top") || $('[data-view="add"]')); await tick(30); }
+  window.localStorage.removeItem("ehl.sessions"); /* as on a new device: the full sign-in is expected here */
   if ($("#pinf")) { $("#pinv").value = "4141"; submit($("#pinf")); await tick(60); check($("#totpf") && /aplicația de autentificare/.test(text()), "the PIN alone opens nothing: the authenticator code is asked"); $("#totpf").elements["totp"].value = totpAt(Object.values(store.utilizatori).find(x => x.cod === "4141").totpSecret, nowStep()); submit($("#totpf")); await tick(80); }
   check($("#role").textContent === "Operator", "role pill = Operator");
   check($("#nav").children.length === 3, "operator nav has 3 tabs");
@@ -1029,6 +1038,7 @@ const ls = (k) => window.localStorage.getItem(k);
   console.log("\n17. The human check (Cloudflare Turnstile) in front of the sign-in");
   const signOut = async () => { if (!$("#exitdir")) { click($('[data-view="set"]') || $('[data-view="add"]')); await tick(); } click($("#exitdir")); await tick(30); }; /* the exit button sits in Setări for a director, on the Adaugă screen for a collaborator */
   await signOut();
+  window.localStorage.removeItem("ehl.sessions"); /* as on a new device: the full sign-in is expected here */
   check(!$("#cfts"), "without a site key the gate has no widget and asks for nothing extra");
   store.turnstileSecret = "s3cret"; store.turnstileSeen = []; window.TURNSTILE_SITE_KEY = "test-site-key";
   const tsW = []; window.turnstile = { render(el, o) { tsW.push(o); el.setAttribute("data-w", "w" + tsW.length); return "w" + tsW.length; }, reset() {} };
@@ -1045,6 +1055,7 @@ const ls = (k) => window.localStorage.getItem(k);
   await codeLogin("258000"); await tick(40);
   check(!$("#pinf") && !$("#totpf") && $("#role") && store.turnstileSeen.join() === "cf-1", "token + code → authenticator step covered by the pass → in (the server saw the token once)");
   await signOut();
+  window.localStorage.removeItem("ehl.sessions"); /* the kept session would switch without the server: forget it to test the replay */
   tsW[tsW.length - 1].callback("cf-1"); await tick(10);
   $("#pinv").value = "258000"; submit($("#pinf")); await tick(60);
   check($("#pinf") && /a expirat/.test(text()) && tsW.length >= 3, "a replayed token is refused by the server and the form gets a fresh widget");
@@ -1190,6 +1201,27 @@ const ls = (k) => window.localStorage.getItem(k);
   click($('[data-view="add"]')); await tick(); click($('[data-edit="cheltuieli"][data-id="' + ownRow.id + '"]') || $('[data-form="cheltuieli"]')); await tick();
   await signOut(); await codeLogin("Ab#2026!"); await tick(40); click($('[data-view="ehl"]')); await tick();
   check(/din banii proprii/.test(text()) && /De returnat colaboratorilor/.test(text()), "the EHL tab shows his own-money spending and the total to return to collaborators");
+
+  console.log("\n23. Kept sessions: switching accounts on one device asks the code only");
+  await signOut();
+  window.TURNSTILE_SITE_KEY = "test-site-key"; store.turnstileSecret = "s3cret"; const tsW2 = []; window.turnstile = { render(el, o) { tsW2.push(o); el.setAttribute("data-w", "w"); return "w"; }, reset() {} };
+  $("#pinv").value = "0"; submit($("#pinf")); await tick(80); /* a bare try redraws the form with the widget */
+  $("#pinv").value = "Casa-2026"; submit($("#pinf")); await tick(120);
+  check(!$("#totpf") && !$("#pinf") && $("#role") && $("#role").textContent === "EHL", "Casa EHL, signed in fully earlier today: its code alone switches to it — no human box, no authenticator");
+  await signOut();
+  $("#pinv").value = "Ab#2026!"; submit($("#pinf")); await tick(120);
+  check(!$("#totpf") && $("#role") && $("#role").textContent === "Director", "…and back to the administrator account the same way");
+  await signOut();
+  $("#pinv").value = "cod-gresit"; submit($("#pinf")); await tick(120);
+  check($("#pinf") && /Bifați mai întâi|Cod greșit/.test(text()), "a code of no kept session goes the normal way (human box, then the server)");
+  const dirSlots = JSON.parse(window.localStorage.getItem("ehl.sessions") || "{}");
+  check(Object.keys(dirSlots).length >= 2 && Object.values(dirSlots).every(s => s.token && s.expires > Date.now()), "two sessions are kept on the device, each with its expiry (" + Object.keys(dirSlots).join(", ") + ")");
+  store.turnstileSecret = ""; window.TURNSTILE_SITE_KEY = ""; delete window.turnstile;
+  window.localStorage.setItem("ehl.sessions", JSON.stringify(Object.fromEntries(Object.entries(dirSlots).map(([k, s]) => [k, { ...s, token: "tok-dead" }]))));
+  $("#pinv").value = "Ab#2026!"; submit($("#pinf")); await tick(120);
+  check($("#totpf"), "a dead kept session is forgotten and the full sign-in follows (the authenticator is asked)");
+  const dirU2 = store.utilizatori[dirId]; $("#totpf").elements["totp"].value = totpAt(dirU2.totpSecret, nowStep() + 1); submit($("#totpf")); await tick(120);
+  check($("#role") && $("#role").textContent === "Director" && JSON.parse(window.localStorage.getItem("ehl.sessions"))["own:" + dirId].token !== "tok-dead", "…and the fresh session is kept again");
 
   console.log(errors.length ? "\nERRORS:\n" + errors.join("\n") : "\nALL GOOD");
   process.exit(errors.length ? 1 : 0);
